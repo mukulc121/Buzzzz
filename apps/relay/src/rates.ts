@@ -10,11 +10,13 @@ export class RoomRateLimit {
     this.check(`${kind}-reads:${id}:${request.headers.get("CF-Connecting-IP") ?? "local"}`, 240);
   }
   check(name: string, limit: number, period = 60_000): void {
-    const window = Math.floor(Date.now() / period);
+    // Windows start at the first request so a burst can't straddle a clock boundary and reset.
+    const now = Date.now();
     this.sql.exec(
-      "INSERT INTO rates (name, window, count) VALUES (?, ?, 1) ON CONFLICT(name) DO UPDATE SET count = CASE WHEN window = excluded.window THEN count + 1 ELSE 1 END, window = excluded.window",
+      "INSERT INTO rates (name, window, count) VALUES (?1, ?2, 1) ON CONFLICT(name) DO UPDATE SET count = CASE WHEN ?2 - window < ?3 THEN count + 1 ELSE 1 END, window = CASE WHEN ?2 - window < ?3 THEN window ELSE ?2 END",
       name,
-      window,
+      now,
+      period,
     );
     const row = this.sql
       .exec<{ count: number }>("SELECT count FROM rates WHERE name = ?", name)
