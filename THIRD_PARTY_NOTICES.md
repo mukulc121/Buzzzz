@@ -2,9 +2,9 @@
 
 ## Pulsar
 
-Studio's preset library in `packages/core/src/presets/pulsar-presets.json` is copied from [Pulsar's documentation assets](https://github.com/software-mansion/pulsar/tree/main/docs/src/content/docs/assets). The `react-native-pulsar@1.7.0` dependency patch backports the React Native composer fix from [Pulsar PR #294](https://github.com/software-mansion/pulsar/pull/294), commit `dc0a711a95806b91cf8d05771c6c601e0d5657a8`.
+Studio's preset library in `packages/core/src/presets/pulsar-presets.json` is copied from [Pulsar's documentation assets](https://github.com/software-mansion/pulsar/tree/main/docs/src/content/docs/assets). Studio's sound preview in `apps/studio/src/features/composer/soundGraph.ts` adapts [Pulsar's audio player](https://github.com/software-mansion/pulsar/blob/abdee706282598ab0194ba739dce835dc828f164/docs/src/content/docs/components/Preset/audio-player.ts). The `react-native-pulsar@1.7.0` dependency patch backports the React Native composer fix from [Pulsar PR #294](https://github.com/software-mansion/pulsar/pull/294), commit `dc0a711a95806b91cf8d05771c6c601e0d5657a8`.
 
-Both use Pulsar's [MIT license](https://github.com/software-mansion/pulsar/blob/main/LICENSE):
+These use Pulsar's [MIT license](https://github.com/software-mansion/pulsar/blob/main/LICENSE):
 
 ```text
 MIT License
