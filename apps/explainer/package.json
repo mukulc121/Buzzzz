@@ -1,0 +1,21 @@
+{
+  "name": "@buzzzz/explainer",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Explainer out/explainer.mp4 --image-format=png",
+    "voiceover": "bun scripts/voiceover.mts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.535",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.535"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "@types/react": "~19.2.2",
+    "typescript": "~6.0.3"
+  }
+}

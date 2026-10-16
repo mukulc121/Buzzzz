@@ -1,0 +1,80 @@
+diff --git a/lib/module/usePatternComposer.js b/lib/module/usePatternComposer.js
+index 7d3f6b474469651853ef2cf20884135c35c46f71..180ac30fd1bfbf850c2d7f86a87992c20e1feb87 100644
+--- a/lib/module/usePatternComposer.js
++++ b/lib/module/usePatternComposer.js
+@@ -24,10 +24,18 @@ export default function usePatternComposer(pattern) {
+       Pulsar.PatternComposer_stop(id);
+     }
+   }, []);
++  const release = useCallback(() => {
++    const id = patternId.get();
++    if (id === -1) return;
++    Pulsar.PatternComposer_release(id);
++    patternId.set(-1);
++  }, []);
++
+   const parse = useCallback(pattern => {
++    release();
+     const newPatternId = Pulsar.PatternComposer_parsePattern(pattern);
+     patternId.set(newPatternId);
+-  }, [pattern]);
++  }, [release]);
+   const isParsed = () => {
+     return patternId.get() !== -1;
+   };
+@@ -35,13 +43,8 @@ export default function usePatternComposer(pattern) {
+     if (pattern) {
+       parse(pattern);
+     }
+-    return () => {
+-      const id = patternId.get();
+-      if (id !== -1) {
+-        Pulsar.PatternComposer_release(id);
+-      }
+-    };
+-  }, [pattern]);
++    return release;
++  }, [pattern, parse, release]);
+   return {
+     play,
+     stop,
+diff --git a/src/usePatternComposer.ts b/src/usePatternComposer.ts
+index 13437b9c5bc68c2e663753664f3c6b20b0afaa12..0737b911e7a41eae5bb2e55b565444d1475435ce 100644
+--- a/src/usePatternComposer.ts
++++ b/src/usePatternComposer.ts
+@@ -25,10 +25,18 @@ export default function usePatternComposer(pattern?: Pattern): PatternComposer {
+     }
+   }, []);
+ 
++  const release = useCallback(() => {
++    const id = patternId.get();
++    if (id === -1) return;
++    Pulsar.PatternComposer_release(id);
++    patternId.set(-1);
++  }, []);
++
+   const parse = useCallback((pattern: Pattern) => {
++    release();
+     const newPatternId = Pulsar.PatternComposer_parsePattern(pattern);
+     patternId.set(newPatternId);
+-  }, [pattern]);
++  }, [release]);
+ 
+   const isParsed = () => {
+     return patternId.get() !== -1;
+@@ -39,13 +47,8 @@ export default function usePatternComposer(pattern?: Pattern): PatternComposer {
+       parse(pattern);
+     }
+ 
+-    return () => {
+-      const id = patternId.get();
+-      if (id !== -1) {
+-        Pulsar.PatternComposer_release(id);
+-      }
+-    };
+-  }, [pattern]);
++    return release;
++  }, [pattern, parse, release]);
+ 
+   return { play, stop, parse, isParsed };
+ }

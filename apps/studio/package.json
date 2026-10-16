@@ -1,0 +1,32 @@
+{
+  "name": "@buzzzz/studio",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vp dev",
+    "build": "vp build",
+    "preview": "vp preview",
+    "sync-presets": "bun scripts/sync-pulsar-presets.mts",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@buzzzz/core": "workspace:*",
+    "@rive-app/canvas": "^2.44.2",
+    "qrcode": "^1.5.4",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@types/ws": "^8.18.2",
+    "@vitejs/plugin-react": "^6.1.1",
+    "typescript": "~6.0.2",
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.3.0",
+    "vite-plus": "1.3.0"
+  }
+}
