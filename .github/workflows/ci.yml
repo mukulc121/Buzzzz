@@ -25,6 +25,7 @@ jobs:
       - run: bun run lint
       - run: bun run format:check
       - run: bun run test
+      - run: bun run --cwd apps/relay test:integration
       - run: bun run build
       - run: bun run analyze
   browser:

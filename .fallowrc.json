@@ -4,7 +4,10 @@
     "zones": [
       { "name": "core", "patterns": ["packages/core/src/**"] },
       { "name": "studio", "patterns": ["apps/studio/src/**"] },
-      { "name": "relay", "patterns": ["apps/studio/server/**", "apps/studio/vite.config.ts"] },
+      {
+        "name": "relay",
+        "patterns": ["apps/studio/server/**", "apps/studio/vite.config.ts", "apps/relay/src/**"]
+      },
       { "name": "preview", "patterns": ["apps/preview/**"] },
       { "name": "explainer", "patterns": ["apps/explainer/**"] }
     ],

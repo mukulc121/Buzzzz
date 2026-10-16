@@ -11,10 +11,11 @@
     "moduleDetection": "force",
     "resolveJsonModule": true
   },
+  "exclude": ["apps/relay/**"],
   "include": [
     "__tests__/**/*.ts",
     "apps/**/__tests__/**/*.ts",
-    "apps/studio/scripts/**/*.mts",
+    "packages/core/scripts/**/*.mts",
     "packages/**/__tests__/**/*.ts",
     "playwright.config.ts",
     "vite.config.mts"
