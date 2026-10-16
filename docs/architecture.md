@@ -1,56 +1,56 @@
 # Architecture
 
-Buzzzz has three apps and one shared package. Bun installs and runs the workspaces from the repository root.
+Buzzzz has four apps and one shared package. Bun manages the workspaces and lockfile. Vite+ runs development, builds, linting, and formatting.
 
-| Workspace        | Owns                                         | Internal imports |
-| ---------------- | -------------------------------------------- | ---------------- |
-| `apps/studio`    | Browser editor, Rive canvas, local relay     | `@buzzzz/core`   |
-| `apps/preview`   | Native Rive playback, haptics, connection UI | `@buzzzz/core`   |
-| `apps/explainer` | Remotion scenes and narration                | None             |
-| `packages/core`  | Pattern, project, and message validation     | None             |
+| Workspace        | Owns                                                | Internal imports |
+| ---------------- | --------------------------------------------------- | ---------------- |
+| `apps/studio`    | Composer, media analysis, tools, Rive, local relay  | `@buzzzz/core`   |
+| `apps/preview`   | Native Rive and Pulsar playback, connection UI      | `@buzzzz/core`   |
+| `apps/relay`     | Cloudflare rooms, assets, shares, project sync, MCP | `@buzzzz/core`   |
+| `apps/explainer` | Remotion scenes and narration                       | None             |
+| `packages/core`  | Pattern, project, editor metadata, relay validation | None             |
 
-Apps depend on shared packages. Packages never depend on apps, and apps do not import one another. Fallow enforces these directions. It also separates Studio's browser code from its server code.
+Apps depend on shared packages, never one another. Packages never depend on apps. Fallow checks these boundaries and separates Studio's browser code from server code.
 
 ## Source layout
 
-Studio's `src/app` connects features and handles project imports. Shared controls live in `src/components`. Composer, preset, connection, and Rive code live in separate folders under `src/features`; CSS lives in `src/styles`. The composer's local model owns selection and layer types. Shared pattern and message types come directly from `@buzzzz/core`.
+Studio's `src/app` wires the workspace together. `src/features` contains composer, audio, animation, imports, presets, project, connection, activity, Rive, and tools. Shared controls live in `src/components`, styling in `src/styles`. Feature workers keep analysis off the UI thread. Import parsers validate external data before application state changes.
 
-The preview app separates its app, components, connection/playback features, and theme. Core groups pattern/project models under `src/patterns` and the wire protocol under `src/relay`. Tests stay in each workspace's `__tests__` folder; browser tests live in the root `__tests__/browser`.
+Preview's `src/app` contains Expo Router routes. Home, presets, playground, demos, connection, and playback live under `src/features`, with shared components and theme beside them. Relay separates room storage, sessions, sockets, assets, shares, project revisions, and MCP dispatch. Core groups pattern/project models under `src/patterns` and the wire protocol under `src/relay`.
 
-Studio's project feature owns persistence, history, preset changes, and import/export controls. The activity feature owns its log and panel. Explainer separates its composition, nine scenes, shared illustrations, timing, theme, and narration data; maintenance scripts live under each app's `scripts` folder.
+Explainer separates application registration, composition and timing, scene components, shared illustrations, hooks, theme, and narration data. Maintenance scripts use `.mts` in their owning workspace's `scripts` folder. Core owns preset synchronization. Tests live in workspace `__tests__` folders; browser tests live in root `__tests__/browser`.
 
-## Pattern and project data
+## Data and media
 
-`packages/core` defines the Pulsar pattern format and validates imported projects and relay messages. Times run from 0 to 60,000 milliseconds. Amplitude and frequency run from 0 to 1. Each point array allows at most 10,000 entries.
+Core validates patterns with times from 0 to 60,000 milliseconds and amplitude/frequency from 0 to 1. Each point array accepts at most 10,000 entries. A project contains named presets and trigger mappings. Optional per-preset editor state contains markers, play range, and duration.
 
-Studio keeps patterns and trigger mappings in local storage. A project export also embeds the optional Rive file. A pattern export sorts points and normalizes values for Pulsar playback.
+Studio persists project state locally and stores original media in its browser library. Audio decoding uses Web Audio, followed by worker analysis and independent pattern generation. Animation playback uses Lottie's canvas renderer; a worker samples transforms and channels to generate patterns. These estimates share the validated pattern model with manual editing and native playback. See [analysis limits](development.md#media-analysis).
 
-Rive imports allow 20 MiB. Project JSON imports allow 32 MiB so a 20 MiB Rive file can round-trip after base64 encoding.
+Project JSON includes patterns, mappings, editor state, and optional embedded Rive. Portable `.pulsar` ZIP exports include original media, trim windows, and a content hash. Public manifest entries use `pulsar.bundle/1`; Buzzzz-specific state lives in a namespaced manifest extension. Referenced files pass format and metadata checks before saving; audio decoding happens when loading a track. Rive imports allow 20 MiB; project JSON allows 32 MiB for base64 round trips. Portable archives additionally bound member count and expanded size.
 
-## Preview flow
+## Local preview
 
-1. Studio discovers the computer's LAN address through `GET /lan` and creates a `rivehaptics://connect` pairing link.
-2. The preview app connects to `/relay?role=phone`. Studio connects with `role=studio`.
-3. Studio uploads a Rive file to `POST /riv`, then sends its temporary path and trigger mappings over WebSocket.
-4. The phone downloads the file and plays it with the native Rive runtime. View-model triggers play their mapped Pulsar patterns.
-5. The phone reports fired triggers to Studio's activity log. Studio can also request playback, pause, restart, or a trigger.
+1. Studio discovers the LAN address through `GET /lan` and creates a `rivehaptics://connect` link.
+2. Preview connects to `/relay?role=phone`; Studio connects with `role=studio`.
+3. Studio uploads Rive to `POST /riv`, then sends its path and trigger mappings over WebSocket.
+4. The phone downloads and plays Rive. View-model triggers play mapped Pulsar patterns and report fired events to Studio.
 
-Metro on port 8082 serves the preview app's JavaScript. The Vite+ server on port 5173 serves Studio and the relay. `bun run dev` uses Vite+'s task runner to start both workspace development tasks in parallel.
+Metro on port 8082 serves Preview's JavaScript. Studio and the local relay use port 5173. `bun run dev` starts both development tasks through Vite+.
 
-## Trust and storage
+The LAN relay is one unauthenticated development session. Any connected Studio can control every phone. Cross-host browser requests are rejected; native clients without Origin remain allowed. It validates message direction and shape, limits 32 clients and 1 MiB messages, and stores at most ten Rive files/100 MiB in memory. Restarting the server clears uploads. Use it only on a trusted LAN.
 
-The relay is an unauthenticated, shared development session. There are no user accounts or isolated pairing rooms. Any connected Studio can send commands to every phone. Use it only on a trusted LAN.
+## Hosted relay
 
-The relay rejects browser requests with an Origin host that differs from the request's Host. Vite CORS is disabled. Native requests without an Origin are allowed. These checks limit browser access; they do not authenticate a client.
+Studio builds with `VITE_RELAY_URL` to use a separate Cloudflare Worker. SQLite Durable Objects isolate rooms, token hashes, sockets, shares, and project revisions. Private R2 stores assets. Host and phone credentials determine roles; clients cannot choose a role with a query flag.
 
-The server validates message shape and direction. It accepts at most 32 WebSocket clients and limits messages to 1 MiB. A `.riv` upload must have a Rive header and be at most 20 MiB. The in-memory store holds at most 10 files and 100 MiB; it evicts older files when either bound is reached. Files disappear on server restart.
+Pairing uses `rivehaptics://pair`, a room ID, and a single-use code valid for ten minutes. Rooms, tokens, assets, and shares expire after 24 hours. Signed read URLs grant access to whoever holds them. Host-origin checks, rate limits, bounded uploads, and same-room asset checks apply independently of bearer authorization.
 
-The relay is a Vite development plugin. A static Studio build has no `/lan`, `/riv`, or `/relay` service. A production relay would need a separate design for authentication, session isolation, storage, and transport security.
+Project writes use revisions to reject stale updates. Share snapshots refresh when projects change. Headless MCP tools edit validated projects and control phones. Browser MCP tools delegate audio/animation generation and editor actions to one connected Studio, with bounded arguments, results, and a timeout. See [relay API and deployment](../apps/relay/README.md).
 
-A hosted version needs a persistent WebSocket service or an equivalent managed service. Both Studio and the phone would join an authorized session over `wss://`; the phone would fetch Rive assets over HTTPS. Pairing must use the public service address instead of `/lan`, and commands must stay within the paired session. The current shared LAN relay must not be published as that service.
+Studio keeps its room and last agreed project revision in per-tab session storage for reload recovery. A Web Lock claims each room before reuse, so a duplicated tab creates its own room. Browsers without Web Locks always create a fresh room. Shared-link revocation credentials stay in local storage so a later tab can revoke links from closed sessions. Clearing this browser's site data removes those credentials; links still expire with their rooms.
 
-## Native project ownership
+Static Studio hosting supplies no local relay. Configure and verify the separate Worker before using hosted pairing or sharing. A deployment dry run and Miniflare tests do not establish live availability.
 
-Expo generates the iOS and Android projects. Keep native configuration in `apps/preview/app.json` and config plugins, then rebuild. Do not commit or hand-edit the generated native directories.
+## Native ownership
 
-The native preview uses custom Pulsar and Rive modules, so it needs a native development build. The simulator can show the connection UI and animation. Real haptic output needs a physical device.
+Expo generates ignored iOS and Android projects from `apps/preview/app.json` and config plugins. Rebuild after native dependency, patch, or configuration changes. Preview requires a native development build because Expo Go lacks its Rive and Pulsar modules. Simulators can verify UI and connections; haptic output requires physical hardware.

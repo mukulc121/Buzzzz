@@ -2,7 +2,7 @@
 
 ## Pulsar
 
-Studio's preset library in `apps/studio/src/features/presets/data/pulsar-presets.json` is copied from [Pulsar's documentation assets](https://github.com/software-mansion/pulsar/tree/main/docs/src/content/docs/assets). The `react-native-pulsar@1.7.0` dependency patch backports the React Native composer fix from [Pulsar PR #294](https://github.com/software-mansion/pulsar/pull/294), commit `dc0a711a95806b91cf8d05771c6c601e0d5657a8`.
+Studio's preset library in `packages/core/src/presets/pulsar-presets.json` is copied from [Pulsar's documentation assets](https://github.com/software-mansion/pulsar/tree/main/docs/src/content/docs/assets). The `react-native-pulsar@1.7.0` dependency patch backports the React Native composer fix from [Pulsar PR #294](https://github.com/software-mansion/pulsar/pull/294), commit `dc0a711a95806b91cf8d05771c6c601e0d5657a8`.
 
 Both use Pulsar's [MIT license](https://github.com/software-mansion/pulsar/blob/main/LICENSE):
 
@@ -33,3 +33,11 @@ SOFTWARE.
 ## Expo
 
 The preview app retains its Expo template license in [`apps/preview/LICENSE`](apps/preview/LICENSE), copyright 2015-present 650 Industries, Inc. Dependencies retain their own licenses.
+
+## Rive
+
+The local `@rive-app/react-native@0.5.5` patch changes Android surface resizing and redraw scheduling, and the shared hook's readiness handling. Rive's React Native runtime is distributed under its [MIT license](https://github.com/rive-app/rive-react-native/blob/main/LICENSE). The patch and its removal checks are documented in `docs/development.md`.
+
+## Mediabunny
+
+Studio uses `mediabunny@1.61.3` for decoder-free audio container metadata. It is distributed under the Mozilla Public License 2.0. Its unmodified source and license are available in the [Mediabunny repository](https://github.com/Vanilagy/mediabunny).
