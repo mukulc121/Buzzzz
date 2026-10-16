@@ -33,9 +33,7 @@ export function QrScanner(props: IQrScanner) {
     <Modal onRequestClose={onClose} animationType="slide">
       <SafeAreaProvider>
         <SafeAreaView style={{ flex: 1, backgroundColor: t.bg, padding: 16, gap: 16 }}>
-          <Text style={{ fontFamily: font.bold, fontSize: 26, color: t.fg }}>
-            Scan a Studio QR code
-          </Text>
+          <Text style={{ ...font.bold, fontSize: 26, color: t.fg }}>Scan a Studio QR code</Text>
           {permission?.granted ? (
             <View style={{ flex: 1, borderRadius: 4, overflow: "hidden" }}>
               <CameraView
@@ -46,7 +44,7 @@ export function QrScanner(props: IQrScanner) {
             </View>
           ) : (
             <View style={{ flex: 1, justifyContent: "center", gap: 16 }}>
-              <Text style={{ fontFamily: font.regular, color: t.fg, fontSize: 16 }}>
+              <Text style={{ ...font.regular, color: t.fg, fontSize: 16 }}>
                 Camera access is needed to scan a pairing code. You can also paste the Studio link
                 on Home.
               </Text>
@@ -61,10 +59,7 @@ export function QrScanner(props: IQrScanner) {
             </View>
           )}
           {error && (
-            <Text
-              accessibilityRole="alert"
-              style={{ color: t.err, fontFamily: font.regular, fontSize: 16 }}
-            >
+            <Text accessibilityRole="alert" style={{ color: t.err, ...font.regular, fontSize: 16 }}>
               {error}
             </Text>
           )}

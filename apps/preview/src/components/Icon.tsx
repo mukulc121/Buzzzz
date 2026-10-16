@@ -1,63 +1,43 @@
-import {
-  ArrowRight,
-  Brush,
-  Check,
-  Circle,
-  Download,
-  Heart,
-  House,
-  Info,
-  LayoutList,
-  Loader,
-  Pause,
-  Play,
-  QrCode,
-  RefreshCw,
-  SlidersVertical,
-  Sparkles,
-  Square,
-  X,
-} from "lucide-react-native";
+import { PixelRatio, StyleSheet, Text, View, type StyleProp, type ViewStyle } from "react-native";
+import glyphs from "../../assets/icons/glyphs.json";
 
-// Lucide equivalents of the original's icon font glyphs.
-const glyphs = {
-  arrow: ArrowRight,
-  brush: Brush,
-  check: Check,
-  download: Download,
-  heart: Heart,
-  "heart-fill": Heart,
-  home: House,
-  info: Info,
-  list: LayoutList,
-  loader: Loader,
-  play: Play,
-  "qr-code": QrCode,
-  record: Circle,
-  "refresh-cw": RefreshCw,
-  sliders: SlidersVertical,
-  sparkles: Sparkles,
-  square: Square,
-  stop: Pause,
-  x: X,
-};
 export type IconName = keyof typeof glyphs;
 interface IIcon {
   name: IconName;
   size: number;
-  color: string;
+  color?: string;
+  style?: StyleProp<ViewStyle>;
 }
 export function Icon(props: IIcon) {
-  const { name, size, color } = props;
-  const Glyph = glyphs[name];
-  const filled = name === "heart-fill" || name === "record";
+  const { name, size, color, style } = props;
+  const glyph = glyphs[name];
+  const scaledSize = size * PixelRatio.getFontScale();
   return (
-    <Glyph
+    <View
+      accessibilityRole="image"
       accessibilityLabel={name}
-      size={size}
-      color={color}
-      fill={filled ? color : "none"}
-      strokeWidth={name === "record" ? 0 : 2}
-    />
+      style={[{ height: scaledSize, width: (glyph.width / 1024) * scaledSize, bottom: 0 }, style]}
+    >
+      {glyph.layers.map((layer) => (
+        <Text
+          key={layer.codepoint}
+          selectable={false}
+          accessible={false}
+          style={[styles.layer, { fontSize: size, color: color ?? layer.color }]}
+        >
+          {String.fromCodePoint(layer.codepoint)}
+        </Text>
+      ))}
+    </View>
   );
 }
+const styles = StyleSheet.create({
+  layer: {
+    fontFamily: "pulsar-icons",
+    fontWeight: "normal",
+    fontStyle: "normal",
+    position: "absolute",
+    includeFontPadding: false,
+    bottom: 0,
+  },
+});

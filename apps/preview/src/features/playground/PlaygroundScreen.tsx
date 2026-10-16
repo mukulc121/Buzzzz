@@ -74,7 +74,7 @@ export function PlaygroundScreen() {
             if (current.current) appendTap(current.current, value);
           }}
         />
-        <Text style={{ color: t.fg2, fontFamily: font.regular, fontSize: 15, lineHeight: 22 }}>
+        <Text style={{ color: t.fg2, ...font.regular, fontSize: 15, lineHeight: 22 }}>
           Move left to right for frequency. Move up for stronger intensity. Record up to one minute,
           then play or export your pattern.
         </Text>
@@ -100,13 +100,13 @@ export function PlaygroundScreen() {
           />
         </View>
         {recordingNow && (
-          <Text accessibilityLiveRegion="polite" style={{ color: t.err, fontFamily: font.medium }}>
+          <Text accessibilityLiveRegion="polite" style={{ color: t.err, ...font.medium }}>
             Recording…
           </Text>
         )}
         {pattern && (
           <Panel t={t}>
-            <Text style={{ color: t.fg, fontFamily: font.bold, fontSize: 20 }}>
+            <Text style={{ color: t.fg, ...font.bold, fontSize: 20 }}>
               Your recording · {(patternEnd(pattern) / 1000).toFixed(1)}s
             </Text>
             <PatternWaveform pattern={pattern} t={t} />
@@ -120,7 +120,7 @@ export function PlaygroundScreen() {
           </Panel>
         )}
         {error && (
-          <Text accessibilityRole="alert" style={{ color: t.err, fontFamily: font.regular }}>
+          <Text accessibilityRole="alert" style={{ color: t.err, ...font.regular }}>
             {error}
           </Text>
         )}

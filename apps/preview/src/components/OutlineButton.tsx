@@ -43,7 +43,7 @@ export function OutlineButton(props: IOutlineButton) {
         {icon}
         <Text
           style={{
-            fontFamily: font.medium,
+            ...font.medium,
             fontSize: 16,
             color: t.fg,
             flexShrink: 1,

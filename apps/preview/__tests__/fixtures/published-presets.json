@@ -1,0 +1,35 @@
+{
+  "provenance": {
+    "ios": {
+      "bundleSha256": "4380227cae4765a98cffae960470f34fc5b120a223ba5998c3fdbee7cbbef729",
+      "modules": [2423, 2424, 2576, 2633]
+    },
+    "android": {
+      "bundleSha256": "d91bd292fcd47d832820a74476809620003207feb7334f9ce7d26ef61969ea2d",
+      "modules": [2506, 2507, 2716]
+    },
+    "metadataFields": ["name", "description", "tags", "duration", "play"]
+  },
+  "catalogs": {
+    "PresetsConfig": {
+      "count": 151,
+      "sha256": "7c1abcd35c04d57d56a41ffc188c3918d34a21dd6604e8c7a2868cb7199ab5ea"
+    },
+    "IOSPresetsConfig": {
+      "count": 9,
+      "sha256": "31d55c071e882bbed7b1cc141405c5c3b7fe03f51f75596c86dc06083604e679"
+    },
+    "AndroidPresetsConfig": {
+      "count": 46,
+      "sha256": "dc13409c83d21c3a1039c410b610d9c957f938469121eb14a6bed51e073256a8"
+    }
+  },
+  "initialFilters": {
+    "selectedTags": [],
+    "soundEnabled": true,
+    "showSystemPresets": false,
+    "selectedSystemPresetTags": ["Effect", "Primitive"],
+    "compactLayout": false,
+    "showFavouritesOnly": false
+  }
+}

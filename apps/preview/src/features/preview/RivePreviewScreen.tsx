@@ -38,12 +38,12 @@ export function RivePreviewScreen() {
         <View style={{ padding: 16, gap: 24 }}>
           <Panel t={t}>
             <Film size={40} color={t.highlight} />
-            <Text style={{ color: t.fg, fontFamily: font.bold, fontSize: 22 }}>
+            <Text style={{ color: t.fg, ...font.bold, fontSize: 22 }}>
               {session.relay.status === "connected"
                 ? "Ready for your animation"
                 : "Connect to Studio"}
             </Text>
-            <Text style={{ color: t.fg2, fontFamily: font.regular, fontSize: 16, lineHeight: 24 }}>
+            <Text style={{ color: t.fg2, ...font.regular, fontSize: 16, lineHeight: 24 }}>
               1. Connect your phone on Home. 2. Load a Rive file in Studio and map its triggers. 3.
               Send it to this phone, then replay or explore it fullscreen.
             </Text>

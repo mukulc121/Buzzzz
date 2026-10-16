@@ -173,7 +173,7 @@ export function TouchPad(props: ITouchPad) {
               onTap(next);
             }}
           >
-            <Text style={{ fontFamily: font.medium, color: t.fg2, fontSize: 14 }}>
+            <Text style={{ ...font.medium, color: t.fg2, fontSize: 14 }}>
               {axis === "amplitude" ? "Intensity" : "Frequency"} {Math.round(value[axis] * 100)}%
             </Text>
           </View>

@@ -1,0 +1,224 @@
+{
+  "arrow": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59648,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "brush": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59649,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "check": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59650,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "download": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59651,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "ellipse": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59652,
+        "color": "rgba(135,204,232,0.1)"
+      },
+      {
+        "codepoint": 59653,
+        "color": "rgba(43,133,171,0.1)"
+      }
+    ]
+  },
+  "figma": {
+    "width": 684,
+    "layers": [
+      {
+        "codepoint": 59654,
+        "color": "rgba(36, 203, 113, 1)"
+      },
+      {
+        "codepoint": 59655,
+        "color": "rgba(255, 114, 55, 1)"
+      },
+      {
+        "codepoint": 59656,
+        "color": "rgba(0, 182, 255, 1)"
+      },
+      {
+        "codepoint": 59657,
+        "color": "rgba(255, 55, 55, 1)"
+      },
+      {
+        "codepoint": 59658,
+        "color": "rgba(135, 79, 255, 1)"
+      }
+    ]
+  },
+  "grid": {
+    "width": 673,
+    "layers": [
+      {
+        "codepoint": 59659,
+        "color": "rgba(251, 254, 255, 1)"
+      },
+      {
+        "codepoint": 59660,
+        "color": "rgba(225, 243, 250, 1)"
+      }
+    ]
+  },
+  "heart-fill": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59661,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "heart": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59662,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "home": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59663,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "info": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59664,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "list": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59665,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "loader": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59666,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "play": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59667,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "qr-code": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59668,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "record": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59669,
+        "color": "rgba(255, 98, 89, 1)"
+      }
+    ]
+  },
+  "refresh-cw": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59670,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "sliders": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59671,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "sparkles": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59672,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "square": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59673,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "stop": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59674,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  },
+  "x": {
+    "width": 1024,
+    "layers": [
+      {
+        "codepoint": 59675,
+        "color": "rgba(0, 26, 114, 1)"
+      }
+    ]
+  }
+}

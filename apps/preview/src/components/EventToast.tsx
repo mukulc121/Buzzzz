@@ -33,7 +33,7 @@ export function EventToast(props: IEventToast) {
   if (!event) return null;
   return (
     <Animated.View pointerEvents="none" style={[toast.base, { backgroundColor: t.fg }, animated]}>
-      <Text style={{ color: t.bg, fontSize: 14, fontFamily: font.medium }}>{event.text}</Text>
+      <Text style={{ color: t.bg, fontSize: 14, ...font.medium }}>{event.text}</Text>
     </Animated.View>
   );
 }

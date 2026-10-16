@@ -16,14 +16,14 @@ export function ScreenHeading(props: IScreenHeading) {
       <View style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
         <Text
           accessibilityRole="header"
-          style={{ fontFamily: font.bold, fontSize: 30, color: t.fg, flex: 1 }}
+          style={{ ...font.bold, fontSize: 30, color: t.fg, flex: 1 }}
         >
           {title}
         </Text>
         {trailing}
       </View>
       {subtitle && (
-        <Text style={{ fontFamily: font.regular, color: t.fg, fontSize: 16, lineHeight: 23 }}>
+        <Text style={{ ...font.regular, color: t.fg, fontSize: 16, lineHeight: 23 }}>
           {subtitle}
         </Text>
       )}

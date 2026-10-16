@@ -57,6 +57,6 @@ const chip = StyleSheet.create({
   dot: { width: 7, height: 7, borderRadius: 4 },
   text: {
     fontSize: 14,
-    fontFamily: font.medium,
+    ...font.medium,
   },
 });
