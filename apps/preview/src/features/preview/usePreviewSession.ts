@@ -3,6 +3,7 @@ import { Presets } from "react-native-pulsar";
 import { resolveRiveUrl, type Pattern } from "@buzzzz/core";
 import { usePhoneRelay } from "../connection/usePhoneRelay";
 import { useNativePlayback } from "../playback/useNativePlayback";
+import { useReceivedLibrary } from "../sessionLibrary/useReceivedLibrary";
 
 export function usePreviewSession() {
   const [riv, setRiv] = useState<{ url: string; stateMachine?: string } | null>(null);
@@ -15,7 +16,12 @@ export function usePreviewSession() {
   const map = useRef<Record<string, Pattern>>({});
   const fireRef = useRef<(name: string) => void>(() => {});
   const pauseRef = useRef<(paused: boolean) => void>(() => {});
+  const sceneConnection = useRef<string | null>(null);
+  const legacyConnection = useRef<string | null>(null);
   const playback = useNativePlayback();
+  const library = useReceivedLibrary({ onPlay: playback.stopPattern });
+  const [manifestRevision, setManifestRevision] = useState<Record<string, number>>({});
+  const [incomingLibrary, setIncomingLibrary] = useState<{ connectionId: string } | null>(null);
   const announce = (text: string) => setEvent({ id: Date.now(), text });
   const setMap = (value: Record<string, Pattern>) => {
     map.current = value;
@@ -23,50 +29,84 @@ export function usePreviewSession() {
   };
   const clearScene = () => {
     playback.stopPattern();
+    sceneConnection.current = null;
+    legacyConnection.current = null;
     setRiv(null);
     setMap({});
     setTriggers([]);
     setPaused(false);
     setLastFired(null);
   };
-  const relay = usePhoneRelay((message, connection) => {
-    if (message.type === "load") {
-      const url = resolveRiveUrl(message.riv, connection);
-      if (!url) {
-        announce("Studio sent an invalid animation address.");
-        return;
-      }
-      setMap(message.map);
-      const next = { url, stateMachine: message.stateMachine };
-      if (riv?.url !== next.url || riv.stateMachine !== next.stateMachine) {
+  const relay = usePhoneRelay(
+    (message, connection, connectionId) => {
+      if (message.type === "haptic-preset") {
+        setIncomingLibrary({ connectionId });
+        void library
+          .receive(connectionId, message)
+          .catch(() => announce("Could not save this pattern on the device."));
+      } else if (message.type === "library-manifest") {
+        void library
+          .manifest(connectionId, message.presets)
+          .then(() => {
+            setManifestRevision((previous) => ({
+              ...previous,
+              [connectionId]: (previous[connectionId] ?? 0) + 1,
+            }));
+          })
+          .catch(() => announce("Could not update saved pattern names."));
+      } else if (message.type === "load") {
+        const url = resolveRiveUrl(message.riv, connection);
+        if (!url) {
+          announce("Studio sent an invalid animation address.");
+          return;
+        }
+        sceneConnection.current = connectionId;
+        setMap(message.map);
+        const next = { url, stateMachine: message.stateMachine };
+        if (riv?.url !== next.url || riv.stateMachine !== next.stateMachine) {
+          setPaused(false);
+          setTriggers([]);
+          setRiv(next);
+        }
+      } else if (message.type === "map" && sceneConnection.current === connectionId)
+        setMap(message.map);
+      else if (message.type === "play") {
+        library.stop();
+        legacyConnection.current = connectionId;
+        playback.playPattern(message.pattern, "Pattern from Studio");
+        announce("Pattern from Studio");
+      } else if (message.type === "stop") {
+        if (legacyConnection.current === connectionId) playback.stopPattern();
+      } else if (message.type === "fire" && sceneConnection.current === connectionId)
+        fireRef.current(message.name);
+      else if (message.type === "restart" && sceneConnection.current === connectionId) {
         setPaused(false);
-        setTriggers([]);
-        setRiv(next);
+        setRun((value) => value + 1);
+      } else if (message.type === "pause" && sceneConnection.current === connectionId) {
+        pauseRef.current(message.paused);
+        setPaused(message.paused);
       }
-    } else if (message.type === "map") setMap(message.map);
-    else if (message.type === "play") {
-      playback.playPattern(message.pattern, "Pattern from Studio");
-      announce("Pattern from Studio");
-    } else if (message.type === "stop") playback.stopPattern();
-    else if (message.type === "fire") fireRef.current(message.name);
-    else if (message.type === "restart") {
-      setPaused(false);
-      setRun((value) => value + 1);
-    } else if (message.type === "pause") {
-      pauseRef.current(message.paused);
-      setPaused(message.paused);
-    }
-  }, clearScene);
-  const disconnect = () => {
-    relay.disconnect();
-    clearScene();
+    },
+    clearScene,
+    (connectionId) => {
+      void library.purge(connectionId).catch(() => announce("Could not remove saved patterns."));
+    },
+  );
+  const disconnect = (connectionId = relay.currentConnectionId) => {
+    if (!connectionId) return;
+    if (connectionId === sceneConnection.current || connectionId === legacyConnection.current)
+      clearScene();
+    void relay.disconnect(connectionId).catch(() => announce("Could not remove this connection."));
   };
   const onTrigger = (name: string) => {
     const pattern = Object.hasOwn(map.current, name) ? map.current[name] : undefined;
-    if (pattern) playback.playPattern(pattern, name, false);
+    if (pattern) {
+      library.stop();
+      playback.playPattern(pattern, name, false);
+    }
     setLastFired({ name, id: Date.now() });
     announce(pattern ? `▸ ${name}` : `▸ ${name} · no haptic mapped`);
-    relay.send({ type: "fired", name });
+    if (sceneConnection.current) relay.send({ type: "fired", name }, sceneConnection.current);
   };
   const replay = () => {
     Presets.System.selection();
@@ -81,6 +121,9 @@ export function usePreviewSession() {
   return {
     relay,
     playback,
+    library,
+    manifestRevision,
+    incomingLibrary,
     riv,
     triggers,
     mappedNames,

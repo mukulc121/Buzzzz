@@ -8,6 +8,7 @@ import {
   DMSans_700Bold,
   useFonts,
 } from "@expo-google-fonts/dm-sans";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PreviewProvider } from "./PreviewProvider";
 
 interface IAppProviders {
@@ -28,8 +29,10 @@ export function AppProviders(props: IAppProviders) {
       </View>
     );
   return (
-    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-      <PreviewProvider>{children}</PreviewProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+        <PreviewProvider>{children}</PreviewProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

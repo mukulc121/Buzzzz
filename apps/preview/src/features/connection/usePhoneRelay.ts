@@ -1,36 +1,73 @@
-import { connectionTarget } from "./connectionTarget";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Alert, Linking, Platform } from "react-native";
+import { Alert, AppState, Linking, Platform } from "react-native";
 import { fromDeepLink, pairingLink, type Msg } from "@buzzzz/core";
-import { resolvePhoneConnection, type IPhoneConnection } from "./pairing";
+import { connectionTarget } from "./connectionTarget";
+import { resolvePhoneConnection } from "./pairing";
+import { createConnectionStorage } from "./storage";
 import { useRelaySocket, type RelayStatus } from "./useRelaySocket";
 
 export function usePhoneRelay(
-  onMessage: (message: Msg, relay: string) => void,
-  onConnectionChange: () => void,
+  onMessage: (message: Msg, relay: string, connectionId: string) => void,
+  onConnectionChange: (connectionId: string | null) => void,
+  onConnectionRemoved?: (connectionId: string) => void,
 ) {
-  const reset = useRef(onConnectionChange);
+  const callbacks = useRef({ onConnectionChange, onConnectionRemoved });
   useLayoutEffect(() => {
-    reset.current = onConnectionChange;
-  }, [onConnectionChange]);
+    callbacks.current = { onConnectionChange, onConnectionRemoved };
+  }, [onConnectionChange, onConnectionRemoved]);
   const [input, setInput] = useState("");
-  const [host, setHost] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [storage] = useState(createConnectionStorage);
   const request = useRef<AbortController | null>(null);
-  const lastConnection = useRef<IPhoneConnection | null>(null);
+  const mounted = useRef(true);
   const trusted = useRef(new Set<string>());
   const relay = useRelaySocket(onMessage);
-  const { connect: connectSocket, disconnect: disconnectSocket } = relay;
-  const disconnect = useCallback(() => {
-    request.current?.abort();
-    request.current = null;
-    lastConnection.current = null;
-    setHost("");
-    disconnectSocket();
-    setPending(false);
-    setError(null);
-  }, [disconnectSocket]);
+  const {
+    connect: connectSocket,
+    disconnect: disconnectSocket,
+    restore,
+    snapshot,
+    reconnectInterrupted,
+  } = relay;
+  useEffect(() => {
+    mounted.current = true;
+    let active = true;
+    void storage.load().then(
+      (connections) => {
+        if (!active) return;
+        for (const connection of connections) trusted.current.add(new URL(connection.url).origin);
+        restore(connections);
+      },
+      () => {
+        if (active) setError("Saved connections could not be restored.");
+      },
+    );
+    return () => {
+      active = false;
+      mounted.current = false;
+      request.current?.abort();
+      request.current = null;
+    };
+  }, [storage, restore]);
+  const disconnect = useCallback(
+    async (id?: string) => {
+      const target = id ?? snapshot().currentConnectionId;
+      if (!id) {
+        request.current?.abort();
+        request.current = null;
+        setPending(false);
+      }
+      if (target) {
+        await storage.remove(target);
+        if (!mounted.current) return;
+        disconnectSocket(target);
+        callbacks.current.onConnectionRemoved?.(target);
+      }
+      setError(null);
+    },
+    [storage, disconnectSocket, snapshot],
+  );
   const connect = useCallback(
     (value: string) => {
       let target: URL;
@@ -52,17 +89,17 @@ export function usePhoneRelay(
         device: `${Platform.OS} ${Platform.Version}`,
         signal: controller.signal,
       })
-        .then((connection) => {
+        .then(async (connection) => {
           if (request.current !== controller) return;
-          reset.current();
-          lastConnection.current = connection;
-          setHost(connection.label);
+          const record = await storage.add(connection);
+          if (!mounted.current || request.current !== controller) return;
+          callbacks.current.onConnectionChange(record.id);
           setInput("");
           setPending(false);
-          connectSocket(connection);
+          connectSocket(record);
         })
         .catch((cause: unknown) => {
-          if (request.current !== controller) return;
+          if (!mounted.current || request.current !== controller) return;
           setPending(false);
           setError(
             cause instanceof Error && cause.name !== "AbortError"
@@ -70,9 +107,12 @@ export function usePhoneRelay(
               : "Pairing timed out. Check your network and try again.",
           );
         })
-        .finally(() => clearTimeout(timer));
+        .finally(() => {
+          clearTimeout(timer);
+          if (request.current === controller) request.current = null;
+        });
     },
-    [connectSocket],
+    [connectSocket, storage],
   );
   const requestConnection = useCallback(
     (value: string) => {
@@ -110,33 +150,42 @@ export function usePhoneRelay(
     return () => {
       active = false;
       subscription.remove();
-      disconnect();
     };
-  }, [requestConnection, disconnect]);
-  const reconnect = () => {
-    if (lastConnection.current) {
-      setError(null);
-      connectSocket(lastConnection.current);
-    }
-  };
-  const status: RelayStatus =
-    relay.status === "connected"
-      ? "connected"
-      : pending
-        ? "connecting"
-        : error
-          ? "error"
-          : relay.status;
+  }, [requestConnection]);
+  useEffect(() => {
+    let previous = AppState.currentState;
+    const subscription = AppState.addEventListener("change", (next) => {
+      if ((previous === "inactive" || previous === "background") && next === "active")
+        reconnectInterrupted();
+      previous = next;
+    });
+    return () => subscription.remove();
+  }, [reconnectInterrupted]);
+  const current = relay.connections.find(
+    (connection) => connection.id === relay.currentConnectionId,
+  );
+  const status: RelayStatus = pending ? "connecting" : error ? "error" : relay.status;
   return {
     input,
     setInput,
-    host,
+    host: current?.label ?? "",
     status,
     error: error ?? relay.error,
+    connections: relay.connections,
+    currentConnectionId: relay.currentConnectionId,
+    setCurrentConnectionId: (id: string) => {
+      if (relay.setCurrentConnectionId(id)) {
+        setError(null);
+        callbacks.current.onConnectionChange(id);
+      }
+    },
     connect,
     requestConnection,
     disconnect,
     send: relay.send,
-    reconnect,
+    reconnect: (id?: string) => {
+      setError(null);
+      relay.reconnect(id);
+    },
   };
 }

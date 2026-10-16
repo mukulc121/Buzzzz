@@ -1,65 +1,68 @@
-import { Image, ScrollView, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { HapticSupport, Settings } from "react-native-pulsar";
-import { ScreenHeading } from "../../components/ScreenHeading";
-import { Panel } from "../../components/Panel";
-import { font } from "../../theme/typography";
+import { useEffect } from "react";
+import { useRouter } from "expo-router";
+import { Image, ScrollView, StyleSheet, View } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { Settings } from "react-native-pulsar";
+import { Card } from "../../components/Card";
+import { ThemedText } from "../../components/ThemedText";
 import { usePreview } from "../shell/usePreview";
 import { ConnectionPanel } from "../connection/ConnectionPanel";
 import { ConnectionCard } from "./ConnectionCard";
 
 export function HomeScreen() {
   const { t, session } = usePreview();
-  const level = Settings.getHapticsSupportLevel();
-  const support =
-    level >= HapticSupport.STANDARD_SUPPORT
-      ? "Full"
-      : level === HapticSupport.LIMITED_SUPPORT
-        ? "Limited"
-        : "Unavailable";
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  useEffect(() => {
+    Settings.enableSound(true);
+  }, []);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={["top", "left", "right"]}>
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 24 }}
+        keyboardDismissMode="on-drag"
+        contentContainerStyle={{ paddingHorizontal: 15, paddingBottom: insets.bottom + 12 }}
       >
-        <ScreenHeading
-          title="Welcome to Buzzzz!"
-          t={t}
-          trailing={
-            <Image
-              source={require("../../../assets/icon.png")}
-              style={{ width: 38, height: 38, borderRadius: 8 }}
-            />
-          }
-        />
-        <View style={{ gap: 14 }}>
-          <Text
-            accessibilityRole="header"
-            style={{ color: t.fg, fontFamily: font.bold, fontSize: 22 }}
-          >
-            Your connections
-          </Text>
-          {session.relay.host ? (
-            <ConnectionCard relay={session.relay} onDisconnect={session.disconnect} t={t} />
-          ) : (
-            <Text style={{ color: t.muted, fontFamily: font.regular, fontSize: 16 }}>
-              Connect Studio to feel your patterns here.
-            </Text>
-          )}
+        <View style={styles.title}>
+          <ThemedText type="title">Welcome to Buzzzz!</ThemedText>
+          <Image source={require("../../../assets/icon.png")} style={styles.logo} />
         </View>
-        <ConnectionPanel relay={session.relay} t={t} />
-        <Panel t={t}>
-          <Text style={{ color: t.fg, fontFamily: font.bold, fontSize: 20 }}>
-            Haptic support: {support}
-          </Text>
-          <Text style={{ color: t.fg2, fontFamily: font.regular, fontSize: 15, lineHeight: 22 }}>
-            {support === "Full"
-              ? "This device supports intensity and frequency control."
-              : "Some patterns and frequency changes may feel different on this device."}
-          </Text>
-        </Panel>
+        <ThemedText type="subtitle">Your connections</ThemedText>
+        {session.relay.connections.length ? (
+          session.relay.connections.map((connection) => (
+            <ConnectionCard
+              key={connection.id}
+              connection={connection}
+              onOpen={() =>
+                router.push({
+                  pathname: "/mediaLibraryModal",
+                  params: { connectionId: connection.id },
+                })
+              }
+              onReconnect={() => session.relay.reconnect(connection.id)}
+              onRemove={() => session.disconnect(connection.id)}
+            />
+          ))
+        ) : (
+          <Card style={{ marginTop: 10 }}>
+            <ThemedText>No connections yet.</ThemedText>
+          </Card>
+        )}
+        <View style={{ marginTop: 20 }}>
+          <ConnectionPanel relay={session.relay} t={t} />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  title: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 30,
+    marginBottom: 30,
+  },
+  logo: { width: 50, height: 50, marginTop: -10 },
+});
