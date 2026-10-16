@@ -14,6 +14,7 @@ import { useTheme } from "./useTheme";
 import { useShortcuts } from "./useShortcuts";
 import { useAttachedTracks } from "../features/media/useAttachedTracks";
 import { useSharing } from "../features/connection/useSharing";
+import type { TPhonePreset } from "../features/connection/phoneLibrary";
 import { useCanonicalProject } from "../features/mcp/useCanonicalProject";
 import { useMcpBridge } from "../features/mcp/useMcpBridge";
 import { useStudioFiles } from "./useStudioFiles";
@@ -59,6 +60,7 @@ export function useStudio() {
     },
   });
   const playback = usePlayback({
+    preset: { resourceId: document.preset.id, name: document.preset.name },
     cursor: composer.cursor,
     onCursorChange: composer.setCursor,
     onError: setError,
@@ -163,9 +165,9 @@ export function useStudio() {
     send: session.send,
     phones: playback.onPhone ? session.phones : 0,
   });
-  const audition = (pattern: Pattern) => {
+  const audition = (pattern: Pattern, preset?: TPhonePreset) => {
     if (playback.playing) playback.stop();
-    previewPlayback.play(pattern, undefined, "pattern");
+    previewPlayback.play(pattern, undefined, "pattern", preset);
   };
   const resetPlayback = useEffectEvent(() => {
     playback.stop();

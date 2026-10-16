@@ -1,13 +1,15 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { patternEnd, rangePattern, toDevice, type Pattern, type Msg } from "@buzzzz/core";
+import { patternEnd, rangePattern, type Pattern, type Msg } from "@buzzzz/core";
 import { playBuffer, prepareSound, soundNow, stopSound } from "./audio";
 import { soundDuration } from "./soundGraph";
 import type { IPlaybackRange } from "./model";
 import { playbackStart } from "./playbackStart";
+import { phonePlayback, type TPhonePreset } from "../connection/phoneLibrary";
 
 interface IPlayback {
   send: (message: Msg) => void;
   phones: number;
+  preset?: TPhonePreset;
   track?: { url: string; startMs: number; endMs: number } | null;
   durationMs?: number;
   cursor?: number;
@@ -67,9 +69,11 @@ export function usePlayback(props: IPlayback) {
     pattern: Pattern,
     range?: IPlaybackRange,
     mode: "document" | "pattern" = "document",
+    previewPreset?: TPhonePreset,
   ) => {
     stopLocal();
     const id = run.current;
+    const preset = mode === "document" ? props.preset : previewPreset;
     setPlaying(true);
     const start = range?.start ?? 0;
     const fullEnd = Math.max(
@@ -107,7 +111,9 @@ export function usePlayback(props: IPlayback) {
     const keyOf = (prefs: typeof preferences.current) =>
       `${usesSound(from) && !!buffer}/${prefs.trackEnabled}/${prefs.onPhone}/${prefs.phones}/${prefs.track?.url}/${prefs.track?.startMs}/${prefs.track?.endMs}`;
     let outputKey = "";
+    let delivery = 0;
     const startOutput = (elapsed: number) => {
+      const currentDelivery = ++delivery;
       const prefs = preferences.current;
       const cursor = from + elapsed;
       stopSound(owner);
@@ -125,7 +131,23 @@ export function usePlayback(props: IPlayback) {
         });
       }
       const soundStart = usesSound(cursor) && buffer ? playBuffer(buffer, elapsed, owner) : null;
-      if (prefs.onPhone && prefs.phones) send({ type: "play", pattern: toDevice(remaining) });
+      if (prefs.onPhone && prefs.phones)
+        void phonePlayback(remaining, preset).then(
+          (message) => {
+            const current = preferences.current;
+            if (
+              id === run.current &&
+              currentDelivery === delivery &&
+              current.onPhone &&
+              current.phones
+            )
+              send(message);
+          },
+          () => {
+            if (id === run.current && currentDelivery === delivery)
+              onError?.("Phone playback could not start");
+          },
+        );
       else send({ type: "stop" });
       outputKey = keyOf(prefs);
       return soundStart;

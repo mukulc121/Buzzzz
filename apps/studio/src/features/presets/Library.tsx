@@ -4,9 +4,10 @@ import { LibraryDetail } from "./LibraryDetail";
 import { LibraryFilters } from "./LibraryFilters";
 import { LibraryRow } from "./LibraryRow";
 import type { Pattern } from "@buzzzz/core";
+import type { TPhonePreset } from "../connection/phoneLibrary";
 
 interface ILibrary {
-  onPreview: (pattern: Pattern) => void;
+  onPreview: (pattern: Pattern, preset?: TPhonePreset) => void;
   onStopPreview: () => void;
   onAppend: (pattern: Pattern, timeMs?: number) => void;
   previewing: boolean;
@@ -85,6 +86,7 @@ export function Library(props: ILibrary) {
       {detail && (
         <LibraryDetail
           entry={detail}
+          phonePreset={{ resourceId: `library:${detail.id}`, name: detail.name }}
           onClose={() => setDetail(null)}
           onAppend={append}
           onPreview={onPreview}

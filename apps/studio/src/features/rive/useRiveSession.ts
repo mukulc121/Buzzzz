@@ -1,6 +1,7 @@
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import type { Msg, Project } from "@buzzzz/core";
 import { useRelay } from "../connection/useRelay";
+import { usePhoneLibrary } from "../connection/usePhoneLibrary";
 import { useUploadedRive } from "./useUploadedRive";
 import { useRive } from "./useRive";
 
@@ -56,6 +57,13 @@ export function useRiveSession(props: IRiveSession) {
   );
   const hasPhones = relay.phones > 0;
   const { room, joinVersion, send } = relay;
+  usePhoneLibrary({
+    presets: project.presets,
+    connected: relay.connected,
+    joinVersion,
+    send,
+    subscribe: relay.subscribe,
+  });
   const path = useUploadedRive({
     buffer: riv?.buffer ?? null,
     room,

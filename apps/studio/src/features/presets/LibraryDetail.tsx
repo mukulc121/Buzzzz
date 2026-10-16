@@ -3,12 +3,14 @@ import { ToolIcon } from "../../components/ToolIcon";
 import { LibraryPreview } from "./LibraryPreview";
 import type { StudioPreset } from "./catalog";
 import type { Pattern } from "@buzzzz/core";
+import type { TPhonePreset } from "../connection/phoneLibrary";
 
 interface ILibraryDetail {
   entry: StudioPreset;
   onClose: () => void;
   onAppend: (entry: StudioPreset) => void;
-  onPreview: (pattern: Pattern) => void;
+  onPreview: (pattern: Pattern, preset?: TPhonePreset) => void;
+  phonePreset?: TPhonePreset;
   onStopPreview: () => void;
   previewing: boolean;
   canEdit: boolean;
@@ -32,7 +34,7 @@ export function LibraryDetail(props: ILibraryDetail) {
       onStopPreview();
     } else {
       ownedPreview.current = true;
-      onPreview(entry.pattern);
+      onPreview(entry.pattern, props.phonePreset);
     }
   };
   return (
