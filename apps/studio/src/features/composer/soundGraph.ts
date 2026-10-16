@@ -24,10 +24,8 @@ function valueAt(points: readonly Point[], seconds: number) {
     if (time === point.time) return point.value;
     if (time < point.time) {
       const previous = points[index - 1]!;
-      return (
-        previous.value +
-        ((point.value - previous.value) * (time - previous.time)) / (point.time - previous.time)
-      );
+      const ratio = (time - previous.time) / (point.time - previous.time);
+      return previous.value + (point.value - previous.value) * ratio;
     }
   }
   return 0;
@@ -52,7 +50,7 @@ function tapNodes(context: BaseAudioContext, tap: Tap, target: AudioNode, offset
     gain.gain.linearRampToValueAtTime(volume, start + voice.attack);
     gain.gain.linearRampToValueAtTime(volume, start + voice.attack);
     gain.gain.setValueAtTime(volume, start + voice.attack);
-    gain.gain.linearRampToValueAtTime(0, start + duration);
+    gain.gain.linearRampToValueAtTime(0, start + voice.attack + voice.release);
     oscillator.connect(gain).connect(target);
     oscillator.start(start);
     oscillator.stop(start + duration);

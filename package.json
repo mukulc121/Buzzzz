@@ -23,6 +23,7 @@
     "analyze": "fallow dead-code --fail-on-issues && fallow architecture --fail-on-issues",
     "check": "bun run typecheck && bun run lint && bun run format:check && bun run test && bun run test:relay && bun run build && bun run analyze",
     "test:browser": "playwright test",
+    "sync:sound-reference": "bun __tests__/browser/fixtures/pulsar/sync.mts",
     "check:all": "bun run check && bun run test:browser",
     "analyze:health": "fallow",
     "typecheck:tools": "tsc --project tsconfig.tools.json"

@@ -3,6 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 import ts from "typescript";
 import { isPattern, patternEnd, rangePattern, toDevice, type Pattern } from "@buzzzz/core";
 import { patternDigest } from "./fixtures/pulsar/digest.ts";
+import { lowpassGains, roundingBudget } from "./fixtures/pulsar/roundingBudget.ts";
 
 interface IOracle {
   commit: string;
@@ -22,6 +23,8 @@ interface IRender {
   reference: IFeatures;
   actual: IFeatures;
   maxDiff: number;
+  selfDiff: number;
+  filterL1: number;
 }
 
 const fixture = (name: string) =>
@@ -105,12 +108,36 @@ function render(page: Page, pattern: Pattern, offset = 0, buffered = false) {
       const tail = Array.from(samples.subarray(Math.max(0, last - Math.round(10 * ms)), last + 1));
       return { length: samples.length, onsets, crossings, rms, peak, last, tail };
     };
-    const results = [];
-    for (const sampleRate of sampleRates) {
+    const pulsarRender = async (sampleRate: number): Promise<Float32Array> => {
       const pulsar = new AudioPatternUtility();
       pulsar.sampleRate = sampleRate;
       await pulsar.parsePattern(pattern);
-      const reference: Float32Array = pulsar.renderedBuffer.getChannelData(0);
+      return pulsar.renderedBuffer.getChannelData(0);
+    };
+    // L1 gain of Pulsar's lowpass (700 Hz, Q 5) as this browser implements it.
+    const filterL1 = async (sampleRate: number) => {
+      const context = new OfflineAudioContext(1, sampleRate * 2, sampleRate);
+      const impulse = context.createBuffer(1, 1, sampleRate);
+      impulse.getChannelData(0)[0] = 1;
+      const source = context.createBufferSource();
+      const filter = context.createBiquadFilter();
+      source.buffer = impulse;
+      filter.type = "lowpass";
+      filter.frequency.value = 700;
+      filter.Q.value = 5;
+      source.connect(filter).connect(context.destination);
+      source.start(0);
+      return (await context.startRendering())
+        .getChannelData(0)
+        .reduce((sum, v) => sum + Math.abs(v), 0);
+    };
+    const results = [];
+    for (const sampleRate of sampleRates) {
+      const reference = await pulsarRender(sampleRate);
+      const rerun = await pulsarRender(sampleRate);
+      let selfDiff = rerun.length === reference.length ? 0 : Infinity;
+      for (let index = 0; index < reference.length; index++)
+        selfDiff = Math.max(selfDiff, Math.abs(rerun[index]! - reference[index]!));
       const delay = Math.round(offset * sampleRate);
       const context = new OfflineAudioContext(1, reference.length + delay, sampleRate);
       if (buffered) {
@@ -130,6 +157,8 @@ function render(page: Page, pattern: Pattern, offset = 0, buffered = false) {
         reference: features(reference, sampleRate),
         actual: features(actual, sampleRate),
         maxDiff,
+        selfDiff,
+        filterL1: await filterL1(sampleRate),
       });
     }
     return results;
@@ -166,16 +195,25 @@ for (const [index, entry] of oracle.presets.entries()) {
   test(`${entry.file} sounds like Pulsar at 44.1k and 48k`, async ({ page }) => {
     const pattern = shipped[index]!.pattern;
     await openOracle(page);
-    for (const { sampleRate, reference, actual, maxDiff } of await render(page, pattern)) {
+    for (const result of await render(page, pattern)) {
+      const { sampleRate, reference, actual, maxDiff, selfDiff } = result;
+      const budget = roundingBudget(pattern, sampleRate, reference.peak);
       const at = `${entry.name} @ ${sampleRate}`;
+      expect(result.filterL1, `${at}: browser lowpass is the spec filter`).toBeCloseTo(
+        lowpassGains(sampleRate).response,
+        4,
+      );
       expect(reference.peak, `${at}: Pulsar renders sound`).toBeGreaterThan(0.01);
       expect(actual.length, `${at}: length`).toBe(reference.length);
       expect(actual.onsets, `${at}: onsets`).toEqual(reference.onsets);
       expect(actual.crossings, `${at}: zero crossings per 5ms`).toEqual(reference.crossings);
-      expect(maxGap(actual.rms, reference.rms), `${at}: envelope`).toBeLessThan(1e-6);
+      expect(maxGap(actual.rms, reference.rms), `${at}: envelope`).toBeLessThanOrEqual(budget);
       expect(actual.last, `${at}: last audible sample`).toBe(reference.last);
-      expect(maxGap(actual.tail, reference.tail), `${at}: tail samples`).toBeLessThan(1e-6);
-      expect(maxDiff, `${at}: every sample`).toBeLessThan(1e-6);
+      expect(maxGap(actual.tail, reference.tail), `${at}: tail samples`).toBeLessThanOrEqual(
+        budget,
+      );
+      expect(selfDiff, `${at}: Pulsar rerun within rounding budget`).toBeLessThanOrEqual(budget);
+      expect(maxDiff, `${at}: every sample within rounding budget`).toBeLessThanOrEqual(budget);
       if (pattern.continuousPattern.amplitude.length) continue;
       const taps = pattern.discretePattern.filter(
         (tap, tapIndex, all) => !tapIndex || tap.time - all[tapIndex - 1]!.time > TAP_MS + 1,
@@ -196,8 +234,10 @@ test("Studio buffer playback preserves every preset through its scheduling lead"
   test.setTimeout(240_000);
   await openOracle(page);
   for (const [index, entry] of oracle.presets.entries())
-    for (const { sampleRate, maxDiff } of await render(page, shipped[index]!.pattern, 0.03, true))
-      expect(maxDiff, `${entry.name} @ ${sampleRate}`).toBeLessThan(1e-6);
+    for (const result of await render(page, shipped[index]!.pattern, 0.03, true))
+      expect(result.maxDiff, `${entry.name} @ ${result.sampleRate}`).toBeLessThanOrEqual(
+        roundingBudget(shipped[index]!.pattern, result.sampleRate, result.reference.peak),
+      );
 });
 
 const studioBundle = process.env.PULSAR_STUDIO_BUNDLE;
@@ -249,7 +289,7 @@ test("deployed Pulsar studio presets and synth match the docs oracle", async ({ 
           async resume() {}
         },
       });
-      const gaps: Record<string, number> = {};
+      const gaps: { name: string; sampleRate: number; gap: number; peak: number }[] = [];
       for (const { name, pattern } of presets)
         for (const sampleRate of sampleRates) {
           const docs = new AudioPatternUtility();
@@ -258,14 +298,21 @@ test("deployed Pulsar studio presets and synth match the docs oracle", async ({ 
           const expected: Float32Array = docs.renderedBuffer.getChannelData(0);
           const actual: Float32Array = (await render(pattern, sampleRate)).getChannelData(0);
           let gap = actual.length === expected.length ? 0 : Infinity;
-          for (let index = 0; index < expected.length; index++)
+          let peak = 0;
+          for (let index = 0; index < expected.length; index++) {
             gap = Math.max(gap, Math.abs(actual[index]! - expected[index]!));
-          gaps[`${name} @ ${sampleRate}`] = gap;
+            peak = Math.max(peak, Math.abs(expected[index]!));
+          }
+          gaps.push({ name, sampleRate, gap, peak });
         }
       return gaps;
     },
     { synth, pulsarPlayer, presets: deployed, sampleRates: SAMPLE_RATES },
   );
-  expect(Object.entries(gaps).filter(([, gap]) => gap >= 1e-6)).toEqual([]);
-  expect(Object.keys(gaps)).toHaveLength(deployed.length * SAMPLE_RATES.length);
+  const over = gaps.filter(({ name, sampleRate, gap, peak }) => {
+    const pattern = deployed.find((preset) => preset.name === name)!.pattern;
+    return gap > roundingBudget(pattern, sampleRate, peak);
+  });
+  expect(over).toEqual([]);
+  expect(gaps).toHaveLength(deployed.length * SAMPLE_RATES.length);
 });
