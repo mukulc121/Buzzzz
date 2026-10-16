@@ -10,16 +10,11 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
-  font:
-    13px/1.45 "DM Sans Variable",
-    ui-sans-serif,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Inter",
-    system-ui,
-    sans-serif;
+  font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
-  font-variant-numeric: tabular-nums;
+  -moz-osx-font-smoothing: grayscale;
 }
 h1,
 h2,
@@ -29,7 +24,7 @@ p {
 }
 h2,
 h3 {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
 }
 h2 {
@@ -64,7 +59,7 @@ kbd {
     10px/1 ui-monospace,
     monospace;
   padding: 2px 4px;
-  border: 1px solid var(--line);
+  border: 2px solid var(--line);
   border-radius: 3px;
   color: var(--muted);
 }
@@ -80,7 +75,7 @@ textarea {
   font: inherit;
   color: inherit;
   background: var(--panel);
-  border: 1px solid var(--line);
+  border: 2px solid var(--line);
   border-radius: 4px;
   padding: 6px 9px;
   max-width: 100%;
@@ -105,9 +100,9 @@ button:disabled {
   cursor: default;
 }
 button.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-fg);
+  background: var(--primary-bg);
+  border-color: var(--line-strong);
+  color: var(--fg);
   font-weight: 600;
 }
 button.icon {
@@ -153,7 +148,7 @@ button:hover:not(:disabled),
   background: var(--sunken);
 }
 button.primary:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--accent) 88%, black);
+  background: var(--primary-bg);
   color: var(--accent-fg);
 }
 .row,
@@ -173,7 +168,7 @@ button.primary:hover:not(:disabled) {
   gap: 2px;
   padding: 2px;
   background: var(--sunken);
-  border: 1px solid var(--line);
+  border: 2px solid var(--line);
   border-radius: 5px;
   max-width: 100%;
 }
@@ -204,7 +199,7 @@ button.primary:hover:not(:disabled) {
 }
 .card {
   background: var(--panel);
-  border: 1px solid var(--line);
+  border: 2px solid var(--line);
   border-radius: 4px;
   padding: 12px;
   display: flex;
@@ -226,7 +221,7 @@ button.primary:hover:not(:disabled) {
 }
 .badge {
   font-size: 10px;
-  border: 1px solid var(--line);
+  border: 2px solid var(--line);
   padding: 2px 5px;
   color: var(--muted);
   border-radius: 3px;
