@@ -34,6 +34,7 @@ beforeAll(async () => {
     configFile: false,
     root: import.meta.dir + "/..",
     plugins: [relay()],
+    optimizeDeps: { noDiscovery: true, include: [] },
     server: { host: "127.0.0.1", port: 0 },
   });
   await server.listen();
