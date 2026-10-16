@@ -1,0 +1,215 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { analyzeAnimationAsync } from "./analysisAsync";
+import { generateAnimationCandidates } from "./generation";
+import { readAnimationFile } from "./import";
+import { DEFAULT_GENERATION_OPTIONS } from "../audio/tuning";
+import type { IAudioGenerationOptions } from "../audio/model";
+import type { AnimationMetric, IAnimationAnalysis, IAnimationDocument } from "./model";
+
+interface IAnimationSource {
+  file: File;
+  url: string;
+  durationMs: number;
+  data: Record<string, unknown>;
+  document: IAnimationDocument;
+  animationId: string;
+  animations: { id: string; document: IAnimationDocument }[];
+  assetUrls: string[];
+}
+interface IAnimationTrack {
+  onError: (message: string) => void;
+}
+
+export function useAnimationTrack(props: IAnimationTrack) {
+  const { onError } = props;
+  const [source, setSource] = useState<IAnimationSource | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<{
+    source: IAnimationSource;
+    frameMs: number;
+    analysis: IAnimationAnalysis | null;
+  } | null>(null);
+  const [frameMs, setFrameMs] = useState(1000 / 240);
+  const [generationOptions, setGenerationOptions] = useState<Required<IAudioGenerationOptions>>({
+    ...DEFAULT_GENERATION_OPTIONS,
+    smoothingMs: 12,
+  });
+  const [hybrid, setHybrid] = useState({
+    gain: 1.2,
+    threshold: 0.17,
+    minGapMs: 70,
+    freqFollow: 0.7,
+  });
+  const smoothingMs = generationOptions.smoothingMs;
+  const setSmoothingMs = useCallback((value: number) => {
+    if (Number.isFinite(value))
+      setGenerationOptions((current) => ({
+        ...current,
+        smoothingMs: Math.max(0, Math.min(1000, value)),
+      }));
+  }, []);
+  const [intensityChannel, setIntensityChannel] = useState<AnimationMetric>("energy");
+  const [frequencyChannel, setFrequencyChannel] = useState<AnimationMetric>("positionY");
+  const [speed, setSpeed] = useState(1);
+  const [seekMs, setSeekState] = useState(0);
+  const [seekRevision, setSeekRevision] = useState(0);
+  const [positionMs, setPositionMs] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [previewMode, setPreviewMode] = useState<"stacked" | "side-by-side" | "fullscreen">(
+    "stacked",
+  );
+  const requestId = useRef(0);
+  const errorHandler = useRef(onError);
+  const url = source?.url;
+  const assetUrls = source?.assetUrls;
+  useEffect(() => {
+    errorHandler.current = onError;
+  }, [onError]);
+  useEffect(
+    () => () => {
+      requestId.current++;
+    },
+    [],
+  );
+  useEffect(
+    () => () => {
+      if (url) URL.revokeObjectURL(url);
+      for (const asset of assetUrls ?? []) URL.revokeObjectURL(asset);
+    },
+    [url, assetUrls],
+  );
+  const matches = result?.source === source && result?.frameMs === frameMs;
+  const analysis = matches ? result.analysis : null;
+  const working = loading || Boolean(source && !matches);
+  useEffect(() => {
+    if (!source) return;
+    const controller = new AbortController();
+    analyzeAnimationAsync(source.document, frameMs, controller.signal)
+      .then((value) => {
+        if (!controller.signal.aborted) setResult({ source, frameMs, analysis: value });
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        setResult({ source, frameMs, analysis: null });
+        errorHandler.current(error instanceof Error ? error.message : "Animation analysis failed");
+      });
+    return () => controller.abort();
+  }, [source, frameMs]);
+  const candidates = useMemo(
+    () =>
+      analysis
+        ? generateAnimationCandidates(analysis, {
+            ...generationOptions,
+            ...hybrid,
+            intensityChannel,
+            frequencyChannel,
+          })
+        : [],
+    [analysis, generationOptions, hybrid, intensityChannel, frequencyChannel],
+  );
+  const loadFile = useCallback(async (file: File) => {
+    const request = ++requestId.current;
+    setLoading(true);
+    setPlaying(false);
+    try {
+      const bundle = await readAnimationFile(file);
+      if (request !== requestId.current) {
+        for (const asset of bundle.assetUrls) URL.revokeObjectURL(asset);
+        return false;
+      }
+      const selected =
+        bundle.animations.find((item) => item.id === bundle.initialId) ?? bundle.animations[0];
+      setSource({
+        file,
+        url: URL.createObjectURL(file),
+        data: selected.document.data,
+        document: selected.document,
+        durationMs: selected.document.durationMs,
+        animationId: selected.id,
+        animations: bundle.animations,
+        assetUrls: bundle.assetUrls,
+      });
+      setResult(null);
+      setSeekState(0);
+      setPositionMs(0);
+      return true;
+    } catch (error) {
+      if (request === requestId.current)
+        errorHandler.current(error instanceof Error ? error.message : "Animation import failed");
+      return false;
+    } finally {
+      if (request === requestId.current) setLoading(false);
+    }
+  }, []);
+  const selectAnimation = useCallback(
+    (id: string) => {
+      const selected = source?.animations.find((item) => item.id === id);
+      if (!source || !selected) return;
+      setPlaying(false);
+      setSeekState(0);
+      setPositionMs(0);
+      setSource({
+        ...source,
+        data: selected.document.data,
+        document: selected.document,
+        durationMs: selected.document.durationMs,
+        animationId: id,
+      });
+    },
+    [source],
+  );
+  const clear = useCallback(() => {
+    requestId.current++;
+    setSource(null);
+    setResult(null);
+    setLoading(false);
+    setPlaying(false);
+    setSeekState(0);
+    setPositionMs(0);
+  }, []);
+  const setSeekMs = useCallback(
+    (time: number) => {
+      if (Number.isFinite(time)) {
+        const value = Math.max(0, Math.min(source?.durationMs ?? 0, time));
+        setSeekState(value);
+        setSeekRevision((revision) => revision + 1);
+        setPositionMs(value);
+      }
+    },
+    [source],
+  );
+  return {
+    source,
+    analysis,
+    candidates,
+    working,
+    loading,
+    frameMs,
+    setFrameMs,
+    smoothingMs,
+    setSmoothingMs,
+    generationOptions,
+    setGenerationOptions,
+    hybrid,
+    setHybrid,
+    intensityChannel,
+    setIntensityChannel,
+    frequencyChannel,
+    setFrequencyChannel,
+    speed,
+    setSpeed,
+    seekMs,
+    setSeekMs,
+    seekRevision,
+    positionMs,
+    setPositionMs,
+    playing,
+    setPlaying,
+    previewMode,
+    setPreviewMode,
+    loadFile,
+    selectAnimation,
+    clear,
+    onError,
+  };
+}

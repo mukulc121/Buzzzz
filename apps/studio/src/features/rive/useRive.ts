@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent, useRef, useState, type RefObject } from "react";
-import { Rive } from "@rive-app/canvas";
+import type { Rive } from "@rive-app/canvas";
+import { createRive } from "./createRive";
 
 type RiveInfo = { triggers: string[]; stateMachines: string[] };
 interface ILoadedRive {
@@ -14,10 +15,12 @@ export function useRive(
   buffer: ArrayBuffer | null,
   requestedStateMachine: string | undefined,
   onFired: (name: string) => void,
+  onError: (message: string) => void,
 ) {
   const [loaded, setLoaded] = useState<ILoadedRive | null>(null);
   const rive = useRef<Rive | null>(null);
   const fired = useEffectEvent(onFired);
+  const reportError = useEffectEvent(onError);
   // Bumping the run id rebuilds the instance: animation from frame 0, fresh view model, listeners re-attached.
   const [run, setRun] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -25,44 +28,37 @@ export function useRive(
   useEffect(() => {
     if (!buffer || !canvas.current) return;
     let active = true;
-    const r = new Rive({
-      buffer: buffer.slice(0),
-      canvas: canvas.current,
-      autoplay: false,
-      autoBind: true,
-      onLoad: () => {
-        if (!active) return;
-        const machines = r.stateMachineNames;
-        const machine =
-          requestedStateMachine && machines.includes(requestedStateMachine)
-            ? requestedStateMachine
-            : machines[0];
-        if (machine) r.reset({ stateMachine: machine, autoplay: false, autoBind: true });
-        r.resizeDrawingSurfaceToCanvas();
-        setPaused(false);
-        const vmi = r.viewModelInstance;
-        // ponytail: top-level triggers of the default view model only; nested view models later if needed
-        const triggers = (vmi?.properties ?? [])
-          .filter((p) => String(p.type) === "trigger")
-          .map((p) => p.name);
-        triggers.forEach((n) => vmi!.trigger(n)?.on(() => fired(n)));
-        setLoaded({
-          buffer,
-          requestedStateMachine,
-          stateMachine: machine,
-          info: { triggers, stateMachines: machines },
-        });
-        if (machine || r.animationNames.length) r.play();
-      },
-    });
-    rive.current = r;
-    const observer = new ResizeObserver(() => r.resizeDrawingSurfaceToCanvas());
+    let instance: Rive | null = null;
+    const observer = new ResizeObserver(() => instance?.resizeDrawingSurfaceToCanvas());
     observer.observe(canvas.current);
+    void createRive({
+      canvas: canvas.current,
+      buffer,
+      requestedStateMachine,
+      active: () => active,
+      onFired: fired,
+      onError: reportError,
+      onReady: (stateMachine, info) => {
+        setPaused(false);
+        setLoaded({ buffer, requestedStateMachine, stateMachine, info });
+      },
+    })
+      .then((r) => {
+        if (!active) {
+          r?.cleanup();
+          return;
+        }
+        instance = r;
+        rive.current = r;
+      })
+      .catch(() => {
+        if (active) reportError("The Rive preview could not start");
+      });
     return () => {
       active = false;
       observer.disconnect();
-      if (rive.current === r) rive.current = null;
-      r.cleanup();
+      if (rive.current === instance) rive.current = null;
+      instance?.cleanup();
     };
   }, [buffer, requestedStateMachine, canvas, run]);
 

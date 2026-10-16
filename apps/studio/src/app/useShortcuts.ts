@@ -1,0 +1,47 @@
+import { useEffect } from "react";
+import { deleteSelection } from "../features/composer/editing";
+import type { Studio } from "./useStudio";
+
+export function useShortcuts(studio: Studio) {
+  useEffect(() => {
+    const { document, composer, playback } = studio;
+    const handle = (event: KeyboardEvent) => {
+      if (
+        event.target instanceof HTMLElement &&
+        event.target.closest("input,select,textarea,[contenteditable]")
+      )
+        return;
+      const command = event.metaKey || event.ctrlKey;
+      if (command && event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        if (event.shiftKey) document.redo();
+        else document.undo();
+        composer.setSelected(null);
+      } else if (
+        (event.key === "Delete" || event.key === "Backspace") &&
+        composer.selection.length
+      ) {
+        event.preventDefault();
+        studio.applyPattern(
+          deleteSelection({ pattern: document.pattern, selection: composer.selection }),
+        );
+        composer.setSelected(null);
+      } else if (
+        (event.key === " " || event.key.toLowerCase() === "p") &&
+        !(event.target instanceof HTMLElement && event.target.closest("button"))
+      ) {
+        event.preventDefault();
+        if (playback.playing) playback.stop();
+        else playback.play(document.pattern, composer.range ?? undefined);
+      } else if (event.key === "1") composer.setLayer("amplitude");
+      else if (event.key === "2") composer.setLayer("frequency");
+      else if (event.key === "3") composer.setLayer("discrete");
+      else if (event.key === "+" || event.key === "=") composer.zoom(1 / 1.5);
+      else if (event.key === "-") composer.zoom(1.5);
+      else if (event.key === "Escape") composer.setSelected(null);
+      else if (event.key.toLowerCase() === "m") composer.addMarker(playback.playhead ?? 0);
+    };
+    window.addEventListener("keydown", handle);
+    return () => window.removeEventListener("keydown", handle);
+  }, [studio]);
+}

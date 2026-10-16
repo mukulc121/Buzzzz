@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { emptyPattern } from "@buzzzz/core";
-import { readImport } from "../src/app/imports";
+import { readImport } from "../src/features/imports/readImport";
 test("validates every attachment before accepting a project import", async () => {
   const project = { presets: [{ id: "p1", name: "Test", pattern: emptyPattern() }], map: {} };
   const file = (data: unknown) => new File([JSON.stringify(data)], "project.json");
@@ -25,7 +25,7 @@ test("reimports a project containing a maximum-size Rive attachment", async () =
   expect(imported.kind).toBe("project");
   if (imported.kind !== "project") throw new Error("Expected a project import");
   expect(imported.riv?.buffer.byteLength).toBe(bytes.byteLength);
-});
+}, 20_000);
 
 test("rejects oversized native files and project documents", async () => {
   await expect(

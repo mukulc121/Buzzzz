@@ -1,4 +1,4 @@
-import type { Dispatch, RefObject, SetStateAction } from "react";
+import { useRef, useState, type Dispatch, type RefObject, type SetStateAction } from "react";
 import { Bolt, Play, Stop } from "../../components/icons";
 import { FilePicker } from "../../components/FilePicker";
 import type { Msg, Project } from "@buzzzz/core";
@@ -21,6 +21,8 @@ interface IRivePanel {
   fire: (name: string) => void;
 }
 export function RivePanel(props: IRivePanel) {
+  const section = useRef<HTMLElement>(null);
+  const [fullscreenError, setFullscreenError] = useState("");
   const {
     riv,
     canvas,
@@ -40,15 +42,32 @@ export function RivePanel(props: IRivePanel) {
     fire,
   } = props;
   return (
-    <section className="card rive-panel">
+    <section ref={section} className="card rive-panel">
       <header className="card-head">
         <h3>Animation & triggers</h3>
+        {riv && (
+          <button
+            aria-label="Fullscreen Rive preview"
+            onClick={() =>
+              void section.current
+                ?.requestFullscreen()
+                .catch(() => setFullscreenError("Fullscreen is unavailable in this browser"))
+            }
+          >
+            ⛶ Fullscreen
+          </button>
+        )}
         {riv && (
           <small className="muted" title={riv.name}>
             {riv.name}
           </small>
         )}
       </header>
+      {fullscreenError && (
+        <p className="hint" role="status">
+          {fullscreenError}
+        </p>
+      )}
       <div className={riv ? "stage" : "stage empty"}>
         <canvas ref={canvas} className="rive" />
         {!riv && (

@@ -1,0 +1,212 @@
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  min-width: 0;
+  flex: 1;
+  min-height: 0;
+}
+.tabs {
+  display: flex;
+  flex-shrink: 0;
+}
+.tabs button {
+  flex: 1;
+  font-size: 11px;
+  white-space: normal;
+}
+.count {
+  font-size: 10px;
+  color: var(--muted);
+}
+.search {
+  width: 100%;
+}
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  min-height: 60px;
+  overflow: auto;
+  min-width: 0;
+}
+.list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  min-width: 0;
+}
+.list li.active {
+  background: var(--accent-soft);
+  border-color: var(--line-strong);
+}
+.list li small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.list .preset-select {
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-start;
+  text-align: left;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  gap: 10px;
+  white-space: normal;
+}
+.list .preset-select .grow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.list .reveal {
+  opacity: 0;
+}
+.list li:hover .reveal,
+.list li:focus-within .reveal,
+.list li.active .reveal {
+  opacity: 1;
+}
+.list li.empty {
+  justify-content: center;
+  color: var(--muted);
+  padding: 20px;
+}
+.spark {
+  flex: none;
+  background: var(--sunken);
+  border-radius: 3px;
+}
+.files {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+.files > * {
+  width: 100%;
+  min-width: 0;
+  justify-content: flex-start;
+  font-size: 12px;
+}
+.library-preview {
+  text-align: left;
+}
+.pair,
+.pair-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.qr {
+  align-self: center;
+  width: min(160px, 100%);
+  height: auto;
+  aspect-ratio: 1;
+  padding: 5px;
+  background: rgba(255, 255, 255, 1);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.skeleton {
+  background: var(--sunken);
+}
+.steps {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--fg-2);
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.relay-address {
+  width: 100%;
+  min-width: 0;
+}
+.relay-address-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.relay-address label {
+  font-size: 11px;
+  color: var(--muted);
+}
+.relay-address-row {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  min-width: 0;
+}
+.relay-url {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: var(--sunken);
+  font:
+    10px/1.5 ui-monospace,
+    monospace;
+}
+.relay-address .hint:empty {
+  display: none;
+}
+.pair-code {
+  font:
+    600 28px/1.4 ui-monospace,
+    monospace;
+  letter-spacing: 6px;
+  text-align: center;
+}
+.log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 11px;
+  max-height: 220px;
+}
+.log li {
+  display: flex;
+  gap: 10px;
+  color: var(--fg-2);
+}
+.log time {
+  color: var(--muted);
+  flex: none;
+}
+.media-card {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.media-card span {
+  font-size: 11px;
+  color: var(--muted);
+}
+@media (hover: none) {
+  .list .reveal {
+    opacity: 1;
+  }
+}

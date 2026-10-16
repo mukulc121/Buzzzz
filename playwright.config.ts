@@ -10,10 +10,26 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
-  webServer: {
-    command: "bun run dev:studio",
-    url: "http://127.0.0.1:5173",
-    reuseExistingServer: !process.env.CI,
-    timeout: 30_000,
-  },
+  webServer: [
+    {
+      command: "bun run dev:studio",
+      url: "http://127.0.0.1:5173",
+      reuseExistingServer: !process.env.CI,
+      timeout: 30_000,
+    },
+    {
+      command:
+        "bun run --cwd apps/relay dev --port 8788 --inspector-port 0 --persist-to .wrangler/playwright --var STUDIO_ORIGINS:http://127.0.0.1:5174",
+      url: "http://127.0.0.1:8788/health",
+      reuseExistingServer: false,
+      timeout: 60_000,
+    },
+    {
+      command: "bun run --cwd apps/studio dev --host 127.0.0.1 --port 5174 --strictPort",
+      env: { VITE_RELAY_URL: "http://127.0.0.1:8788" },
+      url: "http://127.0.0.1:5174",
+      reuseExistingServer: false,
+      timeout: 60_000,
+    },
+  ],
 });

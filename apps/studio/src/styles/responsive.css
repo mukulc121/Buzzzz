@@ -1,0 +1,107 @@
+@media (max-width: 1200px) and (min-width: 761px) {
+  .workspace {
+    grid-template-columns: 56px 190px minmax(0, 1fr) 250px;
+  }
+  .workspace[data-sidebar="false"] {
+    grid-template-columns: 56px minmax(0, 1fr) 250px;
+  }
+  .workspace[data-inspector="false"] {
+    grid-template-columns: 56px 190px minmax(0, 1fr);
+  }
+  .workspace[data-sidebar="false"][data-inspector="false"] {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+}
+@media (max-width: 760px) {
+  .shell {
+    height: auto;
+    min-height: 100dvh;
+  }
+  .topbar {
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 8px 12px;
+  }
+  .brand-detail,
+  .topbar > .status {
+    display: none;
+  }
+  .workspace,
+  .workspace[data-sidebar],
+  .workspace[data-inspector],
+  .workspace[data-sidebar][data-inspector] {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+  }
+  .tool-rail {
+    flex-direction: row;
+    overflow: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .rail-brand {
+    display: none;
+  }
+  .tool-rail button {
+    min-height: 56px;
+    min-width: calc(100% / 7);
+    flex: 1;
+    font-size: 9px;
+  }
+  .tool-rail button:last-child {
+    margin-top: 0;
+  }
+  .workspace-sidebar {
+    max-height: 300px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    overflow: auto;
+  }
+  .panel-heading {
+    min-height: 36px;
+    padding-block: 4px;
+  }
+  .editor-canvas {
+    min-height: 660px;
+  }
+  .canvas-scroll {
+    overflow: visible;
+    padding: 12px;
+  }
+  .pattern-header {
+    gap: 5px;
+    padding-inline: 8px;
+  }
+  .save-status {
+    display: none;
+  }
+  .workspace-inspector {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    overflow: visible;
+  }
+  .inspector-tabs {
+    position: static;
+  }
+}
+
+@media (max-width: 760px) {
+  .left .files {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .left .files > * {
+    font-size: 11px;
+    padding: 6px;
+    justify-content: center;
+    gap: 4px;
+  }
+  .left .list {
+    min-height: 45px;
+    max-height: 100px;
+    flex: auto;
+  }
+  .workspace-sidebar > .left {
+    overflow: auto;
+  }
+}

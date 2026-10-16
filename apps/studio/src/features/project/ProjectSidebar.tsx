@@ -3,8 +3,8 @@ import { toDevice, type Pattern, type Project } from "@buzzzz/core";
 import { FilePicker } from "../../components/FilePicker";
 import { Copy, Download, Plus, Upload, X } from "../../components/icons";
 import { Spark } from "../composer/Spark";
-import { Library } from "../presets/Library";
-import { download, toBase64 } from "./files";
+import { LazyLibrary as Library } from "../presets/LazyLibrary";
+import { download } from "./files";
 
 interface IProjectSidebar {
   project: Project;
@@ -14,15 +14,13 @@ interface IProjectSidebar {
   onSelect: (id: string) => void;
   onRemove: (id: string) => void;
   onImport: (file: File) => Promise<void>;
-  riv: { name: string; buffer: ArrayBuffer } | null;
-  stateMachine?: string;
+  onExport: () => Promise<void>;
 }
 
 const slug = (name: string) => name.trim().replace(/\W+/g, "-").toLowerCase() || "pattern";
 
 export function ProjectSidebar(props: IProjectSidebar) {
-  const { project, preset, onPreview, onAdd, onSelect, onRemove, onImport, riv, stateMachine } =
-    props;
+  const { project, preset, onPreview, onAdd, onSelect, onRemove, onImport, onExport } = props;
   const [tab, setTab] = useState<"project" | "library">("project");
 
   return (
@@ -96,7 +94,11 @@ export function ProjectSidebar(props: IProjectSidebar) {
       )}
 
       <footer className="files">
-        <FilePicker accept=".json,.riv" onFile={onImport} className="button">
+        <FilePicker
+          accept=".json,.riv,.pulsar,.zip,.lottie,.ahap,.haptic,.mp3,.wav,.ogg,.m4a,.flac"
+          onFile={onImport}
+          className="button"
+        >
           <Upload /> Import
         </FilePicker>
         <button
@@ -106,13 +108,8 @@ export function ProjectSidebar(props: IProjectSidebar) {
           <Download /> Pattern
         </button>
         <button
-          onClick={() =>
-            download("haptics-project.json", {
-              ...project,
-              riv: riv && { name: riv.name, stateMachine, data: toBase64(riv.buffer) },
-            })
-          }
-          title="Everything: patterns, trigger mappings and the Rive file"
+          onClick={onExport}
+          title="Portable Pulsar bundle with patterns, mappings and attached media"
         >
           <Download /> Project
         </button>

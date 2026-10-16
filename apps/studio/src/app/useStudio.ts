@@ -1,0 +1,209 @@
+import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { MAX_PATTERN_MS, patternEnd, type Pattern } from "@buzzzz/core";
+import { useProject } from "../features/project/useProject";
+import { useComposer } from "../features/composer/useComposer";
+import { usePlayback } from "../features/composer/usePlayback";
+import { playSound } from "../features/composer/audio";
+import { useRiveSession } from "../features/rive/useRiveSession";
+import { useAudioTrack } from "../features/audio/useAudioTrack";
+import { useAnimationTrack } from "../features/animation/useAnimationTrack";
+import { useSharedProject } from "../features/connection/useSharedProject";
+import { useActivityLog } from "../features/activity/useActivityLog";
+import { useTheme } from "./useTheme";
+import { useShortcuts } from "./useShortcuts";
+import { useAttachedTracks } from "../features/media/useAttachedTracks";
+import { useSharing } from "../features/connection/useSharing";
+import { useCanonicalProject } from "../features/mcp/useCanonicalProject";
+import { useMcpBridge } from "../features/mcp/useMcpBridge";
+import { useStudioFiles } from "./useStudioFiles";
+import type { Panel } from "./ToolRail";
+
+export function useStudio() {
+  const document = useProject();
+  const composer = useComposer(document.pattern, document.preset.editor, document.setEditor);
+  const appearance = useTheme();
+  const activity = useActivityLog();
+  const [error, setError] = useState<string | null>(null);
+  useSharedProject({
+    ready: document.isWriter,
+    projectId: document.projectId,
+    onLoad: document.openProject,
+    onError: setError,
+  });
+  const [panel, setPanel] = useState<Panel | null>("patterns");
+  const [inspector, setInspector] = useState<"inspector" | "sound" | "animation">("inspector");
+  const [inspectorOpen, setInspectorOpen] = useState(true);
+  const originals = useRef(new Map<string, Pattern>());
+  const audio = useAudioTrack({ onError: setError });
+  const animation = useAnimationTrack({ onError: setError });
+  const session = useRiveSession({
+    project: document.project,
+    mapped: document.mapped,
+    addLog: activity.addLog,
+    onError: setError,
+    onStateMachineChange: (name) => {
+      document.begin();
+      document.setProject((project) => ({ ...project, riveStateMachine: name }));
+    },
+    onTrigger: (pattern) => {
+      if (playback.sound && !audio.source) playSound(pattern);
+    },
+  });
+  const playback = usePlayback({
+    onError: setError,
+    onStart: (time) => {
+      animation.setSeekMs(time);
+      animation.setPlaying(true);
+    },
+    onStop: () => animation.setPlaying(false),
+    onSeek: animation.setSeekMs,
+    send: session.send,
+    phones: session.phones,
+    durationMs: Math.max(
+      animation.source?.durationMs ?? 0,
+      document.preset.editor?.durationMs ?? 0,
+    ),
+    track: audio.source
+      ? { url: audio.source.url, startMs: audio.trim.startMs, endMs: audio.trim.endMs }
+      : null,
+  });
+  const applyPattern = (pattern: Pattern) => {
+    if (!document.isWriter) return;
+    document.begin();
+    document.setPattern(pattern);
+    composer.setSelected(null);
+  };
+  const applyGenerated = (pattern: Pattern) => {
+    if (!document.isWriter) return;
+    const key = `${document.projectId}/${document.preset.id}`;
+    if (!originals.current.has(key)) originals.current.set(key, structuredClone(document.pattern));
+    applyPattern(pattern);
+    composer.fit(patternEnd(pattern));
+  };
+  const restore = () => {
+    if (!document.isWriter) return;
+    const key = `${document.projectId}/${document.preset.id}`;
+    const pattern = originals.current.get(key);
+    if (pattern) {
+      applyPattern(pattern);
+      originals.current.delete(key);
+    }
+  };
+  const preserve = (pattern: Pattern, name: string) =>
+    document.addPreset(pattern, name, { select: false });
+  const selectPreset = (id: string) => {
+    playback.stop();
+    document.selectPreset(id);
+    composer.setSelected(null);
+  };
+  const addPreset = (pattern?: Pattern, name?: string) => {
+    document.addPreset(pattern, name);
+    composer.setSelected(null);
+  };
+  const sharing = useSharing({
+    room: session.room,
+    projectId: document.projectId,
+    project: document.project,
+    onError: setError,
+  });
+  const media = useAttachedTracks({
+    projectId: document.projectId,
+    presetId: document.preset.id,
+    onError: setError,
+    audio,
+    animation,
+    rive: session,
+  });
+  const files = useStudioFiles({
+    document,
+    composer,
+    session,
+    media,
+    onError: setError,
+    onInspector: (tab) => {
+      setInspector(tab);
+      setInspectorOpen(true);
+    },
+    onLog: activity.addLog,
+  });
+  const canonical = useCanonicalProject({
+    room: session.room,
+    subscribe: session.subscribe,
+    document,
+    onError: setError,
+  });
+  const mcp = useMcpBridge({
+    room: session.room,
+    connected: session.connected,
+    subscribe: session.subscribe,
+    send: session.send,
+    document,
+    composer,
+    playback,
+    audio,
+    animation,
+    media,
+    applyGenerated,
+    preserve,
+  });
+  const audition = (pattern: Pattern) => playback.play(pattern, undefined, "pattern");
+  const resetPlayback = useEffectEvent(() => {
+    playback.stop();
+    composer.setSelected(null);
+    composer.fit(Math.max(patternEnd(document.pattern), document.preset.editor?.durationMs ?? 0));
+  });
+  useEffect(() => {
+    resetPlayback();
+  }, [document.projectId, document.preset.id]);
+  const editSelection = (field: string, value: number) => {
+    if (!composer.selected || !Number.isFinite(value)) return;
+    const next = structuredClone(document.pattern);
+    const point =
+      composer.selected.layer === "discrete"
+        ? next.discretePattern[composer.selected.index]
+        : next.continuousPattern[composer.selected.layer][composer.selected.index];
+    if (!point) return;
+    if (field === "time") point.time = Math.min(MAX_PATTERN_MS, Math.max(0, value));
+    else if (field === "value" && "value" in point)
+      point.value = Math.min(1, Math.max(0, value / 100));
+    else if (field === "amplitude" && "amplitude" in point)
+      point.amplitude = Math.min(1, Math.max(0, value / 100));
+    else if (field === "frequency" && "frequency" in point)
+      point.frequency = Math.min(1, Math.max(0, value / 100));
+    document.setPattern(next);
+  };
+  const studio = {
+    document,
+    composer,
+    appearance,
+    activity,
+    error,
+    setError,
+    panel,
+    setPanel,
+    inspector,
+    setInspector,
+    inspectorOpen,
+    setInspectorOpen,
+    audio,
+    animation,
+    session,
+    playback,
+    applyPattern,
+    applyGenerated,
+    restore,
+    preserve,
+    selectPreset,
+    addPreset,
+    ...files,
+    media,
+    sharing,
+    canonical,
+    mcp,
+    audition,
+    editSelection,
+  };
+  useShortcuts(studio);
+  return studio;
+}
+export type Studio = ReturnType<typeof useStudio>;

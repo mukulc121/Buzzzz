@@ -1,12 +1,9 @@
 import { useState } from "react";
-import presets from "./data/pulsar-presets.json";
 import { Spark } from "../composer/Spark";
 import { Plus } from "../../components/icons";
-import { isPattern, type Pattern } from "@buzzzz/core";
+import type { Pattern } from "@buzzzz/core";
+import { pulsarPresets as all } from "@buzzzz/core/presets";
 
-const all = presets.filter((preset) => isPattern(preset.pattern));
-
-/** Pulsar's built-in presets (synced by `npm run sync-presets`). Click to feel, + to copy into the project. */
 interface ILibrary {
   onPreview: (pattern: Pattern) => void;
   onAdd: (pattern: Pattern, name: string) => void;

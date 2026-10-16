@@ -7,12 +7,15 @@
     "dev": "vp dev",
     "build": "vp build",
     "preview": "vp preview",
-    "sync-presets": "bun scripts/sync-pulsar-presets.mts",
     "typecheck": "tsc -b"
   },
   "dependencies": {
     "@buzzzz/core": "workspace:*",
+    "@fontsource-variable/dm-sans": "^5.3.0",
     "@rive-app/canvas": "^2.44.2",
+    "fflate": "^0.8.3",
+    "lottie-web": "^5.13.0",
+    "mediabunny": "1.61.3",
     "qrcode": "^1.5.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",

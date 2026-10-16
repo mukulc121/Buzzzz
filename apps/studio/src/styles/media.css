@@ -1,0 +1,187 @@
+.rive-panel {
+  flex: none;
+  min-width: 0;
+}
+.stage {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--sunken);
+  background-image: radial-gradient(var(--line) 1px, transparent 1px);
+  background-size: 16px 16px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  min-height: 200px;
+}
+.rive {
+  width: 100%;
+  height: 240px;
+  display: block;
+}
+.stage.empty .rive {
+  visibility: hidden;
+}
+.dropzone {
+  position: absolute;
+  inset: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  padding: 12px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 3px;
+}
+.dropzone span:not(.button) {
+  font-size: 11px;
+  color: var(--muted);
+}
+.triggers {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.trigger {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto;
+  gap: 6px;
+  align-items: center;
+  padding: 6px;
+  min-width: 0;
+}
+.tname {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font:
+    11px ui-monospace,
+    monospace;
+}
+.trigger select {
+  width: 100%;
+  min-width: 0;
+}
+.trigger.fired {
+  animation: fired 0.7s ease-out;
+}
+@keyframes fired {
+  from {
+    background: var(--accent-soft);
+  }
+  to {
+    background: transparent;
+  }
+}
+.transport > button {
+  min-width: 0;
+  white-space: normal;
+}
+.rive-panel:fullscreen {
+  padding: 20px;
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+}
+.rive-panel:fullscreen .stage {
+  flex: 1;
+}
+.rive-panel:fullscreen .rive {
+  height: 100%;
+}
+.audio-panel {
+  border: 0;
+  border-radius: 0;
+  padding: 16px;
+  gap: 18px;
+}
+.audio-panel h2 {
+  font-size: 13px;
+}
+.audio-panel .row {
+  align-items: center;
+}
+.audio-panel .row .grow {
+  overflow-wrap: anywhere;
+}
+.audio-controls,
+.audio-metrics,
+.audio-settings,
+.audio-generation {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.audio-controls input[type="range"],
+.audio-settings-grid input[type="range"] {
+  width: 100%;
+}
+.audio-check {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+.audio-check span {
+  flex: 1;
+}
+.audio-settings-grid {
+  display: grid;
+  gap: 12px;
+}
+.audio-settings-grid .field {
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+.audio-candidates {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.audio-candidate {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  white-space: normal;
+  gap: 8px;
+  border-color: var(--line-strong);
+  width: 100%;
+}
+.audio-candidate[aria-pressed="true"] {
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.audio-candidate strong {
+  font-size: 12px;
+}
+.audio-candidate small {
+  color: var(--muted);
+  font-size: 10px;
+}
+.audio-confirm {
+  padding: 12px;
+  border: 1px solid var(--notice-line);
+  background: var(--notice-bg);
+  color: var(--notice-fg);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.audio-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+@media (max-width: 760px) {
+  .trigger {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .trigger .tname {
+    grid-column: 1/-1;
+  }
+}

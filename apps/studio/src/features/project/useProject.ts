@@ -1,128 +1,142 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { emptyPattern, isProject, toDevice, type Pattern, type Project } from "@buzzzz/core";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
+import type { Project } from "@buzzzz/core";
+import {
+  canWrite,
+  deriveProjectStatus,
+  summarize,
+  type IProjectRecord,
+  type TConflictChoice,
+  type TLockState,
+} from "./model";
+import * as repository from "./repository";
+import { useProjectCatalog } from "./useProjectCatalog";
+import { useProjectDocument } from "./useProjectDocument";
+import { claimWriter, lockName, type IWriterLock } from "./writerLock";
 
-const KEY = "rive-haptics-project";
-const uid = () => Math.random().toString(36).slice(2, 9);
-
-const starter = (): Project => ({
-  presets: [
-    {
-      id: uid(),
-      name: "Thud",
-      pattern: {
-        discretePattern: [{ time: 0, amplitude: 1, frequency: 0.6 }],
-        continuousPattern: {
-          amplitude: [
-            { time: 0, value: 0.8 },
-            { time: 120, value: 0.3 },
-            { time: 300, value: 0 },
-          ],
-          frequency: [
-            { time: 0, value: 0.4 },
-            { time: 300, value: 0.1 },
-          ],
-        },
-      },
-    },
-  ],
-  map: {},
-});
-
-function load(): Project {
-  try {
-    const p: unknown = JSON.parse(localStorage.getItem(KEY) ?? "");
-    if (isProject(p)) return p;
-  } catch {
-    /* fall through */
-  }
-  return starter();
+function initialState() {
+  const shared = repository.sharedLink(location.search);
+  if (shared) return { record: repository.sharedRecord(shared), error: null };
+  return repository.initialRecord();
 }
 
 export function useProject() {
-  const [project, setProject] = useState(load);
-  const [currentId, setCurrentId] = useState(() => project.presets[0].id);
-  const history = useRef<Project[]>([]);
-  const preset = project.presets.find((item) => item.id === currentId) ?? project.presets[0];
-  const pattern = preset.pattern;
+  const [start] = useState(initialState);
+  const [active, setActive] = useState<IProjectRecord>(start.record);
+  const base = useRef(start.record);
+  const [storageError, setStorageError] = useState<string | null>(start.error);
+  const [conflict, setConflict] = useState<{ theirs: IProjectRecord | null } | null>(null);
+  const [lock, setLock] = useState<TLockState>("pending");
+  const writer = useRef<IWriterLock | null>(null);
+  const isWriter = canWrite(lock) && !conflict;
+  const isShared = active.id.startsWith("shared-");
+
+  const adopt = (record: IProjectRecord) => {
+    base.current = record;
+    setActive(record);
+  };
+
+  // Only writes when nobody else saved since our last revision.
+  const persist = (project: Project, name = base.current.name) => {
+    const result = repository.saveRecord(base.current, { name, project });
+    if (result.kind === "conflict") setConflict({ theirs: result.theirs });
+    if (result.kind === "error") setStorageError(result.message);
+    if (result.kind !== "saved") return false;
+    adopt(result.record);
+    setStorageError(null);
+    if (!isShared) catalog.touch(summarize(result.record));
+    return true;
+  };
+
+  const document = useProjectDocument({
+    initial: start.record.project,
+    writable: isWriter,
+    onCommit: (project) => void persist(project),
+  });
+
+  const load = (record: IProjectRecord) => {
+    adopt(record);
+    setConflict(null);
+    document.reset(record.project);
+  };
+
+  const switchTo = (record: IProjectRecord) => {
+    load(record);
+    setStorageError(null);
+    if (!record.id.startsWith("shared-")) repository.rememberLast(record.id);
+  };
+
+  const catalog = useProjectCatalog({
+    activeId: active.id,
+    document,
+    ownsActive: isWriter,
+    switchTo,
+    persist,
+    setStorageError,
+  });
+  const { refresh } = catalog;
+
+  // Writers only see a newer revision when someone saved without the lock; followers reload.
+  const followStorage = useEffectEvent((acquired: boolean) => {
+    const theirs = repository.readRecord(base.current.id);
+    if (theirs?.revision === base.current.revision) return;
+    if (isWriter && !acquired) setConflict({ theirs });
+    else if (theirs) load(theirs);
+  });
 
   useEffect(() => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(project));
-    } catch {
-      /* private mode */
+    const claim = claimWriter(lockName(active.id), (state) => {
+      setLock(state);
+      if (state === "held") followStorage(true);
+    });
+    writer.current = claim;
+    return () => claim.release();
+  }, [active.id]);
+
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (!repository.isRecordKey(event.key)) return;
+      refresh();
+      followStorage(false);
+    };
+    addEventListener("storage", onStorage);
+    return () => removeEventListener("storage", onStorage);
+  }, [refresh]);
+
+  const resolveConflict = async (choice: TConflictChoice) => {
+    if (choice === "keep-mine") {
+      if (!canWrite(lock)) return;
+      const next = { name: base.current.name, project: document.project };
+      const result = repository.saveRecord(base.current, next, true);
+      if (result.kind === "error") return setStorageError(result.message);
+      if (result.kind !== "saved") return;
+      adopt(result.record);
+      setConflict(null);
+      return refresh();
     }
-  }, [project]);
-
-  const begin = useCallback(() => {
-    history.current.push(structuredClone(project));
-    if (history.current.length > 100) history.current.shift();
-  }, [project]);
-
-  const undo = () => {
-    const prev = history.current.pop();
-    if (prev) {
-      setProject(prev);
-      return true;
+    if (choice === "save-copy") {
+      const source = base.current;
+      const id = await catalog.saveCopy(base.current.name, document.project);
+      if (base.current !== source) return;
+      const copy = id && repository.readRecord(id);
+      if (copy) switchTo(copy);
+      return;
     }
-    return false;
-  };
-
-  const setPattern = (p: Pattern) =>
-    setProject((pr) => ({
-      ...pr,
-      presets: pr.presets.map((x) => (x.id === preset.id ? { ...x, pattern: p } : x)),
-    }));
-
-  const mapped = useMemo(() => {
-    return Object.fromEntries(
-      Object.entries(project.map).flatMap(([trigger, id]) => {
-        const preset = project.presets.find((item) => item.id === id);
-        return preset ? [[trigger, toDevice(preset.pattern)]] : [];
-      }),
-    );
-  }, [project]);
-
-  const addPreset = (p: Pattern = emptyPattern(), name = "Untitled") => {
-    begin();
-    const id = uid();
-    setProject((pr) => ({ ...pr, presets: [...pr.presets, { id, name, pattern: p }] }));
-    setCurrentId(id);
-  };
-  const removePreset = (id: string) => {
-    if (project.presets.length === 1) return;
-    begin();
-    setProject((pr) => ({
-      presets: pr.presets.filter((x) => x.id !== id),
-      map: Object.fromEntries(Object.entries(pr.map).filter(([, v]) => v !== id)),
-    }));
-    const next = project.presets.find((item) => item.id !== id);
-    if (id === currentId && next) setCurrentId(next.id);
-  };
-  const rename = (name: string) =>
-    setProject((pr) => ({
-      ...pr,
-      presets: pr.presets.map((x) => (x.id === preset.id ? { ...x, name } : x)),
-    }));
-
-  const openProject = (next: Project) => {
-    begin();
-    setProject(next);
-    setCurrentId(next.presets[0].id);
+    if (conflict?.theirs) load(conflict.theirs);
+    else catalog.openFallback();
   };
 
   return {
-    project,
-    preset,
-    pattern,
-    mapped,
-    begin,
-    undo,
-    setProject,
-    setPattern,
-    addPreset,
-    removePreset,
-    rename,
-    selectPreset: setCurrentId,
-    openProject,
+    ...document,
+    projectId: active.id,
+    projectName: active.name,
+    isShared,
+    isWriter,
+    status: deriveProjectStatus({ lock, hasConflict: conflict !== null, storageError }),
+    storageError,
+    conflict: conflict?.theirs ?? null,
+    hasConflict: conflict !== null,
+    takeOver: async () => writer.current?.takeOver(),
+    resolveConflict,
+    catalog: catalog.api,
   };
 }
