@@ -1,130 +1,110 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { AppState, ScrollView, Text, View } from "react-native";
+import { useEffect } from "react";
+import { Platform, TextInput, View } from "react-native";
+import { Pressable } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect } from "expo-router";
-import { Circle, Download, Play, Square } from "lucide-react-native";
-import { patternEnd, type Pattern } from "@buzzzz/core";
-import { OutlineButton } from "../../components/OutlineButton";
-import { ScreenHeading } from "../../components/ScreenHeading";
-import { Panel } from "../../components/Panel";
-import { font } from "../../theme/typography";
-import { PatternWaveform } from "../playback/PatternWaveform";
-import { usePreview } from "../shell/usePreview";
-import { appendSample, appendTap, recordedPattern, recording } from "./recording";
+import Animated, { useAnimatedProps, useSharedValue } from "react-native-reanimated";
+import { Link } from "expo-router";
+import { Button } from "../../components/Button";
+import { Icon } from "../../components/Icon";
+import { ThemedText } from "../../components/ThemedText";
+import { colors } from "../../theme/colors";
 import { TouchPad } from "./TouchPad";
 import { exportPattern } from "./exportPattern";
+import { playgroundTimer } from "./recording";
+import { playgroundStyles as styles } from "./playgroundStyles";
+import { usePlaygroundRecorder } from "./usePlaygroundRecorder";
+
+const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 export function PlaygroundScreen() {
-  const { t, session } = usePreview();
-  const current = useRef<ReturnType<typeof recording> | null>(null);
-  const [recordingNow, setRecordingNow] = useState(false);
-  const [pattern, setPattern] = useState<Pattern | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [sharing, setSharing] = useState(false);
-  const finish = useCallback(() => {
-    if (!current.current) return;
-    appendSample(current.current, null);
-    setPattern(recordedPattern(current.current));
-    current.current = null;
-    setRecordingNow(false);
-  }, []);
-  useFocusEffect(useCallback(() => finish, [finish]));
+  const recorder = usePlaygroundRecorder();
+  const { recording, playing, duration } = recorder;
+  const timerText = useSharedValue("");
   useEffect(() => {
-    const sub = AppState.addEventListener("change", (state) => {
-      if (state !== "active") finish();
-    });
-    return () => sub.remove();
-  }, [finish]);
-  useEffect(() => {
-    if (!recordingNow) return;
-    const timer = setTimeout(finish, 60_000);
-    return () => clearTimeout(timer);
-  }, [recordingNow, finish]);
-  const toggleRecording = () => {
-    if (recordingNow) finish();
-    else {
-      session.playback.stopPattern();
-      setError(null);
-      current.current = recording();
-      setRecordingNow(true);
-    }
-  };
-  const share = () => {
-    if (!pattern) return;
-    setSharing(true);
-    setError(null);
-    void exportPattern(pattern)
-      .catch(() => setError("The recording could not be shared. Try again."))
-      .finally(() => setSharing(false));
-  };
+    const started = Date.now();
+    const update = () => {
+      const elapsed = recording || playing ? Date.now() - started : duration;
+      timerText.set(playgroundTimer(recording, playing, elapsed, duration).text);
+    };
+    update();
+    if (!recording && !playing) return;
+    const timer = setInterval(update, 100);
+    return () => clearInterval(timer);
+  }, [duration, playing, recording, timerText]);
+  const timerProps = useAnimatedProps(() => ({
+    text: timerText.get(),
+    defaultValue: timerText.get(),
+  }));
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={{ flex: 1, backgroundColor: t.bg }}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 24 }}>
-        <ScreenHeading
-          title="Playground"
-          subtitle="Tap for a pulse. Drag to shape a continuous feeling."
-          t={t}
-        />
-        <TouchPad
-          t={t}
-          onSample={(value) => {
-            if (current.current) appendSample(current.current, value);
-          }}
-          onTap={(value) => {
-            if (current.current) appendTap(current.current, value);
-          }}
-        />
-        <Text style={{ color: t.fg2, ...font.regular, fontSize: 15, lineHeight: 22 }}>
-          Move left to right for frequency. Move up for stronger intensity. Record up to one minute,
-          then play or export your pattern.
-        </Text>
-        <View style={{ flexDirection: "row", gap: 12 }}>
-          <OutlineButton
-            title={recordingNow ? "Stop recording" : "Record"}
-            icon={
-              recordingNow ? <Square size={18} color={t.err} /> : <Circle size={18} color={t.err} />
-            }
-            onPress={toggleRecording}
-            t={t}
-            style={{ flex: 1 }}
+    <SafeAreaView
+      edges={{ top: "additive", left: "additive", bottom: "off", right: "additive" }}
+      style={styles.safeArea}
+    >
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <ThemedText type="title">Playground</ThemedText>
+          <Link
+            href="/playgroundModal"
+            style={styles.infoLink}
+            accessibilityLabel="How does it work?"
+          >
+            <Link.Trigger>
+              <View style={styles.infoButton}>
+                <ThemedText>How does it work?</ThemedText>
+                <Icon name="info" size={18} color={colors.navy} />
+              </View>
+            </Link.Trigger>
+          </Link>
+        </View>
+        {Platform.OS === "android" && (
+          <Link href="/playgroundSettingsModal" asChild>
+            <Pressable style={styles.settingsRow} accessibilityRole="button">
+              <ThemedText style={styles.settingsLabel}>Realtime composer settings</ThemedText>
+              <Icon name="sliders" size={20} color={colors.navy} />
+            </Pressable>
+          </Link>
+        )}
+        <View style={styles.playgroundWrapper}>
+          <TouchPad recordEvent={recorder.recordEvent} />
+          {(recording || duration > 0) && (
+            <View style={styles.timerRow}>
+              <ThemedText style={styles.timerLabel}>
+                {playing ? "Playing" : recording ? "Recording" : "Duration"}
+              </ThemedText>
+              <AnimatedTextInput
+                style={[styles.timerValue, { color: colors.navy }]}
+                animatedProps={timerProps}
+                editable={false}
+              />
+            </View>
+          )}
+        </View>
+        <View style={styles.controls}>
+          <Button
+            enabled={duration > 0}
+            onClick={playing ? recorder.stopPlaying : recorder.playRecordedPattern}
+            showIcon={playing ? "stop" : "play"}
+            largeIcon
+            accessibilityLabel={playing ? "Pause" : "Play"}
           />
-          <OutlineButton
-            title="Play"
-            icon={<Play size={18} color={t.fg} />}
-            disabled={!pattern || recordingNow}
-            onPress={() => {
-              if (pattern) session.playback.playPattern(pattern, "Playground recording");
+          <Button
+            label={recording ? "Stop" : "Record"}
+            onClick={recording ? recorder.stopRecording : recorder.startRecording}
+            showIcon={recording ? "square" : "record"}
+          />
+          <Button
+            enabled={duration > 0}
+            onClick={() => {
+              void exportPattern(recorder.getEvents()).catch((error: unknown) =>
+                console.error("Error sharing:", error),
+              );
             }}
-            t={t}
-            style={{ flex: 1 }}
+            showIcon="download"
+            largeIcon
+            accessibilityLabel="Download"
           />
         </View>
-        {recordingNow && (
-          <Text accessibilityLiveRegion="polite" style={{ color: t.err, ...font.medium }}>
-            Recording…
-          </Text>
-        )}
-        {pattern && (
-          <Panel t={t}>
-            <Text style={{ color: t.fg, ...font.bold, fontSize: 20 }}>
-              Your recording · {(patternEnd(pattern) / 1000).toFixed(1)}s
-            </Text>
-            <PatternWaveform pattern={pattern} t={t} />
-            <OutlineButton
-              title={sharing ? "Opening share sheet…" : "Export JSON"}
-              disabled={sharing || recordingNow}
-              onPress={share}
-              icon={<Download size={18} color={t.fg} />}
-              t={t}
-            />
-          </Panel>
-        )}
-        {error && (
-          <Text accessibilityRole="alert" style={{ color: t.err, ...font.regular }}>
-            {error}
-          </Text>
-        )}
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }

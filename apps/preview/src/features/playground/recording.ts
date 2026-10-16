@@ -1,40 +1,72 @@
-import { emptyPattern, MAX_PATTERN_MS, type Pattern } from "@buzzzz/core";
+import { emptyPattern, type Pattern } from "@buzzzz/core";
 
-const unit = (value: number) => Math.round(Math.max(0, Math.min(1, value)) * 1000) / 1000;
-export function padValue(x: number, y: number, width: number, height: number) {
-  return { amplitude: unit(1 - y / Math.max(1, height)), frequency: unit(x / Math.max(1, width)) };
+export const MAX_RECORDING_DURATION_MS = 20000;
+
+export interface IPlaygroundEvent {
+  type: "tap" | "pan";
+  time: number;
+  x: number;
+  y: number;
 }
-export function recording() {
-  return { startedAt: Date.now(), pattern: emptyPattern() };
+
+export function padValue(x: number, y: number, width: number, height: number, tutorial = false) {
+  "worklet";
+  const frequency = width > 0 ? Math.max(0, Math.min(width, x)) / width : 0;
+  const vertical = 1 - (height > 0 ? Math.max(0, Math.min(height, y)) / height : 0);
+  return { amplitude: tutorial ? vertical : 0.2 + 0.8 * vertical, frequency };
 }
-type Recording = ReturnType<typeof recording>;
-export function appendSample(
-  record: Recording,
-  value: ReturnType<typeof padValue> | null,
-  now = Date.now(),
-) {
-  const time = Math.min(
-    MAX_PATTERN_MS,
-    Math.max(0, Math.round((now - record.startedAt) / 10) * 10),
-  );
-  const amplitude = record.pattern.continuousPattern.amplitude;
-  const frequency = record.pattern.continuousPattern.frequency;
-  const last = amplitude.at(-1);
-  if (last?.time === time) {
-    last.value = value?.amplitude ?? 0;
-    frequency[frequency.length - 1].value = value?.frequency ?? frequency.at(-1)?.value ?? 0.5;
-  } else {
-    amplitude.push({ time, value: value?.amplitude ?? 0 });
-    frequency.push({ time, value: value?.frequency ?? frequency.at(-1)?.value ?? 0.5 });
+
+export function indicatorPosition(x: number, y: number, width: number, height: number) {
+  "worklet";
+  if (x === -100 && y === -100) return { x, y };
+  return {
+    x: Math.max(15, Math.min(x, width - 15)),
+    y: Math.max(15, Math.min(y, height - 15)),
+  };
+}
+
+export function recordedPattern(events: readonly IPlaygroundEvent[]): Pattern {
+  const pattern = emptyPattern();
+  let group: IPlaygroundEvent[] = [];
+  const finish = () => {
+    if (!group.length) return;
+    for (const event of group) {
+      pattern.continuousPattern.amplitude.push({ time: event.time, value: event.y });
+      pattern.continuousPattern.frequency.push({ time: event.time, value: event.x });
+    }
+    const last = group[group.length - 1]!;
+    pattern.continuousPattern.amplitude.push({ time: last.time, value: 0 });
+    pattern.continuousPattern.frequency.push({ time: last.time, value: 0 });
+    group = [];
+  };
+  for (const event of events) {
+    if (event.type === "tap") {
+      pattern.discretePattern.push({ time: event.time, amplitude: event.y, frequency: event.x });
+    } else {
+      if (group.length && event.time - group[group.length - 1]!.time >= 100) finish();
+      group.push(event);
+    }
   }
+  finish();
+  return pattern;
 }
-export function appendTap(record: Recording, value: ReturnType<typeof padValue>, now = Date.now()) {
-  if (record.pattern.discretePattern.length >= 6000) return;
-  record.pattern.discretePattern.push({
-    time: Math.min(MAX_PATTERN_MS, Math.max(0, now - record.startedAt)),
-    ...value,
-  });
+
+export function patternShareMessage(events: readonly IPlaygroundEvent[]): string | null {
+  return events.length
+    ? `Pulsar custom preset\n\n${JSON.stringify(recordedPattern(events), null, 2)}`
+    : null;
 }
-export function recordedPattern(record: Recording): Pattern {
-  return record.pattern;
+
+export function playgroundTimer(
+  recording: boolean,
+  playing: boolean,
+  elapsed: number,
+  duration: number,
+) {
+  if (playing)
+    return {
+      label: "Playing",
+      text: `${(elapsed / 1000).toFixed(1)}s / ${(duration / 1000).toFixed(1)}s`,
+    };
+  return { label: recording ? "Recording" : "Duration", text: `${(elapsed / 1000).toFixed(1)}s` };
 }

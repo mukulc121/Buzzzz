@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { FavouritesProvider } from "../presets/FavouritesProvider";
 import { FilterProvider } from "../presets/FilterProvider";
 import { PreviewProvider } from "./PreviewProvider";
+import { PlaygroundProvider } from "../playground/PlaygroundProvider";
 
 const theme = {
   ...DefaultTheme,
@@ -40,7 +41,9 @@ export function AppProviders(props: IAppProviders) {
         <ThemeProvider value={theme}>
           <FilterProvider>
             <FavouritesProvider>
-              <PreviewProvider>{children}</PreviewProvider>
+              <PlaygroundProvider>
+                <PreviewProvider>{children}</PreviewProvider>
+              </PlaygroundProvider>
             </FavouritesProvider>
           </FilterProvider>
         </ThemeProvider>

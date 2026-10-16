@@ -1,15 +1,7 @@
-import { File, Paths } from "expo-file-system";
-import { isAvailableAsync, shareAsync } from "expo-sharing";
-import { toDevice, type Pattern } from "@buzzzz/core";
+import { Share } from "react-native";
+import { patternShareMessage, type IPlaygroundEvent } from "./recording";
 
-export async function exportPattern(pattern: Pattern) {
-  if (!(await isAvailableAsync())) throw new Error("File sharing is unavailable on this device.");
-  const file = new File(Paths.cache, "buzzzz-recording.json");
-  file.create({ overwrite: true });
-  file.write(JSON.stringify(toDevice(pattern), null, 2));
-  await shareAsync(file.uri, {
-    mimeType: "application/json",
-    dialogTitle: "Export haptic recording",
-    UTI: "public.json",
-  });
+export async function exportPattern(events: readonly IPlaygroundEvent[]) {
+  const message = patternShareMessage(events);
+  if (message) await Share.share({ message });
 }
