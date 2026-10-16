@@ -176,7 +176,7 @@ MIT License
 
 ## Ionicons
 
-The native Notification demo bundles a five-glyph subset of Ionicons, distributed under the [MIT license](https://github.com/ionic-team/ionicons/blob/main/LICENSE).
+The native Notification demo and Demos list bundle subsets of Ionicons, distributed under the [MIT license](https://github.com/ionic-team/ionicons/blob/main/LICENSE).
 
 ```text
 The MIT License (MIT)
