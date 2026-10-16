@@ -1,6 +1,7 @@
 import type { Msg } from "@buzzzz/core";
 import { createRelayClient } from "./relayClient";
 import type { IRelayConnection, IStoredConnection } from "./model";
+import { renamedConnection } from "./model";
 
 export interface IRelaySnapshot {
   connections: IRelayConnection[];
@@ -61,6 +62,16 @@ export function createRelayConnections(props: IRelayConnections) {
       selected = connection.id;
       attach(connection);
       emit();
+    },
+    rename: (id: string, name: string) => {
+      const previous = records.get(id);
+      if (!previous) return false;
+      const next = renamedConnection(previous, name);
+      if (next !== previous) {
+        records.set(id, next);
+        emit();
+      }
+      return true;
     },
     select: (id: string) => {
       if (!records.has(id) || selected === id) return false;

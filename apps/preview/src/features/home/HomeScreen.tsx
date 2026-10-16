@@ -44,6 +44,12 @@ export function HomeScreen() {
                 }
                 onReconnect={() => session.relay.reconnect(connection.id)}
                 onRemove={() => session.disconnect(connection.id)}
+                onEdit={() =>
+                  router.push({
+                    pathname: "/editConnectionModal",
+                    params: { connectionId: connection.id },
+                  })
+                }
               />
             ))
           ) : (

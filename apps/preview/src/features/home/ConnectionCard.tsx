@@ -4,32 +4,45 @@ import { Icon } from "../../components/Icon";
 import { ThemedText } from "../../components/ThemedText";
 import { colors } from "../../theme/colors";
 import { deriveConnectionRow } from "./model";
+import { connectionDisplayName } from "../connection/model";
 
 interface IConnectionCard {
-  connection: { label: string; status: "idle" | "connecting" | "connected" | "error" };
+  connection: {
+    label: string;
+    customName?: string;
+    status: "idle" | "connecting" | "connected" | "error";
+  };
   onOpen: () => void;
   onReconnect: () => void;
   onRemove: () => void;
+  onEdit: () => void;
 }
 
 export function ConnectionCard(props: IConnectionCard) {
-  const { connection, onOpen, onReconnect, onRemove } = props;
+  const { connection, onOpen, onReconnect, onRemove, onEdit } = props;
   const { color, label } = deriveConnectionRow(connection.status);
+  const name = connectionDisplayName(connection);
   return (
     <Card style={styles.card}>
       <View style={styles.row}>
         <TouchableOpacity
           onPress={onOpen}
+          onLongPress={onEdit}
+          delayLongPress={350}
           activeOpacity={0.6}
           style={styles.pressArea}
           accessibilityRole="button"
-          accessibilityLabel={`Open haptics from ${connection.label}`}
+          accessibilityLabel={`Open haptics from ${name}`}
+          accessibilityActions={[{ name: "longpress", label: "Edit connection" }]}
+          onAccessibilityAction={({ nativeEvent }) => {
+            if (nativeEvent.actionName === "longpress") onEdit();
+          }}
         >
           <View style={[styles.dot, { backgroundColor: color }]} />
           <View style={styles.info}>
             <View style={styles.nameRow}>
               <ThemedText type="defaultSemiBold" style={styles.name} numberOfLines={1}>
-                {connection.label}
+                {name}
               </ThemedText>
               <View style={styles.chip}>
                 <ThemedText style={styles.chipText}>Browser</ThemedText>

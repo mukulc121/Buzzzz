@@ -4,6 +4,7 @@ import { MediaLibraryScreen } from "./MediaLibraryScreen";
 import { formatLibraryTime } from "./canvasGeometry";
 import { listCachedPatterns } from "./patterns";
 import { useLibraryRefresh } from "./useLibraryRefresh";
+import { connectionDisplayName } from "../connection/model";
 
 export function MediaLibraryRoute() {
   const params = useLocalSearchParams<{ connectionId?: string | string[] }>();
@@ -24,7 +25,7 @@ export function MediaLibraryRoute() {
   };
   return (
     <MediaLibraryScreen
-      connectionName={connection?.label ?? "Connection"}
+      connectionName={connection ? connectionDisplayName(connection) : "Connection"}
       available={!!connection}
       records={listCachedPatterns(library.library, connectionId)}
       active={active}

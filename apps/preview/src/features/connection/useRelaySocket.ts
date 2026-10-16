@@ -29,6 +29,7 @@ export function useRelaySocket(
     status: current?.status ?? "idle",
     error: current?.error ?? null,
     connect: relay.connect,
+    rename: relay.rename,
     disconnect: relay.remove,
     setCurrentConnectionId: relay.select,
     restore: relay.restore,

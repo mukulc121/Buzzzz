@@ -6,6 +6,10 @@ export default function RootLayout() {
     <AppProviders>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="editConnectionModal"
+          options={{ presentation: "modal", title: "Connection", headerShown: false }}
+        />
         <Stack.Screen name="filtersModal" options={{ presentation: "modal", title: "Filters" }} />
         <Stack.Screen name="tagsModal" options={{ presentation: "modal", title: "Tags" }} />
         <Stack.Screen name="playgroundModal" options={{ presentation: "modal" }} />

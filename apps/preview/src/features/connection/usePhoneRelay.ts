@@ -5,6 +5,7 @@ import { connectionTarget } from "./connectionTarget";
 import { needsConnectionConsent } from "./connectionInput";
 import { resolvePhoneConnection } from "./pairing";
 import { createConnectionStorage } from "./storage";
+import { connectionDisplayName } from "./model";
 import { useRelaySocket, type RelayStatus } from "./useRelaySocket";
 
 export function usePhoneRelay(
@@ -26,6 +27,7 @@ export function usePhoneRelay(
   const relay = useRelaySocket(onMessage);
   const {
     connect: connectSocket,
+    rename: renameSocket,
     disconnect: disconnectSocket,
     restore,
     snapshot,
@@ -51,6 +53,14 @@ export function usePhoneRelay(
       request.current = null;
     };
   }, [storage, restore]);
+  const rename = useCallback(
+    async (id: string, name: string) => {
+      const record = await storage.rename(id, name);
+      if (!mounted.current || !record) return false;
+      return renameSocket(id, name);
+    },
+    [storage, renameSocket],
+  );
   const disconnect = useCallback(
     async (id?: string) => {
       const target = id ?? snapshot().currentConnectionId;
@@ -169,7 +179,7 @@ export function usePhoneRelay(
   return {
     input,
     setInput,
-    host: current?.label ?? "",
+    host: current ? connectionDisplayName(current) : "",
     status,
     error: error ?? relay.error,
     connections: relay.connections,
@@ -183,6 +193,7 @@ export function usePhoneRelay(
     connect,
     requestConnection,
     disconnect,
+    rename,
     send: relay.send,
     reconnect: (id?: string) => {
       setError(null);
