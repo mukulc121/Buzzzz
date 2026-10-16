@@ -1,153 +1,88 @@
 # Buzzzz
 
-Design haptic patterns on your laptop, wire them to Rive animations, and feel them on your iPhone in real time.
+Design haptic patterns in your browser, map them to Rive view-model triggers, and preview them on your phone.
 
-- **`studio/`** — web editor (Vite + React). Draw [Pulsar](https://github.com/software-mansion/pulsar)-compatible haptic patterns, drop in a `.riv` file, map each Rive trigger to a pattern. Its dev server is also the relay your phone connects to.
-- **`preview/`** — iPhone app (Expo + `react-native-pulsar` + `@rive-app/react-native`). Plays the Rive animation and fires the mapped haptics.
-- **`explainer/`** — optional Remotion project for the ~54 s explainer video.
+| Workspace        | Purpose                                               |
+| ---------------- | ----------------------------------------------------- |
+| `apps/studio`    | React + Vite+ editor and local development relay      |
+| `apps/preview`   | Expo app with Rive and Pulsar native playback         |
+| `apps/explainer` | Remotion video and narration                          |
+| `packages/core`  | Shared pattern format, validation, and relay messages |
 
-```
- laptop                                   iPhone (same Wi-Fi)
-┌─────────────────────────┐   ws://…/relay   ┌───────────────────┐
-│ Studio  :5173           │ ◄──────────────► │ Haptics Preview   │
-│ Metro   :8082 (JS code) │ ───────────────► │ app               │
-└─────────────────────────┘                  └───────────────────┘
-```
+## Get started
 
----
-
-## Requirements
-
-| What | Why |
-|---|---|
-| **Mac** with **Node.js 20+** | runs the studio and Metro bundler |
-| **Xcode** (latest, from the App Store) | builds the iPhone app. Newer iPhones need the newest Xcode (e.g. iPhone 18 Pro needs Xcode 27+) |
-| **CocoaPods** — `brew install cocoapods` | iOS native dependencies |
-| **A real iPhone** + USB cable | haptics don't work in the Simulator, and Expo Go won't work (custom native modules) |
-| **Apple ID** signed into Xcode | free account is fine for installing on your own device |
-
-Laptop and phone must be on the **same Wi-Fi network**.
-
----
-
-## 1. Clone and install
+Use Bun 1.4.0 and Node.js 22. Expo's CLI needs Node even though Bun manages the workspace.
 
 ```bash
 git clone https://github.com/mukulc121/Buzzzz.git
 cd Buzzzz
-npm run setup        # installs studio + preview dependencies
+bun install
+bun run dev
 ```
 
-## 2. Run the studio (web app)
+Open [localhost:5173](http://localhost:5173). This starts Studio on port 5173 and Metro on port 8082. `Ctrl-C` stops both. For the editor alone, run `bun run dev:studio`.
+
+Bun installs dependencies and runs unit tests. Vite+ runs development tasks, builds Studio, and handles linting and formatting.
+
+The editor works without a phone. It saves patterns and trigger mappings in your browser. Export a project to keep a portable copy, including its Rive file.
+
+## Preview on a phone
+
+The native app needs a development build. Expo Go does not include its native dependencies. For iOS, use macOS, Xcode, CocoaPods, and an Apple account. For Android, install the Android SDK and configure a device or emulator.
+
+1. For your own iPhone, set `ios.bundleIdentifier` in `apps/preview/app.json` and choose your signing team in Xcode. Connect and trust the phone, then enable Developer Mode.
+2. With `bun run dev` running, run `bun run ios` and select a target. Use `bun run android` for Android.
+3. Keep the phone and computer on the same Wi-Fi. Allow Local Network access on iOS.
+4. Scan the Studio's pairing QR with the iPhone camera, or paste its `ws://…:5173/relay` URL into the preview app.
+5. Press Play in Studio. Use a physical iPhone to judge haptics. The iOS simulator only verifies the app's UI and connection behavior.
+
+Native projects under `apps/preview/ios` and `apps/preview/android` are generated and ignored. Rebuild after native dependency or configuration changes. See [development](docs/development.md) for setup and troubleshooting.
+
+## Make a pattern
+
+1. Draw amplitude, frequency, and taps, or add a preset from the Pulsar library.
+2. Import a `.riv` file with Trigger properties on its artboard's view model.
+3. Map each trigger to a pattern. Fire those triggers from your Rive state machine or listeners.
+4. Interact with the animation in Studio or on the connected phone.
+5. Export a pattern as Pulsar JSON, or export the whole project.
+
+Pattern time is in milliseconds; amplitude and frequency use values from 0 to 1. The shared model accepts patterns up to 60 seconds. The exported `discretePattern` and `continuousPattern` fields match Pulsar's device format.
+
+Keyboard shortcuts outside form controls: Space plays or stops, `1`/`2`/`3` select a layer, Delete removes the selected point, and Cmd/Ctrl+Z undoes an edit.
+
+## Checks
 
 ```bash
-npm run dev
+bun run check          # types, lint, formatting, unit tests, build, Fallow
+bunx playwright install chromium
+bun run test:browser   # responsive editor and accessibility checks
+bun run check:all      # both
 ```
 
-This starts both:
-- **Studio** → http://localhost:5173 (open in your browser)
-- **Metro** (the phone app's JS bundler) → port 8082
+[GitHub Actions](.github/workflows/ci.yml) runs quality checks, Chromium tests, Expo compatibility checks, and iOS and Android JavaScript exports. It does not build or test a native app. Browser tests cover widths from 320 to 1920 pixels and scan light and dark themes with axe. See [verification](docs/verification.md) for the checks' limits.
 
-`Ctrl-C` stops both. Only want the studio? `npm --prefix studio run dev`.
+## Relay limits
 
-## 3. Install the app on your iPhone (first time only)
+The Vite relay is for development on a trusted LAN. It has no authentication, pairing isolation, or persistent storage. Every connected Studio can control every connected phone. Cross-host browser requests are rejected; native clients can connect without an Origin header.
 
-### 3a. Point the project at your Apple account
+Rive uploads are limited to 20 MiB each. The relay keeps at most 10 files and 100 MiB in memory, then evicts older files. Restarting Studio clears them. Do not expose the development server to the internet.
 
-Open `preview/app.json` and change two values to your own:
+`bun run build` produces a static editor. Pairing and Rive transfer need the Vite development relay, so serving `dist` alone does not provide phone preview.
 
-```jsonc
-"ios": {
-  "bundleIdentifier": "com.yourname.buzzzz",   // must be unique to you
-  "appleTeamId": "YOUR_TEAM_ID"                // or delete this line and pick a team in Xcode
-}
-```
-
-Find your Team ID in Xcode → Settings → Accounts → select your Apple ID → Team. (With a free account, you can also delete `appleTeamId` and choose your "Personal Team" in Xcode when prompted.)
-
-### 3b. Prepare the iPhone
-
-1. Plug the iPhone into the Mac and tap **Trust This Computer**.
-2. Turn on **Developer Mode**: Settings → Privacy & Security → Developer Mode → On (phone restarts).
-
-### 3c. Build and install
-
-With `npm run dev` running in one terminal, in another:
+## Explainer video
 
 ```bash
-npm run ios
+bun run --filter @buzzzz/explainer studio
+bun run --filter @buzzzz/explainer voiceover
+bun run --filter @buzzzz/explainer render
 ```
 
-This generates the native iOS project, installs pods, builds, and installs **Haptics Preview** on the plugged-in phone. The first build takes a few minutes.
+Narration uses macOS `say` and `afconvert`. Set `VOICE` and `RATE` to change the voice or speed. Rendering writes `apps/explainer/out/explainer.mp4`, which is ignored.
 
-If it fails on signing: open `preview/ios/HapticsPreview.xcworkspace` in Xcode → select the **HapticsPreview** target → **Signing & Capabilities** → tick *Automatically manage signing* and pick your team → press ▶︎ with your iPhone selected.
+## Contributing
 
-### 3d. Trust the developer (free Apple accounts)
+Install from the repository root and keep the single `bun.lock`. Apps may import `@buzzzz/core`; shared packages must not import apps. Read [architecture](docs/architecture.md) before changing the relay or shared format.
 
-First launch may say "Untrusted Developer". On the phone: Settings → General → VPN & Device Management → your Apple ID → **Trust**.
+The preview app includes a temporary Pulsar 1.7.0 composer leak backport. See [dependency patches](docs/development.md#dependency-patches) and [third-party notices](THIRD_PARTY_NOTICES.md).
 
-> Free accounts: the app expires after 7 days. Re-run `npm run ios` to reinstall.
-
-When asked, **allow Local Network access** — the app needs it to reach the studio.
-
-You only need `npm run ios` again when native code or native dependencies change. For everyday use, just `npm run dev` and open the app.
-
-## 4. Connect phone ↔ studio
-
-1. Open the studio at http://localhost:5173.
-2. In the **Phone** card, scan the QR code with the iPhone camera → it opens the app via `rivehaptics://` and connects.
-3. Or, in the app, paste the relay URL shown in the studio (`ws://192.168.x.x:5173/relay`).
-
-The studio shows the number of connected phones. Press **Play** in the studio to feel the current pattern.
-
----
-
-## Using it
-
-1. **Design a pattern** in the studio, or start from Pulsar's built-in presets in the Library.
-2. **Drop in a `.riv` file.** It's sent to the phone automatically.
-3. **Map triggers to patterns.** Every view-model Trigger in the Rive file shows up; pick a pattern for each.
-4. Interact with the animation on the phone and feel the haptics.
-
-### Rive setup
-
-Haptic slots are **Trigger properties on the artboard's view model** (data binding) — Rive Events are deprecated in both the web and React Native runtimes. In the Rive editor:
-
-1. Add a **Trigger** to the view model.
-2. Fire it from the state machine — a transition's *Set property value* action, or a listener.
-
-### Exporting patterns
-
-Patterns export in Pulsar's device format (`discretePattern` + `continuousPattern`), which `usePatternComposer().parse()` and every Pulsar SDK accept directly. In your own app, listen to the same triggers (see `RivePlayer` in `preview/App.tsx`) and play the mapped pattern.
-
----
-
-## Troubleshooting
-
-| Problem | Fix |
-|---|---|
-| Phone won't connect | Same Wi-Fi? Local Network permission allowed (Settings → Haptics Preview)? Guest/office Wi-Fi often blocks device-to-device traffic — try a phone hotspot. |
-| QR opens nothing | App isn't installed yet — do step 3. |
-| App shows a red "could not connect to development server" | `npm run dev` isn't running, or the Mac's IP changed. Restart it and reopen the app. |
-| Port 8081 / 8082 in use | Metro uses 8082 on purpose (8081 is often taken). Kill the other process or change the port in `package.json`. |
-| No haptics | Use a real iPhone (not Simulator), and make sure the phone isn't in Low Power Mode. |
-| Build error after pulling changes | `rm -rf preview/ios && npm run ios` to regenerate the native project. |
-
----
-
-## Explainer video (optional)
-
-```bash
-npm --prefix explainer install
-npm --prefix explainer run studio      # edit in Remotion
-npm --prefix explainer run voiceover   # regenerate narration (VOICE="Zoe (Premium)" for a nicer voice)
-npm --prefix explainer run render      # exports explainer/out/explainer.mp4
-```
-
-If Remotion's bundled browser crashes on launch, add `--browser-executable=<path to any Chromium>`.
-
-## Updating Pulsar presets
-
-```bash
-npm --prefix studio run sync-presets -- path/to/pulsar   # clone of software-mansion/pulsar
-```
+The official Pulsar app can audition exported patterns through official Studio. Full Rive preview uses this repository's app. See [Pulsar compatibility](docs/pulsar-compatibility.md) for the tested boundaries.
