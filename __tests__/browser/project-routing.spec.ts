@@ -16,6 +16,10 @@ async function createProject(page: Page, name: string, pattern: string) {
   await dialog.getByRole("button", { name: "Create", exact: true }).click();
   await expect(page).toHaveURL(/\/studio\/projects\/[\w-]+(?:[?#]|$)/);
   await expect(page.locator(".save-status")).toHaveAttribute("data-status", /editing|unlocked/);
+  await expect(patternName(page)).toHaveValue("Untitled pattern");
+  await expect(
+    page.getByRole("group", { name: "Haptic pattern timeline" }).getByRole("button"),
+  ).toHaveCount(0);
   await patternName(page).fill(pattern);
   await expect(patternName(page)).toHaveValue(pattern);
   return page.url();

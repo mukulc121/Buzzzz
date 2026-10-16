@@ -1,0 +1,583 @@
+{
+  "version": 1,
+  "presets": [
+    {
+      "id": "demo-explosion-animation",
+      "name": "ExplosionAnimation",
+      "duration": 2333,
+      "intensity": [
+        {
+          "id": "demo-explosion-animation-a0",
+          "time": 0,
+          "value": 0.142
+        },
+        {
+          "id": "demo-explosion-animation-a1",
+          "time": 725,
+          "value": 0.219
+        },
+        {
+          "id": "demo-explosion-animation-a2",
+          "time": 848,
+          "value": 0.513
+        },
+        {
+          "id": "demo-explosion-animation-a3",
+          "time": 924,
+          "value": 0.511
+        },
+        {
+          "id": "demo-explosion-animation-a4",
+          "time": 1095,
+          "value": 0.252
+        },
+        {
+          "id": "demo-explosion-animation-a5",
+          "time": 1144,
+          "value": 0.212
+        },
+        {
+          "id": "demo-explosion-animation-a6",
+          "time": 2096,
+          "value": 0
+        }
+      ],
+      "frequency": [
+        {
+          "id": "demo-explosion-animation-f0",
+          "time": 0,
+          "value": 0.474
+        },
+        {
+          "id": "demo-explosion-animation-f1",
+          "time": 936,
+          "value": 0.866
+        },
+        {
+          "id": "demo-explosion-animation-f2",
+          "time": 1085,
+          "value": 0.868
+        }
+      ],
+      "discrete": [
+        {
+          "id": "demo-explosion-animation-d0",
+          "time": 807,
+          "intensity": 0.925,
+          "frequency": 0.742
+        },
+        {
+          "id": "demo-explosion-animation-d1",
+          "time": 844,
+          "intensity": 0.911,
+          "frequency": 0.725
+        },
+        {
+          "id": "demo-explosion-animation-d2",
+          "time": 857,
+          "intensity": 0.908,
+          "frequency": 0.613
+        },
+        {
+          "id": "demo-explosion-animation-d3",
+          "time": 905,
+          "intensity": 0.921,
+          "frequency": 0.76
+        },
+        {
+          "id": "demo-explosion-animation-d4",
+          "time": 930,
+          "intensity": 0.909,
+          "frequency": 0.351
+        },
+        {
+          "id": "demo-explosion-animation-d5",
+          "time": 970,
+          "intensity": 0.919,
+          "frequency": 0.789
+        },
+        {
+          "id": "demo-explosion-animation-d6",
+          "time": 998,
+          "intensity": 0.924,
+          "frequency": 0.444
+        },
+        {
+          "id": "demo-explosion-animation-d7",
+          "time": 1029,
+          "intensity": 0.915,
+          "frequency": 0.757
+        },
+        {
+          "id": "demo-explosion-animation-d8",
+          "time": 1055,
+          "intensity": 0.923,
+          "frequency": 0.287
+        },
+        {
+          "id": "demo-explosion-animation-d9",
+          "time": 1086,
+          "intensity": 0.9,
+          "frequency": 0.806
+        },
+        {
+          "id": "demo-explosion-animation-d10",
+          "time": 1106,
+          "intensity": 0.892,
+          "frequency": 0.677
+        },
+        {
+          "id": "demo-explosion-animation-d11",
+          "time": 1157,
+          "intensity": 0.849,
+          "frequency": 0.5
+        },
+        {
+          "id": "demo-explosion-animation-d12",
+          "time": 1218,
+          "intensity": 0.662,
+          "frequency": 0.591
+        },
+        {
+          "id": "demo-explosion-animation-d13",
+          "time": 1270,
+          "intensity": 0.489,
+          "frequency": 0.5
+        },
+        {
+          "id": "demo-explosion-animation-d14",
+          "time": 1341,
+          "intensity": 0.353,
+          "frequency": 0.249
+        }
+      ],
+      "audio": null,
+      "animation": {
+        "mediaId": "fdb8b56eb39f72c55e13e4e8a46ed6d8",
+        "name": "explosionanimation.json",
+        "duration": 2333,
+        "totalFrames": 140,
+        "frameRate": 60.000002092634
+      }
+    },
+    {
+      "id": "demo-fanfare-sound",
+      "name": "FanfareSound",
+      "duration": 5187,
+      "intensity": [
+        {
+          "id": "demo-fanfare-sound-a0",
+          "time": 1424,
+          "value": 0
+        },
+        {
+          "id": "demo-fanfare-sound-a1",
+          "time": 2343,
+          "value": 0.738
+        },
+        {
+          "id": "demo-fanfare-sound-a2",
+          "time": 3826,
+          "value": 0.628
+        },
+        {
+          "id": "demo-fanfare-sound-a3",
+          "time": 5187,
+          "value": 0
+        }
+      ],
+      "frequency": [
+        {
+          "id": "demo-fanfare-sound-f0",
+          "time": 1430,
+          "value": 0.438
+        },
+        {
+          "id": "demo-fanfare-sound-f1",
+          "time": 2096,
+          "value": 0.541
+        },
+        {
+          "id": "demo-fanfare-sound-f2",
+          "time": 2317,
+          "value": 0.966
+        },
+        {
+          "id": "demo-fanfare-sound-f3",
+          "time": 3807,
+          "value": 0.63
+        },
+        {
+          "id": "demo-fanfare-sound-f4",
+          "time": 4895,
+          "value": 0.385
+        }
+      ],
+      "discrete": [
+        {
+          "id": "demo-fanfare-sound-d0",
+          "time": 103,
+          "intensity": 0.939,
+          "frequency": 0.694
+        },
+        {
+          "id": "demo-fanfare-sound-d1",
+          "time": 146,
+          "intensity": 0.923,
+          "frequency": 0.401
+        },
+        {
+          "id": "demo-fanfare-sound-d2",
+          "time": 214,
+          "intensity": 0.921,
+          "frequency": 0.607
+        },
+        {
+          "id": "demo-fanfare-sound-d3",
+          "time": 289,
+          "intensity": 0.92,
+          "frequency": 0.518
+        },
+        {
+          "id": "demo-fanfare-sound-d4",
+          "time": 344,
+          "intensity": 0.911,
+          "frequency": 0.652
+        },
+        {
+          "id": "demo-fanfare-sound-d5",
+          "time": 398,
+          "intensity": 0.905,
+          "frequency": 0.518
+        },
+        {
+          "id": "demo-fanfare-sound-d6",
+          "time": 453,
+          "intensity": 0.907,
+          "frequency": 0.26
+        },
+        {
+          "id": "demo-fanfare-sound-d7",
+          "time": 514,
+          "intensity": 0.905,
+          "frequency": 0.644
+        },
+        {
+          "id": "demo-fanfare-sound-d8",
+          "time": 568,
+          "intensity": 0.911,
+          "frequency": 0.449
+        },
+        {
+          "id": "demo-fanfare-sound-d9",
+          "time": 648,
+          "intensity": 0.907,
+          "frequency": 0.731
+        },
+        {
+          "id": "demo-fanfare-sound-d10",
+          "time": 731,
+          "intensity": 0.905,
+          "frequency": 0.399
+        },
+        {
+          "id": "demo-fanfare-sound-d11",
+          "time": 797,
+          "intensity": 0.902,
+          "frequency": 0.573
+        },
+        {
+          "id": "demo-fanfare-sound-d12",
+          "time": 844,
+          "intensity": 0.902,
+          "frequency": 0.687
+        },
+        {
+          "id": "demo-fanfare-sound-d13",
+          "time": 907,
+          "intensity": 0.893,
+          "frequency": 0.621
+        },
+        {
+          "id": "demo-fanfare-sound-d14",
+          "time": 969,
+          "intensity": 0.893,
+          "frequency": 0.655
+        },
+        {
+          "id": "demo-fanfare-sound-d15",
+          "time": 1038,
+          "intensity": 0.893,
+          "frequency": 0.39
+        },
+        {
+          "id": "demo-fanfare-sound-d16",
+          "time": 1080,
+          "intensity": 0.893,
+          "frequency": 0.518
+        },
+        {
+          "id": "demo-fanfare-sound-d17",
+          "time": 1142,
+          "intensity": 0.445,
+          "frequency": 0.335
+        },
+        {
+          "id": "demo-fanfare-sound-d18",
+          "time": 1163,
+          "intensity": 0.445,
+          "frequency": 0.359
+        },
+        {
+          "id": "demo-fanfare-sound-d19",
+          "time": 1243,
+          "intensity": 0.458,
+          "frequency": 0.386
+        },
+        {
+          "id": "demo-fanfare-sound-d20",
+          "time": 1285,
+          "intensity": 0.453,
+          "frequency": 0.301
+        },
+        {
+          "id": "demo-fanfare-sound-d21",
+          "time": 1350,
+          "intensity": 0.453,
+          "frequency": 0.361
+        },
+        {
+          "id": "demo-fanfare-sound-d22",
+          "time": 1422,
+          "intensity": 0.453,
+          "frequency": 0.335
+        },
+        {
+          "id": "demo-fanfare-sound-d23",
+          "time": 1475,
+          "intensity": 0.45,
+          "frequency": 0.374
+        },
+        {
+          "id": "demo-fanfare-sound-d24",
+          "time": 1527,
+          "intensity": 0.448,
+          "frequency": 0.335
+        },
+        {
+          "id": "demo-fanfare-sound-d25",
+          "time": 1580,
+          "intensity": 0.448,
+          "frequency": 0.26
+        },
+        {
+          "id": "demo-fanfare-sound-d26",
+          "time": 1639,
+          "intensity": 0.448,
+          "frequency": 0.372
+        },
+        {
+          "id": "demo-fanfare-sound-d27",
+          "time": 1691,
+          "intensity": 0.45,
+          "frequency": 0.315
+        },
+        {
+          "id": "demo-fanfare-sound-d28",
+          "time": 1792,
+          "intensity": 0.924,
+          "frequency": 0.739
+        },
+        {
+          "id": "demo-fanfare-sound-d29",
+          "time": 1873,
+          "intensity": 0.922,
+          "frequency": 0.39
+        },
+        {
+          "id": "demo-fanfare-sound-d30",
+          "time": 1938,
+          "intensity": 0.919,
+          "frequency": 0.573
+        },
+        {
+          "id": "demo-fanfare-sound-d31",
+          "time": 1984,
+          "intensity": 0.919,
+          "frequency": 0.693
+        },
+        {
+          "id": "demo-fanfare-sound-d32",
+          "time": 2045,
+          "intensity": 0.91,
+          "frequency": 0.624
+        },
+        {
+          "id": "demo-fanfare-sound-d33",
+          "time": 2106,
+          "intensity": 0.91,
+          "frequency": 0.66
+        },
+        {
+          "id": "demo-fanfare-sound-d34",
+          "time": 2173,
+          "intensity": 0.91,
+          "frequency": 0.381
+        },
+        {
+          "id": "demo-fanfare-sound-d35",
+          "time": 2214,
+          "intensity": 0.91,
+          "frequency": 0.515
+        },
+        {
+          "id": "demo-fanfare-sound-d36",
+          "time": 2275,
+          "intensity": 0.912,
+          "frequency": 0.515
+        },
+        {
+          "id": "demo-fanfare-sound-d37",
+          "time": 2296,
+          "intensity": 0.91,
+          "frequency": 0.602
+        }
+      ],
+      "audio": {
+        "mediaId": "03d8064d3569d3e1aba733a2b02f152f",
+        "name": "fanfaresound.mp3",
+        "duration": 4704
+      },
+      "animation": null
+    },
+    {
+      "id": "demo-just-haptics",
+      "name": "JustHaptics",
+      "duration": 4366,
+      "intensity": [
+        {
+          "id": "demo-just-haptics-a0",
+          "time": 47,
+          "value": 0
+        },
+        {
+          "id": "demo-just-haptics-a1",
+          "time": 892,
+          "value": 0.909
+        },
+        {
+          "id": "demo-just-haptics-a2",
+          "time": 1482,
+          "value": 0.909
+        },
+        {
+          "id": "demo-just-haptics-a3",
+          "time": 2345,
+          "value": 0.221
+        },
+        {
+          "id": "demo-just-haptics-a4",
+          "time": 2377,
+          "value": 0
+        }
+      ],
+      "frequency": [
+        {
+          "id": "demo-just-haptics-f0",
+          "time": 4,
+          "value": 0.404
+        },
+        {
+          "id": "demo-just-haptics-f1",
+          "time": 797,
+          "value": 0.401
+        },
+        {
+          "id": "demo-just-haptics-f2",
+          "time": 1404,
+          "value": 0.988
+        },
+        {
+          "id": "demo-just-haptics-f3",
+          "time": 2000,
+          "value": 0.984
+        },
+        {
+          "id": "demo-just-haptics-f4",
+          "time": 2351,
+          "value": 0.323
+        }
+      ],
+      "discrete": [
+        {
+          "id": "demo-just-haptics-d0",
+          "time": 2648,
+          "intensity": 0.929,
+          "frequency": 0.788
+        },
+        {
+          "id": "demo-just-haptics-d1",
+          "time": 2781,
+          "intensity": 0.929,
+          "frequency": 0.7
+        },
+        {
+          "id": "demo-just-haptics-d2",
+          "time": 2973,
+          "intensity": 0.928,
+          "frequency": 0.601
+        },
+        {
+          "id": "demo-just-haptics-d3",
+          "time": 3168,
+          "intensity": 0.927,
+          "frequency": 0.455
+        },
+        {
+          "id": "demo-just-haptics-d4",
+          "time": 3356,
+          "intensity": 0.93,
+          "frequency": 0.344
+        },
+        {
+          "id": "demo-just-haptics-d5",
+          "time": 3533,
+          "intensity": 0.93,
+          "frequency": 0.211
+        },
+        {
+          "id": "demo-just-haptics-d6",
+          "time": 3728,
+          "intensity": 0.929,
+          "frequency": 0.125
+        },
+        {
+          "id": "demo-just-haptics-d7",
+          "time": 3908,
+          "intensity": 0.93,
+          "frequency": 0.049
+        },
+        {
+          "id": "demo-just-haptics-d8",
+          "time": 4084,
+          "intensity": 0.93,
+          "frequency": 0.01
+        },
+        {
+          "id": "demo-just-haptics-d9",
+          "time": 4222,
+          "intensity": 0.929,
+          "frequency": 0.012
+        },
+        {
+          "id": "demo-just-haptics-d10",
+          "time": 4366,
+          "intensity": 0.929,
+          "frequency": 0.011
+        }
+      ],
+      "audio": null,
+      "animation": null
+    }
+  ]
+}

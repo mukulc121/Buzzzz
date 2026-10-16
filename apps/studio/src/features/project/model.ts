@@ -1,4 +1,4 @@
-import { isProject, isRecord, type Preset, type Project } from "@buzzzz/core";
+import { emptyPattern, isProject, isRecord, type Preset, type Project } from "@buzzzz/core";
 
 export interface IProjectRecord {
   id: string;
@@ -59,6 +59,11 @@ export const starterProject = (): Project => ({
       },
     },
   ],
+  map: {},
+});
+
+export const emptyProject = (): Project => ({
+  presets: [{ id: uid(), name: "Untitled pattern", pattern: emptyPattern() }],
   map: {},
 });
 

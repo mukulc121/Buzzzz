@@ -14,6 +14,7 @@ interface IProjectDashboard {
   onRetry: () => void;
   onOpen: (id: string) => void;
   onCreate: (name: string) => Promise<string | null>;
+  onCreateSample: () => Promise<string | null>;
   onRename: (id: string, name: string) => Promise<string | null>;
   onRemove: (id: string) => void;
   onImport: (file: File) => Promise<string | null>;
@@ -21,7 +22,17 @@ interface IProjectDashboard {
 }
 
 export function ProjectDashboard(props: IProjectDashboard) {
-  const { projects, currentId, loadError, onRetry, onOpen, onCreate, onRename, onRemove } = props;
+  const {
+    projects,
+    currentId,
+    loadError,
+    onRetry,
+    onOpen,
+    onCreate,
+    onCreateSample,
+    onRename,
+    onRemove,
+  } = props;
   const { onImport, onCopyPattern } = props;
   const picker = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
@@ -29,10 +40,18 @@ export function ProjectDashboard(props: IProjectDashboard) {
   const [naming, setNaming] = useState<IProjectSummary | "new" | null>(null);
   const [removing, setRemoving] = useState<IProjectSummary | null>(null);
   const [importing, setImporting] = useState(false);
+  const [creatingSample, setCreatingSample] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const visible = filterProjects(projects, query, sort);
   const startImport = () => picker.current?.click();
   const startCreate = () => setNaming("new");
+  const createSample = async () => {
+    setImportError(null);
+    setCreatingSample(true);
+    const failure = await onCreateSample();
+    setCreatingSample(false);
+    if (failure) setImportError(failure);
+  };
   const importFile = async (file: File) => {
     setImportError(null);
     if (!file.name.toLowerCase().endsWith(".pulsar")) {
@@ -58,6 +77,16 @@ export function ProjectDashboard(props: IProjectDashboard) {
       <button type="button" className="dashboard-button primary" onClick={startCreate}>
         <DashboardIcon name="plus" />
         <span>Create new project</span>
+      </button>
+      <button
+        type="button"
+        className="dashboard-button secondary"
+        disabled={creatingSample || importing}
+        aria-busy={creatingSample}
+        onClick={() => void createSample()}
+      >
+        <DashboardIcon name="plus" />
+        <span>Create sample project</span>
       </button>
     </>
   );

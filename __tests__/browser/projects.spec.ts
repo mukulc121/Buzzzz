@@ -132,7 +132,10 @@ test("create opens the new project in the editor", async ({ page }) => {
   await dialog.getByRole("button", { name: "Create" }).click();
   await expect(page).toHaveURL(/\/studio\/projects\/[\w-]+(?:[?#]|$)/);
   await expect(page.getByRole("textbox", { name: "Pattern name" })).toBeEnabled();
-  await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue("Thud");
+  await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue("Untitled pattern");
+  await expect(
+    page.getByRole("group", { name: "Haptic pattern timeline" }).getByRole("button"),
+  ).toHaveCount(0);
   await page.getByRole("button", { name: "Projects", exact: true }).click();
   await expect(
     card(page, "Onboarding tour").getByRole("button", { name: "Onboarding tour", exact: true }),

@@ -36,6 +36,11 @@ export function ProjectsPage(props: IProjectsPage) {
           edit();
           return null;
         }}
+        onCreateSample={async () => {
+          const failure = await studio.createSampleProject();
+          if (!failure) edit();
+          return failure;
+        }}
         onRename={async (id, name) => ((await catalog.rename(id, name)) ? null : BUSY)}
         onRemove={async (id) => {
           try {

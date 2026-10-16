@@ -4,6 +4,8 @@ import { exportPulsarBundle } from "../features/imports/exportPulsarBundle";
 import { downloadBlob } from "../features/project/files";
 import { exportProjectMedia } from "../features/project/mediaTransfer";
 import { importProject } from "../features/project/importProject";
+import { loadSampleProject } from "../features/project/starter/loadSampleProject";
+import type { Imported } from "../features/imports/model";
 import type { AttachedTracks } from "../features/media/useAttachedTracks";
 import type { useProject } from "../features/project/useProject";
 import type { useComposer } from "../features/composer/useComposer";
@@ -26,6 +28,40 @@ export function useStudioFiles(props: IStudioFiles) {
   useLayoutEffect(() => {
     current.current = document.projectId;
   }, [document.projectId]);
+  const openImportedProject = async (
+    data: Extract<Imported, { kind: "project" }>,
+    name: string,
+    projectId: string,
+  ) => {
+    const project = {
+      ...data.project,
+      riveStateMachine: data.stateMachine ?? data.project.riveStateMachine,
+      presets: data.project.presets.map((preset) =>
+        data.durations?.[preset.id] === undefined
+          ? preset
+          : {
+              ...preset,
+              editor: {
+                markers: [],
+                range: null,
+                ...preset.editor,
+                durationMs: data.durations[preset.id],
+              },
+            },
+      ),
+    };
+    const id = await importProject({
+      project,
+      name: data.name ?? name,
+      media: data.media ?? [],
+      riv: data.riv,
+    });
+    document.catalog.refresh();
+    if (current.current !== projectId) return;
+    document.catalog.open(id);
+    composer.setSelected(null);
+    onLog(`Opened project · ${data.project.presets.length} patterns`);
+  };
   const readFile = async (file: File): Promise<string | null> => {
     const projectId = current.current;
     try {
@@ -50,35 +86,7 @@ export function useStudioFiles(props: IStudioFiles) {
           if (data.warnings?.length) onLog(data.warnings.join(" · "));
           break;
         case "project": {
-          const attachments = data.media ?? [];
-          const project = {
-            ...data.project,
-            riveStateMachine: data.stateMachine ?? data.project.riveStateMachine,
-            presets: data.project.presets.map((preset) =>
-              data.durations?.[preset.id] === undefined
-                ? preset
-                : {
-                    ...preset,
-                    editor: {
-                      markers: [],
-                      range: null,
-                      ...preset.editor,
-                      durationMs: data.durations[preset.id],
-                    },
-                  },
-            ),
-          };
-          const id = await importProject({
-            project,
-            name: data.name ?? file.name.replace(/\.[^.]+$/, ""),
-            media: attachments,
-            riv: data.riv,
-          });
-          document.catalog.refresh();
-          if (current.current !== projectId) return null;
-          document.catalog.open(id);
-          composer.setSelected(null);
-          onLog(`Opened project · ${data.project.presets.length} patterns`);
+          await openImportedProject(data, file.name.replace(/\.[^.]+$/, ""), projectId);
           break;
         }
       }
@@ -92,6 +100,17 @@ export function useStudioFiles(props: IStudioFiles) {
   };
   const importFile = async (file: File) => {
     await readFile(file);
+  };
+  const createSampleProject = async (): Promise<string | null> => {
+    const projectId = current.current;
+    try {
+      const data = await loadSampleProject();
+      if (current.current !== projectId) return null;
+      await openImportedProject(data, "Starting Demo Project", projectId);
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : "Could not create the sample project.";
+    }
   };
   const attachMediaAsset = async (assetId: string) => {
     const projectId = current.current;
@@ -128,5 +147,11 @@ export function useStudioFiles(props: IStudioFiles) {
       return message;
     }
   };
-  return { importFile, importFileResult: readFile, attachMediaAsset, exportProject };
+  return {
+    importFile,
+    importFileResult: readFile,
+    createSampleProject,
+    attachMediaAsset,
+    exportProject,
+  };
 }

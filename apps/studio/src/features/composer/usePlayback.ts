@@ -35,11 +35,16 @@ export function usePlayback(props: IPlayback) {
   const run = useRef(0);
   const owner = useRef(() => {});
   const player = useRef<HTMLAudioElement | null>(null);
+  const stopTrack = () => {
+    const audio = player.current;
+    player.current = null;
+    audio?.pause();
+  };
   const stopLocal = () => {
     run.current++;
     cancelAnimationFrame(raf.current);
     stopSound(owner);
-    player.current?.pause();
+    stopTrack();
   };
   const settle = () => {
     setPlaying(false);
@@ -55,7 +60,7 @@ export function usePlayback(props: IPlayback) {
   const finish = () => {
     run.current++;
     cancelAnimationFrame(raf.current);
-    player.current?.pause();
+    stopTrack();
     settle();
   };
   const play = (
@@ -100,19 +105,24 @@ export function usePlayback(props: IPlayback) {
     const wantsSound = () => mode === "pattern" || preferences.current.sound;
     const usesSound = (cursor: number) => wantsSound() && !soundFailed && !usesTrack(cursor);
     const keyOf = (prefs: typeof preferences.current) =>
-      `${wantsSound() && !!buffer}/${prefs.trackEnabled}/${prefs.onPhone}/${prefs.phones}/${prefs.track?.url}/${prefs.track?.startMs}/${prefs.track?.endMs}`;
+      `${usesSound(from) && !!buffer}/${prefs.trackEnabled}/${prefs.onPhone}/${prefs.phones}/${prefs.track?.url}/${prefs.track?.startMs}/${prefs.track?.endMs}`;
     let outputKey = "";
     const startOutput = (elapsed: number) => {
       const prefs = preferences.current;
       const cursor = from + elapsed;
       stopSound(owner);
-      player.current?.pause();
+      stopTrack();
       const remaining = clip(cursor);
       if (usesTrack(cursor) && prefs.track) {
         const audio = new Audio(prefs.track.url);
         audio.currentTime = (prefs.track.startMs + cursor) / 1000;
         player.current = audio;
-        void audio.play().catch(() => onError?.("Audio playback could not start"));
+        void audio.play().catch(() => {
+          if (id === run.current && player.current === audio) {
+            stopTrack();
+            onError?.("Audio playback could not start");
+          }
+        });
       }
       const soundStart = usesSound(cursor) && buffer ? playBuffer(buffer, elapsed, owner) : null;
       if (prefs.onPhone && prefs.phones) send({ type: "play", pattern: toDevice(remaining) });
@@ -147,13 +157,27 @@ export function usePlayback(props: IPlayback) {
         restart(true);
         elapsed = 0;
       } else if (elapsed >= finishAt) {
-        finish();
-        return;
+        const audio = player.current;
+        if (end < fullEnd || !audio || audio.ended || audio.error) {
+          finish();
+          return;
+        }
       }
       if (elapsed < duration && keyOf(prefs) !== outputKey) output(elapsed);
-      if (prefs.track && from + elapsed >= prefs.track.endMs - prefs.track.startMs)
-        player.current?.pause();
-      setPlayhead(from + Math.min(duration, elapsed));
+      const audio = player.current;
+      if (
+        audio &&
+        (audio.ended ||
+          (prefs.track &&
+            audio.currentTime < audio.duration &&
+            audio.currentTime * 1000 >= prefs.track.endMs))
+      )
+        stopTrack();
+      const position =
+        player.current && prefs.track
+          ? player.current.currentTime * 1000 - prefs.track.startMs
+          : from + elapsed;
+      setPlayhead(Math.max(start, Math.min(end, position)));
       raf.current = requestAnimationFrame(tick);
     };
     const begin = () => {
@@ -190,7 +214,7 @@ export function usePlayback(props: IPlayback) {
       run.current++;
       cancelAnimationFrame(raf.current);
       stopSound(owner);
-      player.current?.pause();
+      stopTrack();
     },
     [],
   );

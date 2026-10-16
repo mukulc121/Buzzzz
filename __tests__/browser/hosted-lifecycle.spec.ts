@@ -109,6 +109,10 @@ async function createProject(page: Page) {
     .click();
   await expect(page).toHaveURL(/\/studio\/projects\/[\w-]+(?:[?#]|$)/);
   await expect(page.locator('.save-status[data-status="editing"]')).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue("Untitled pattern");
+  await expect(
+    page.getByRole("group", { name: "Haptic pattern timeline" }).getByRole("button"),
+  ).toHaveCount(0);
 }
 
 test("hosted reload retains room and link, and a fresh tab can revoke earlier links", async ({

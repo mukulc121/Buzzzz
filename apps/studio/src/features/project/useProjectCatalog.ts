@@ -5,7 +5,7 @@ import {
   freePresetId,
   newRecord,
   projectName,
-  starterProject,
+  emptyProject,
   type IProjectRecord,
   type IProjectSummary,
 } from "./model";
@@ -65,7 +65,7 @@ export function useProjectCatalog(props: IProjectCatalog) {
   };
 
   const create = (name = "Untitled project") => {
-    const record = newRecord(name, starterProject());
+    const record = newRecord(name, emptyProject());
     if (!store(record)) return null;
     switchTo(record);
     return record.id;
