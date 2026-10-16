@@ -1,5 +1,5 @@
 import { connectionTarget } from "./connectionTarget";
-import { fromDeepLink, isRecord, pairingLink, relayUrl } from "@buzzzz/core";
+import { fromDeepLink, isPairingCode, isRecord, pairingLink, relayUrl } from "@buzzzz/core";
 
 export interface IPhoneConnection {
   url: string;
@@ -11,20 +11,26 @@ export async function resolvePhoneConnection(props: {
   input: string;
   device: string;
   signal?: AbortSignal;
+  pairingOrigin?: string;
 }): Promise<IPhoneConnection> {
-  const { input, device, signal } = props;
-  connectionTarget(input);
+  const { device, signal } = props;
+  const input = props.input.trim();
+  const target = connectionTarget(input, props.pairingOrigin);
   const pairing = pairingLink(input);
-  if (!pairing) {
+  const numeric = isPairingCode(input);
+  if (!pairing && !numeric) {
     const direct = relayUrl(fromDeepLink(input) ?? input);
     if (!direct) throw new Error("Paste a Studio pairing link or a ws:// relay address.");
     return { url: direct.href, label: direct.host };
   }
-  const response = await fetch(`${pairing.server}/v1/rooms/${pairing.room}/pair`, {
+  const server = pairing ? new URL(pairing.server) : target;
+  const path = pairing ? `/v1/rooms/${pairing.room}/pair` : "/v1/pair";
+  const response = await fetch(new URL(path, server), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ code: pairing.code, device }),
+    body: JSON.stringify({ code: pairing ? pairing.code : input, device }),
     signal,
+    redirect: "error",
   });
   if (!response.ok)
     throw new Error(
@@ -43,14 +49,16 @@ export async function resolvePhoneConnection(props: {
     typeof value.relayUrl !== "string"
   )
     throw new Error("Studio returned an invalid pairing response.");
+  const room = pairing ? pairing.room : value.roomId;
+  if (typeof room !== "string" || !/^[a-f0-9]{32}$/.test(room))
+    throw new Error("Studio returned an invalid pairing response.");
   const url = relayUrl(value.relayUrl);
-  const server = new URL(pairing.server);
   if (
     !url ||
     url.host !== server.host ||
     url.protocol !== (server.protocol === "https:" ? "wss:" : "ws:") ||
     url.searchParams.getAll("room").length !== 1 ||
-    url.searchParams.get("room") !== pairing.room ||
+    url.searchParams.get("room") !== room ||
     url.searchParams.getAll("token").length !== 1 ||
     url.searchParams.get("token") !== value.phoneToken
   )

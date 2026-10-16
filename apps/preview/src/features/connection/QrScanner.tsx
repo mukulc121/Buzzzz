@@ -2,10 +2,10 @@ import { useRef, useState } from "react";
 import { Linking, Modal, Text, View } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { fromDeepLink, pairingLink, relayUrl } from "@buzzzz/core";
 import { OutlineButton } from "../../components/OutlineButton";
 import type { Theme } from "../../theme/colors";
 import { font } from "../../theme/typography";
+import { scannedConnection } from "./connectionInput";
 
 interface IQrScanner {
   onClose: () => void;
@@ -22,12 +22,13 @@ export function QrScanner(props: IQrScanner) {
     if (claimed.current) return;
     claimed.current = true;
     setScanned(true);
-    if (!pairingLink(data) && !fromDeepLink(data) && !relayUrl(data)) {
+    const value = scannedConnection(data);
+    if (!value) {
       setError("This QR code is not a Studio connection. Scan the code in Studio’s Phone panel.");
       return;
     }
     onClose();
-    onConnect(data);
+    onConnect(value);
   };
   return (
     <Modal onRequestClose={onClose} animationType="slide">
@@ -45,8 +46,8 @@ export function QrScanner(props: IQrScanner) {
           ) : (
             <View style={{ flex: 1, justifyContent: "center", gap: 16 }}>
               <Text style={{ ...font.regular, color: t.fg, fontSize: 16 }}>
-                Camera access is needed to scan a pairing code. You can also paste the Studio link
-                on Home.
+                Camera access is needed to scan a pairing code. You can also enter the connecting
+                code on Home.
               </Text>
               <OutlineButton
                 title={permission?.canAskAgain === false ? "Open Settings" : "Allow camera"}

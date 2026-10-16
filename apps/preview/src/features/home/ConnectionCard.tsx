@@ -1,9 +1,9 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { Monitor } from "lucide-react-native";
 import { Card } from "../../components/Card";
 import { Icon } from "../../components/Icon";
 import { ThemedText } from "../../components/ThemedText";
 import { colors } from "../../theme/colors";
+import { deriveConnectionRow } from "./model";
 
 interface IConnectionCard {
   connection: { label: string; status: "idle" | "connecting" | "connected" | "error" };
@@ -14,9 +14,7 @@ interface IConnectionCard {
 
 export function ConnectionCard(props: IConnectionCard) {
   const { connection, onOpen, onReconnect, onRemove } = props;
-  const connected = connection.status === "connected";
-  const connecting = connection.status === "connecting";
-  const color = connected ? colors.green : connecting ? colors.border : colors.red;
+  const { color, label } = deriveConnectionRow(connection.status);
   return (
     <Card style={styles.card}>
       <View style={styles.row}>
@@ -34,16 +32,11 @@ export function ConnectionCard(props: IConnectionCard) {
                 {connection.label}
               </ThemedText>
               <View style={styles.chip}>
-                <Monitor size={11} color={colors.muted} />
                 <ThemedText style={styles.chipText}>Browser</ThemedText>
               </View>
             </View>
             <ThemedText style={styles.status} numberOfLines={1}>
-              {connected || connection.status === "idle"
-                ? "Tap to view haptics"
-                : connecting
-                  ? "Connecting…"
-                  : "Couldn’t connect"}
+              {label}
             </ThemedText>
           </View>
         </TouchableOpacity>

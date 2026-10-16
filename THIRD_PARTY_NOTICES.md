@@ -201,3 +201,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ```
+
+## Material Icons
+
+The Android connection help chevron uses a one-glyph subset of Google Material Icons, Copyright 2018 Google, under the Apache License 2.0. The font was subsetted for this app. The full license is included in [MaterialIcons.LICENSE](apps/preview/src/features/home/assets/MaterialIcons.LICENSE).

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { Alert, AppState, Linking, Platform } from "react-native";
 import { fromDeepLink, pairingLink, type Msg } from "@buzzzz/core";
 import { connectionTarget } from "./connectionTarget";
+import { needsConnectionConsent } from "./connectionInput";
 import { resolvePhoneConnection } from "./pairing";
 import { createConnectionStorage } from "./storage";
 import { useRelaySocket, type RelayStatus } from "./useRelaySocket";
@@ -123,7 +124,7 @@ export function usePhoneRelay(
         setError(cause instanceof Error ? cause.message : "Invalid connection link.");
         return;
       }
-      if (trusted.current.has(target.origin)) {
+      if (!needsConnectionConsent(value, target, trusted.current)) {
         connect(value);
         return;
       }

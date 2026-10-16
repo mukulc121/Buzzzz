@@ -1,4 +1,5 @@
-import { fromDeepLink, pairingLink, relayUrl } from "@buzzzz/core";
+import { fromDeepLink, isPairingCode, pairingLink, relayUrl } from "@buzzzz/core";
+import { hostedPairingOrigin } from "./hostedPairing";
 
 function privateIpv4(parts: number[]) {
   const [a, b] = parts;
@@ -28,7 +29,8 @@ function localHost(host: string) {
     privateIpv4(parts)
   );
 }
-export function connectionTarget(input: string): URL {
+export function connectionTarget(input: string, pairingOrigin?: string): URL {
+  if (isPairingCode(input.trim())) return hostedPairingOrigin(pairingOrigin);
   const pairing = pairingLink(input);
   const target = pairing ? new URL(pairing.server) : relayUrl(fromDeepLink(input) ?? input);
   if (!target) throw new Error("Paste a Studio pairing link or a ws:// relay address.");

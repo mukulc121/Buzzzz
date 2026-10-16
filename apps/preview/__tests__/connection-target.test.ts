@@ -54,4 +54,20 @@ describe("phone relay connection policy", () => {
       connectionTarget("rivehaptics://connect?url=ws%3A%2F%2Fexample.com%2Frelay"),
     ).toThrow("WSS");
   });
+  test("numeric codes use only the configured trusted origin", () => {
+    expect(connectionTarget("001234").origin).toBe("https://buzzzz.theclau.de");
+    expect(connectionTarget("001234", "https://studio.example").origin).toBe(
+      "https://studio.example",
+    );
+    for (const origin of [
+      "http://example.com",
+      "https://user:pass@studio.example",
+      "https://studio.example/relay",
+      "https://studio.example/?origin=https://attacker.example",
+      "https://studio.example/#fragment",
+    ])
+      expect(() => connectionTarget("001234", origin)).toThrow("hosted pairing origin");
+    for (const code of ["12345", "1234567", "12345a", "https://attacker.example/001234"])
+      expect(() => connectionTarget(code)).toThrow();
+  });
 });
