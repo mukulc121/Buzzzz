@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { analyzeVoiceAsync } from "../audio/voice/client";
 import type { IVoiceSignal } from "../audio/voice/analysis";
-import { VoiceCapture, voiceError } from "./voiceCapture";
+import { startVoiceCapture, voiceError } from "./voiceCapture";
 
 type VoiceState =
   | { kind: "idle" | "requesting" | "recording" | "analyzing" }
@@ -9,7 +9,7 @@ type VoiceState =
   | { kind: "error"; message: string };
 
 export function useVoiceSketch() {
-  const capture = useRef<VoiceCapture | null>(null);
+  const capture = useRef<Awaited<ReturnType<typeof startVoiceCapture>> | null>(null);
   const request = useRef(0);
   const [state, setState] = useState<VoiceState>({ kind: "idle" });
   const [level, setLevel] = useState(0);
@@ -54,7 +54,7 @@ export function useVoiceSketch() {
     setElapsedMs(0);
     setState({ kind: "requesting" });
     try {
-      const next = await VoiceCapture.start();
+      const next = await startVoiceCapture();
       if (generation !== request.current) return next.cancel();
       capture.current = next;
       setState({ kind: "recording" });
