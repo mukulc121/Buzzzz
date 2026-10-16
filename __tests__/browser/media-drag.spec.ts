@@ -1,5 +1,16 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { readFileSync } from "node:fs";
+import { unzipSync } from "fflate";
+
+const sampleAudio = unzipSync(
+  readFileSync(
+    new URL(
+      "../../apps/studio/src/features/project/starter/starting-demo-project.pulsar",
+      import.meta.url,
+    ),
+  ),
+)["audio/fanfaresound.mp3"]!;
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("buzzzz.onboarding.seen", "true"));
@@ -116,14 +127,16 @@ test("media audio preview plays the file without starting the editor and stops e
 }) => {
   await page.goto("/");
   await page.getByRole("tab", { name: "sound", exact: true }).click();
-  await page
-    .getByLabel("Audio file", { exact: true })
-    .setInputFiles("apps/preview/src/features/demos/audio/beat.wav");
+  await page.getByLabel("Audio file", { exact: true }).setInputFiles({
+    name: "fanfaresound.mp3",
+    mimeType: "audio/mpeg",
+    buffer: Buffer.from(sampleAudio),
+  });
   await expect(page.getByRole("img", { name: "Audio waveform", exact: true })).toBeVisible({
     timeout: 20000,
   });
   await page.getByRole("button", { name: "Media", exact: true }).click();
-  const row = page.locator(".media-item").filter({ hasText: "beat.wav" });
+  const row = page.locator(".media-item").filter({ hasText: "fanfaresound.mp3" });
   await row.click({ button: "right" });
   await page.getByRole("menuitem", { name: "Play", exact: true }).click();
   await expect(row).toHaveAttribute("data-playing", "true");
