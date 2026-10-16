@@ -25,6 +25,7 @@ interface IButton {
   enabled?: boolean;
   disableHaptics?: boolean;
   accessibilityLabel?: string;
+  testID?: string;
 }
 export function Button(props: IButton) {
   const {
@@ -39,6 +40,7 @@ export function Button(props: IButton) {
     enabled = true,
     disableHaptics = false,
     accessibilityLabel,
+    testID,
   } = props;
   const [pressed, setPressed] = useState(false);
   const loading = state === "loading";
@@ -53,6 +55,7 @@ export function Button(props: IButton) {
   }, [pressed, onComplete]);
   return (
     <AnimatedPressable
+      testID={testID}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ disabled: !enabled, busy: loading }}
