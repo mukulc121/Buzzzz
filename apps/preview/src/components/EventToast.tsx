@@ -1,59 +1,50 @@
-import { useEffect, useState } from "react";
-import { Animated, Easing, StyleSheet, Text } from "react-native";
+import { useEffect } from "react";
+import { StyleSheet, Text } from "react-native";
+import Animated, {
+  ReduceMotion,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 import type { Theme } from "../theme/colors";
-
+import { font } from "../theme/typography";
 interface IEventToast {
   event: { id: number; text: string } | null;
   t: Theme;
 }
 export function EventToast(props: IEventToast) {
   const { event, t } = props;
-  const [v] = useState(() => new Animated.Value(0));
+  const opacity = useSharedValue(0);
   useEffect(() => {
-    if (!event) return;
-    v.stopAnimation();
-    Animated.sequence([
-      Animated.timing(v, {
-        toValue: 1,
-        duration: 200,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-      Animated.delay(1400),
-      Animated.timing(v, {
-        toValue: 0,
-        duration: 180,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [event, v]);
+    if (event)
+      opacity.set(
+        withSequence(
+          withTiming(1, { duration: 180, reduceMotion: ReduceMotion.System }),
+          withDelay(1400, withTiming(0, { duration: 180, reduceMotion: ReduceMotion.System })),
+        ),
+      );
+  }, [event, opacity]);
+  const animated = useAnimatedStyle(() => ({
+    opacity: opacity.get(),
+    transform: [{ translateY: (1 - opacity.get()) * 12 }],
+  }));
   if (!event) return null;
   return (
-    <Animated.View
-      pointerEvents="none"
-      style={[
-        toast.base,
-        {
-          backgroundColor: t.fg,
-          opacity: v,
-          transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
-        },
-      ]}
-    >
-      <Text style={[toast.text, { color: t.bg }]}>{event.text}</Text>
+    <Animated.View pointerEvents="none" style={[toast.base, { backgroundColor: t.fg }, animated]}>
+      <Text style={{ color: t.bg, fontSize: 14, fontFamily: font.medium }}>{event.text}</Text>
     </Animated.View>
   );
 }
-
 const toast = StyleSheet.create({
   base: {
     position: "absolute",
-    bottom: 44,
+    bottom: 92,
     alignSelf: "center",
+    maxWidth: "90%",
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
   },
-  text: { fontSize: 14, fontWeight: "600" },
 });

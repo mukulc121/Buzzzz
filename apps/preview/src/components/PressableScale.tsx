@@ -1,8 +1,13 @@
-import { useState, type ReactNode } from "react";
-import { Animated, Pressable, type StyleProp, type ViewStyle } from "react-native";
+import type { ReactNode } from "react";
+import { Pressable, type StyleProp, type ViewStyle } from "react-native";
+import Animated, {
+  ReduceMotion,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
 interface IPressableScale {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
@@ -12,18 +17,20 @@ interface IPressableScale {
 }
 export function PressableScale(props: IPressableScale) {
   const { children, style, onPress, disabled, accessibilityLabel } = props;
-  const [scale] = useState(() => new Animated.Value(1));
-  const to = (v: number) =>
-    Animated.spring(scale, { toValue: v, useNativeDriver: true, speed: 40, bounciness: 0 }).start();
+  const scale = useSharedValue(1);
+  const motion = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
+  const to = (value: number) => {
+    scale.set(withTiming(value, { duration: 100, reduceMotion: ReduceMotion.System }));
+  };
   return (
     <AnimatedPressable
-      style={[style, { transform: [{ scale }] }]}
+      style={[style, motion]}
       onPress={onPress}
       disabled={disabled}
       accessibilityRole="button"
       accessibilityState={{ disabled: Boolean(disabled) }}
       accessibilityLabel={accessibilityLabel}
-      onPressIn={() => to(0.97)}
+      onPressIn={() => to(0.98)}
       onPressOut={() => to(1)}
     >
       {children}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <title>Buzzzz</title>
+  <path d="M551 256 373 539h130l-40 229 190-320H523Z" fill="rgba(255,255,255,1)"/>
+  <g fill="none" stroke="rgba(56,172,221,1)" stroke-width="32" stroke-linecap="round">
+    <path d="M325 409q-53 103 0 206M264 369q-77 143 0 286M699 409q53 103 0 206M760 369q77 143 0 286"/>
+  </g>
+</svg>
