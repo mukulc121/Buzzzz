@@ -47,7 +47,7 @@ test("phone manifests debounce names, answer requests, and resend after phone or
     presets: initial.presets.map((preset) => ({ resourceId: preset.id, name: preset.name })),
   });
   expect(phone.manifests().at(-1)).toEqual(manifest());
-  await page.clock.pauseAt(new Date());
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 5000));
   phone.messages.length = 0;
   await page.getByRole("textbox", { name: "Pattern name", exact: true }).fill("Phone preview");
   await page.clock.runFor(299);
@@ -150,7 +150,7 @@ test("Stop cancels a pending pattern hash before it can reach the phone", async 
     });
   });
   const phone = await relay(page);
-  await page.clock.pauseAt(new Date());
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 5000));
   const header = page.locator(".pattern-header");
   await header.getByRole("button", { name: "Play", exact: true }).click();
   await expect.poll(() => page.evaluate(() => Reflect.get(window, "phoneDigest").count())).toBe(1);

@@ -89,13 +89,13 @@ export function usePreviewSession() {
     },
     clearScene,
     (connectionId) => {
+      if (connectionId === sceneConnection.current || connectionId === legacyConnection.current)
+        clearScene();
       void library.purge(connectionId).catch(() => announce("Could not remove saved patterns."));
     },
   );
   const disconnect = (connectionId = relay.currentConnectionId) => {
     if (!connectionId) return;
-    if (connectionId === sceneConnection.current || connectionId === legacyConnection.current)
-      clearScene();
     void relay.disconnect(connectionId).catch(() => announce("Could not remove this connection."));
   };
   const onTrigger = (name: string) => {
