@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { patternEnd, rangePattern, toDevice, type Pattern, type Msg } from "@buzzzz/core";
-import { playSound, stopSound } from "./audio";
+import { playBuffer, prepareSound, soundNow, stopSound } from "./audio";
+import { soundDuration } from "./soundGraph";
 import type { IPlaybackRange } from "./model";
 
 interface IPlayback {
@@ -26,18 +27,31 @@ export function usePlayback(props: IPlayback) {
     preferences.current = { sound, onPhone, trackEnabled, loop, phones, track };
   }, [sound, onPhone, trackEnabled, loop, phones, track]);
   const raf = useRef(0);
+  const run = useRef(0);
+  const owner = useRef(() => {});
   const player = useRef<HTMLAudioElement | null>(null);
   const stopLocal = () => {
+    run.current++;
     cancelAnimationFrame(raf.current);
-    stopSound();
+    stopSound(owner);
     player.current?.pause();
+  };
+  const settle = () => {
+    setPlaying(false);
+    setPlayhead(null);
+    onStop?.();
   };
   const stop = () => {
     stopLocal();
     send({ type: "stop" });
-    setPlaying(false);
-    setPlayhead(null);
-    onStop?.();
+    settle();
+  };
+  // Natural completion: scheduled sound and the phone's pattern play out their own tails.
+  const finish = () => {
+    run.current++;
+    cancelAnimationFrame(raf.current);
+    player.current?.pause();
+    settle();
   };
   const play = (
     pattern: Pattern,
@@ -45,68 +59,119 @@ export function usePlayback(props: IPlayback) {
     mode: "document" | "pattern" = "document",
   ) => {
     stopLocal();
+    const id = run.current;
     setPlaying(true);
     const start = range?.start ?? 0;
-    if (mode === "document") onStart?.(start);
-    else onStop?.();
-    const end =
-      range?.end ??
-      Math.max(
-        patternEnd(pattern),
-        mode === "document" ? durationMs : 0,
-        mode === "document" && track ? track.endMs - track.startMs : 0,
-      );
+    const fullEnd = Math.max(
+      patternEnd(pattern),
+      mode === "document" ? durationMs : 0,
+      mode === "document" && track ? track.endMs - track.startMs : 0,
+    );
+    const end = range?.end ?? fullEnd;
     const duration = Math.max(1, end - start);
+    // Like Pulsar, a trimmed end excludes a tap exactly on it; the full length keeps it.
+    const clip = (cursor: number) => {
+      const clipped = rangePattern(pattern, cursor, end);
+      if (end >= fullEnd) return clipped;
+      const discretePattern = clipped.discretePattern.filter((tap) => tap.time < end - cursor);
+      return { ...clipped, discretePattern };
+    };
+    const ranged = clip(start);
+    const finishAt = Math.max(duration, soundDuration(ranged) * 1000);
+    let soundFailed = false;
+    let buffer: AudioBuffer | null = null;
+    const usesTrack = (cursor: number) => {
+      const prefs = preferences.current;
+      return (
+        mode === "document" &&
+        !!prefs.track &&
+        prefs.trackEnabled &&
+        cursor < prefs.track.endMs - prefs.track.startMs
+      );
+    };
+    // Auditions always sound like Pulsar's library Play; the editor follows the toggle.
+    const wantsSound = () => mode === "pattern" || preferences.current.sound;
+    const usesSound = (cursor: number) => wantsSound() && !soundFailed && !usesTrack(cursor);
+    const keyOf = (prefs: typeof preferences.current) =>
+      `${wantsSound() && !!buffer}/${prefs.trackEnabled}/${prefs.onPhone}/${prefs.phones}/${prefs.track?.url}/${prefs.track?.startMs}/${prefs.track?.endMs}`;
     let outputKey = "";
     const startOutput = (elapsed: number) => {
       const prefs = preferences.current;
       const cursor = start + elapsed;
-      stopSound();
+      stopSound(owner);
       player.current?.pause();
-      const remaining = rangePattern(pattern, cursor, end);
-      if (
-        mode === "document" &&
-        prefs.track &&
-        prefs.trackEnabled &&
-        cursor < prefs.track.endMs - prefs.track.startMs
-      ) {
+      const remaining = clip(cursor);
+      if (usesTrack(cursor) && prefs.track) {
         const audio = new Audio(prefs.track.url);
         audio.currentTime = (prefs.track.startMs + cursor) / 1000;
         player.current = audio;
         void audio.play().catch(() => onError?.("Audio playback could not start"));
-      } else if (prefs.sound) playSound(remaining);
+      }
+      const soundStart = usesSound(cursor) && buffer ? playBuffer(buffer, elapsed, owner) : null;
       if (prefs.onPhone && prefs.phones) send({ type: "play", pattern: toDevice(remaining) });
       else send({ type: "stop" });
-      outputKey = `${prefs.sound}/${prefs.trackEnabled}/${prefs.onPhone}/${prefs.phones}/${prefs.track?.url}/${prefs.track?.startMs}/${prefs.track?.endMs}`;
+      outputKey = keyOf(prefs);
+      return soundStart;
     };
-    startOutput(0);
-    let started = performance.now();
+    // Follows the audio clock when sound leads, so the playhead and loop track what's heard.
+    let clock = () => 0;
+    const output = (elapsed: number) => {
+      const soundStart = startOutput(elapsed);
+      const started = performance.now() - elapsed;
+      clock =
+        soundStart === null ? () => performance.now() - started : () => soundNow() - soundStart;
+    };
+    const restart = () => {
+      if (mode === "document") onStart?.(start);
+      else onStop?.();
+      output(0);
+    };
     const tick = () => {
       const prefs = preferences.current;
-      let elapsed = performance.now() - started;
-      if (elapsed >= duration) {
-        if (!prefs.loop) {
-          stop();
-          return;
-        }
-        started = performance.now();
+      let elapsed = Math.max(0, clock());
+      // Loops restart at the range end, clipping the tail as Pulsar does; a last pass rings out.
+      if (prefs.loop && elapsed >= duration) {
+        restart();
         elapsed = 0;
-        if (mode === "document") onStart?.(start);
-        startOutput(0);
+      } else if (elapsed >= finishAt) {
+        finish();
+        return;
       }
-      const currentKey = `${prefs.sound}/${prefs.trackEnabled}/${prefs.onPhone}/${prefs.phones}/${prefs.track?.url}/${prefs.track?.startMs}/${prefs.track?.endMs}`;
-      if (currentKey !== outputKey) startOutput(elapsed);
+      if (elapsed < duration && keyOf(prefs) !== outputKey) output(elapsed);
       if (prefs.track && start + elapsed >= prefs.track.endMs - prefs.track.startMs)
         player.current?.pause();
       setPlayhead(start + Math.min(duration, elapsed));
       raf.current = requestAnimationFrame(tick);
     };
-    tick();
+    const begin = () => {
+      if (id !== run.current) return;
+      restart();
+      tick();
+    };
+    owner.current = () => {
+      if (id === run.current) finish();
+    };
+    const sound = prepareSound(ranged).then((rendered) => {
+      buffer = rendered;
+    });
+    if (!usesSound(start)) {
+      sound.catch(() => (soundFailed = true));
+      return begin();
+    }
+    sound.then(begin, () => {
+      if (id !== run.current) return;
+      soundFailed = true;
+      onError?.("Sound could not start");
+      const prefs = preferences.current;
+      if ((prefs.onPhone && prefs.phones) || usesTrack(start)) begin();
+      else finish();
+    });
   };
   useEffect(
     () => () => {
+      run.current++;
       cancelAnimationFrame(raf.current);
-      stopSound();
+      stopSound(owner);
       player.current?.pause();
     },
     [],

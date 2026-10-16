@@ -1,0 +1,1036 @@
+{
+  "repository": "software-mansion/pulsar",
+  "commit": "abdee706282598ab0194ba739dce835dc828f164",
+  "presets": [
+    {
+      "file": "presets/Afterglow.json",
+      "name": "Afterglow",
+      "digest": "ef9195fe88e5bbb329565f85dd34cf1cf561f66c0f5f1c56f290fd654add3264"
+    },
+    {
+      "file": "presets/Aftershock.json",
+      "name": "Aftershock",
+      "digest": "6869357a0c541c905da97d41336ca053a0c295f7912e63b057f7b3013c458175"
+    },
+    {
+      "file": "presets/Alarm.json",
+      "name": "Alarm",
+      "digest": "2f42a85bb742dc176537e2eb3856d178bd5244c98e63ba5f3d52df566d4860bc"
+    },
+    {
+      "file": "presets/Anvil.json",
+      "name": "Anvil",
+      "digest": "04b36a393125633c6a83dc27533780e6e6c15fad7ff4467fa87f37452b8db19e"
+    },
+    {
+      "file": "presets/Applause.json",
+      "name": "Applause",
+      "digest": "6163e9cd151e4b6df2a9f903f11d26aaeb1e57d0191e083dec65878a037b2bbb"
+    },
+    {
+      "file": "presets/Ascent.json",
+      "name": "Ascent",
+      "digest": "3926b43eff901ddc0dc3f2928debeee03dc7ed62b86a8c7c82fbaa8d5dc35cb2"
+    },
+    {
+      "file": "presets/BalloonPop.json",
+      "name": "BalloonPop",
+      "digest": "0839c9022d208ace80be71d76b4d9dd1b5afbad31203d7f827adea3567f29de1"
+    },
+    {
+      "file": "presets/Barrage.json",
+      "name": "Barrage",
+      "digest": "f01ec5bf5497b413c2208e86ead42be56f935f3815474c37711baeaf61a65f27"
+    },
+    {
+      "file": "presets/BassDrop.json",
+      "name": "BassDrop",
+      "digest": "e5f977da74f23f41b5af1caea1c89dbe5c5a441bccbca35bcdc4e68fae31a072"
+    },
+    {
+      "file": "presets/Batter.json",
+      "name": "Batter",
+      "digest": "a4e76ec69f9472ec3edfd2b0ecbe6a4c55be3ffd25d5d278b349d45415b7a58f"
+    },
+    {
+      "file": "presets/BellToll.json",
+      "name": "BellToll",
+      "digest": "5fbf36defb11d6b74846596c4095aaaf6dd2bc5ed922f706d1096ba7c428735e"
+    },
+    {
+      "file": "presets/Blip.json",
+      "name": "Blip",
+      "digest": "c738db3033c53fd6729dff0f9a762480463ea8af7c4b66bb142b9798d0f3ab51"
+    },
+    {
+      "file": "presets/Bloom.json",
+      "name": "Bloom",
+      "digest": "f642d215046a5797e78ccc5c64ec5bab3b3f2fa1ab1a6cb9f65a363423f69d9b"
+    },
+    {
+      "file": "presets/Bongo.json",
+      "name": "Bongo",
+      "digest": "dad309ac4edfeae65c6e836bd25064122a124368dbae3b9e764df7242c3a2125"
+    },
+    {
+      "file": "presets/Boulder.json",
+      "name": "Boulder",
+      "digest": "c5a875341316294951daf241fe0540c73c95b514851b33372142cab9f75327e0"
+    },
+    {
+      "file": "presets/BreakingWave.json",
+      "name": "BreakingWave",
+      "digest": "678597856be7a99ede6c2d41e161f65be949f12de35e8a7e8e5e37bb61906118"
+    },
+    {
+      "file": "presets/Breath.json",
+      "name": "Breath",
+      "digest": "a1a2e5dbbe537f7d95cb2c3bf7d1f0e71997ca606b10d57ad89c9743646ab9f6"
+    },
+    {
+      "file": "presets/Buildup.json",
+      "name": "Buildup",
+      "digest": "b1d7e283eca60e94e6e9e5a529bc68956ef84ea9067c127205045869f7249d83"
+    },
+    {
+      "file": "presets/Burst.json",
+      "name": "Burst",
+      "digest": "a98145b8639cb8a854ff0d73f6757d89decd83e25d79cc4b3462a03676ffd44e"
+    },
+    {
+      "file": "presets/Buzz.json",
+      "name": "Buzz",
+      "digest": "b7d62a6c6c29dbdf104ec0bc12def87f8fe605ddaa7fcda5dc4041629344e0ce"
+    },
+    {
+      "file": "presets/Cadence.json",
+      "name": "Cadence",
+      "digest": "7fbc3b837761b411172760f6daf9833a464bee451f1f6694f702515da769726b"
+    },
+    {
+      "file": "presets/CameraShutter.json",
+      "name": "CameraShutter",
+      "digest": "8f243620737d60f4e3f3e0db14c7766f4d29174b48bc8de9a16a6836d411dccb"
+    },
+    {
+      "file": "presets/Canter.json",
+      "name": "Canter",
+      "digest": "83c1f4ed420d6575e6fbe0d5c463cbe95333b548a4452aba2e571c62305d4fee"
+    },
+    {
+      "file": "presets/Cascade.json",
+      "name": "Cascade",
+      "digest": "94eb82aa5651f110885557f8c86bca886e69dba3f5c8f8848611cef0531cb794"
+    },
+    {
+      "file": "presets/Castanets.json",
+      "name": "Castanets",
+      "digest": "5ff56f5192f50ef6f774d7737d3ccbf670e13648918de7fe73319591cd9d9e97"
+    },
+    {
+      "file": "presets/CatPaw.json",
+      "name": "CatPaw",
+      "digest": "270341959168e1427ba0940b5edcdd73082e1da74b06340027c98e21f45fd70c"
+    },
+    {
+      "file": "presets/Charge.json",
+      "name": "Charge",
+      "digest": "a896772e5aa0061005a75d54cf9ac802e37b3858e2833bd7165a05a8689afe60"
+    },
+    {
+      "file": "presets/Chime.json",
+      "name": "Chime",
+      "digest": "2bb366d943a7a91e76029b654d82be49d7750036f1d23a273878e657574aa653"
+    },
+    {
+      "file": "presets/Chip.json",
+      "name": "Chip",
+      "digest": "7dc19ec4b8c1c5b0a081d9b5217873dae2a96c683d319f56dd74324635142b06"
+    },
+    {
+      "file": "presets/Chirp.json",
+      "name": "Chirp",
+      "digest": "2b3320234553cc7a272c583ea3e3ad927b3c896932374d02a748860f870c8a5f"
+    },
+    {
+      "file": "presets/Clamor.json",
+      "name": "Clamor",
+      "digest": "548123f5531900b573975a91763f21cf088ed46bba0e356aeab094830d77e31b"
+    },
+    {
+      "file": "presets/Clasp.json",
+      "name": "Clasp",
+      "digest": "5d27d3231fcdb3f018a0b21c01a726d322798944c82fe5f4f5b1b1b7af3d4e3c"
+    },
+    {
+      "file": "presets/Cleave.json",
+      "name": "Cleave",
+      "digest": "6e8ec76e3efcb3e89de0bc7cfd3b7a7a5af0961377597152a90c0981e6a44642"
+    },
+    {
+      "file": "presets/Coil.json",
+      "name": "Coil",
+      "digest": "ed9528590a46a09ede02f68e635ab1f7bb416a3a0ef7e0e2dcd7847aca724107"
+    },
+    {
+      "file": "presets/CoinDrop.json",
+      "name": "CoinDrop",
+      "digest": "42b84387670e60b76831737674cf2bc05d3f33c1e354d69069d5cf0667241a15"
+    },
+    {
+      "file": "presets/CombinationLock.json",
+      "name": "CombinationLock",
+      "digest": "b964ee4d39fe3338c911b3caf052ec87c30b08019d74838b33fb0b41ca70c599"
+    },
+    {
+      "file": "presets/Crescendo.json",
+      "name": "Crescendo",
+      "digest": "43f8eba14ddfb6d2952f3259ff429116b5e4ee832f234ce0e29f6a123b1bb63a"
+    },
+    {
+      "file": "presets/Dewdrop.json",
+      "name": "Dewdrop",
+      "digest": "53398e72c57b18faea52c02b0ebb2dc3ec87ccccbc7822f4104bad40f355a5e4"
+    },
+    {
+      "file": "presets/Dirge.json",
+      "name": "Dirge",
+      "digest": "57f149c737f23cd305931df214fe27505ecd103db651fc7d487c153b53d990f0"
+    },
+    {
+      "file": "presets/Dissolve.json",
+      "name": "Dissolve",
+      "digest": "db402603d71245aefc9ac718aba4ff49aa3b39dab0008fb107f0377c21848580"
+    },
+    {
+      "file": "presets/DogBark.json",
+      "name": "DogBark",
+      "digest": "57263d1ccece2b3cc7ff0464a3d97571e735d9d4188fc41711e16818bfe4b1c3"
+    },
+    {
+      "file": "presets/Drone.json",
+      "name": "Drone",
+      "digest": "a263ed90301492cb96991ffca2b9b6fc9ca73bd26c20b34a453c5784fae39557"
+    },
+    {
+      "file": "presets/EngineRev.json",
+      "name": "EngineRev",
+      "digest": "db40a2c6ce523497c69dc012f624dcb6ab5698ab0c8620f5b20929ed8d314821"
+    },
+    {
+      "file": "presets/Exhale.json",
+      "name": "Exhale",
+      "digest": "aca525111badf35bad617480c99b815767a04623f087e451870833f311dd5309"
+    },
+    {
+      "file": "presets/Explosion.json",
+      "name": "Explosion",
+      "digest": "c48ff6c08934952422561f88e8192a339153c0c754eb10fbc0c6294e827f303d"
+    },
+    {
+      "file": "presets/FadeOut.json",
+      "name": "FadeOut",
+      "digest": "ecdce7d93718c84e70b6a38d4907bd3b844d737349e9c3c2a2ea85f6e88b0674"
+    },
+    {
+      "file": "presets/Fanfare.json",
+      "name": "Fanfare",
+      "digest": "8df1a8c49319fe1f752686ac91d1ad1550a12b325bd281789042f2908e3acdbe"
+    },
+    {
+      "file": "presets/Feather.json",
+      "name": "Feather",
+      "digest": "3e24d2e7558fcf1830425b10b8b66e1ee6f2d33fa822ee7f743b43fabc483ac9"
+    },
+    {
+      "file": "presets/Finale.json",
+      "name": "Finale",
+      "digest": "f0bf596bb44590cbd98e8cd0c2b1a629c3b002c1a744097de30cdf0360511b33"
+    },
+    {
+      "file": "presets/FingerDrum.json",
+      "name": "FingerDrum",
+      "digest": "fd58339502e81dd7872bb668424282bdfc7124653aa7c7d404b4dfb9bbb055da"
+    },
+    {
+      "file": "presets/Firecracker.json",
+      "name": "Firecracker",
+      "digest": "d8b6bf26fa42d0fa96531ea6344c57e50ddc2f845d2c78c4c3e9a0a8bf4c6600"
+    },
+    {
+      "file": "presets/Fizz.json",
+      "name": "Fizz",
+      "digest": "498eccb276d2484ffbabd524c6fb9e381b3ab3f427fab8959eb76fbb8274e85d"
+    },
+    {
+      "file": "presets/Flare.json",
+      "name": "Flare",
+      "digest": "c2652e92a15690692feb4b41830a271905037a8389f46542f1877c7582de64ca"
+    },
+    {
+      "file": "presets/Flick.json",
+      "name": "Flick",
+      "digest": "f3d21fce869f0ff3601f195972b1da4a76623b63fa02be17670175a57e5d40fa"
+    },
+    {
+      "file": "presets/Flinch.json",
+      "name": "Flinch",
+      "digest": "86afca2ffc2ad22da18896ace53cc99ac91e5724c0c04d123646131e116f65ba"
+    },
+    {
+      "file": "presets/Flourish.json",
+      "name": "Flourish",
+      "digest": "0da82649a2fe932e98cc0172e89d787960858a38fc5862e554af7e55a36df974"
+    },
+    {
+      "file": "presets/Flurry.json",
+      "name": "Flurry",
+      "digest": "dfd9d31f4b9b4a0946f055a0484955833ba5339ac617baacfd45398266ab7dcf"
+    },
+    {
+      "file": "presets/Flush.json",
+      "name": "Flush",
+      "digest": "83c56a17ef93186817cc2911b06eb4dadaf2a5af6bbf3c4ef65144267fca4e8e"
+    },
+    {
+      "file": "presets/Gallop.json",
+      "name": "Gallop",
+      "digest": "6477099ca12bc09fd277e287ea9c8deb140a4e2eac2b94d0c913047eaaec45a8"
+    },
+    {
+      "file": "presets/Gavel.json",
+      "name": "Gavel",
+      "digest": "ba740d1cca2fdf21310f882b9003bf3d8b58bedd7810885511dcb4d5b083cef1"
+    },
+    {
+      "file": "presets/Glitch.json",
+      "name": "Glitch",
+      "digest": "234a088009040963379ef165561065de24d243f2af674f40716d0493938436d8"
+    },
+    {
+      "file": "presets/GuitarStrum.json",
+      "name": "GuitarStrum",
+      "digest": "03df80d6c5cb8051f206f2f2a78a35d86ed102e92dace343402a66b327654095"
+    },
+    {
+      "file": "presets/Hail.json",
+      "name": "Hail",
+      "digest": "12cdf145c36c2f86e235c8d9510435763a77435331372c652f808766118a6766"
+    },
+    {
+      "file": "presets/Hammer.json",
+      "name": "Hammer",
+      "digest": "84460261a90d74c20c5331c6cd22eca1c9e9a971e0e93c767a6477bb9673b866"
+    },
+    {
+      "file": "presets/Heartbeat.json",
+      "name": "Heartbeat",
+      "digest": "f49be19edce6a0c86eae6d3e88484ce97480796cfe9f84042de5e146a75d0968"
+    },
+    {
+      "file": "presets/Herald.json",
+      "name": "Herald",
+      "digest": "959dad04682affdb5ebc2a84d23172529556b8e76aa6742b72dab2a2cfc1aefa"
+    },
+    {
+      "file": "presets/HoofBeat.json",
+      "name": "HoofBeat",
+      "digest": "75e1df050630fb8665d9659511cf90df3b6c2e1258eb45ab84b27c252825d728"
+    },
+    {
+      "file": "presets/Ignition.json",
+      "name": "Ignition",
+      "digest": "41326f74a3cdc1714315c108298950989600c979908260142a9b0cdc14af4929"
+    },
+    {
+      "file": "presets/Impact.json",
+      "name": "Impact",
+      "digest": "f934d16d278893fae4d1a55455f2185416f94a665b1a05cec84374c2988a840a"
+    },
+    {
+      "file": "presets/Jolt.json",
+      "name": "Jolt",
+      "digest": "61c081726b19311ef423d5c4909d2152bb780820958e92fa8d0ef40729550b70"
+    },
+    {
+      "file": "presets/KeyboardMechanical.json",
+      "name": "KeyboardMechanical",
+      "digest": "6250c111f4ca80d71bafc6ce3d2135ac111c13426a681fb71cf28377461ff7ec"
+    },
+    {
+      "file": "presets/KeyboardMembrane.json",
+      "name": "KeyboardMembrane",
+      "digest": "c4d32216fe5f350d35e88d0ea018080bd81a5325b4c7094e60b8d75ad4b2e6be"
+    },
+    {
+      "file": "presets/Knell.json",
+      "name": "Knell",
+      "digest": "99b01bdbea446a0483abee9a33d1eb46fca9ee584a217ebe71107d479c16bafd"
+    },
+    {
+      "file": "presets/Knock.json",
+      "name": "Knock",
+      "digest": "930beb369f3fb2741e20aae8b3b9eda39d77be9650159c42e6d340e16df25f3c"
+    },
+    {
+      "file": "presets/Lament.json",
+      "name": "Lament",
+      "digest": "bb828d81378ead04c99e4927850ab073bcec34159d68b1821c8f823827d0502f"
+    },
+    {
+      "file": "presets/Latch.json",
+      "name": "Latch",
+      "digest": "555c25509bd4b365af2f705d4f19e478b600937935d18daff01ada4cf8236866"
+    },
+    {
+      "file": "presets/Lighthouse.json",
+      "name": "Lighthouse",
+      "digest": "6ca655348bc144e410f34104a965ed3650d034ad0586ba70f211699f5b6bd111"
+    },
+    {
+      "file": "presets/Lilt.json",
+      "name": "Lilt",
+      "digest": "0726050b15dcb37969432d13484ac8af7578ed23441e40bba624a7b668352a0d"
+    },
+    {
+      "file": "presets/Lock.json",
+      "name": "Lock",
+      "digest": "6eee523ea725fec409e50bc48e68b08157e427f853be887b44e39aac66b4ad78"
+    },
+    {
+      "file": "presets/Lope.json",
+      "name": "Lope",
+      "digest": "804d39b98d60ebdec346fe071ca197796bdc0baeff39dd266bb1eeeebf1ce552"
+    },
+    {
+      "file": "presets/March.json",
+      "name": "March",
+      "digest": "04620fdd17f2764e6d0874b6d7afbdceae032849ba8e04029cf0a622eaef9267"
+    },
+    {
+      "file": "presets/Metronome.json",
+      "name": "Metronome",
+      "digest": "634a62ceec7069eae51f7777ae55040179e46f1d53adf4b360410dad6a205580"
+    },
+    {
+      "file": "presets/Murmur.json",
+      "name": "Murmur",
+      "digest": "274a021b2fe06a8bcfba472f63e33031e03c9f09ebf330566b19c34673caf8ed"
+    },
+    {
+      "file": "presets/Nudge.json",
+      "name": "Nudge",
+      "digest": "a5c7a12d514a260419b5d1bd4100884db067b8da6a7545d696421071cdeae316"
+    },
+    {
+      "file": "presets/PassingCar.json",
+      "name": "PassingCar",
+      "digest": "47631479f4fd9f4c3b9750ea36a52804430768244fdecd66bb4eaaa2ce5ee530"
+    },
+    {
+      "file": "presets/Patter.json",
+      "name": "Patter",
+      "digest": "3735592f46eaaa4aa01c89909035bdb64c081f0e638fbd0d3eb2eead26d5fb3a"
+    },
+    {
+      "file": "presets/Peal.json",
+      "name": "Peal",
+      "digest": "38f49bfbd938bd4db2f50e2efe7d82046e641085992ff921e3bbf55bbee60a30"
+    },
+    {
+      "file": "presets/Peck.json",
+      "name": "Peck",
+      "digest": "91b1ed18bb59e460687282d016308955410e794f45dca0f1e5ceb5aa9c47a3ef"
+    },
+    {
+      "file": "presets/Pendulum.json",
+      "name": "Pendulum",
+      "digest": "f50eea0d281bb04378aae03baa24414692799e7f956abb675dc8cb8c8991f1a3"
+    },
+    {
+      "file": "presets/Ping.json",
+      "name": "Ping",
+      "digest": "855f5ef8389684f0daea151aa0f6368abbf056ddda637cb0e6380ef4064c56af"
+    },
+    {
+      "file": "presets/Pip.json",
+      "name": "Pip",
+      "digest": "86f247949cc564aa9110ea18aa673dfcb3c7dd6653c832bcc0e8fbdcf73562c6"
+    },
+    {
+      "file": "presets/Piston.json",
+      "name": "Piston",
+      "digest": "180e70c9ef25a5a0c8423c962da2e2d30dca2fa280f722d624f27a6252c11403"
+    },
+    {
+      "file": "presets/Plink.json",
+      "name": "Plink",
+      "digest": "d210993210de61def2f138653cfe6bf2eb131abeed1e4804772667dd9affd6b5"
+    },
+    {
+      "file": "presets/Plummet.json",
+      "name": "Plummet",
+      "digest": "f4996c949dd78aeeb72076680c59884f5bae7133316ba5fb31c7b5829969a982"
+    },
+    {
+      "file": "presets/Plunk.json",
+      "name": "Plunk",
+      "digest": "c9b5cc93fc8331188fd091bbfcceb67417817e78cfaaa2b70fcaa52e76d51c54"
+    },
+    {
+      "file": "presets/Poke.json",
+      "name": "Poke",
+      "digest": "f9d1392d9e09e8d69056402e34989581c82507d550787ed76e23bf5cdc6db546"
+    },
+    {
+      "file": "presets/Pound.json",
+      "name": "Pound",
+      "digest": "d8170c1f14cc537aa7dced34ea89df343f408c4e9c71b7e144e71e003e986460"
+    },
+    {
+      "file": "presets/PowerDown.json",
+      "name": "PowerDown",
+      "digest": "fec3d588aa63fbb9797778d8a1304a8733fc9bd493945ff72b1b1a53da5663d9"
+    },
+    {
+      "file": "presets/Propel.json",
+      "name": "Propel",
+      "digest": "5fa0fe4ee323d6287f1f83a1a9682528e167ab7af0c4c7b4a4baa738a5331b59"
+    },
+    {
+      "file": "presets/Pulse.json",
+      "name": "Pulse",
+      "digest": "cad34f4005142089dccbd448e20ea6e72dea011898d4cd9fe08381471f677f30"
+    },
+    {
+      "file": "presets/Pummel.json",
+      "name": "Pummel",
+      "digest": "c841839dcc2acb631b5864a3a327aacf089ac32c7a5730d789b9c1b55b908e0c"
+    },
+    {
+      "file": "presets/Push.json",
+      "name": "Push",
+      "digest": "39964175eee44d33a3e56ec4c815c7180df87e849ef0f4ccb14826b716fb0cf3"
+    },
+    {
+      "file": "presets/Radar.json",
+      "name": "Radar",
+      "digest": "c1979ed5e485c78d0183fbc5b118488218c56ba3f73c2aa1af07c57d441969a2"
+    },
+    {
+      "file": "presets/Rain.json",
+      "name": "Rain",
+      "digest": "a92e534afdc8c1cbfe7c77094ca75ee52695f4c9919399caebad09e2462091b3"
+    },
+    {
+      "file": "presets/Ramp.json",
+      "name": "Ramp",
+      "digest": "6f402e1b5515cc19c80175bcb69dc1204f3e90cb0e90bfe5057fa8540a28d88d"
+    },
+    {
+      "file": "presets/Rap.json",
+      "name": "Rap",
+      "digest": "86fd09be207a268e4eee0617ca3d82b6eeaf0bcb7cbb3d2b3ba598f8d8340eda"
+    },
+    {
+      "file": "presets/Ratchet.json",
+      "name": "Ratchet",
+      "digest": "964d7a23becd0b6b42c2e8292e5f0edbb7ef3e36398778863965901f07622cbb"
+    },
+    {
+      "file": "presets/Rebound.json",
+      "name": "Rebound",
+      "digest": "67d5f0c3529154ed1310a9aa75aef2de3c2c72ef1d79a262a5543d0533c1448d"
+    },
+    {
+      "file": "presets/Ripple.json",
+      "name": "Ripple",
+      "digest": "9f6df3c575fd0b923c05556cf7065ed8cfb086a5e3beecbd2242c35e597f87c4"
+    },
+    {
+      "file": "presets/Rivet.json",
+      "name": "Rivet",
+      "digest": "4bdbfdfcf0e24fc784f3f01176c2d2660de58413b5fb79a5b1e05e954f7228b8"
+    },
+    {
+      "file": "presets/Rustle.json",
+      "name": "Rustle",
+      "digest": "5aa478126c27a76e1761f66ea772f342da8b70f197d462d096d01897148a546a"
+    },
+    {
+      "file": "presets/Shockwave.json",
+      "name": "Shockwave",
+      "digest": "edfd9efdbb0e1a2afdde836f027ed05fd7f7fc76e16317188eda6fdd825e46ee"
+    },
+    {
+      "file": "presets/Snap.json",
+      "name": "Snap",
+      "digest": "eb779a96f855f9208fb0bdd17013a9a7d4e0d5d8e48de730885c1564718e617d"
+    },
+    {
+      "file": "presets/Sonar.json",
+      "name": "Sonar",
+      "digest": "2b895a7ff0c350ba173a6dbe5316d9b35c6858592d3e6b7c182f41d5f2953b95"
+    },
+    {
+      "file": "presets/Spark.json",
+      "name": "Spark",
+      "digest": "06c744130c1f0fd8e8abf481827aa60642c9997ea9a68443638e477eeef385c3"
+    },
+    {
+      "file": "presets/Spin.json",
+      "name": "Spin",
+      "digest": "7d6912b1bd6e8f3ed8054bf29edc716579608cf9da1713a341966aa3f4bc08cb"
+    },
+    {
+      "file": "presets/Stagger.json",
+      "name": "Stagger",
+      "digest": "51372313db813290f984d6b3326689e521178f57642ffe0c34ad427bf96696fa"
+    },
+    {
+      "file": "presets/Stamp.json",
+      "name": "Stamp",
+      "digest": "f25c4d1e096f1f29ffc48209f4410586b97db1405f7005d1890494baa31f2b4b"
+    },
+    {
+      "file": "presets/Stampede.json",
+      "name": "Stampede",
+      "digest": "db8ad260d9dd37772a0107b6769f094d9ad45c15e83a6cc1b55db69e2eeda46d"
+    },
+    {
+      "file": "presets/Stomp.json",
+      "name": "Stomp",
+      "digest": "a22bd0de1baaeb989777d83e549369dc9669b4012bea8bccb66d85b895b83f3c"
+    },
+    {
+      "file": "presets/StoneSkip.json",
+      "name": "StoneSkip",
+      "digest": "e810128c67e4d567466854b3be636f6728549bb2cfa74bd6a70b1466d8f62d22"
+    },
+    {
+      "file": "presets/Strike.json",
+      "name": "Strike",
+      "digest": "a0de8216d62025b513c28386c3fc200cad4eb6b9c39355cce97a7bb1d58ecf9a"
+    },
+    {
+      "file": "presets/Summon.json",
+      "name": "Summon",
+      "digest": "085ea6bb8862e830aa9d0cb191765a21330191efaa22060d18d58252f5585b65"
+    },
+    {
+      "file": "presets/Surge.json",
+      "name": "Surge",
+      "digest": "8b772f7e7472bd31697e507b10f69646f10c90d11ae37e9f69ffae72ea51d7db"
+    },
+    {
+      "file": "presets/Sway.json",
+      "name": "Sway",
+      "digest": "4fcf57f28129be7b0387743a6629d7fc7505f9efac6eb92aa4055a372478d89d"
+    },
+    {
+      "file": "presets/Sweep.json",
+      "name": "Sweep",
+      "digest": "53e0528239d447be95687c3a9e3fb7b87e18436459fa04110795fe2798fbcb78"
+    },
+    {
+      "file": "presets/Swell.json",
+      "name": "Swell",
+      "digest": "48c1d6cbcaf9c6fd36fed04b9ffdf8d920733452aca49c9117c528ba219d1e04"
+    },
+    {
+      "file": "presets/Syncopate.json",
+      "name": "Syncopate",
+      "digest": "f13554fe69a70bc4b747c16769167f1c877a1a226fb6f979f5fd3de4a771c1cb"
+    },
+    {
+      "file": "presets/Throb.json",
+      "name": "Throb",
+      "digest": "88c90aabec3f2b7e1cb72a83449bbc018ef4cef1b7201b9dc99098a1ae35fd83"
+    },
+    {
+      "file": "presets/Thud.json",
+      "name": "Thud",
+      "digest": "41acd1d24c2823d3e55e3fb13b684fe1a8c832149eb70c6c3afbaa4cdc324c73"
+    },
+    {
+      "file": "presets/Thump.json",
+      "name": "Thump",
+      "digest": "5f4f7ea6038ccca7d1189e9d75211b35d75c1925d22213b9319fe382930946e7"
+    },
+    {
+      "file": "presets/Thunder.json",
+      "name": "Thunder",
+      "digest": "06329491d9859b7c027dde9213e0e7832426cafd12bca24b5090081b217c59fb"
+    },
+    {
+      "file": "presets/ThunderRoll.json",
+      "name": "ThunderRoll",
+      "digest": "5483cc7972234824cda25cf0aa27f7bbb1239b2f03045f7e9c4e3d458a9ab69b"
+    },
+    {
+      "file": "presets/TickTock.json",
+      "name": "TickTock",
+      "digest": "60bb84243f087e4705614cda489d94a2a6f66feef8159bd8a18fee6a155d4a4a"
+    },
+    {
+      "file": "presets/TidalSurge.json",
+      "name": "TidalSurge",
+      "digest": "70b74015473a9787b7eee5748c91086ad32f0cf36292647799f0de721e2c5719"
+    },
+    {
+      "file": "presets/TideSwell.json",
+      "name": "TideSwell",
+      "digest": "09b0ec6bccdbdc6c33bf3bf503e9edb2b6d28e3dd73275a92ee27365d8ae5136"
+    },
+    {
+      "file": "presets/Tremor.json",
+      "name": "Tremor",
+      "digest": "2dedcb7a8acb1e57d346546f7a30add7c4722b5bd1f21747ac02eca75c0c7ece"
+    },
+    {
+      "file": "presets/Trigger.json",
+      "name": "Trigger",
+      "digest": "c70866ed9272aa7f8c89b2fabb6af9e1d36f2896a01977478dd358962db43855"
+    },
+    {
+      "file": "presets/Triumph.json",
+      "name": "Triumph",
+      "digest": "237ea061c0c0f76cf7f80e09a74fae7c2a9bc79d90815c0ad2d422e8ed86b5ba"
+    },
+    {
+      "file": "presets/Trumpet.json",
+      "name": "Trumpet",
+      "digest": "b40e4e376ede6b7e5a75616111fa8dfc178de45d10f660ce375532f96f209e49"
+    },
+    {
+      "file": "presets/Typewriter.json",
+      "name": "Typewriter",
+      "digest": "a93668d7241765c08b8c0edcd679d2a54d95f86f3dfe8daa1bafb1032e65248d"
+    },
+    {
+      "file": "presets/Unfurl.json",
+      "name": "Unfurl",
+      "digest": "6e9198feb647f534ac5f715db4c48a197ee708239767fe9eeb1050f895affc76"
+    },
+    {
+      "file": "presets/Vortex.json",
+      "name": "Vortex",
+      "digest": "bf0f9bec5854f21a7a6c48dc9a159bd7a0098eceec41900d56424b4b4f98fa7f"
+    },
+    {
+      "file": "presets/Wane.json",
+      "name": "Wane",
+      "digest": "c53083a3e1006fed58a985d87947529341838501c6a66a9db31f9e7a0da8be6e"
+    },
+    {
+      "file": "presets/WarDrum.json",
+      "name": "WarDrum",
+      "digest": "5b0d9ee3cf637b5b420c315ba825fdf477b3320bc93329888403408d2df1b152"
+    },
+    {
+      "file": "presets/Waterfall.json",
+      "name": "Waterfall",
+      "digest": "464df1080eef3f844d083fcf0d66c602f837b5fce99dbd0ce6bedf3d347d9d1a"
+    },
+    {
+      "file": "presets/Wave.json",
+      "name": "Wave",
+      "digest": "a29ed09e9f69258239b952838c14f8242e79487c9c0f023ac05ceb879ac4f122"
+    },
+    {
+      "file": "presets/Wisp.json",
+      "name": "Wisp",
+      "digest": "f34543b5f25c17bc6ef65149c171a44057e7f0328f54a6219dfd5cc980374c7c"
+    },
+    {
+      "file": "presets/Wobble.json",
+      "name": "Wobble",
+      "digest": "aede4aef5fa61768a7713c201a7161e8bd468a26a1808521f736c9d67fee81d0"
+    },
+    {
+      "file": "presets/Woodpecker.json",
+      "name": "Woodpecker",
+      "digest": "06c441c530b48f8d91d440641e8f9bf132222e4596d3493eafde1634b4cc6738"
+    },
+    {
+      "file": "presets/Zipper.json",
+      "name": "Zipper",
+      "digest": "5a954b2b4832a31bc021ed91944466df07d371d8d9edd3589902c46a63767130"
+    },
+    {
+      "file": "systemPresets/ios/SystemImpactHeavy.json",
+      "name": "SystemImpactHeavy",
+      "digest": "5f4f7ea6038ccca7d1189e9d75211b35d75c1925d22213b9319fe382930946e7"
+    },
+    {
+      "file": "systemPresets/ios/SystemImpactLight.json",
+      "name": "SystemImpactLight",
+      "digest": "c4aa45fdabf2c7152905a0d4b4cddf017788471e8293b383128733d96b22462e"
+    },
+    {
+      "file": "systemPresets/ios/SystemImpactMedium.json",
+      "name": "SystemImpactMedium",
+      "digest": "873c3ea69de1205f038908ae3371c5001121d51399747367ecc3eef41e61c6f9"
+    },
+    {
+      "file": "systemPresets/ios/SystemImpactRigid.json",
+      "name": "SystemImpactRigid",
+      "digest": "60ca7f60ab3c43b8d175d83b5eacc8a66b344ca2d751df9064adac18d0058459"
+    },
+    {
+      "file": "systemPresets/ios/SystemImpactSoft.json",
+      "name": "SystemImpactSoft",
+      "digest": "9fe2cea5bbc56e0b678d811517e6940b658901ad05e6a31cccf67ca6e7830bb8"
+    },
+    {
+      "file": "systemPresets/ios/SystemNotificationError.json",
+      "name": "SystemNotificationError",
+      "digest": "de1782bc11094e6386ad9feb8dc5070c66f2cc834a2d2def2fcb402c6f3cafcb"
+    },
+    {
+      "file": "systemPresets/ios/SystemNotificationSuccess.json",
+      "name": "SystemNotificationSuccess",
+      "digest": "0156c3351a96997ce187306268f17406a7ab734189f6d668562662e97a614696"
+    },
+    {
+      "file": "systemPresets/ios/SystemNotificationWarning.json",
+      "name": "SystemNotificationWarning",
+      "digest": "098aab566dfb2a1d52a5ed8025d20cb9089c6f1fe153f7e579af3569c54b1194"
+    },
+    {
+      "file": "systemPresets/ios/SystemSelection.json",
+      "name": "SystemSelection",
+      "digest": "8bd09f030ea7733919524993ef19a1afdff8fab66260144c7d16b38d73ea3641"
+    },
+    {
+      "file": "systemPresets/android/SystemCalendarDatePreset.json",
+      "name": "SystemCalendarDatePreset",
+      "digest": "11a4aeaa42d8295d8f82e8caaf2cefb4b5e3cd95bb9ad2bb7d5db73a08c3656a"
+    },
+    {
+      "file": "systemPresets/android/SystemClockTickPreset.json",
+      "name": "SystemClockTickPreset",
+      "digest": "1602f0948f9feed46ae64cddddada4004b9157733918e7120f03151253a4649f"
+    },
+    {
+      "file": "systemPresets/android/SystemConfirmPreset.json",
+      "name": "SystemConfirmPreset",
+      "digest": "11a4aeaa42d8295d8f82e8caaf2cefb4b5e3cd95bb9ad2bb7d5db73a08c3656a"
+    },
+    {
+      "file": "systemPresets/android/SystemContextClickPreset.json",
+      "name": "SystemContextClickPreset",
+      "digest": "17474ceeef322fa392e74beb20524b424ebd9e04c2fe67ef9edc6aaaf8006900"
+    },
+    {
+      "file": "systemPresets/android/SystemDragCrossingPreset.json",
+      "name": "SystemDragCrossingPreset",
+      "digest": "17474ceeef322fa392e74beb20524b424ebd9e04c2fe67ef9edc6aaaf8006900"
+    },
+    {
+      "file": "systemPresets/android/SystemDragStartPreset.json",
+      "name": "SystemDragStartPreset",
+      "digest": "4bc4844b5c2657be16498d2382d20ad5d8bc099163bc79091efa021e92b66732"
+    },
+    {
+      "file": "systemPresets/android/SystemEdgeReleasePreset.json",
+      "name": "SystemEdgeReleasePreset",
+      "digest": "11a4aeaa42d8295d8f82e8caaf2cefb4b5e3cd95bb9ad2bb7d5db73a08c3656a"
+    },
+    {
+      "file": "systemPresets/android/SystemEdgeSqueezePreset.json",
+      "name": "SystemEdgeSqueezePreset",
+      "digest": "4bc4844b5c2657be16498d2382d20ad5d8bc099163bc79091efa021e92b66732"
+    },
+    {
+      "file": "systemPresets/android/SystemEffectClickPreset.json",
+      "name": "SystemEffectClickPreset",
+      "digest": "11a4aeaa42d8295d8f82e8caaf2cefb4b5e3cd95bb9ad2bb7d5db73a08c3656a"
+    },
+    {
+      "file": "systemPresets/android/SystemEffectDoubleClickPreset.json",
+      "name": "SystemEffectDoubleClickPreset",
+      "digest": "4bbb0fbd329f091275179b82b4ad3c3f94352548caccef11e964c6a9963dacdb"
+    },
+    {
+      "file": "systemPresets/android/SystemEffectHeavyClickPreset.json",
+      "name": "SystemEffectHeavyClickPreset",
+      "digest": "4bc4844b5c2657be16498d2382d20ad5d8bc099163bc79091efa021e92b66732"
+    },
+    {
+      "file": "systemPresets/android/SystemEffectTickPreset.json",
+      "name": "SystemEffectTickPreset",
+      "digest": "17474ceeef322fa392e74beb20524b424ebd9e04c2fe67ef9edc6aaaf8006900"
+    },
+    {
+      "file": "systemPresets/android/SystemGestureEndPreset.json",
+      "name": "SystemGestureEndPreset",
+      "digest": "17474ceeef322fa392e74beb20524b424ebd9e04c2fe67ef9edc6aaaf8006900"
+    },
+    {
+      "file": "systemPresets/android/SystemGestureStartPreset.json",
+      "name": "SystemGestureStartPreset",
+      "digest": "11a4aeaa42d8295d8f82e8caaf2cefb4b5e3cd95bb9ad2bb7d5db73a08c3656a"
+    },
+    {
+      "file": "systemPresets/android/SystemImpactHeavy.json",
+      "name": "SystemImpactHeavy",
+      "digest": "5f4f7ea6038ccca7d1189e9d75211b35d75c1925d22213b9319fe382930946e7"
+    },
+    {
+      "file": "systemPresets/android/SystemImpactLight.json",
+      "name": "SystemImpactLight",
+      "digest": "c4aa45fdabf2c7152905a0d4b4cddf017788471e8293b383128733d96b22462e"
+    },
+    {
+      "file": "systemPresets/android/SystemImpactMedium.json",
+      "name": "SystemImpactMedium",
+      "digest": "873c3ea69de1205f038908ae3371c5001121d51399747367ecc3eef41e61c6f9"
+    },
+    {
+      "file": "systemPresets/android/SystemImpactRigid.json",
+      "name": "SystemImpactRigid",
+      "digest": "60ca7f60ab3c43b8d175d83b5eacc8a66b344ca2d751df9064adac18d0058459"
+    },
+    {
+      "file": "systemPresets/android/SystemImpactSoft.json",
+      "name": "SystemImpactSoft",
+      "digest": "9fe2cea5bbc56e0b678d811517e6940b658901ad05e6a31cccf67ca6e7830bb8"
+    },
+    {
+      "file": "systemPresets/android/SystemKeyboardPressPreset.json",
+      "name": "SystemKeyboardPressPreset",
+      "digest": "11a4aeaa42d8295d8f82e8caaf2cefb4b5e3cd95bb9ad2bb7d5db73a08c3656a"
+    },
+    {
+      "file": "systemPresets/android/SystemKeyboardReleasePreset.json",
+      "name": "SystemKeyboardReleasePreset",
+      "digest": "17474ceeef322fa392e74beb20524b424ebd9e04c2fe67ef9edc6aaaf8006900"
+    },
+    {
+      "file": "systemPresets/android/SystemKeyboardTapPreset.json",
+      "name": "SystemKeyboardTapPreset",
+      "digest": "11a4aeaa42d8295d8f82e8caaf2cefb4b5e3cd95bb9ad2bb7d5db73a08c3656a"
+    },
+    {
+      "file": "systemPresets/android/SystemLongPressPreset.json",
+      "name": "SystemLongPressPreset",
+      "digest": "4bc4844b5c2657be16498d2382d20ad5d8bc099163bc79091efa021e92b66732"
+    },
+    {
+      "file": "systemPresets/android/SystemNotificationError.json",
+      "name": "SystemNotificationError",
+      "digest": "de1782bc11094e6386ad9feb8dc5070c66f2cc834a2d2def2fcb402c6f3cafcb"
+    },
+    {
+      "file": "systemPresets/android/SystemNotificationSuccess.json",
+      "name": "SystemNotificationSuccess",
+      "digest": "0156c3351a96997ce187306268f17406a7ab734189f6d668562662e97a614696"
+    },
+    {
+      "file": "systemPresets/android/SystemNotificationWarning.json",
+      "name": "SystemNotificationWarning",
+      "digest": "098aab566dfb2a1d52a5ed8025d20cb9089c6f1fe153f7e579af3569c54b1194"
+    },
+    {
+      "file": "systemPresets/android/SystemPrimitiveClickPreset.json",
+      "name": "SystemPrimitiveClickPreset",
+      "digest": "8b1e5102f98d61486e489e675579aac408376bc7f814652d855d9e6d6af54d9a"
+    },
+    {
+      "file": "systemPresets/android/SystemPrimitiveLowTickPreset.json",
+      "name": "SystemPrimitiveLowTickPreset",
+      "digest": "13593af1589cb63501c88a73b0cf41ff4c3b00da3b1e8d4a1a4804652101d339"
+    },
+    {
+      "file": "systemPresets/android/SystemPrimitiveQuickFallPreset.json",
+      "name": "SystemPrimitiveQuickFallPreset",
+      "digest": "84448345a4e15cd67c97cf342b441b88436defd7d63fac172f5af43f84b4135e"
+    },
+    {
+      "file": "systemPresets/android/SystemPrimitiveQuickRisePreset.json",
+      "name": "SystemPrimitiveQuickRisePreset",
+      "digest": "9e9ce62201dbd80c37e2cba75b6622de36cdf9ce857e470472d4d950493dabac"
+    },
+    {
+      "file": "systemPresets/android/SystemPrimitiveSlowRisePreset.json",
+      "name": "SystemPrimitiveSlowRisePreset",
+      "digest": "3ad21de57ff2b2df193642074af4e348264da25e3f4008fd0e8b61bf9e5da11a"
+    },
+    {
+      "file": "systemPresets/android/SystemPrimitiveSpinPreset.json",
+      "name": "SystemPrimitiveSpinPreset",
+      "digest": "65aa7cb724d6e43451a243beef25307e61b1ae4187752211263253812a47a65a"
+    },
+    {
+      "file": "systemPresets/android/SystemPrimitiveThudPreset.json",
+      "name": "SystemPrimitiveThudPreset",
+      "digest": "4e170c09fa558375d656a371e9b93d87dddf3b1695d68f0e53bfc5f1cc51078c"
+    },
+    {
+      "file": "systemPresets/android/SystemPrimitiveTickPreset.json",
+      "name": "SystemPrimitiveTickPreset",
+      "digest": "c3c1375b9cce51f1b1307952a7d801ef9478b21d792e3f3aeac315432ce0ca5b"
+    },
+    {
+      "file": "systemPresets/android/SystemReleasePreset.json",
+      "name": "SystemReleasePreset",
+      "digest": "4bbb0fbd329f091275179b82b4ad3c3f94352548caccef11e964c6a9963dacdb"
+    },
+    {
+      "file": "systemPresets/android/SystemScrollItemFocusPreset.json",
+      "name": "SystemScrollItemFocusPreset",
+      "digest": "11a4aeaa42d8295d8f82e8caaf2cefb4b5e3cd95bb9ad2bb7d5db73a08c3656a"
+    },
+    {
+      "file": "systemPresets/android/SystemScrollLimitPreset.json",
+      "name": "SystemScrollLimitPreset",
+      "digest": "11a4aeaa42d8295d8f82e8caaf2cefb4b5e3cd95bb9ad2bb7d5db73a08c3656a"
+    },
+    {
+      "file": "systemPresets/android/SystemScrollTickPreset.json",
+      "name": "SystemScrollTickPreset",
+      "digest": "17474ceeef322fa392e74beb20524b424ebd9e04c2fe67ef9edc6aaaf8006900"
+    },
+    {
+      "file": "systemPresets/android/SystemSegmentFrequentTickPreset.json",
+      "name": "SystemSegmentFrequentTickPreset",
+      "digest": "1602f0948f9feed46ae64cddddada4004b9157733918e7120f03151253a4649f"
+    },
+    {
+      "file": "systemPresets/android/SystemSegmentTickPreset.json",
+      "name": "SystemSegmentTickPreset",
+      "digest": "17474ceeef322fa392e74beb20524b424ebd9e04c2fe67ef9edc6aaaf8006900"
+    },
+    {
+      "file": "systemPresets/android/SystemSelection.json",
+      "name": "SystemSelection",
+      "digest": "8bd09f030ea7733919524993ef19a1afdff8fab66260144c7d16b38d73ea3641"
+    },
+    {
+      "file": "systemPresets/android/SystemTextHandleMovePreset.json",
+      "name": "SystemTextHandleMovePreset",
+      "digest": "1602f0948f9feed46ae64cddddada4004b9157733918e7120f03151253a4649f"
+    },
+    {
+      "file": "systemPresets/android/SystemToggleOffPreset.json",
+      "name": "SystemToggleOffPreset",
+      "digest": "4b36a83e487b51827a3d7375da019c224c5a97651175a6dd8e7f132d5d62b356"
+    },
+    {
+      "file": "systemPresets/android/SystemToggleOnPreset.json",
+      "name": "SystemToggleOnPreset",
+      "digest": "1b833200b6b0c1af8adcd6f591bf67aea9f3df09b17a07945900589368da5be0"
+    },
+    {
+      "file": "systemPresets/android/SystemVirtualKeyPreset.json",
+      "name": "SystemVirtualKeyPreset",
+      "digest": "11a4aeaa42d8295d8f82e8caaf2cefb4b5e3cd95bb9ad2bb7d5db73a08c3656a"
+    },
+    {
+      "file": "systemPresets/android/SystemVirtualKeyReleasePreset.json",
+      "name": "SystemVirtualKeyReleasePreset",
+      "digest": "17474ceeef322fa392e74beb20524b424ebd9e04c2fe67ef9edc6aaaf8006900"
+    }
+  ]
+}

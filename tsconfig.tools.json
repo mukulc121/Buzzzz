@@ -14,6 +14,7 @@
   "exclude": ["apps/relay/**"],
   "include": [
     "__tests__/**/*.ts",
+    "__tests__/**/*.mts",
     "apps/**/__tests__/**/*.ts",
     "packages/core/scripts/**/*.mts",
     "packages/**/__tests__/**/*.ts",

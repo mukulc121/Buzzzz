@@ -92,6 +92,15 @@ function continuousNodes(
   });
 }
 
+// Seconds until the last scheduled voice ends, as Pulsar's renderer sizes its buffer.
+export function soundDuration(pattern: Pattern) {
+  const tapEnd = Math.max(0, ...tapVoices.map((voice) => voice.attack + voice.release));
+  const { amplitude, frequency } = pattern.continuousPattern;
+  let end = amplitude.length && frequency.length ? amplitude.at(-1)!.time / 1000 + 0.01 : 0;
+  for (const tap of pattern.discretePattern) end = Math.max(end, tap.time / 1000 + tapEnd);
+  return end;
+}
+
 export function schedulePatternSound(context: BaseAudioContext, pattern: Pattern, offset: number) {
   const master = context.createGain();
   master.gain.value = 1;
