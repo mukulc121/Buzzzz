@@ -40,7 +40,11 @@ export class RoomAssets {
     await this.asset(id, token);
   }
 
-  async validateMedia(input: string, room: Room): Promise<void> {
+  async validateMedia(
+    input: string,
+    room: Room,
+    expected?: { size: number; contentType: string },
+  ): Promise<void> {
     let url: URL;
     try {
       url = new URL(input);
@@ -56,7 +60,12 @@ export class RoomAssets {
       !/^\?token=[A-Za-z0-9_-]{43}$/.test(url.search)
     )
       throw new HttpError(403, "Use a signed asset from this room");
-    await this.asset(url.pathname.split("/").at(-1) ?? "", url.searchParams.get("token") ?? "");
+    const asset = await this.asset(
+      url.pathname.split("/").at(-1) ?? "",
+      url.searchParams.get("token") ?? "",
+    );
+    if (expected && (asset.bytes !== expected.size || asset.content_type !== expected.contentType))
+      throw new HttpError(403, "Media metadata does not match the uploaded asset");
   }
 
   list() {
@@ -144,7 +153,12 @@ export class RoomAssets {
     )
       throw new HttpError(404, "Asset not found");
     this.active();
-    return asset;
+    const current = this.sql
+      .exec<Asset>("SELECT * FROM assets WHERE id = ? AND ready = 1", id)
+      .toArray()[0];
+    if (!current || current.read_hash !== asset.read_hash)
+      throw new HttpError(404, "Asset not found");
+    return current;
   }
 
   async read(request: Request, path: string): Promise<Response> {

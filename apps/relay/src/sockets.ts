@@ -12,6 +12,7 @@ import type { RoomRateLimit } from "./rates.ts";
 type Role = "host" | "phone";
 export class RoomSockets {
   private bridge: EditorBridge;
+  private pending: Promise<unknown> = Promise.resolve();
   constructor(
     private ctx: DurableObjectState,
     private assets: RoomAssets,
@@ -91,17 +92,32 @@ export class RoomSockets {
       if (!message) throw new HttpError(400, "Invalid relay message");
       if (!isRelayMessageAllowed(connection.role, message.type))
         throw new HttpError(403, "Message is not allowed for this role");
-      if (message.type === "load") {
-        await this.assets.validateRive(message.riv, room);
-        this.ctx.storage.sql.exec("DELETE FROM state");
-        this.ctx.storage.sql.exec("INSERT INTO state (name, value) VALUES ('load', ?)", text);
-      } else if (message.type === "map") {
-        this.ctx.storage.sql.exec(
-          "INSERT INTO state (name, value) VALUES ('map', ?) ON CONFLICT(name) DO UPDATE SET value = excluded.value",
-          text,
-        );
-      }
-      this.broadcast(message, connection.role === "host" ? "phone" : "host");
+      await this.ordered(async () => {
+        if (socket.readyState !== WebSocket.OPEN) return;
+        await this.validateAssets(message, room);
+        this.active();
+        if (
+          socket.readyState !== WebSocket.OPEN ||
+          !this.ctx.storage.sql
+            .exec(
+              "SELECT hash FROM sessions WHERE hash = ? AND expires > ?",
+              connection.hash,
+              Date.now(),
+            )
+            .toArray().length
+        )
+          throw new HttpError(401, "Session expired or revoked");
+        if (message.type === "load") {
+          this.ctx.storage.sql.exec("DELETE FROM state");
+          this.ctx.storage.sql.exec("INSERT INTO state (name, value) VALUES ('load', ?)", text);
+        } else if (message.type === "map") {
+          this.ctx.storage.sql.exec(
+            "INSERT INTO state (name, value) VALUES ('map', ?) ON CONFLICT(name) DO UPDATE SET value = excluded.value",
+            text,
+          );
+        }
+        this.broadcast(message, connection.role === "host" ? "phone" : "host");
+      });
     } catch (error) {
       const code =
         error instanceof HttpError
@@ -169,11 +185,27 @@ export class RoomSockets {
   async editorCommand(command: string, args: Record<string, unknown>): Promise<unknown> {
     return await this.bridge.call(command, args);
   }
-  command(message: Msg) {
+  private async validateAssets(message: Msg, room: Room): Promise<void> {
+    if (message.type === "load") await this.assets.validateRive(message.riv, room);
+    if (message.type === "audio-haptics")
+      await this.assets.validateMedia(message.audio.downloadUrl, room, message.audio);
+    if (message.type === "animation-haptics")
+      await this.assets.validateMedia(message.animation.downloadUrl, room, message.animation);
+  }
+  private ordered<T>(operation: () => Promise<T>): Promise<T> {
+    const pending = this.pending.catch(() => {}).then(operation);
+    this.pending = pending;
+    return pending;
+  }
+  async command(message: Msg) {
     if (!isRelayMessageAllowed("host", message.type) || !parseMessage(JSON.stringify(message)))
       throw new HttpError(400, "Invalid host command");
-    this.active();
-    this.broadcast(message, "phone");
-    return { phones: this.phoneCount() };
+    return await this.ordered(async () => {
+      const room = this.active();
+      await this.validateAssets(message, room);
+      this.active();
+      this.broadcast(message, "phone");
+      return { phones: this.phoneCount() };
+    });
   }
 }

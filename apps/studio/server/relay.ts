@@ -6,6 +6,8 @@ import { networkInterfaces } from "node:os";
 import type { Plugin, ViteDevServer } from "vite";
 import { WebSocket, WebSocketServer } from "ws";
 import { isRelayMessageAllowed, parseMessage } from "@buzzzz/core";
+import { LocalMediaSession } from "./mediaSession.ts";
+import { MediaHttpError, mediaJson } from "./mediaHttp.ts";
 
 const MAX_FILE_BYTES = 20 * 1024 * 1024;
 const MAX_STORE_BYTES = 100 * 1024 * 1024;
@@ -31,10 +33,24 @@ function allowedHost(host: string | undefined, allowed: string[] | true): boolea
     return false;
   }
 }
+function lanAddress(server: ViteDevServer) {
+  const ip =
+    Object.values(networkInterfaces())
+      .flat()
+      .find((entry) => entry?.family === "IPv4" && !entry.internal)?.address ?? "localhost";
+  const address = server.httpServer?.address();
+  return { ip, port: typeof address === "object" && address ? address.port : 5173 };
+}
 function configureRelay(server: ViteDevServer) {
   const wss = new WebSocketServer({ noServer: true, maxPayload: 1024 * 1024 });
   const rivs = new Map<string, Buffer>();
   const roles = new WeakMap<WebSocket, "phone" | "studio">();
+  const origins = new WeakMap<WebSocket, string>();
+  const protocol = server.config.server.https ? "https" : "http";
+  const media = new LocalMediaSession(() => {
+    const { ip, port } = lanAddress(server);
+    return `${protocol}://${ip}:${port}`;
+  });
   let storedBytes = 0;
   const upgrade: (req: IncomingMessage, socket: Duplex, head: Buffer) => void = (
     req,
@@ -55,6 +71,7 @@ function configureRelay(server: ViteDevServer) {
     }
     wss.handleUpgrade(req, socket, head, (ws) => {
       roles.set(ws, role);
+      origins.set(ws, new URL(`${protocol}://${req.headers.host}`).origin);
       wss.emit("connection", ws);
     });
   };
@@ -75,9 +92,10 @@ function configureRelay(server: ViteDevServer) {
       const role = roles.get(ws);
       if (!role || !isRelayMessageAllowed(role === "studio" ? "host" : "phone", message.type))
         return;
+      if (!media.validate(message, origins.get(ws) ?? "")) return;
       for (const client of wss.clients) {
         if (roles.get(client) !== role && client.readyState === WebSocket.OPEN)
-          client.send(JSON.stringify(message));
+          client.send(JSON.stringify(media.forRecipient(message, origins.get(client) ?? "")));
       }
     });
     ws.on("close", broadcastPeers);
@@ -85,6 +103,26 @@ function configureRelay(server: ViteDevServer) {
   });
   server.middlewares.use((req, res, next) => {
     const path = new URL(req.url ?? "/", "http://localhost").pathname;
+    if (media.handles(path)) {
+      if (
+        !allowedHost(req.headers.host, server.config.server.allowedHosts) ||
+        (req.headers.origin && req.headers.origin !== `${protocol}://${req.headers.host}`)
+      ) {
+        res.statusCode = 403;
+        res.end();
+        return;
+      }
+      void media.handle(req, res).catch((error: unknown) => {
+        req.resume();
+        if (!res.writableEnded)
+          mediaJson(
+            res,
+            { error: error instanceof MediaHttpError ? error.message : "Media operation failed" },
+            error instanceof MediaHttpError ? error.status : 500,
+          );
+      });
+      return;
+    }
     if (path !== "/lan" && path !== "/riv" && !path.startsWith("/riv/")) return next();
     if (!sameOrigin(req.headers.origin, req.headers.host)) {
       res.statusCode = 403;
@@ -93,15 +131,8 @@ function configureRelay(server: ViteDevServer) {
     }
     res.setHeader("cache-control", "no-store");
     if (path === "/lan" && req.method === "GET") {
-      const ip =
-        Object.values(networkInterfaces())
-          .flat()
-          .find((a) => a?.family === "IPv4" && !a.internal)?.address ?? "localhost";
-      const address = server.httpServer?.address();
       res.setHeader("content-type", "application/json");
-      res.end(
-        JSON.stringify({ ip, port: typeof address === "object" && address ? address.port : 5173 }),
-      );
+      res.end(JSON.stringify(lanAddress(server)));
       return;
     }
     if (path === "/riv" && req.method === "POST") {
@@ -161,6 +192,7 @@ function configureRelay(server: ViteDevServer) {
     for (const client of wss.clients) client.terminate();
     wss.close();
     rivs.clear();
+    media.close();
   };
 }
 export function relay(): Plugin {

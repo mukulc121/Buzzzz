@@ -10,6 +10,8 @@ const HOST_COMMANDS = new Set<Msg["type"]>([
   "pause",
   "library-manifest",
   "haptic-preset",
+  "audio-haptics",
+  "animation-haptics",
 ]);
 const PHONE_EVENTS = new Set<Msg["type"]>(["hello", "fired", "library-manifest-request"]);
 
