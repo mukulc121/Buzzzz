@@ -1,5 +1,4 @@
 import type { Pattern } from "@buzzzz/core";
-import type { IAudioGenerationOptions } from "../audio/model";
 
 export interface IAnimationKeyframe {
   time: number;
@@ -42,23 +41,34 @@ export interface IAnimationDocument {
 export interface IAnimationFrame {
   timeMs: number;
   energy: number;
-  velocity: number;
   acceleration: number;
-  directionChange: number;
-  impulse: number;
-  positionX: number;
-  positionY: number;
-  scale: number;
-  rotation: number;
-  opacity: number;
+  transient: number;
+  positionRate: number;
+  scaleRate: number;
+  rotationRate: number;
+  opacityRate: number;
 }
 export type AnimationMetric = keyof Omit<IAnimationFrame, "timeMs">;
 export interface IAnimationAnalysis {
   durationMs: number;
   frameMs: number;
   frames: IAnimationFrame[];
-  impacts: { timeMs: number; strength: number; momentum: number }[];
+  impacts: { timeMs: number; strength: number }[];
   warnings: string[];
+  width: number;
+  height: number;
+  layers: IAnimationMotionLayer[];
+}
+export interface IAnimationMotionLayer {
+  weight: number;
+  area: number;
+  x: Float32Array;
+  y: Float32Array;
+  vx: Float32Array;
+  vy: Float32Array;
+  speed: Float32Array;
+  scale: Float32Array;
+  rotation: Float32Array;
 }
 export interface IAnimationCandidate {
   id: "hybrid" | "energy" | "kinematic" | "impulse" | "channel";
@@ -69,17 +79,20 @@ export interface IAnimationCandidate {
   pointCount: number;
   eventCount: number;
 }
-export interface IAnimationGenerationOptions extends IAudioGenerationOptions {
+export interface IAnimationGenerationOptions {
   smoothingMs: number;
-  intensityChannel: AnimationMetric;
-  frequencyChannel: AnimationMetric;
-  gain?: number;
-  threshold?: number;
-  minGapMs?: number;
-  freqFollow?: number;
+  contrast?: number;
+  gamma?: number;
+  silenceFloor?: number;
+  transientDuck?: number;
+  envelopeHz?: number;
+  maxPoints?: number;
+  maxEvents?: number;
+  strategyParams?: Partial<Record<IAnimationCandidate["id"], Record<string, number>>>;
 }
 export interface IAnimationAnalysisRequest {
   document: IAnimationDocument;
   frameMs: number;
+  smoothingMs?: number;
 }
 export type AnimationAnalysisResponse = { analysis: IAnimationAnalysis } | { error: string };

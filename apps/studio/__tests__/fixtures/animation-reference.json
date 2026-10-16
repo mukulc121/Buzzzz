@@ -1,0 +1,3465 @@
+{
+  "reference": {
+    "url": "https://pulsar.swmansion.com/assets/worker-3pu72zZC.js",
+    "sha256": "37d56610b6ba5d6fe477f1b062035893e65600cf1466ef0eec7d91042a95272a",
+    "captured": "2026-10-17",
+    "method": "Synthetic Lottie inputs executed by the unmodified deployed worker; expected outputs only."
+  },
+  "scenarios": [
+    {
+      "name": "still / defaults",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [{ "ty": 4, "ind": 1, "ip": 0, "op": 120, "ks": { "p": { "k": [100, 100] } } }]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": []
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": []
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "still / global-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [{ "ty": 4, "ind": 1, "ip": 0, "op": 120, "ks": { "p": { "k": [100, 100] } } }]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 16,
+        "maxEvents": 2,
+        "silenceFloor": 0.1,
+        "gamma": 0.75,
+        "transientDuck": 0.5,
+        "contrast": 0.8,
+        "sampleFps": 120,
+        "smoothingMs": 40
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": []
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": []
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "still / approach-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [{ "ty": 4, "ind": 1, "ip": 0, "op": 120, "ks": { "p": { "k": [100, 100] } } }]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {
+        "hybrid": { "gain": 0.6, "threshold": 0.4, "minGapMs": 150, "freqFollow": 0.1 },
+        "energy": { "gain": 0.7, "freqFollow": 0 },
+        "kinematic": { "threshold": 0.1, "minGapMs": 150, "floor": 0.1, "sharpnessSpread": 1 },
+        "impulse": { "massInfluence": 1, "threshold": 0.1, "minGapMs": 150, "gain": 0.7 },
+        "channel": {
+          "positionGain": 0.3,
+          "scaleGain": 0.5,
+          "rotationToIntensity": 0.2,
+          "opacityGain": 1,
+          "rotationToFreq": 0.4,
+          "detentsPerTurn": 12
+        }
+      },
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.33 },
+              { "time": 2000, "value": 0.33 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.35 },
+              { "time": 2000, "value": 0.35 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": []
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": []
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "bounce / defaults",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0, 100] },
+                  { "t": 30, "s": [100, 100] },
+                  { "t": 60, "s": [0, 100] },
+                  { "t": 90, "s": [100, 100] },
+                  { "t": 120, "s": [0, 100] }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 454, "value": 1 },
+              { "time": 488, "value": 0.89 },
+              { "time": 492, "value": 0.9 },
+              { "time": 496, "value": 0.88 },
+              { "time": 500, "value": 0.83 },
+              { "time": 504, "value": 0.91 },
+              { "time": 508, "value": 0.96 },
+              { "time": 521, "value": 1 },
+              { "time": 954, "value": 1 },
+              { "time": 988, "value": 0.89 },
+              { "time": 992, "value": 0.9 },
+              { "time": 996, "value": 0.88 },
+              { "time": 1000, "value": 0.83 },
+              { "time": 1004, "value": 0.91 },
+              { "time": 1008, "value": 0.96 },
+              { "time": 1021, "value": 1 },
+              { "time": 1454, "value": 1 },
+              { "time": 1488, "value": 0.89 },
+              { "time": 1492, "value": 0.9 },
+              { "time": 1496, "value": 0.88 },
+              { "time": 1500, "value": 0.83 },
+              { "time": 1504, "value": 0.91 },
+              { "time": 1508, "value": 0.96 },
+              { "time": 1521, "value": 1 },
+              { "time": 1992, "value": 1 },
+              { "time": 2000, "value": 0.76 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 483, "value": 0.21 },
+              { "time": 492, "value": 0.53 },
+              { "time": 508, "value": 0.53 },
+              { "time": 517, "value": 0.21 },
+              { "time": 983, "value": 0.21 },
+              { "time": 992, "value": 0.52 },
+              { "time": 1008, "value": 0.52 },
+              { "time": 1017, "value": 0.21 },
+              { "time": 1483, "value": 0.21 },
+              { "time": 1492, "value": 0.53 },
+              { "time": 1508, "value": 0.53 },
+              { "time": 1517, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": [
+            { "time": 488, "amplitude": 1, "frequency": 0.44 },
+            { "time": 988, "amplitude": 1, "frequency": 0.44 },
+            { "time": 1488, "amplitude": 1, "frequency": 0.44 }
+          ]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 496, "value": 1 },
+              { "time": 500, "value": 0.93 },
+              { "time": 504, "value": 1 },
+              { "time": 996, "value": 1 },
+              { "time": 1000, "value": 0.93 },
+              { "time": 1004, "value": 1 },
+              { "time": 1496, "value": 1 },
+              { "time": 1500, "value": 0.93 },
+              { "time": 1504, "value": 1 },
+              { "time": 1992, "value": 1 },
+              { "time": 1996, "value": 0.93 },
+              { "time": 2000, "value": 0.79 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 483, "value": 0.21 },
+              { "time": 492, "value": 0.53 },
+              { "time": 508, "value": 0.53 },
+              { "time": 517, "value": 0.21 },
+              { "time": 983, "value": 0.21 },
+              { "time": 992, "value": 0.52 },
+              { "time": 1008, "value": 0.52 },
+              { "time": 1017, "value": 0.21 },
+              { "time": 1483, "value": 0.21 },
+              { "time": 1492, "value": 0.53 },
+              { "time": 1508, "value": 0.53 },
+              { "time": 1517, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [
+            { "time": 488, "amplitude": 1, "frequency": 0.43 },
+            { "time": 988, "amplitude": 1, "frequency": 0.42 },
+            { "time": 1488, "amplitude": 1, "frequency": 0.43 }
+          ]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [
+            { "time": 492, "amplitude": 1, "frequency": 0.84 },
+            { "time": 992, "amplitude": 1, "frequency": 0.84 },
+            { "time": 1492, "amplitude": 1, "frequency": 0.84 }
+          ]
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 492, "value": 1 },
+              { "time": 496, "value": 0.8 },
+              { "time": 504, "value": 0.8 },
+              { "time": 508, "value": 1 },
+              { "time": 992, "value": 1 },
+              { "time": 996, "value": 0.8 },
+              { "time": 1004, "value": 0.8 },
+              { "time": 1008, "value": 1 },
+              { "time": 1492, "value": 1 },
+              { "time": 1496, "value": 0.8 },
+              { "time": 1504, "value": 0.8 },
+              { "time": 1508, "value": 1 },
+              { "time": 1996, "value": 1 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "bounce / global-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0, 100] },
+                  { "t": 30, "s": [100, 100] },
+                  { "t": 60, "s": [0, 100] },
+                  { "t": 90, "s": [100, 100] },
+                  { "t": 120, "s": [0, 100] }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 16,
+        "maxEvents": 2,
+        "silenceFloor": 0.1,
+        "gamma": 0.75,
+        "transientDuck": 0.5,
+        "contrast": 0.8,
+        "sampleFps": 120,
+        "smoothingMs": 40
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 908, "value": 1 },
+              { "time": 950, "value": 0.52 },
+              { "time": 992, "value": 1 },
+              { "time": 1008, "value": 1 },
+              { "time": 1050, "value": 0.52 },
+              { "time": 1092, "value": 1 },
+              { "time": 1975, "value": 1 },
+              { "time": 2000, "value": 0.82 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 450, "value": 0.21 },
+              { "time": 467, "value": 0.52 },
+              { "time": 475, "value": 0.53 },
+              { "time": 533, "value": 0.52 },
+              { "time": 550, "value": 0.21 },
+              { "time": 950, "value": 0.21 },
+              { "time": 967, "value": 0.52 },
+              { "time": 1033, "value": 0.52 },
+              { "time": 1050, "value": 0.21 },
+              { "time": 1450, "value": 0.21 },
+              { "time": 1467, "value": 0.52 },
+              { "time": 1525, "value": 0.53 },
+              { "time": 1533, "value": 0.52 },
+              { "time": 1550, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": [
+            { "time": 950, "amplitude": 1, "frequency": 0.33 },
+            { "time": 1050, "amplitude": 1, "frequency": 0.33 }
+          ]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 1983, "value": 1 },
+              { "time": 1992, "value": 0.98 },
+              { "time": 2000, "value": 0.88 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 450, "value": 0.21 },
+              { "time": 467, "value": 0.52 },
+              { "time": 475, "value": 0.53 },
+              { "time": 533, "value": 0.52 },
+              { "time": 550, "value": 0.21 },
+              { "time": 950, "value": 0.21 },
+              { "time": 967, "value": 0.52 },
+              { "time": 1033, "value": 0.52 },
+              { "time": 1050, "value": 0.21 },
+              { "time": 1450, "value": 0.21 },
+              { "time": 1467, "value": 0.52 },
+              { "time": 1525, "value": 0.53 },
+              { "time": 1533, "value": 0.52 },
+              { "time": 1550, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [
+            { "time": 950, "amplitude": 1, "frequency": 0.29 },
+            { "time": 1050, "amplitude": 1, "frequency": 0.29 }
+          ]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [
+            { "time": 500, "amplitude": 1, "frequency": 0.77 },
+            { "time": 1000, "amplitude": 1, "frequency": 0.77 }
+          ]
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 475, "value": 1 },
+              { "time": 483, "value": 0.82 },
+              { "time": 517, "value": 0.82 },
+              { "time": 525, "value": 1 },
+              { "time": 975, "value": 1 },
+              { "time": 983, "value": 0.82 },
+              { "time": 1017, "value": 0.82 },
+              { "time": 1025, "value": 1 },
+              { "time": 1475, "value": 1 },
+              { "time": 1483, "value": 0.82 },
+              { "time": 1517, "value": 0.82 },
+              { "time": 1525, "value": 1 },
+              { "time": 1992, "value": 1 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "bounce / approach-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0, 100] },
+                  { "t": 30, "s": [100, 100] },
+                  { "t": 60, "s": [0, 100] },
+                  { "t": 90, "s": [100, 100] },
+                  { "t": 120, "s": [0, 100] }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {
+        "hybrid": { "gain": 0.6, "threshold": 0.4, "minGapMs": 150, "freqFollow": 0.1 },
+        "energy": { "gain": 0.7, "freqFollow": 0 },
+        "kinematic": { "threshold": 0.1, "minGapMs": 150, "floor": 0.1, "sharpnessSpread": 1 },
+        "impulse": { "massInfluence": 1, "threshold": 0.1, "minGapMs": 150, "gain": 0.7 },
+        "channel": {
+          "positionGain": 0.3,
+          "scaleGain": 0.5,
+          "rotationToIntensity": 0.2,
+          "opacityGain": 1,
+          "rotationToFreq": 0.4,
+          "detentsPerTurn": 12
+        }
+      },
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.76 },
+              { "time": 454, "value": 0.76 },
+              { "time": 488, "value": 0.67 },
+              { "time": 500, "value": 0.56 },
+              { "time": 508, "value": 0.68 },
+              { "time": 513, "value": 0.74 },
+              { "time": 521, "value": 0.76 },
+              { "time": 954, "value": 0.76 },
+              { "time": 988, "value": 0.67 },
+              { "time": 1000, "value": 0.56 },
+              { "time": 1008, "value": 0.68 },
+              { "time": 1013, "value": 0.74 },
+              { "time": 1021, "value": 0.76 },
+              { "time": 1454, "value": 0.76 },
+              { "time": 1488, "value": 0.67 },
+              { "time": 1500, "value": 0.56 },
+              { "time": 1508, "value": 0.68 },
+              { "time": 1513, "value": 0.74 },
+              { "time": 1521, "value": 0.76 },
+              { "time": 1992, "value": 0.76 },
+              { "time": 1996, "value": 0.6 },
+              { "time": 2000, "value": 0.51 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.33 },
+              { "time": 483, "value": 0.33 },
+              { "time": 492, "value": 0.38 },
+              { "time": 508, "value": 0.38 },
+              { "time": 517, "value": 0.33 },
+              { "time": 983, "value": 0.33 },
+              { "time": 992, "value": 0.37 },
+              { "time": 1008, "value": 0.37 },
+              { "time": 1017, "value": 0.33 },
+              { "time": 1483, "value": 0.33 },
+              { "time": 1492, "value": 0.38 },
+              { "time": 1508, "value": 0.38 },
+              { "time": 1517, "value": 0.33 },
+              { "time": 2000, "value": 0.33 }
+            ]
+          },
+          "discretePattern": [
+            { "time": 488, "amplitude": 1, "frequency": 0.44 },
+            { "time": 988, "amplitude": 1, "frequency": 0.44 },
+            { "time": 1488, "amplitude": 1, "frequency": 0.44 }
+          ]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.83 },
+              { "time": 488, "value": 0.83 },
+              { "time": 500, "value": 0.66 },
+              { "time": 508, "value": 0.77 },
+              { "time": 513, "value": 0.83 },
+              { "time": 988, "value": 0.83 },
+              { "time": 1000, "value": 0.66 },
+              { "time": 1008, "value": 0.77 },
+              { "time": 1013, "value": 0.83 },
+              { "time": 1488, "value": 0.83 },
+              { "time": 1500, "value": 0.66 },
+              { "time": 1508, "value": 0.77 },
+              { "time": 1513, "value": 0.83 },
+              { "time": 1992, "value": 0.83 },
+              { "time": 1996, "value": 0.66 },
+              { "time": 2000, "value": 0.56 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.35 },
+              { "time": 2000, "value": 0.35 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [
+            { "time": 488, "amplitude": 1, "frequency": 0.38 },
+            { "time": 988, "amplitude": 1, "frequency": 0.37 },
+            { "time": 1488, "amplitude": 1, "frequency": 0.38 }
+          ]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [
+            { "time": 492, "amplitude": 0.84, "frequency": 0.77 },
+            { "time": 992, "amplitude": 0.84, "frequency": 0.77 },
+            { "time": 1492, "amplitude": 0.84, "frequency": 0.77 }
+          ]
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.51 },
+              { "time": 492, "value": 0.51 },
+              { "time": 496, "value": 0.4 },
+              { "time": 504, "value": 0.4 },
+              { "time": 508, "value": 0.51 },
+              { "time": 992, "value": 0.51 },
+              { "time": 996, "value": 0.4 },
+              { "time": 1004, "value": 0.4 },
+              { "time": 1008, "value": 0.51 },
+              { "time": 1492, "value": 0.51 },
+              { "time": 1496, "value": 0.4 },
+              { "time": 1504, "value": 0.4 },
+              { "time": 1508, "value": 0.51 },
+              { "time": 1996, "value": 0.51 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "spin / defaults",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": { "k": [100, 100] },
+              "r": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0] },
+                  { "t": 60, "s": [720] }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 975, "value": 1 },
+              { "time": 992, "value": 0.95 },
+              { "time": 996, "value": 0.9 },
+              { "time": 1000, "value": 0.69 },
+              { "time": 1004, "value": 0.42 },
+              { "time": 1008, "value": 0.19 },
+              { "time": 1013, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.42 },
+              { "time": 983, "value": 0.42 },
+              { "time": 988, "value": 0.45 },
+              { "time": 996, "value": 0.64 },
+              { "time": 1000, "value": 0.63 },
+              { "time": 1008, "value": 0.34 },
+              { "time": 1013, "value": 0.24 },
+              { "time": 1017, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": [{ "time": 1008, "amplitude": 1, "frequency": 0.42 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 996, "value": 1 },
+              { "time": 1000, "value": 0.79 },
+              { "time": 1004, "value": 0.5 },
+              { "time": 1008, "value": 0.23 },
+              { "time": 1013, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.42 },
+              { "time": 983, "value": 0.42 },
+              { "time": 988, "value": 0.45 },
+              { "time": 996, "value": 0.64 },
+              { "time": 1000, "value": 0.63 },
+              { "time": 1008, "value": 0.34 },
+              { "time": 1013, "value": 0.24 },
+              { "time": 1017, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 1008, "amplitude": 1, "frequency": 0.4 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": []
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 992, "value": 1 },
+              { "time": 996, "value": 0.91 },
+              { "time": 1000, "value": 0.68 },
+              { "time": 1004, "value": 0.36 },
+              { "time": 1008, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 1 },
+              { "time": 992, "value": 1 },
+              { "time": 996, "value": 0.97 },
+              { "time": 1004, "value": 0.43 },
+              { "time": 1008, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": [
+            { "time": 125, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 250, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 375, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 500, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 625, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 750, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 875, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 1000, "amplitude": 0.77, "frequency": 0.7 }
+          ]
+        }
+      }
+    },
+    {
+      "name": "spin / global-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": { "k": [100, 100] },
+              "r": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0] },
+                  { "t": 60, "s": [720] }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 16,
+        "maxEvents": 2,
+        "silenceFloor": 0.1,
+        "gamma": 0.75,
+        "transientDuck": 0.5,
+        "contrast": 0.8,
+        "sampleFps": 120,
+        "smoothingMs": 40
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 933, "value": 1 },
+              { "time": 950, "value": 0.82 },
+              { "time": 967, "value": 0.62 },
+              { "time": 975, "value": 0.52 },
+              { "time": 983, "value": 0.61 },
+              { "time": 992, "value": 0.59 },
+              { "time": 1000, "value": 0.49 },
+              { "time": 1008, "value": 0.34 },
+              { "time": 1017, "value": 0.18 },
+              { "time": 1025, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.42 },
+              { "time": 950, "value": 0.42 },
+              { "time": 958, "value": 0.44 },
+              { "time": 983, "value": 0.61 },
+              { "time": 992, "value": 0.64 },
+              { "time": 1000, "value": 0.63 },
+              { "time": 1033, "value": 0.28 },
+              { "time": 1050, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": [{ "time": 975, "amplitude": 1, "frequency": 0.58 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 983, "value": 1 },
+              { "time": 992, "value": 0.9 },
+              { "time": 1000, "value": 0.68 },
+              { "time": 1008, "value": 0.42 },
+              { "time": 1017, "value": 0.2 },
+              { "time": 1025, "value": 0.07 },
+              { "time": 1033, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.42 },
+              { "time": 950, "value": 0.42 },
+              { "time": 958, "value": 0.44 },
+              { "time": 983, "value": 0.61 },
+              { "time": 992, "value": 0.64 },
+              { "time": 1000, "value": 0.63 },
+              { "time": 1033, "value": 0.28 },
+              { "time": 1050, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 975, "amplitude": 1, "frequency": 0.59 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": []
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 975, "value": 1 },
+              { "time": 983, "value": 0.91 },
+              { "time": 992, "value": 0.73 },
+              { "time": 1000, "value": 0.52 },
+              { "time": 1008, "value": 0.28 },
+              { "time": 1017, "value": 0.07 },
+              { "time": 1025, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 1 },
+              { "time": 983, "value": 1 },
+              { "time": 992, "value": 0.86 },
+              { "time": 1017, "value": 0.38 },
+              { "time": 1025, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": [
+            { "time": 125, "amplitude": 0.89, "frequency": 0.7 },
+            { "time": 250, "amplitude": 0.89, "frequency": 0.7 }
+          ]
+        }
+      }
+    },
+    {
+      "name": "spin / approach-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": { "k": [100, 100] },
+              "r": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0] },
+                  { "t": 60, "s": [720] }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {
+        "hybrid": { "gain": 0.6, "threshold": 0.4, "minGapMs": 150, "freqFollow": 0.1 },
+        "energy": { "gain": 0.7, "freqFollow": 0 },
+        "kinematic": { "threshold": 0.1, "minGapMs": 150, "floor": 0.1, "sharpnessSpread": 1 },
+        "impulse": { "massInfluence": 1, "threshold": 0.1, "minGapMs": 150, "gain": 0.7 },
+        "channel": {
+          "positionGain": 0.3,
+          "scaleGain": 0.5,
+          "rotationToIntensity": 0.2,
+          "opacityGain": 1,
+          "rotationToFreq": 0.4,
+          "detentsPerTurn": 12
+        }
+      },
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.76 },
+              { "time": 975, "value": 0.76 },
+              { "time": 988, "value": 0.73 },
+              { "time": 992, "value": 0.69 },
+              { "time": 996, "value": 0.61 },
+              { "time": 1000, "value": 0.46 },
+              { "time": 1004, "value": 0.28 },
+              { "time": 1008, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.36 },
+              { "time": 983, "value": 0.36 },
+              { "time": 996, "value": 0.39 },
+              { "time": 1017, "value": 0.33 },
+              { "time": 2000, "value": 0.33 }
+            ]
+          },
+          "discretePattern": [{ "time": 1008, "amplitude": 1, "frequency": 0.42 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.83 },
+              { "time": 988, "value": 0.83 },
+              { "time": 992, "value": 0.8 },
+              { "time": 996, "value": 0.72 },
+              { "time": 1000, "value": 0.56 },
+              { "time": 1004, "value": 0.34 },
+              { "time": 1008, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.35 },
+              { "time": 2000, "value": 0.35 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 1008, "amplitude": 1, "frequency": 0.33 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": []
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.4 },
+              { "time": 992, "value": 0.4 },
+              { "time": 996, "value": 0.36 },
+              { "time": 1000, "value": 0.27 },
+              { "time": 1004, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.7 },
+              { "time": 992, "value": 0.7 },
+              { "time": 996, "value": 0.63 },
+              { "time": 1004, "value": 0.37 },
+              { "time": 1008, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": [
+            { "time": 42, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 83, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 125, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 167, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 208, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 250, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 292, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 333, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 375, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 417, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 458, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 500, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 542, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 583, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 625, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 667, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 708, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 750, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 792, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 833, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 875, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 917, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 958, "amplitude": 0.92, "frequency": 0.7 },
+            { "time": 1000, "amplitude": 0.77, "frequency": 0.7 }
+          ]
+        }
+      }
+    },
+    {
+      "name": "pop / defaults",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": { "k": [100, 100] },
+              "s": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [10, 10] },
+                  { "t": 60, "s": [150, 150] },
+                  { "t": 120, "s": [50, 50] }
+                ]
+              },
+              "o": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0] },
+                  { "t": 60, "s": [100] },
+                  { "t": 120, "s": [0] }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 38, "value": 0 },
+              { "time": 42, "value": 0.19 },
+              { "time": 58, "value": 0.23 },
+              { "time": 133, "value": 0.35 },
+              { "time": 258, "value": 0.52 },
+              { "time": 383, "value": 0.66 },
+              { "time": 508, "value": 0.77 },
+              { "time": 825, "value": 1 },
+              { "time": 954, "value": 1 },
+              { "time": 988, "value": 0.89 },
+              { "time": 992, "value": 0.9 },
+              { "time": 996, "value": 0.89 },
+              { "time": 1000, "value": 0.8 },
+              { "time": 1004, "value": 0.83 },
+              { "time": 1013, "value": 0.94 },
+              { "time": 1021, "value": 0.96 },
+              { "time": 1338, "value": 0.78 },
+              { "time": 1588, "value": 0.59 },
+              { "time": 1763, "value": 0.43 },
+              { "time": 1913, "value": 0.24 },
+              { "time": 1946, "value": 0.19 },
+              { "time": 1950, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 983, "value": 0.21 },
+              { "time": 988, "value": 0.32 },
+              { "time": 992, "value": 0.47 },
+              { "time": 996, "value": 0.53 },
+              { "time": 1013, "value": 0.3 },
+              { "time": 1017, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": [{ "time": 988, "amplitude": 1, "frequency": 0.41 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 38, "value": 0 },
+              { "time": 42, "value": 0.2 },
+              { "time": 58, "value": 0.23 },
+              { "time": 133, "value": 0.37 },
+              { "time": 233, "value": 0.51 },
+              { "time": 333, "value": 0.63 },
+              { "time": 458, "value": 0.76 },
+              { "time": 608, "value": 0.89 },
+              { "time": 763, "value": 1 },
+              { "time": 996, "value": 1 },
+              { "time": 1000, "value": 0.9 },
+              { "time": 1004, "value": 0.92 },
+              { "time": 1013, "value": 1 },
+              { "time": 1025, "value": 1 },
+              { "time": 1288, "value": 0.84 },
+              { "time": 1513, "value": 0.68 },
+              { "time": 1713, "value": 0.5 },
+              { "time": 1888, "value": 0.29 },
+              { "time": 1950, "value": 0.19 },
+              { "time": 1954, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 983, "value": 0.21 },
+              { "time": 988, "value": 0.32 },
+              { "time": 992, "value": 0.47 },
+              { "time": 996, "value": 0.53 },
+              { "time": 1013, "value": 0.3 },
+              { "time": 1017, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 988, "amplitude": 1, "frequency": 0.39 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": []
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 29, "value": 0 },
+              { "time": 33, "value": 0.2 },
+              { "time": 83, "value": 0.32 },
+              { "time": 183, "value": 0.5 },
+              { "time": 283, "value": 0.65 },
+              { "time": 383, "value": 0.77 },
+              { "time": 621, "value": 1 },
+              { "time": 1000, "value": 1 },
+              { "time": 1004, "value": 0.96 },
+              { "time": 1008, "value": 1 },
+              { "time": 1242, "value": 1 },
+              { "time": 1288, "value": 0.97 },
+              { "time": 1563, "value": 0.74 },
+              { "time": 1688, "value": 0.61 },
+              { "time": 1788, "value": 0.49 },
+              { "time": 1888, "value": 0.34 },
+              { "time": 1946, "value": 0.23 },
+              { "time": 1958, "value": 0.2 },
+              { "time": 1963, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": [
+            { "time": 829, "amplitude": 1, "frequency": 0.85 },
+            { "time": 1008, "amplitude": 1, "frequency": 0.81 }
+          ]
+        }
+      }
+    },
+    {
+      "name": "pop / global-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": { "k": [100, 100] },
+              "s": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [10, 10] },
+                  { "t": 60, "s": [150, 150] },
+                  { "t": 120, "s": [50, 50] }
+                ]
+              },
+              "o": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0] },
+                  { "t": 60, "s": [100] },
+                  { "t": 120, "s": [0] }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 16,
+        "maxEvents": 2,
+        "silenceFloor": 0.1,
+        "gamma": 0.75,
+        "transientDuck": 0.5,
+        "contrast": 0.8,
+        "sampleFps": 120,
+        "smoothingMs": 40
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 75, "value": 0 },
+              { "time": 83, "value": 0.07 },
+              { "time": 408, "value": 0.53 },
+              { "time": 800, "value": 1 },
+              { "time": 925, "value": 1 },
+              { "time": 967, "value": 0.52 },
+              { "time": 992, "value": 0.82 },
+              { "time": 1008, "value": 0.91 },
+              { "time": 1042, "value": 0.94 },
+              { "time": 1392, "value": 0.62 },
+              { "time": 1892, "value": 0.07 },
+              { "time": 1900, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 950, "value": 0.21 },
+              { "time": 967, "value": 0.39 },
+              { "time": 992, "value": 0.53 },
+              { "time": 1050, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": [{ "time": 967, "amplitude": 1, "frequency": 0.46 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 67, "value": 0 },
+              { "time": 75, "value": 0.07 },
+              { "time": 383, "value": 0.54 },
+              { "time": 558, "value": 0.78 },
+              { "time": 742, "value": 1 },
+              { "time": 992, "value": 1 },
+              { "time": 1017, "value": 0.97 },
+              { "time": 1058, "value": 0.99 },
+              { "time": 1517, "value": 0.53 },
+              { "time": 1900, "value": 0.07 },
+              { "time": 1908, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 950, "value": 0.21 },
+              { "time": 967, "value": 0.39 },
+              { "time": 992, "value": 0.53 },
+              { "time": 1050, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [
+            { "time": 967, "amplitude": 1, "frequency": 0.45 },
+            { "time": 1025, "amplitude": 0.85, "frequency": 0.41 }
+          ]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": []
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 58, "value": 0 },
+              { "time": 67, "value": 0.08 },
+              { "time": 117, "value": 0.16 },
+              { "time": 333, "value": 0.57 },
+              { "time": 508, "value": 0.85 },
+              { "time": 608, "value": 1 },
+              { "time": 617, "value": 1 },
+              { "time": 1258, "value": 1 },
+              { "time": 1442, "value": 0.78 },
+              { "time": 1617, "value": 0.53 },
+              { "time": 1858, "value": 0.15 },
+              { "time": 1925, "value": 0.07 },
+              { "time": 1933, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": [
+            { "time": 817, "amplitude": 1, "frequency": 0.85 },
+            { "time": 1025, "amplitude": 1, "frequency": 0.81 }
+          ]
+        }
+      }
+    },
+    {
+      "name": "pop / approach-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": { "k": [100, 100] },
+              "s": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [10, 10] },
+                  { "t": 60, "s": [150, 150] },
+                  { "t": 120, "s": [50, 50] }
+                ]
+              },
+              "o": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0] },
+                  { "t": 60, "s": [100] },
+                  { "t": 120, "s": [0] }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {
+        "hybrid": { "gain": 0.6, "threshold": 0.4, "minGapMs": 150, "freqFollow": 0.1 },
+        "energy": { "gain": 0.7, "freqFollow": 0 },
+        "kinematic": { "threshold": 0.1, "minGapMs": 150, "floor": 0.1, "sharpnessSpread": 1 },
+        "impulse": { "massInfluence": 1, "threshold": 0.1, "minGapMs": 150, "gain": 0.7 },
+        "channel": {
+          "positionGain": 0.3,
+          "scaleGain": 0.5,
+          "rotationToIntensity": 0.2,
+          "opacityGain": 1,
+          "rotationToFreq": 0.4,
+          "detentsPerTurn": 12
+        }
+      },
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 79, "value": 0 },
+              { "time": 83, "value": 0.19 },
+              { "time": 233, "value": 0.33 },
+              { "time": 558, "value": 0.55 },
+              { "time": 954, "value": 0.74 },
+              { "time": 988, "value": 0.67 },
+              { "time": 996, "value": 0.6 },
+              { "time": 1000, "value": 0.54 },
+              { "time": 1013, "value": 0.64 },
+              { "time": 1021, "value": 0.65 },
+              { "time": 1313, "value": 0.53 },
+              { "time": 1563, "value": 0.41 },
+              { "time": 1763, "value": 0.29 },
+              { "time": 1892, "value": 0.19 },
+              { "time": 1896, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.33 },
+              { "time": 983, "value": 0.33 },
+              { "time": 996, "value": 0.38 },
+              { "time": 1017, "value": 0.33 },
+              { "time": 2000, "value": 0.33 }
+            ]
+          },
+          "discretePattern": [{ "time": 988, "amplitude": 1, "frequency": 0.41 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 67, "value": 0 },
+              { "time": 71, "value": 0.19 },
+              { "time": 158, "value": 0.29 },
+              { "time": 283, "value": 0.4 },
+              { "time": 608, "value": 0.63 },
+              { "time": 988, "value": 0.83 },
+              { "time": 996, "value": 0.72 },
+              { "time": 1000, "value": 0.64 },
+              { "time": 1004, "value": 0.65 },
+              { "time": 1013, "value": 0.72 },
+              { "time": 1338, "value": 0.57 },
+              { "time": 1638, "value": 0.4 },
+              { "time": 1813, "value": 0.28 },
+              { "time": 1908, "value": 0.19 },
+              { "time": 1913, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.35 },
+              { "time": 2000, "value": 0.35 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 988, "amplitude": 1, "frequency": 0.31 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": []
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 29, "value": 0 },
+              { "time": 33, "value": 0.19 },
+              { "time": 50, "value": 0.23 },
+              { "time": 108, "value": 0.36 },
+              { "time": 208, "value": 0.52 },
+              { "time": 308, "value": 0.66 },
+              { "time": 408, "value": 0.77 },
+              { "time": 663, "value": 1 },
+              { "time": 996, "value": 1 },
+              { "time": 1004, "value": 0.96 },
+              { "time": 1008, "value": 1 },
+              { "time": 1267, "value": 1 },
+              { "time": 1313, "value": 0.97 },
+              { "time": 1588, "value": 0.73 },
+              { "time": 1788, "value": 0.5 },
+              { "time": 1888, "value": 0.34 },
+              { "time": 1963, "value": 0.19 },
+              { "time": 1967, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": [
+            { "time": 829, "amplitude": 1, "frequency": 0.85 },
+            { "time": 1008, "amplitude": 1, "frequency": 0.81 }
+          ]
+        }
+      }
+    },
+    {
+      "name": "parent / defaults",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 3,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [50, 50] },
+                  { "t": 60, "s": [150, 50] },
+                  { "t": 120, "s": [50, 50] }
+                ]
+              },
+              "r": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0] },
+                  { "t": 60, "s": [180] }
+                ]
+              }
+            }
+          },
+          {
+            "ty": 4,
+            "ind": 2,
+            "ip": 0,
+            "op": 120,
+            "ks": { "p": { "k": [40, 0] }, "a": { "k": [10, 10] } },
+            "parent": 1
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 104, "value": 1 },
+              { "time": 138, "value": 0.96 },
+              { "time": 288, "value": 0.75 },
+              { "time": 454, "value": 0.43 },
+              { "time": 496, "value": 0.39 },
+              { "time": 542, "value": 0.42 },
+              { "time": 733, "value": 0.78 },
+              { "time": 808, "value": 0.89 },
+              { "time": 896, "value": 1 },
+              { "time": 954, "value": 1 },
+              { "time": 988, "value": 0.89 },
+              { "time": 996, "value": 0.91 },
+              { "time": 1000, "value": 0.83 },
+              { "time": 1004, "value": 0.8 },
+              { "time": 1008, "value": 0.8 },
+              { "time": 1021, "value": 0.86 },
+              { "time": 1992, "value": 0.86 },
+              { "time": 1996, "value": 0.68 },
+              { "time": 2000, "value": 0.58 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.22 },
+              { "time": 983, "value": 0.23 },
+              { "time": 988, "value": 0.3 },
+              { "time": 996, "value": 0.53 },
+              { "time": 1000, "value": 0.46 },
+              { "time": 1008, "value": 0.26 },
+              { "time": 1017, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": [{ "time": 988, "amplitude": 1, "frequency": 0.39 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 142, "value": 1 },
+              { "time": 288, "value": 0.78 },
+              { "time": 458, "value": 0.44 },
+              { "time": 496, "value": 0.41 },
+              { "time": 517, "value": 0.42 },
+              { "time": 542, "value": 0.44 },
+              { "time": 708, "value": 0.77 },
+              { "time": 783, "value": 0.9 },
+              { "time": 863, "value": 1 },
+              { "time": 996, "value": 1 },
+              { "time": 1000, "value": 0.93 },
+              { "time": 1004, "value": 0.89 },
+              { "time": 1008, "value": 0.88 },
+              { "time": 1013, "value": 0.9 },
+              { "time": 1992, "value": 0.9 },
+              { "time": 1996, "value": 0.72 },
+              { "time": 2000, "value": 0.61 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.22 },
+              { "time": 983, "value": 0.23 },
+              { "time": 988, "value": 0.3 },
+              { "time": 996, "value": 0.53 },
+              { "time": 1000, "value": 0.46 },
+              { "time": 1008, "value": 0.26 },
+              { "time": 1017, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 988, "amplitude": 1, "frequency": 0.37 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [
+            { "time": 292, "amplitude": 0.68, "frequency": 0.66 },
+            { "time": 708, "amplitude": 0.66, "frequency": 0.66 },
+            { "time": 996, "amplitude": 1, "frequency": 0.77 }
+          ]
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 113, "value": 0.9 },
+              { "time": 213, "value": 0.78 },
+              { "time": 313, "value": 0.63 },
+              { "time": 450, "value": 0.39 },
+              { "time": 496, "value": 0.35 },
+              { "time": 546, "value": 0.39 },
+              { "time": 683, "value": 0.63 },
+              { "time": 783, "value": 0.78 },
+              { "time": 883, "value": 0.89 },
+              { "time": 992, "value": 1 },
+              { "time": 996, "value": 0.88 },
+              { "time": 1004, "value": 0.72 },
+              { "time": 1008, "value": 0.78 },
+              { "time": 1996, "value": 0.78 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "parent / global-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 3,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [50, 50] },
+                  { "t": 60, "s": [150, 50] },
+                  { "t": 120, "s": [50, 50] }
+                ]
+              },
+              "r": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0] },
+                  { "t": 60, "s": [180] }
+                ]
+              }
+            }
+          },
+          {
+            "ty": 4,
+            "ind": 2,
+            "ip": 0,
+            "op": 120,
+            "ks": { "p": { "k": [40, 0] }, "a": { "k": [10, 10] } },
+            "parent": 1
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 16,
+        "maxEvents": 2,
+        "silenceFloor": 0.1,
+        "gamma": 0.75,
+        "transientDuck": 0.5,
+        "contrast": 0.8,
+        "sampleFps": 120,
+        "smoothingMs": 40
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 117, "value": 0.99 },
+              { "time": 242, "value": 0.73 },
+              { "time": 433, "value": 0.24 },
+              { "time": 492, "value": 0.17 },
+              { "time": 567, "value": 0.24 },
+              { "time": 758, "value": 0.73 },
+              { "time": 892, "value": 1 },
+              { "time": 975, "value": 1 },
+              { "time": 992, "value": 0.8 },
+              { "time": 1000, "value": 0.64 },
+              { "time": 1017, "value": 0.39 },
+              { "time": 1058, "value": 0.79 },
+              { "time": 1975, "value": 0.79 },
+              { "time": 1983, "value": 0.64 },
+              { "time": 2000, "value": 0.53 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.24 },
+              { "time": 50, "value": 0.27 },
+              { "time": 333, "value": 0.28 },
+              { "time": 500, "value": 0.22 },
+              { "time": 633, "value": 0.28 },
+              { "time": 950, "value": 0.27 },
+              { "time": 992, "value": 0.53 },
+              { "time": 1000, "value": 0.49 },
+              { "time": 1033, "value": 0.24 },
+              { "time": 1050, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": [{ "time": 1017, "amplitude": 1, "frequency": 0.44 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 150, "value": 0.99 },
+              { "time": 267, "value": 0.72 },
+              { "time": 433, "value": 0.27 },
+              { "time": 492, "value": 0.19 },
+              { "time": 525, "value": 0.2 },
+              { "time": 567, "value": 0.27 },
+              { "time": 733, "value": 0.72 },
+              { "time": 858, "value": 1 },
+              { "time": 992, "value": 1 },
+              { "time": 1017, "value": 0.86 },
+              { "time": 1033, "value": 0.83 },
+              { "time": 1975, "value": 0.85 },
+              { "time": 1983, "value": 0.69 },
+              { "time": 1992, "value": 0.64 },
+              { "time": 2000, "value": 0.57 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.24 },
+              { "time": 50, "value": 0.27 },
+              { "time": 333, "value": 0.28 },
+              { "time": 500, "value": 0.22 },
+              { "time": 633, "value": 0.28 },
+              { "time": 950, "value": 0.27 },
+              { "time": 992, "value": 0.53 },
+              { "time": 1000, "value": 0.49 },
+              { "time": 1033, "value": 0.24 },
+              { "time": 1050, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 1017, "amplitude": 1, "frequency": 0.43 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [
+            { "time": 292, "amplitude": 0.74, "frequency": 0.66 },
+            { "time": 992, "amplitude": 1, "frequency": 0.77 }
+          ]
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 142, "value": 0.8 },
+              { "time": 242, "value": 0.61 },
+              { "time": 408, "value": 0.23 },
+              { "time": 458, "value": 0.15 },
+              { "time": 492, "value": 0.13 },
+              { "time": 525, "value": 0.14 },
+              { "time": 567, "value": 0.19 },
+              { "time": 808, "value": 0.7 },
+              { "time": 975, "value": 0.98 },
+              { "time": 983, "value": 0.88 },
+              { "time": 1017, "value": 0.61 },
+              { "time": 1025, "value": 0.66 },
+              { "time": 1992, "value": 0.66 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "parent / approach-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 3,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [50, 50] },
+                  { "t": 60, "s": [150, 50] },
+                  { "t": 120, "s": [50, 50] }
+                ]
+              },
+              "r": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0] },
+                  { "t": 60, "s": [180] }
+                ]
+              }
+            }
+          },
+          {
+            "ty": 4,
+            "ind": 2,
+            "ip": 0,
+            "op": 120,
+            "ks": { "p": { "k": [40, 0] }, "a": { "k": [10, 10] } },
+            "parent": 1
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {
+        "hybrid": { "gain": 0.6, "threshold": 0.4, "minGapMs": 150, "freqFollow": 0.1 },
+        "energy": { "gain": 0.7, "freqFollow": 0 },
+        "kinematic": { "threshold": 0.1, "minGapMs": 150, "floor": 0.1, "sharpnessSpread": 1 },
+        "impulse": { "massInfluence": 1, "threshold": 0.1, "minGapMs": 150, "gain": 0.7 },
+        "channel": {
+          "positionGain": 0.3,
+          "scaleGain": 0.5,
+          "rotationToIntensity": 0.2,
+          "opacityGain": 1,
+          "rotationToFreq": 0.4,
+          "detentsPerTurn": 12
+        }
+      },
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.76 },
+              { "time": 188, "value": 0.61 },
+              { "time": 288, "value": 0.5 },
+              { "time": 433, "value": 0.31 },
+              { "time": 492, "value": 0.27 },
+              { "time": 546, "value": 0.29 },
+              { "time": 783, "value": 0.58 },
+              { "time": 954, "value": 0.73 },
+              { "time": 992, "value": 0.65 },
+              { "time": 996, "value": 0.62 },
+              { "time": 1000, "value": 0.56 },
+              { "time": 1004, "value": 0.54 },
+              { "time": 1021, "value": 0.58 },
+              { "time": 1992, "value": 0.58 },
+              { "time": 1996, "value": 0.46 },
+              { "time": 2000, "value": 0.38 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.33 },
+              { "time": 983, "value": 0.33 },
+              { "time": 996, "value": 0.38 },
+              { "time": 1017, "value": 0.33 },
+              { "time": 2000, "value": 0.33 }
+            ]
+          },
+          "discretePattern": [{ "time": 988, "amplitude": 1, "frequency": 0.39 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.83 },
+              { "time": 88, "value": 0.76 },
+              { "time": 188, "value": 0.67 },
+              { "time": 288, "value": 0.55 },
+              { "time": 433, "value": 0.34 },
+              { "time": 492, "value": 0.29 },
+              { "time": 521, "value": 0.29 },
+              { "time": 563, "value": 0.34 },
+              { "time": 708, "value": 0.54 },
+              { "time": 808, "value": 0.66 },
+              { "time": 988, "value": 0.82 },
+              { "time": 992, "value": 0.79 },
+              { "time": 996, "value": 0.74 },
+              { "time": 1000, "value": 0.66 },
+              { "time": 1004, "value": 0.63 },
+              { "time": 1008, "value": 0.62 },
+              { "time": 1013, "value": 0.63 },
+              { "time": 1992, "value": 0.63 },
+              { "time": 1996, "value": 0.5 },
+              { "time": 2000, "value": 0.42 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.35 },
+              { "time": 2000, "value": 0.35 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 988, "amplitude": 1, "frequency": 0.28 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [
+            { "time": 292, "amplitude": 0.5, "frequency": 0.59 },
+            { "time": 500, "amplitude": 0.28, "frequency": 0.48 },
+            { "time": 708, "amplitude": 0.48, "frequency": 0.59 },
+            { "time": 996, "amplitude": 0.84, "frequency": 0.7 }
+          ]
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.51 },
+              { "time": 188, "value": 0.4 },
+              { "time": 479, "value": 0.19 },
+              { "time": 483, "value": 0 },
+              { "time": 517, "value": 0 },
+              { "time": 521, "value": 0.19 },
+              { "time": 808, "value": 0.4 },
+              { "time": 992, "value": 0.5 },
+              { "time": 996, "value": 0.44 },
+              { "time": 1004, "value": 0.36 },
+              { "time": 1008, "value": 0.38 },
+              { "time": 1996, "value": 0.38 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "collision / defaults",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0, 100] },
+                  { "t": 60, "s": [150, 100] }
+                ]
+              }
+            },
+            "w": 20,
+            "h": 20
+          },
+          {
+            "ty": 4,
+            "ind": 2,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [200, 100] },
+                  { "t": 60, "s": [50, 100] }
+                ]
+              }
+            },
+            "w": 40,
+            "h": 40
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 958, "value": 1 },
+              { "time": 996, "value": 0.87 },
+              { "time": 1000, "value": 0.69 },
+              { "time": 1004, "value": 0.44 },
+              { "time": 1008, "value": 0.21 },
+              { "time": 1013, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 983, "value": 0.21 },
+              { "time": 988, "value": 0.24 },
+              { "time": 996, "value": 0.46 },
+              { "time": 1000, "value": 0.53 },
+              { "time": 1004, "value": 0.46 },
+              { "time": 1008, "value": 0.34 },
+              { "time": 1013, "value": 0.24 },
+              { "time": 1017, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": [{ "time": 992, "amplitude": 1, "frequency": 0.41 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 996, "value": 1 },
+              { "time": 1000, "value": 0.79 },
+              { "time": 1004, "value": 0.5 },
+              { "time": 1008, "value": 0.23 },
+              { "time": 1013, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 983, "value": 0.21 },
+              { "time": 988, "value": 0.24 },
+              { "time": 996, "value": 0.46 },
+              { "time": 1000, "value": 0.53 },
+              { "time": 1004, "value": 0.46 },
+              { "time": 1008, "value": 0.34 },
+              { "time": 1013, "value": 0.24 },
+              { "time": 1017, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 992, "amplitude": 1, "frequency": 0.4 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 1000, "amplitude": 1, "frequency": 0.72 }]
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 992, "value": 1 },
+              { "time": 996, "value": 0.91 },
+              { "time": 1000, "value": 0.68 },
+              { "time": 1004, "value": 0.36 },
+              { "time": 1008, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "collision / global-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0, 100] },
+                  { "t": 60, "s": [150, 100] }
+                ]
+              }
+            },
+            "w": 20,
+            "h": 20
+          },
+          {
+            "ty": 4,
+            "ind": 2,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [200, 100] },
+                  { "t": 60, "s": [50, 100] }
+                ]
+              }
+            },
+            "w": 40,
+            "h": 40
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 16,
+        "maxEvents": 2,
+        "silenceFloor": 0.1,
+        "gamma": 0.75,
+        "transientDuck": 0.5,
+        "contrast": 0.8,
+        "sampleFps": 120,
+        "smoothingMs": 40
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 933, "value": 1 },
+              { "time": 950, "value": 0.82 },
+              { "time": 967, "value": 0.62 },
+              { "time": 975, "value": 0.52 },
+              { "time": 983, "value": 0.61 },
+              { "time": 992, "value": 0.59 },
+              { "time": 1000, "value": 0.49 },
+              { "time": 1008, "value": 0.34 },
+              { "time": 1017, "value": 0.18 },
+              { "time": 1025, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 950, "value": 0.21 },
+              { "time": 967, "value": 0.28 },
+              { "time": 992, "value": 0.49 },
+              { "time": 1000, "value": 0.53 },
+              { "time": 1008, "value": 0.49 },
+              { "time": 1033, "value": 0.28 },
+              { "time": 1050, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": [{ "time": 975, "amplitude": 1, "frequency": 0.42 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 983, "value": 1 },
+              { "time": 992, "value": 0.9 },
+              { "time": 1000, "value": 0.68 },
+              { "time": 1008, "value": 0.42 },
+              { "time": 1017, "value": 0.2 },
+              { "time": 1025, "value": 0.07 },
+              { "time": 1033, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 950, "value": 0.21 },
+              { "time": 967, "value": 0.28 },
+              { "time": 992, "value": 0.49 },
+              { "time": 1000, "value": 0.53 },
+              { "time": 1008, "value": 0.49 },
+              { "time": 1033, "value": 0.28 },
+              { "time": 1050, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 975, "amplitude": 1, "frequency": 0.41 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 992, "amplitude": 1, "frequency": 0.79 }]
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 975, "value": 1 },
+              { "time": 983, "value": 0.91 },
+              { "time": 992, "value": 0.73 },
+              { "time": 1000, "value": 0.52 },
+              { "time": 1008, "value": 0.28 },
+              { "time": 1017, "value": 0.07 },
+              { "time": 1025, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "collision / approach-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0, 100] },
+                  { "t": 60, "s": [150, 100] }
+                ]
+              }
+            },
+            "w": 20,
+            "h": 20
+          },
+          {
+            "ty": 4,
+            "ind": 2,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [200, 100] },
+                  { "t": 60, "s": [50, 100] }
+                ]
+              }
+            },
+            "w": 40,
+            "h": 40
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {
+        "hybrid": { "gain": 0.6, "threshold": 0.4, "minGapMs": 150, "freqFollow": 0.1 },
+        "energy": { "gain": 0.7, "freqFollow": 0 },
+        "kinematic": { "threshold": 0.1, "minGapMs": 150, "floor": 0.1, "sharpnessSpread": 1 },
+        "impulse": { "massInfluence": 1, "threshold": 0.1, "minGapMs": 150, "gain": 0.7 },
+        "channel": {
+          "positionGain": 0.3,
+          "scaleGain": 0.5,
+          "rotationToIntensity": 0.2,
+          "opacityGain": 1,
+          "rotationToFreq": 0.4,
+          "detentsPerTurn": 12
+        }
+      },
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.76 },
+              { "time": 958, "value": 0.76 },
+              { "time": 988, "value": 0.68 },
+              { "time": 992, "value": 0.65 },
+              { "time": 996, "value": 0.59 },
+              { "time": 1000, "value": 0.46 },
+              { "time": 1004, "value": 0.29 },
+              { "time": 1008, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.33 },
+              { "time": 983, "value": 0.33 },
+              { "time": 1000, "value": 0.38 },
+              { "time": 1017, "value": 0.33 },
+              { "time": 2000, "value": 0.33 }
+            ]
+          },
+          "discretePattern": [{ "time": 992, "amplitude": 1, "frequency": 0.41 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.83 },
+              { "time": 988, "value": 0.83 },
+              { "time": 992, "value": 0.8 },
+              { "time": 996, "value": 0.72 },
+              { "time": 1000, "value": 0.56 },
+              { "time": 1004, "value": 0.34 },
+              { "time": 1008, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.35 },
+              { "time": 2000, "value": 0.35 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 992, "amplitude": 1, "frequency": 0.33 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 1000, "amplitude": 0.84, "frequency": 0.71 }]
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.51 },
+              { "time": 992, "value": 0.51 },
+              { "time": 996, "value": 0.45 },
+              { "time": 1000, "value": 0.34 },
+              { "time": 1004, "value": 0.19 },
+              { "time": 1008, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "eased / defaults",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0, 0], "o": { "x": 0.3, "y": 0 }, "e": [200, 100] },
+                  { "t": 60, "s": [100, 50], "i": { "x": 0.7, "y": 1 } },
+                  { "t": 120, "s": [0, 0] }
+                ]
+              },
+              "s": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [100, 100] },
+                  { "t": 60, "s": [200, 100] }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 79, "value": 0 },
+              { "time": 83, "value": 0.19 },
+              { "time": 258, "value": 0.22 },
+              { "time": 471, "value": 0.24 },
+              { "time": 688, "value": 0.22 },
+              { "time": 871, "value": 0.19 },
+              { "time": 875, "value": 0 },
+              { "time": 983, "value": 0 },
+              { "time": 992, "value": 0.81 },
+              { "time": 996, "value": 0.95 },
+              { "time": 1000, "value": 0.93 },
+              { "time": 1004, "value": 0.77 },
+              { "time": 1008, "value": 0.41 },
+              { "time": 1013, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 979, "value": 0.21 },
+              { "time": 992, "value": 0.52 },
+              { "time": 1004, "value": 0.53 },
+              { "time": 1017, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": [{ "time": 1013, "amplitude": 1, "frequency": 0.38 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 58, "value": 0 },
+              { "time": 63, "value": 0.19 },
+              { "time": 233, "value": 0.23 },
+              { "time": 471, "value": 0.25 },
+              { "time": 713, "value": 0.23 },
+              { "time": 896, "value": 0.19 },
+              { "time": 900, "value": 0 },
+              { "time": 983, "value": 0 },
+              { "time": 992, "value": 0.88 },
+              { "time": 996, "value": 1 },
+              { "time": 1000, "value": 1 },
+              { "time": 1004, "value": 0.88 },
+              { "time": 1013, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 979, "value": 0.21 },
+              { "time": 992, "value": 0.52 },
+              { "time": 1004, "value": 0.53 },
+              { "time": 1017, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 1013, "amplitude": 1, "frequency": 0.36 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 1004, "amplitude": 1, "frequency": 0.6 }]
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 988, "value": 0.83 },
+              { "time": 992, "value": 1 },
+              { "time": 1000, "value": 1 },
+              { "time": 1004, "value": 0.78 },
+              { "time": 1008, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "eased / global-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0, 0], "o": { "x": 0.3, "y": 0 }, "e": [200, 100] },
+                  { "t": 60, "s": [100, 50], "i": { "x": 0.7, "y": 1 } },
+                  { "t": 120, "s": [0, 0] }
+                ]
+              },
+              "s": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [100, 100] },
+                  { "t": 60, "s": [200, 100] }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 16,
+        "maxEvents": 2,
+        "silenceFloor": 0.1,
+        "gamma": 0.75,
+        "transientDuck": 0.5,
+        "contrast": 0.8,
+        "sampleFps": 120,
+        "smoothingMs": 40
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.08 },
+              { "time": 283, "value": 0.18 },
+              { "time": 542, "value": 0.2 },
+              { "time": 892, "value": 0.1 },
+              { "time": 917, "value": 0.09 },
+              { "time": 925, "value": 0.08 },
+              { "time": 933, "value": 0 },
+              { "time": 950, "value": 0 },
+              { "time": 958, "value": 0.08 },
+              { "time": 967, "value": 0.26 },
+              { "time": 983, "value": 0.79 },
+              { "time": 992, "value": 0.91 },
+              { "time": 1000, "value": 0.91 },
+              { "time": 1008, "value": 0.77 },
+              { "time": 1033, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 942, "value": 0.22 },
+              { "time": 950, "value": 0.29 },
+              { "time": 958, "value": 0.44 },
+              { "time": 967, "value": 0.52 },
+              { "time": 1008, "value": 0.53 },
+              { "time": 1025, "value": 0.52 },
+              { "time": 1033, "value": 0.44 },
+              { "time": 1042, "value": 0.29 },
+              { "time": 1050, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": [
+            { "time": 958, "amplitude": 0.98, "frequency": 0.49 },
+            { "time": 1033, "amplitude": 1, "frequency": 0.49 }
+          ]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.08 },
+              { "time": 233, "value": 0.19 },
+              { "time": 475, "value": 0.22 },
+              { "time": 717, "value": 0.19 },
+              { "time": 950, "value": 0.08 },
+              { "time": 958, "value": 0.21 },
+              { "time": 975, "value": 0.8 },
+              { "time": 983, "value": 1 },
+              { "time": 1008, "value": 1 },
+              { "time": 1017, "value": 0.76 },
+              { "time": 1025, "value": 0.48 },
+              { "time": 1033, "value": 0.16 },
+              { "time": 1042, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.21 },
+              { "time": 942, "value": 0.22 },
+              { "time": 950, "value": 0.29 },
+              { "time": 958, "value": 0.44 },
+              { "time": 967, "value": 0.52 },
+              { "time": 1008, "value": 0.53 },
+              { "time": 1025, "value": 0.52 },
+              { "time": 1033, "value": 0.44 },
+              { "time": 1042, "value": 0.29 },
+              { "time": 1050, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [
+            { "time": 958, "amplitude": 0.98, "frequency": 0.49 },
+            { "time": 1033, "amplitude": 1, "frequency": 0.49 }
+          ]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 1017, "amplitude": 1, "frequency": 0.61 }]
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 217, "value": 1 },
+              { "time": 517, "value": 0.94 },
+              { "time": 767, "value": 0.86 },
+              { "time": 967, "value": 0.76 },
+              { "time": 975, "value": 1 },
+              { "time": 1008, "value": 1 },
+              { "time": 1017, "value": 0.62 },
+              { "time": 1025, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "eased / approach-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0, 0], "o": { "x": 0.3, "y": 0 }, "e": [200, 100] },
+                  { "t": 60, "s": [100, 50], "i": { "x": 0.7, "y": 1 } },
+                  { "t": 120, "s": [0, 0] }
+                ]
+              },
+              "s": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [100, 100] },
+                  { "t": 60, "s": [200, 100] }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {
+        "hybrid": { "gain": 0.6, "threshold": 0.4, "minGapMs": 150, "freqFollow": 0.1 },
+        "energy": { "gain": 0.7, "freqFollow": 0 },
+        "kinematic": { "threshold": 0.1, "minGapMs": 150, "floor": 0.1, "sharpnessSpread": 1 },
+        "impulse": { "massInfluence": 1, "threshold": 0.1, "minGapMs": 150, "gain": 0.7 },
+        "channel": {
+          "positionGain": 0.3,
+          "scaleGain": 0.5,
+          "rotationToIntensity": 0.2,
+          "opacityGain": 1,
+          "rotationToFreq": 0.4,
+          "detentsPerTurn": 12
+        }
+      },
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 983, "value": 0 },
+              { "time": 992, "value": 0.54 },
+              { "time": 996, "value": 0.71 },
+              { "time": 1000, "value": 0.7 },
+              { "time": 1004, "value": 0.52 },
+              { "time": 1013, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.33 },
+              { "time": 979, "value": 0.33 },
+              { "time": 992, "value": 0.37 },
+              { "time": 1004, "value": 0.38 },
+              { "time": 1017, "value": 0.33 },
+              { "time": 2000, "value": 0.33 }
+            ]
+          },
+          "discretePattern": [{ "time": 1013, "amplitude": 1, "frequency": 0.38 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0 },
+              { "time": 983, "value": 0 },
+              { "time": 992, "value": 0.62 },
+              { "time": 996, "value": 0.83 },
+              { "time": 1000, "value": 0.82 },
+              { "time": 1004, "value": 0.62 },
+              { "time": 1008, "value": 0.33 },
+              { "time": 1013, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.35 },
+              { "time": 2000, "value": 0.35 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 1013, "amplitude": 1, "frequency": 0.26 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 1004, "amplitude": 0.84, "frequency": 0.48 }]
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.68 },
+              { "time": 988, "value": 0.56 },
+              { "time": 992, "value": 0.69 },
+              { "time": 996, "value": 0.75 },
+              { "time": 1000, "value": 0.67 },
+              { "time": 1004, "value": 0.41 },
+              { "time": 1008, "value": 0 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "spatial / defaults",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0, 0], "to": [0, 100] },
+                  { "t": 60, "s": [100, 0], "ti": [0, 100] },
+                  { "t": 120, "s": [0, 0] }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 96, "value": 1 },
+              { "time": 208, "value": 0.89 },
+              { "time": 308, "value": 0.82 },
+              { "time": 408, "value": 0.78 },
+              { "time": 500, "value": 0.76 },
+              { "time": 588, "value": 0.77 },
+              { "time": 663, "value": 0.81 },
+              { "time": 788, "value": 0.89 },
+              { "time": 904, "value": 1 },
+              { "time": 958, "value": 1 },
+              { "time": 992, "value": 0.89 },
+              { "time": 996, "value": 0.89 },
+              { "time": 1004, "value": 0.66 },
+              { "time": 1008, "value": 0.59 },
+              { "time": 1013, "value": 0.58 },
+              { "time": 1025, "value": 0.6 },
+              { "time": 1992, "value": 0.6 },
+              { "time": 1996, "value": 0.47 },
+              { "time": 2000, "value": 0.4 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.22 },
+              { "time": 983, "value": 0.22 },
+              { "time": 988, "value": 0.26 },
+              { "time": 996, "value": 0.48 },
+              { "time": 1000, "value": 0.53 },
+              { "time": 1008, "value": 0.31 },
+              { "time": 1013, "value": 0.23 },
+              { "time": 1017, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": [{ "time": 992, "amplitude": 1, "frequency": 0.43 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 138, "value": 1 },
+              { "time": 233, "value": 0.91 },
+              { "time": 333, "value": 0.84 },
+              { "time": 421, "value": 0.81 },
+              { "time": 500, "value": 0.8 },
+              { "time": 588, "value": 0.81 },
+              { "time": 663, "value": 0.84 },
+              { "time": 763, "value": 0.91 },
+              { "time": 863, "value": 1 },
+              { "time": 996, "value": 1 },
+              { "time": 1000, "value": 0.89 },
+              { "time": 1004, "value": 0.75 },
+              { "time": 1008, "value": 0.66 },
+              { "time": 1013, "value": 0.63 },
+              { "time": 1992, "value": 0.63 },
+              { "time": 1996, "value": 0.5 },
+              { "time": 2000, "value": 0.42 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.22 },
+              { "time": 983, "value": 0.22 },
+              { "time": 988, "value": 0.26 },
+              { "time": 996, "value": 0.48 },
+              { "time": 1000, "value": 0.53 },
+              { "time": 1008, "value": 0.31 },
+              { "time": 1013, "value": 0.23 },
+              { "time": 1017, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 992, "amplitude": 1, "frequency": 0.42 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [
+            { "time": 500, "amplitude": 0.64, "frequency": 0.66 },
+            { "time": 996, "amplitude": 1, "frequency": 0.78 }
+          ]
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 158, "value": 0.85 },
+              { "time": 283, "value": 0.76 },
+              { "time": 400, "value": 0.7 },
+              { "time": 500, "value": 0.69 },
+              { "time": 613, "value": 0.71 },
+              { "time": 713, "value": 0.75 },
+              { "time": 838, "value": 0.85 },
+              { "time": 992, "value": 0.99 },
+              { "time": 996, "value": 0.91 },
+              { "time": 1000, "value": 0.77 },
+              { "time": 1004, "value": 0.6 },
+              { "time": 1008, "value": 0.54 },
+              { "time": 1996, "value": 0.54 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "spatial / global-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0, 0], "to": [0, 100] },
+                  { "t": 60, "s": [100, 0], "ti": [0, 100] },
+                  { "t": 120, "s": [0, 0] }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 16,
+        "maxEvents": 2,
+        "silenceFloor": 0.1,
+        "gamma": 0.75,
+        "transientDuck": 0.5,
+        "contrast": 0.8,
+        "sampleFps": 120,
+        "smoothingMs": 40
+      },
+      "strategyParams": {},
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 108, "value": 1 },
+              { "time": 308, "value": 0.73 },
+              { "time": 500, "value": 0.64 },
+              { "time": 692, "value": 0.73 },
+              { "time": 892, "value": 1 },
+              { "time": 983, "value": 1 },
+              { "time": 992, "value": 0.84 },
+              { "time": 1008, "value": 0.46 },
+              { "time": 1025, "value": 0.2 },
+              { "time": 1067, "value": 0.41 },
+              { "time": 1975, "value": 0.41 },
+              { "time": 1983, "value": 0.32 },
+              { "time": 2000, "value": 0.25 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.23 },
+              { "time": 50, "value": 0.25 },
+              { "time": 500, "value": 0.21 },
+              { "time": 950, "value": 0.25 },
+              { "time": 967, "value": 0.31 },
+              { "time": 992, "value": 0.5 },
+              { "time": 1000, "value": 0.53 },
+              { "time": 1033, "value": 0.27 },
+              { "time": 1050, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": [{ "time": 1025, "amplitude": 1, "frequency": 0.42 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 150, "value": 1 },
+              { "time": 333, "value": 0.77 },
+              { "time": 500, "value": 0.69 },
+              { "time": 667, "value": 0.77 },
+              { "time": 850, "value": 1 },
+              { "time": 983, "value": 1 },
+              { "time": 992, "value": 0.99 },
+              { "time": 1008, "value": 0.72 },
+              { "time": 1025, "value": 0.52 },
+              { "time": 1042, "value": 0.45 },
+              { "time": 1975, "value": 0.45 },
+              { "time": 1983, "value": 0.35 },
+              { "time": 2000, "value": 0.28 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.23 },
+              { "time": 50, "value": 0.25 },
+              { "time": 500, "value": 0.21 },
+              { "time": 950, "value": 0.25 },
+              { "time": 967, "value": 0.31 },
+              { "time": 992, "value": 0.5 },
+              { "time": 1000, "value": 0.53 },
+              { "time": 1033, "value": 0.27 },
+              { "time": 1050, "value": 0.21 },
+              { "time": 2000, "value": 0.21 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 1025, "amplitude": 1, "frequency": 0.4 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [
+            { "time": 500, "amplitude": 0.62, "frequency": 0.67 },
+            { "time": 992, "amplitude": 1, "frequency": 0.76 }
+          ]
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 1 },
+              { "time": 17, "value": 0.99 },
+              { "time": 158, "value": 0.77 },
+              { "time": 283, "value": 0.63 },
+              { "time": 383, "value": 0.56 },
+              { "time": 492, "value": 0.53 },
+              { "time": 600, "value": 0.55 },
+              { "time": 717, "value": 0.63 },
+              { "time": 842, "value": 0.77 },
+              { "time": 975, "value": 0.97 },
+              { "time": 983, "value": 0.9 },
+              { "time": 992, "value": 0.79 },
+              { "time": 1017, "value": 0.38 },
+              { "time": 1025, "value": 0.33 },
+              { "time": 1992, "value": 0.33 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    },
+    {
+      "name": "spatial / approach-settings",
+      "source": {
+        "v": "5.12.2",
+        "fr": 60,
+        "ip": 0,
+        "op": 120,
+        "w": 200,
+        "h": 200,
+        "layers": [
+          {
+            "ty": 4,
+            "ind": 1,
+            "ip": 0,
+            "op": 120,
+            "ks": {
+              "p": {
+                "a": 1,
+                "k": [
+                  { "t": 0, "s": [0, 0], "to": [0, 100] },
+                  { "t": 60, "s": [100, 0], "ti": [0, 100] },
+                  { "t": 120, "s": [0, 0] }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "envelopeHz": 100,
+        "maxPoints": 240,
+        "maxEvents": 120,
+        "silenceFloor": 0.05,
+        "gamma": 0.5,
+        "transientDuck": 0.2,
+        "contrast": 0.3,
+        "sampleFps": 240,
+        "smoothingMs": 12
+      },
+      "strategyParams": {
+        "hybrid": { "gain": 0.6, "threshold": 0.4, "minGapMs": 150, "freqFollow": 0.1 },
+        "energy": { "gain": 0.7, "freqFollow": 0 },
+        "kinematic": { "threshold": 0.1, "minGapMs": 150, "floor": 0.1, "sharpnessSpread": 1 },
+        "impulse": { "massInfluence": 1, "threshold": 0.1, "minGapMs": 150, "gain": 0.7 },
+        "channel": {
+          "positionGain": 0.3,
+          "scaleGain": 0.5,
+          "rotationToIntensity": 0.2,
+          "opacityGain": 1,
+          "rotationToFreq": 0.4,
+          "detentsPerTurn": 12
+        }
+      },
+      "expected": {
+        "hybrid": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.76 },
+              { "time": 258, "value": 0.58 },
+              { "time": 379, "value": 0.53 },
+              { "time": 483, "value": 0.51 },
+              { "time": 592, "value": 0.52 },
+              { "time": 713, "value": 0.56 },
+              { "time": 838, "value": 0.64 },
+              { "time": 958, "value": 0.73 },
+              { "time": 988, "value": 0.67 },
+              { "time": 996, "value": 0.61 },
+              { "time": 1004, "value": 0.44 },
+              { "time": 1008, "value": 0.39 },
+              { "time": 1013, "value": 0.38 },
+              { "time": 1025, "value": 0.4 },
+              { "time": 1992, "value": 0.4 },
+              { "time": 1996, "value": 0.32 },
+              { "time": 2000, "value": 0.27 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.33 },
+              { "time": 983, "value": 0.33 },
+              { "time": 1000, "value": 0.38 },
+              { "time": 1017, "value": 0.33 },
+              { "time": 2000, "value": 0.33 }
+            ]
+          },
+          "discretePattern": [{ "time": 992, "amplitude": 1, "frequency": 0.43 }]
+        },
+        "energy": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.83 },
+              { "time": 158, "value": 0.7 },
+              { "time": 283, "value": 0.62 },
+              { "time": 383, "value": 0.58 },
+              { "time": 496, "value": 0.56 },
+              { "time": 596, "value": 0.57 },
+              { "time": 713, "value": 0.62 },
+              { "time": 838, "value": 0.69 },
+              { "time": 988, "value": 0.82 },
+              { "time": 992, "value": 0.8 },
+              { "time": 996, "value": 0.74 },
+              { "time": 1004, "value": 0.52 },
+              { "time": 1008, "value": 0.45 },
+              { "time": 1013, "value": 0.44 },
+              { "time": 1992, "value": 0.44 },
+              { "time": 1996, "value": 0.35 },
+              { "time": 2000, "value": 0.3 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.35 },
+              { "time": 2000, "value": 0.35 }
+            ]
+          },
+          "discretePattern": []
+        },
+        "kinematic": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [{ "time": 992, "amplitude": 1, "frequency": 0.37 }]
+        },
+        "impulse": {
+          "continuousPattern": { "amplitude": [], "frequency": [] },
+          "discretePattern": [
+            { "time": 500, "amplitude": 0.47, "frequency": 0.6 },
+            { "time": 996, "amplitude": 0.84, "frequency": 0.72 }
+          ]
+        },
+        "channel": {
+          "continuousPattern": {
+            "amplitude": [
+              { "time": 0, "value": 0.51 },
+              { "time": 258, "value": 0.38 },
+              { "time": 383, "value": 0.35 },
+              { "time": 500, "value": 0.34 },
+              { "time": 613, "value": 0.35 },
+              { "time": 738, "value": 0.38 },
+              { "time": 992, "value": 0.5 },
+              { "time": 996, "value": 0.46 },
+              { "time": 1004, "value": 0.3 },
+              { "time": 1008, "value": 0.27 },
+              { "time": 1996, "value": 0.27 },
+              { "time": 2000, "value": 0 }
+            ],
+            "frequency": [
+              { "time": 0, "value": 0.3 },
+              { "time": 2000, "value": 0.3 }
+            ]
+          },
+          "discretePattern": []
+        }
+      }
+    }
+  ]
+}

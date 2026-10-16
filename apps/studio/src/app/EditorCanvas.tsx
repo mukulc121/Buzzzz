@@ -1,20 +1,18 @@
-import { MAX_PATTERN_MS, patternEnd } from "@buzzzz/core";
-import type { CSSProperties } from "react";
 import { Chart } from "../features/composer/Chart";
-import { COLORS, type Layer } from "../features/composer/model";
 import { TimelinePanel } from "../features/composer/TimelinePanel";
 import { RivePanel } from "../features/rive/RivePanel";
 import { AnimationPreview } from "../features/animation/AnimationPreview";
-import { Play, Plus, Stop } from "../components/icons";
+import { Play, Stop } from "../components/icons";
 import type { Studio } from "./useStudio";
 import { useAnalysisCurves } from "./useAnalysisCurves";
 import { ProjectStatus } from "../features/project/ProjectStatus";
+import { PRESET_DRAG_TYPE, readPresetDrag } from "../features/presets/drag";
+import { chartGeometry } from "../features/composer/geometry";
+import { toolBindings } from "./toolBindings";
+import { patternEnd } from "@buzzzz/core";
+import { PatternSymbol } from "../features/project/PatternSymbol";
+import { MEDIA_DRAG_TYPE, readMediaDrag } from "../features/media/mediaDrag";
 
-const LAYERS: { id: Layer; label: string; key: string }[] = [
-  { id: "amplitude", label: "Intensity", key: "1" },
-  { id: "frequency", label: "Frequency", key: "2" },
-  { id: "discrete", label: "Taps", key: "3" },
-];
 interface IEditorCanvas {
   studio: Studio;
 }
@@ -22,23 +20,18 @@ export function EditorCanvas(props: IEditorCanvas) {
   const { studio } = props;
   const { document, composer, playback, session, audio } = studio;
   const curves = useAnalysisCurves(audio);
-  const addPoint = () => {
-    const next = structuredClone(document.pattern);
-    const time = Math.min(MAX_PATTERN_MS, playback.playhead ?? patternEnd(next) + 100);
-    const layer = composer.layer;
-    document.begin();
-    if (layer === "discrete") {
-      next.discretePattern.push({ time, amplitude: 0.5, frequency: 0.5 });
-      composer.setSelected({ layer, index: next.discretePattern.length - 1 });
-    } else {
-      next.continuousPattern[layer].push({ time, value: 0.5 });
-      composer.setSelected({ layer, index: next.continuousPattern[layer].length - 1 });
-    }
-    document.setPattern(next);
-  };
+  const markerDurationMs = Math.max(
+    patternEnd(document.pattern),
+    audio.analysis?.durationMs ?? 0,
+    studio.animation.source?.durationMs ?? 0,
+    document.preset.editor?.durationMs ?? 0,
+  );
   return (
     <main className="editor-canvas">
       <header className="pattern-header">
+        <span className="pattern-symbol">
+          <PatternSymbol />
+        </span>
         <input
           className="name"
           aria-label="Pattern name"
@@ -54,7 +47,9 @@ export function EditorCanvas(props: IEditorCanvas) {
           onResolve={document.resolveConflict}
         />
         <button
-          className="primary play"
+          className="play"
+          aria-label={playback.playing ? "Stop" : "Play"}
+          title={playback.playing ? "Stop" : "Play"}
           onClick={() =>
             playback.playing
               ? playback.stop()
@@ -62,7 +57,6 @@ export function EditorCanvas(props: IEditorCanvas) {
           }
         >
           {playback.playing ? <Stop /> : <Play />}
-          <span>{playback.playing ? "Stop" : "Play"}</span>
         </button>
         <button
           className="icon inspector-toggle"
@@ -74,29 +68,43 @@ export function EditorCanvas(props: IEditorCanvas) {
         </button>
       </header>
       <div
-        className={`canvas-scroll ${studio.animation.source ? `preview-${studio.animation.previewMode}` : ""}`}
+        className={`canvas-scroll ${studio.animation.source && studio.animation.previewVisible ? `preview-${studio.animation.previewMode}` : ""}`}
       >
-        <section className="chart-card" aria-label="Pattern editor">
-          <div className="chart-head">
-            <div className="seg layers" role="group" aria-label="Active layer">
-              {LAYERS.map((item) => (
-                <button
-                  key={item.id}
-                  aria-pressed={composer.layer === item.id}
-                  className={composer.layer === item.id ? "on" : ""}
-                  style={{ "--c": COLORS[item.id] } as CSSProperties}
-                  onClick={() => composer.setLayer(item.id)}
-                >
-                  <i />
-                  {item.label}
-                  <kbd>{item.key}</kbd>
-                </button>
-              ))}
-            </div>
-            <button onClick={addPoint}>
-              <Plus /> Add point
-            </button>
-          </div>
+        <section
+          className="chart-card"
+          aria-label="Pattern editor"
+          onDragOver={(event) => {
+            if (
+              !event.dataTransfer.types.includes(PRESET_DRAG_TYPE) &&
+              !event.dataTransfer.types.includes(MEDIA_DRAG_TYPE)
+            )
+              return;
+            event.preventDefault();
+            event.dataTransfer.dropEffect = "copy";
+          }}
+          onDrop={(event) => {
+            const assetId = readMediaDrag(event.dataTransfer, document.projectId);
+            if (assetId) {
+              event.preventDefault();
+              event.stopPropagation();
+              if (document.isWriter) void studio.attachMediaAsset(assetId);
+              return;
+            }
+            const pattern = readPresetDrag(event.dataTransfer);
+            if (!pattern) return;
+            event.preventDefault();
+            event.stopPropagation();
+            const bounds = event.currentTarget.querySelector(".chart")?.getBoundingClientRect();
+            if (!bounds) return;
+            const geometry = chartGeometry({
+              width: bounds.width,
+              height: bounds.height,
+              ...composer.viewport,
+            });
+            const time = geometry.timeAtX(event.clientX - bounds.left);
+            toolBindings(studio).onAppend(pattern, Math.round(Math.max(0, time)));
+          }}
+        >
           <Chart
             pattern={document.pattern}
             layer={composer.layer}
@@ -104,7 +112,7 @@ export function EditorCanvas(props: IEditorCanvas) {
             viewStartMs={composer.viewport.startMs}
             selected={composer.selected}
             selection={composer.selection}
-            onSelect={composer.setSelected}
+            onSelect={composer.setPrimarySelection}
             onSelectionChange={composer.setSelection}
             playhead={playback.playhead}
             onScrub={playback.setPlayhead}
@@ -112,22 +120,24 @@ export function EditorCanvas(props: IEditorCanvas) {
             onChange={document.setPattern}
             visibleLayers={composer.visibleLayers}
             snapMs={composer.snapMs}
+            multilayerSelection={composer.multilayerSelection}
+            editorSettings={composer.settings.values}
             playbackRange={composer.range ?? undefined}
             markers={composer.markers}
+            markerDurationMs={markerDurationMs}
+            onMarkerMove={composer.moveMarker}
+            onMarkerRename={composer.renameMarker}
             onViewChange={composer.setViewport}
             onError={studio.setError}
             analysisCurves={curves}
           />
-          <div className="chart-caption">
-            <span>Double-click to draw · Shift-drag to lock an axis</span>
-            <span>
-              {composer.selection.length
-                ? `${composer.selection.length} selected`
-                : `${Math.round(patternEnd(document.pattern))} ms`}
-            </span>
-          </div>
         </section>
-        <AnimationPreview animation={studio.animation} onSeek={playback.setPlayhead} />
+        {studio.animation.previewVisible && (
+          <AnimationPreview
+            animation={studio.animation}
+            seekMs={playback.playhead ?? studio.animation.seekMs}
+          />
+        )}
         {session.riv && (
           <RivePanel
             riv={session.riv}
@@ -150,6 +160,7 @@ export function EditorCanvas(props: IEditorCanvas) {
         )}
       </div>
       <TimelinePanel
+        instanceKey={`${document.projectId}\u0000${document.preset.id}`}
         pattern={document.pattern}
         viewport={composer.viewport}
         onViewChange={composer.setViewport}
@@ -158,25 +169,16 @@ export function EditorCanvas(props: IEditorCanvas) {
         playhead={playback.playhead}
         onScrub={playback.setPlayhead}
         markers={composer.markers}
+        onMarkerMove={composer.moveMarker}
         audio={audio.analysis}
         animation={studio.animation.analysis}
+        animationDocument={studio.animation.source?.document}
         onBegin={document.begin}
         durationMs={Math.max(
           audio.analysis?.durationMs ?? 0,
           studio.animation.source?.durationMs ?? 0,
           document.preset.editor?.durationMs ?? 0,
         )}
-        onZoom={composer.zoom}
-        onFit={() =>
-          composer.fit(
-            Math.max(
-              patternEnd(document.pattern),
-              audio.analysis?.durationMs ?? 0,
-              studio.animation.source?.durationMs ?? 0,
-              document.preset.editor?.durationMs ?? 0,
-            ),
-          )
-        }
       />
     </main>
   );

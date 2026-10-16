@@ -16,7 +16,7 @@ function easing(value: unknown) {
 
 export function parseChannel(value: unknown, fallback: number[]): IAnimationChannel {
   if (!isRecord(value)) return { value: fallback, keys: [] };
-  if (value.a !== 1)
+  if (value.a !== 1 && (!Array.isArray(value.k) || typeof value.k[0] !== "object"))
     return { value: numbers(value.k).length ? numbers(value.k) : fallback, keys: [] };
   if (!Array.isArray(value.k) || value.k.length > 10000)
     throw new Error("An animation channel contains too many keyframes");
@@ -48,25 +48,40 @@ export function parseChannel(value: unknown, fallback: number[]): IAnimationChan
 
 const bezier = (a: number, b: number, time: number) =>
   3 * (1 - time) ** 2 * time * a + 3 * (1 - time) * time ** 2 * b + time ** 3;
-function ease(key: IAnimationKeyframe, ratio: number, dimension: number) {
-  if (!key.incoming || !key.outgoing) return ratio;
-  const x1 = Math.max(0, Math.min(1, key.outgoing.x[dimension] ?? key.outgoing.x[0]));
-  const x2 = Math.max(0, Math.min(1, key.incoming.x[dimension] ?? key.incoming.x[0]));
+function ease(key: IAnimationKeyframe, next: IAnimationKeyframe, ratio: number, dimension: number) {
+  const x1 = key.outgoing?.x[dimension] ?? key.outgoing?.x[0] ?? 0;
+  const y1 = key.outgoing?.y[dimension] ?? key.outgoing?.y[0] ?? 0;
+  const x2 = next.incoming?.x[dimension] ?? next.incoming?.x[0] ?? 1;
+  const y2 = next.incoming?.y[dimension] ?? next.incoming?.y[0] ?? 1;
+  if (Math.abs(x1 - y1) < 1e-4 && Math.abs(x2 - y2) < 1e-4) return ratio;
+  let progress = ratio;
+  for (let iteration = 0; iteration < 8; iteration++) {
+    const error = bezier(x1, x2, progress) - ratio;
+    if (Math.abs(error) < 1e-6) return bezier(y1, y2, progress);
+    const slope =
+      3 * (1 - progress) ** 2 * x1 +
+      6 * (1 - progress) * progress * (x2 - x1) +
+      3 * progress ** 2 * (1 - x2);
+    if (Math.abs(slope) < 1e-6) break;
+    progress = Math.min(1, Math.max(0, progress - error / slope));
+  }
   let low = 0;
   let high = 1;
-  for (let iteration = 0; iteration < 12; iteration++) {
-    const middle = (low + high) / 2;
-    if (bezier(x1, x2, middle) < ratio) low = middle;
-    else high = middle;
+  for (let iteration = 0; iteration < 20; iteration++) {
+    progress = (low + high) / 2;
+    const value = bezier(x1, x2, progress);
+    if (Math.abs(value - ratio) < 1e-6) break;
+    if (value < ratio) low = progress;
+    else high = progress;
   }
-  return bezier(
-    key.outgoing.y[dimension] ?? key.outgoing.y[0],
-    key.incoming.y[dimension] ?? key.incoming.y[0],
-    (low + high) / 2,
-  );
+  return bezier(y1, y2, progress);
 }
 
-export function sampleChannel(channel: IAnimationChannel, frame: number): number[] {
+export function sampleChannel(
+  channel: IAnimationChannel,
+  frame: number,
+  sharedProgress = false,
+): number[] {
   const keys = channel.keys;
   if (!keys.length) return channel.value;
   let low = 0;
@@ -80,13 +95,18 @@ export function sampleChannel(channel: IAnimationChannel, frame: number): number
   const key = keys[index];
   const next = keys[index + 1];
   if (!next || key.hold || frame <= key.time) return key.start;
-  const end = next.start.length ? next.start : (key.end ?? key.start);
+  const end = key.end?.length ? key.end : next.start;
   const ratio = Math.max(0, Math.min(1, (frame - key.time) / (next.time - key.time)));
   return key.start.map((start, dimension) => {
     const finish = end[dimension] ?? start;
-    const progress = ease(key, ratio, dimension);
+    const progress = ease(
+      key,
+      next,
+      ratio,
+      sharedProgress || (key.spatialOut && next.spatialIn) ? 0 : dimension,
+    );
     const outgoing = key.spatialOut?.[dimension];
-    const incoming = key.spatialIn?.[dimension];
+    const incoming = next.spatialIn?.[dimension];
     if (outgoing !== undefined && incoming !== undefined)
       return (
         (1 - progress) ** 3 * start +

@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { analyzeAudioAsync } from "./analysis";
 import { decodeAudioFile } from "./decode";
-import { generateAudioCandidates } from "./generation";
-import type { AudioMetric, IAudioAnalysis, IAudioDecoded, IAudioGenerationOptions } from "./model";
+import { useAudioGeneration } from "./generation/useAudioGeneration";
+import { levelFrames } from "./metrics/framing";
+import { useSignalAnalysis } from "./metrics/useSignalAnalysis";
+import type { IAudioAnalysis, IAudioDecoded } from "./model";
+import { frameRms } from "./signal/envelope";
+import { monoMix, trimWindow } from "./signal/mix";
 import { useAudioPreview } from "./useAudioPreview";
-import { DEFAULT_GENERATION_OPTIONS } from "./tuning";
 
 interface IAudioSource {
   file: File;
@@ -15,28 +17,22 @@ interface IAudioSource {
 interface IAudioTrack {
   onError: (message: string) => void;
 }
-interface IAnalysisResult {
-  source: IAudioSource;
-  key: string;
-  analysis: IAudioAnalysis | null;
+
+// Frame RMS of the trimmed clip for the timeline's waveform lane.
+function waveform(samples: Float32Array, sampleRate: number, frameMs: number): IAudioAnalysis {
+  const { frameSize, hop, stepMs } = levelFrames(sampleRate, frameMs);
+  const rms = frameRms(samples, frameSize, hop);
+  return {
+    durationMs: (samples.length / sampleRate) * 1000,
+    frames: Array.from(rms, (value, index) => ({ timeMs: index * stepMs, rms: value })),
+  };
 }
 
 export function useAudioTrack(props: IAudioTrack) {
   const { onError } = props;
   const [source, setSource] = useState<IAudioSource | null>(null);
-  const [result, setResult] = useState<IAnalysisResult | null>(null);
   const [decoding, setDecoding] = useState(false);
-  const [frameMs, setFrameMs] = useState(20);
   const [trim, setTrimState] = useState({ startMs: 0, endMs: 0 });
-  const [selectedMetrics, setSelectedMetrics] = useState<AudioMetric[]>([
-    "vibrotactileLoudness",
-    "envelopeFollower",
-  ]);
-  const [displayMode, setDisplayMode] = useState<"fit" | "true">("fit");
-  const [decibels, setDecibels] = useState(false);
-  const [generationOptions, setGenerationOptions] = useState<Required<IAudioGenerationOptions>>(
-    DEFAULT_GENERATION_OPTIONS,
-  );
   const requestId = useRef(0);
   const errorHandler = useRef(onError);
   useEffect(() => {
@@ -54,32 +50,21 @@ export function useAudioTrack(props: IAudioTrack) {
     },
     [source],
   );
-  const key = `${trim.startMs}/${trim.endMs}/${frameMs}`;
-  const matches = result?.source === source && result?.key === key;
-  const analysis = matches ? result.analysis : null;
-  const working = decoding || Boolean(source && !matches);
-  useEffect(() => {
-    if (!source) return;
-    const controller = new AbortController();
-    analyzeAudioAsync(
-      source.decoded,
-      { offsetMs: trim.startMs, durationMs: trim.endMs - trim.startMs, frameMs },
-      controller.signal,
-    )
-      .then((value) => {
-        if (!controller.signal.aborted) setResult({ source, key, analysis: value });
-      })
-      .catch((error: unknown) => {
-        if (controller.signal.aborted) return;
-        setResult({ source, key, analysis: null });
-        errorHandler.current(error instanceof Error ? error.message : "Audio analysis failed");
-      });
-    return () => controller.abort();
-  }, [source, trim.startMs, trim.endMs, frameMs, key]);
-  const candidates = useMemo(
-    () => (analysis ? generateAudioCandidates(analysis, generationOptions) : []),
-    [analysis, generationOptions],
+  const decoded = source?.decoded;
+  const mono = useMemo(() => (decoded ? monoMix(decoded.channels) : null), [decoded]);
+  const clip = useMemo(
+    () => (mono && decoded ? trimWindow(mono, decoded.sampleRate, trim.startMs, trim.endMs) : null),
+    [mono, decoded, trim.startMs, trim.endMs],
   );
+  const metrics = useSignalAnalysis(clip, decoded?.sampleRate ?? 44100);
+  const analysis = useMemo(
+    () => (clip && decoded ? waveform(clip, decoded.sampleRate, metrics.frameMs) : null),
+    [clip, decoded, metrics.frameMs],
+  );
+  const generation = useAudioGeneration(
+    decoded ? { decoded, startMs: trim.startMs, endMs: trim.endMs } : null,
+  );
+  const working = decoding;
   const loadFile = useCallback(async (file: File, window?: { startMs: number; endMs: number }) => {
     const request = ++requestId.current;
     setDecoding(true);
@@ -93,7 +78,6 @@ export function useAudioTrack(props: IAudioTrack) {
         decoded,
       };
       setSource(next);
-      setResult(null);
       const startMs = Math.min(
         Math.max(0, decoded.durationMs - 1),
         Math.max(0, window?.startMs ?? 0),
@@ -118,7 +102,6 @@ export function useAudioTrack(props: IAudioTrack) {
   const clear = useCallback(() => {
     requestId.current++;
     setSource(null);
-    setResult(null);
     setDecoding(false);
     setTrimState({ startMs: 0, endMs: 0 });
   }, []);
@@ -135,21 +118,12 @@ export function useAudioTrack(props: IAudioTrack) {
   return {
     source,
     analysis,
-    candidates,
+    metrics,
+    generation,
     working,
     decoding,
-    frameMs,
-    setFrameMs,
     trim,
     setTrim,
-    selectedMetrics,
-    setSelectedMetrics,
-    displayMode,
-    setDisplayMode,
-    decibels,
-    setDecibels,
-    generationOptions,
-    setGenerationOptions,
     loadFile,
     clear,
     ...playback,

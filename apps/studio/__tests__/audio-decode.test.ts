@@ -24,7 +24,7 @@ async function withDecoder(run: (calls: { contexts: number; decodes: number }) =
   const previous = Object.getOwnPropertyDescriptor(globalThis, "AudioContext");
   const calls = { contexts: 0, decodes: 0 };
   class Context {
-    sampleRate = 48000;
+    sampleRate = 44100;
     constructor() {
       calls.contexts++;
     }
@@ -32,10 +32,10 @@ async function withDecoder(run: (calls: { contexts: number; decodes: number }) =
     async decodeAudioData() {
       calls.decodes++;
       return {
-        sampleRate: 48000,
+        sampleRate: 44100,
         numberOfChannels: 2,
         duration: 1,
-        getChannelData: () => new Float32Array(48000),
+        getChannelData: () => new Float32Array(44100),
       };
     }
   }

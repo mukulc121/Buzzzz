@@ -1,7 +1,8 @@
-import { useCallback, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import type { Project } from "@buzzzz/core";
 import {
   copyPatternInto,
+  freePresetId,
   newRecord,
   projectName,
   starterProject,
@@ -12,6 +13,8 @@ import * as repository from "./repository";
 import type { useProjectDocument } from "./useProjectDocument";
 import { lockName, whenFree } from "./writerLock";
 import { cloneProjectMedia } from "../media/clone";
+import { copyPresetMedia } from "./mediaTransfer";
+import { serializeProjectCopy } from "./copyLock";
 
 interface IProjectCatalog {
   activeId: string;
@@ -24,6 +27,18 @@ interface IProjectCatalog {
 
 export function useProjectCatalog(props: IProjectCatalog) {
   const { activeId, document, ownsActive, switchTo, persist, setStorageError } = props;
+  const latest = useRef({ activeId, ownsActive, document, generation: 0 });
+  useLayoutEffect(() => {
+    const before = latest.current;
+    latest.current = {
+      activeId,
+      ownsActive,
+      document,
+      generation:
+        before.generation +
+        Number(before.activeId !== activeId || before.ownsActive !== ownsActive),
+    };
+  });
   const [items, setItems] = useState(repository.listProjects);
   const refresh = useCallback(() => setItems(repository.listProjects()), []);
   const touch = useCallback(
@@ -131,19 +146,67 @@ export function useProjectCatalog(props: IProjectCatalog) {
         refresh();
         return true;
       },
-      copyPattern: async (presetId: string, targetId: string) => {
-        const source = document.project.presets.find((item) => item.id === presetId);
-        if (!source) return false;
-        if (targetId !== activeId)
-          return patch(targetId, (record) => ({
-            ...record,
-            project: copyPatternInto(record.project, source),
-          }));
-        if (!ownsActive) return false;
-        document.addPreset(structuredClone(source.pattern), `${source.name} copy`, {
-          select: false,
-        });
-        return true;
+      copyPattern: async (sourceId: string, presetId: string, targetId: string) => {
+        if (sourceId === targetId) return false;
+        const generation = latest.current.generation;
+        const current = () => latest.current.generation === generation;
+        try {
+          return await serializeProjectCopy(targetId, async () => {
+            if (!current()) return false;
+            const copy = async () => {
+              const live = latest.current;
+              const from =
+                sourceId === live.activeId
+                  ? live.document.getProject()
+                  : repository.readRecord(sourceId)?.project;
+              const source = from?.presets.find((item) => item.id === presetId);
+              const active = targetId === live.activeId;
+              const target = active
+                ? live.document.getProject()
+                : repository.readRecord(targetId)?.project;
+              if (!current() || !source || !target || (active && !live.ownsActive)) return false;
+              const id = freePresetId(target, source.id);
+              const undo = await copyPresetMedia(
+                { projectId: sourceId, presetId },
+                { projectId: targetId, presetId: id },
+              );
+              let copied = false;
+              try {
+                if (!current() || (active && !latest.current.ownsActive)) return false;
+                if (active) {
+                  const doc = latest.current.document;
+                  doc.begin();
+                  doc.setProject((project) => {
+                    if (project.presets.some((item) => item.id === id)) return project;
+                    copied = true;
+                    return copyPatternInto(project, source, id);
+                  });
+                } else {
+                  const error = repository.patchRecord(targetId, (record) => ({
+                    ...record,
+                    project: copyPatternInto(record.project, source, id),
+                  }));
+                  if (error) setStorageError(error);
+                  copied = !error;
+                }
+                refresh();
+                return copied;
+              } finally {
+                if (!copied) await undo();
+              }
+            };
+            if (targetId === latest.current.activeId) return copy();
+            const result = await whenFree(lockName(targetId), async () => ({
+              copied: await copy(),
+            }));
+            return result?.copied ?? false;
+          });
+        } catch (error) {
+          setStorageError(
+            error instanceof Error ? error.message : "Could not copy this pattern's media.",
+          );
+          return false;
+        }
       },
     },
   };

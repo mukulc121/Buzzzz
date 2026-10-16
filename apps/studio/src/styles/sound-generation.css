@@ -1,0 +1,98 @@
+.sound-generation-settings,
+.sound-advanced-settings {
+  min-width: 0;
+}
+.sound-generation-settings > summary,
+.sound-advanced-settings > summary {
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fg-2);
+}
+.sound-settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+.sound-metric-hint {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.sound-candidates.audio-candidates {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.sound-candidate-row {
+  position: relative;
+}
+.sound-candidate.audio-candidate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: 8px 24px 8px 8px;
+  border: 2px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel);
+  text-align: left;
+  white-space: normal;
+}
+.sound-candidate.audio-candidate:hover:not(:disabled),
+.sound-candidate.audio-candidate[aria-pressed="true"] {
+  background: var(--bg);
+  border-color: var(--line-strong);
+  box-shadow: none;
+}
+.sound-candidate-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+}
+.sound-candidate-summary {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.sound-candidate-meta {
+  font-size: 12px;
+  color: var(--fg-2);
+}
+.sound-candidate-info {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+.sound-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.sound-candidate.audio-candidate.sound-candidate-failed {
+  border-color: var(--notice-line);
+}
+.sound-candidate-params {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  padding-left: 8px;
+  border-left: 2px solid var(--line);
+}
+.sound-error {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--notice-line);
+}

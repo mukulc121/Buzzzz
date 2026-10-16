@@ -7,6 +7,13 @@ export default defineConfig({
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: "http://127.0.0.1:5173",
+    storageState: {
+      cookies: [],
+      origins: [5173, 5174].map((port) => ({
+        origin: `http://127.0.0.1:${port}`,
+        localStorage: [{ name: "buzzzz.onboarding.seen", value: "true" }],
+      })),
+    },
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },

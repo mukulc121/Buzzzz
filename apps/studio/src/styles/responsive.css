@@ -1,15 +1,18 @@
 @media (max-width: 1200px) and (min-width: 761px) {
   .workspace {
-    grid-template-columns: 56px 190px minmax(0, 1fr) 250px;
+    grid-template-columns: 76px var(--sidebar-width, 280px) minmax(0, 1fr) var(
+        --inspector-width,
+        300px
+      );
   }
   .workspace[data-sidebar="false"] {
-    grid-template-columns: 56px minmax(0, 1fr) 250px;
+    grid-template-columns: 76px minmax(0, 1fr) var(--inspector-width, 300px);
   }
   .workspace[data-inspector="false"] {
-    grid-template-columns: 56px 190px minmax(0, 1fr);
+    grid-template-columns: 76px var(--sidebar-width, 280px) minmax(0, 1fr);
   }
   .workspace[data-sidebar="false"][data-inspector="false"] {
-    grid-template-columns: 56px minmax(0, 1fr);
+    grid-template-columns: 76px minmax(0, 1fr);
   }
 }
 @media (max-width: 760px) {
@@ -44,7 +47,7 @@
     display: none;
   }
   .tool-rail button {
-    min-height: 56px;
+    min-height: 76px;
     min-width: calc(100% / 7);
     flex: 1;
     font-size: 9px;

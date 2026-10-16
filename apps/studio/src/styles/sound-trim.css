@@ -1,0 +1,132 @@
+.sound-dialog {
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--fg);
+}
+.sound-dialog::backdrop {
+  background: rgba(0, 26, 67, 0.35);
+}
+.sound-dialog > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  gap: 8px;
+  border-bottom: 2px solid var(--line);
+}
+.sound-dialog > header h2 {
+  font-size: 14px;
+}
+.sound-dialog-body {
+  padding: 16px;
+}
+.sound-trim-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.sound-trim-controls h3 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
+}
+.sound-trim-waveform {
+  position: relative;
+  height: 84px;
+  border: 2px solid var(--line);
+  border-radius: 4px;
+  background: rgba(231, 246, 239, 1);
+  overflow: hidden;
+}
+:root[data-theme="dark"] .sound-trim-waveform {
+  background: rgba(18, 55, 44, 1);
+}
+.sound-trim-waveform svg {
+  width: 100%;
+  height: 100%;
+}
+.sound-trim-shade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(20, 29, 51, 0.2);
+  pointer-events: none;
+}
+.sound-trim-handle[type="range"] {
+  position: absolute;
+  appearance: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: none;
+}
+.sound-trim-handle::-webkit-slider-runnable-track {
+  background: transparent;
+  border: 0;
+  height: 100%;
+}
+.sound-trim-handle::-webkit-slider-thumb {
+  appearance: none;
+  width: 4px;
+  height: 80px;
+  background: var(--accent);
+  border: 0;
+  pointer-events: auto;
+  cursor: ew-resize;
+}
+.sound-trim-handle::-moz-range-track {
+  background: transparent;
+  border: 0;
+  height: 100%;
+}
+.sound-trim-handle::-moz-range-thumb {
+  width: 4px;
+  height: 80px;
+  background: var(--accent);
+  border: 0;
+  border-radius: 0;
+  pointer-events: auto;
+  cursor: ew-resize;
+}
+.sound-trim-times {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: -8px;
+  margin-bottom: 8px;
+}
+.sound-trim-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.sound-trim-field > span:first-child {
+  flex: 0 0 32px;
+}
+.sound-trim-field .inspector-number {
+  flex: 1;
+  width: auto;
+}
+.sound-trim-controls .hint {
+  font-size: 12px;
+  margin-top: -8px;
+}
+.sound-trim-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}

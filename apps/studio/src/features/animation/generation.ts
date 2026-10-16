@@ -1,165 +1,114 @@
 import { emptyPattern } from "@buzzzz/core";
-import type { Pattern } from "@buzzzz/core";
 import type { IAnimationAnalysis, IAnimationCandidate, IAnimationGenerationOptions } from "./model";
-import { tuneGeneratedPattern } from "../audio/tuning";
+import { animationCurve, animationEvents, duckAnimationEnvelope, unit } from "./generationCurves";
+import { mapAnimationChannels } from "./channelMapping";
+import { physicsImpulse } from "./physicsImpulse";
+import { peaks } from "./signals";
 
-const ANIMATION_APPROACHES: readonly Omit<
-  IAnimationCandidate,
-  "pattern" | "pointCount" | "eventCount"
->[] = [
+const approaches = [
   {
     id: "hybrid",
     label: "Hybrid (energy + impacts)",
-    description: "A motion-energy envelope with taps at rapid velocity changes.",
-    approximate: true,
+    description: "A moving swell with a crisp tap on every impact.",
+    approximate: false,
   },
   {
     id: "energy",
     label: "Motion energy",
-    description: "Area-weighted translation, rotation and scale velocity form a continuous swell.",
-    approximate: true,
+    description: "A continuous swell that rises and falls with how much is moving.",
+    approximate: false,
   },
   {
     id: "kinematic",
     label: "Kinematic transients",
-    description: "Acceleration peaks and direction changes become discrete taps.",
-    approximate: true,
+    description: "A tick on every impact: bounces, snaps and sudden stops.",
+    approximate: false,
   },
   {
     id: "impulse",
-    label: "Physics impulse estimate",
+    label: "Physics impulse",
     description:
-      "Velocity changes weighted by visible bounds estimate momentum; Lottie supplies neither real mass nor collision geometry.",
+      "Collisions and landings weighted by mass and momentum, using layer area as a mass proxy.",
     approximate: true,
   },
   {
     id: "channel",
     label: "Channel mapping",
-    description:
-      "Selected normalized transform or motion channels map directly to intensity and frequency.",
+    description: "Each transform channel wired straight to a haptic dimension.",
     approximate: false,
   },
-];
-const unit = (value: number) => Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
-function smooth(values: number[], width: number) {
-  const output: number[] = [];
-  let sum = 0;
-  for (let index = 0; index < values.length; index++) {
-    sum += values[index];
-    if (index >= width) sum -= values[index - width];
-    output.push(sum / Math.min(index + 1, width));
-  }
-  return output;
-}
-function curve(
-  analysis: IAnimationAnalysis,
-  values: number[],
-  endValue: number,
-): Pattern["continuousPattern"]["amplitude"] {
-  const points: Pattern["continuousPattern"]["amplitude"] = [];
-  const stride = Math.max(1, Math.ceil(analysis.frames.length / 4999));
-  for (let start = 0; start < values.length; start += stride) {
-    const end = Math.min(values.length, start + stride);
-    let low = start;
-    let high = start;
-    for (let index = start + 1; index < end; index++) {
-      if (values[index] < values[low]) low = index;
-      if (values[index] > values[high]) high = index;
-    }
-    for (const index of low === high ? [low] : [Math.min(low, high), Math.max(low, high)]) {
-      const point = { time: analysis.frames[index].timeMs, value: unit(values[index]) };
-      const previous = points.at(-1);
-      const before = points.at(-2);
-      if (previous && before) {
-        const expected =
-          before.value +
-          ((point.value - before.value) * (previous.time - before.time)) /
-            Math.max(1e-8, point.time - before.time);
-        if (Math.abs(expected - previous.value) < 0.005) points.pop();
-      }
-      points.push(point);
-    }
-  }
-  points.push({ time: analysis.durationMs, value: unit(endValue) });
-  return points;
-}
+] satisfies Omit<IAnimationCandidate, "pattern" | "pointCount" | "eventCount">[];
 
 export function generateAnimationCandidates(
   analysis: IAnimationAnalysis,
-  options: IAnimationGenerationOptions = {
-    smoothingMs: 12,
-    intensityChannel: "energy",
-    frequencyChannel: "positionY",
-  },
+  options: IAnimationGenerationOptions = { smoothingMs: 12 },
 ): IAnimationCandidate[] {
-  for (const value of [
-    options.smoothingMs,
-    options.gain,
-    options.threshold,
-    options.minGapMs,
-    options.freqFollow,
-  ])
-    if (value !== undefined && !Number.isFinite(value))
+  for (const [key, value] of Object.entries(options))
+    if (key !== "strategyParams" && typeof value === "number" && !Number.isFinite(value))
       throw new Error("Animation generation settings must be finite");
-  const width = Math.max(1, Math.min(240, Math.round(options.smoothingMs / analysis.frameMs)));
-  const energy = smooth(
-    analysis.frames.map((frame) => frame.energy),
-    width,
+  for (const values of Object.values(options.strategyParams ?? {}))
+    for (const value of Object.values(values))
+      if (!Number.isFinite(value)) throw new Error("Animation approach settings must be finite");
+  const count = analysis.frames.length;
+  const sharpness = Float32Array.from(analysis.frames, (frame) =>
+    unit(0.6 * frame.acceleration + 0.4 * frame.rotationRate),
   );
-  const gain = Math.max(0.5, Math.min(3, options.gain ?? 1.2));
-  const threshold = Math.max(0.05, Math.min(0.6, options.threshold ?? 0.17));
-  const gap = Math.max(20, Math.min(300, options.minGapMs ?? 70));
-  const follow = unit(options.freqFollow ?? 0.7);
-  const impacts: IAnimationAnalysis["impacts"] = [];
-  for (const impact of analysis.impacts) {
-    if (impact.strength < threshold) continue;
-    const previous = impacts.at(-1);
-    if (previous && impact.timeMs - previous.timeMs < gap) {
-      if (impact.strength > previous.strength) impacts[impacts.length - 1] = impact;
-    } else impacts.push(impact);
-  }
-  const moving = analysis.frames.some((frame) => frame.energy > 1e-8);
-  const channelsVary = analysis.frames.some(
-    (frame) =>
-      frame[options.intensityChannel] !== analysis.frames[0]?.[options.intensityChannel] ||
-      frame[options.frequencyChannel] !== analysis.frames[0]?.[options.frequencyChannel],
-  );
-  return ANIMATION_APPROACHES.map((approach) => {
-    let pattern = emptyPattern();
-    if (moving || (approach.id === "channel" && channelsVary)) {
-      if (approach.id === "hybrid" || approach.id === "energy" || approach.id === "channel") {
-        const amplitudes =
-          approach.id === "channel"
-            ? smooth(
-                analysis.frames.map((frame) => frame[options.intensityChannel]),
-                width,
-              )
-            : energy.map((value) => unit(value * (approach.id === "hybrid" ? gain : 1)));
-        const frequencies =
-          approach.id === "channel"
-            ? smooth(
-                analysis.frames.map((frame) => frame[options.frequencyChannel]),
-                width,
-              )
-            : analysis.frames.map(
-                (frame) => 0.35 * (1 - follow) + (0.2 + frame.velocity * 0.6) * follow,
-              );
+  const transient = Float32Array.from(analysis.frames, (frame) => frame.transient);
+  return approaches.map((approach) => {
+    const pattern = emptyPattern();
+    const params = options.strategyParams?.[approach.id] ?? {};
+    if (count > 0) {
+      if (approach.id === "channel") {
+        const mapped = mapAnimationChannels(analysis, params);
         pattern.continuousPattern = {
-          amplitude: curve(analysis, amplitudes, 0),
-          frequency: curve(analysis, frequencies, frequencies.at(-1) ?? 0.5),
+          amplitude: animationCurve(mapped.amplitude, analysis.frameMs, options),
+          frequency: animationCurve(mapped.frequency, analysis.frameMs, options, true),
         };
+        pattern.discretePattern = animationEvents(mapped.events, options);
+      } else if (approach.id === "impulse") {
+        pattern.discretePattern = animationEvents(physicsImpulse(analysis, params), options);
+      } else {
+        const hybrid = approach.id === "hybrid";
+        if (hybrid || approach.id === "kinematic") {
+          const threshold = params.threshold ?? (hybrid ? 0.17 : 0.15);
+          const gap = params.minGapMs ?? (hybrid ? 70 : 60);
+          const floor = hybrid ? 0.25 : (params.floor ?? 0.2);
+          const spread = hybrid ? 0.5 : (params.sharpnessSpread ?? 0.6);
+          pattern.discretePattern = animationEvents(
+            peaks(transient, analysis.frameMs, threshold, gap).map((index) => {
+              const time = Math.round(index * analysis.frameMs);
+              const sample = Math.min(count - 1, Math.max(0, Math.round(time / analysis.frameMs)));
+              return {
+                time,
+                amplitude: unit(floor + (1 - floor) * transient[index]),
+                frequency: unit(0.5 + spread * (0.15 + 0.75 * sharpness[sample] - 0.5)),
+              };
+            }),
+            options,
+          );
+        }
+        if (hybrid || approach.id === "energy") {
+          const gain = params.gain ?? (hybrid ? 1.2 : 1.3);
+          const follow = params.freqFollow ?? 0.7;
+          const amplitude = Float32Array.from(analysis.frames, (frame) =>
+            unit(frame.energy * gain),
+          );
+          const frequency = sharpness.map((value) =>
+            unit(0.35 + follow * (0.15 + 0.75 * value - 0.35)),
+          );
+          if (hybrid)
+            duckAnimationEnvelope(
+              amplitude,
+              analysis.frameMs,
+              pattern.discretePattern,
+              options.transientDuck ?? 0.2,
+            );
+          pattern.continuousPattern = {
+            amplitude: animationCurve(amplitude, analysis.frameMs, options),
+            frequency: animationCurve(frequency, analysis.frameMs, options, true),
+          };
+        }
       }
-      if (approach.id === "hybrid" || approach.id === "kinematic" || approach.id === "impulse")
-        pattern.discretePattern = impacts.map((impact) => ({
-          time: impact.timeMs,
-          amplitude: unit(approach.id === "impulse" ? impact.momentum : impact.strength),
-          frequency: approach.id === "impulse" ? 0.25 : 0.65,
-        }));
-      pattern = tuneGeneratedPattern(
-        pattern,
-        options,
-        impacts.map((impact) => impact.timeMs),
-      );
     }
     return {
       ...approach,

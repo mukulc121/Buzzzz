@@ -36,6 +36,8 @@ export function handleChartKey(
   const modifier = event.metaKey || event.ctrlKey;
   const step =
     (current.snapMs && current.snapMs > 0 ? current.snapMs : 10) * (event.shiftKey ? 10 : 1);
+  const valueStep =
+    (event.shiftKey ? 10 : 1) / (100 * 10 ** (current.editorSettings?.valueDecimals ?? 1));
   const handled = () => {
     event.preventDefault();
     event.stopPropagation();
@@ -52,7 +54,7 @@ export function handleChartKey(
     select(
       selectInBounds({
         pattern: current.pattern,
-        layers: current.visibleLayers ?? LAYERS,
+        layers: (current.visibleLayers ?? LAYERS).filter((layer) => layer === current.layer),
         bounds: { startMs: 0, endMs: MAX_PATTERN_MS, minValue: 0, maxValue: 1 },
       }),
     );
@@ -101,16 +103,8 @@ export function handleChartKey(
         pattern: current.pattern,
         selection: active,
         timeMs: key === "arrowright" ? step : key === "arrowleft" ? -step : 0,
-        value:
-          key === "arrowup"
-            ? event.shiftKey
-              ? 0.1
-              : 0.01
-            : key === "arrowdown"
-              ? event.shiftKey
-                ? -0.1
-                : -0.01
-              : 0,
+        value: key === "arrowup" ? valueStep : key === "arrowdown" ? -valueStep : 0,
+        valueDecimals: current.editorSettings?.valueDecimals ?? 1,
       }),
       selection: active,
     });

@@ -4,7 +4,8 @@ import { rhythmPattern, snippetRange, warpPattern } from "../src/features/tools/
 import { patternStats } from "../src/features/tools/signalStats";
 import { compatibilityIssues } from "../src/features/tools/compatibility";
 import { voicePattern } from "../src/features/tools/voicePattern";
-import { analyzeAudio } from "../src/features/audio/analysis";
+import { workerClip } from "../src/features/audio/signal/mix";
+import { analyzeVoice } from "../src/features/audio/voice/analysis";
 
 const pattern: Pattern = {
   discretePattern: [
@@ -126,12 +127,10 @@ test("compatibility distinguishes near taps from short envelope segments", () =>
 
 test("voice analysis rejects silence and combines loudness, pitch, and onsets", () => {
   const samples = new Float32Array(16000);
-  expect(() => voicePattern(analyzeAudio({ sampleRate: 16000, channels: [samples] }))).toThrow(
-    "No voice",
-  );
+  expect(() => voicePattern(analyzeVoice(workerClip([samples], 16000)))).toThrow("No voice");
   for (let index = 0; index < samples.length; index += 1)
     samples[index] = index % 4000 < 2000 ? Math.sin((2 * Math.PI * 220 * index) / 16000) * 0.4 : 0;
-  const result = voicePattern(analyzeAudio({ sampleRate: 16000, channels: [samples] }));
+  const result = voicePattern(analyzeVoice(workerClip([samples], 16000)));
   expect(isPattern(result)).toBe(true);
   expect(result.continuousPattern.amplitude.length).toBeGreaterThan(0);
   expect(result.continuousPattern.frequency.length).toBeGreaterThan(0);

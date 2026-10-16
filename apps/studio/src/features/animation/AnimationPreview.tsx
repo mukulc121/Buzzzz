@@ -1,20 +1,22 @@
 import { useEffect, useRef } from "react";
 import type { AnimationItem } from "lottie-web";
 import type { useAnimationTrack } from "./useAnimationTrack";
+import { AnimationPreviewToolbar } from "./AnimationPreviewToolbar";
+import { useFloatingPreview } from "./useFloatingPreview";
 
 interface IAnimationPreview {
   animation: ReturnType<typeof useAnimationTrack>;
   seekMs?: number;
-  onSeek?: (timeMs: number) => void;
 }
 
 export function AnimationPreview(props: IAnimationPreview) {
-  const { animation, seekMs = animation.seekMs, onSeek } = props;
+  const { animation, seekMs = animation.seekMs } = props;
   const container = useRef<HTMLDivElement>(null);
   const shell = useRef<HTMLElement>(null);
+  const floating = useFloatingPreview({ shell, enabled: animation.previewMode === "floating" });
   const player = useRef<AnimationItem | null>(null);
   const controls = useRef({ animation, seekMs });
-  const data = animation.source?.data;
+  const data = animation.previewVisible ? animation.source?.data : undefined;
   useEffect(() => {
     controls.current = { animation, seekMs };
   }, [animation, seekMs]);
@@ -81,58 +83,27 @@ export function AnimationPreview(props: IAnimationPreview) {
     if (controls.current.animation.playing) item.goToAndPlay(frame, true);
     else item.goToAndStop(frame, true);
   }, [seekMs, animation.seekRevision]);
-  if (!animation.source) return null;
+  if (!animation.source || !animation.previewVisible) return null;
   return (
     <section
       ref={shell}
       className={`animation-preview ${animation.previewMode}`}
+      style={floating.position}
       aria-label="Animation canvas preview"
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && ["floating", "fullscreen"].includes(animation.previewMode)) {
+          event.stopPropagation();
+          animation.setPreviewMode("side-by-side");
+        }
+      }}
     >
+      <AnimationPreviewToolbar animation={animation} floating={floating} />
       <div
         ref={container}
         className="animation-canvas"
         role="img"
         aria-label={`Lottie preview of ${animation.source.file.name}`}
       />
-      <div className="row">
-        <button type="button" onClick={() => animation.setPlaying((playing) => !playing)}>
-          {animation.playing ? "Pause animation" : "Play animation"}
-        </button>
-        <label className="field grow">
-          Animation position
-          <input
-            type="range"
-            min={0}
-            max={animation.source.durationMs}
-            step={1}
-            value={Math.min(animation.source.durationMs, animation.positionMs)}
-            onChange={(event) => {
-              const value = event.currentTarget.valueAsNumber;
-              animation.setSeekMs(value);
-              onSeek?.(value);
-            }}
-          />
-        </label>
-        <output>{(animation.positionMs / 1000).toFixed(2)} s</output>
-        <button
-          type="button"
-          onClick={() => {
-            if (shell.current?.requestFullscreen)
-              void shell.current
-                .requestFullscreen()
-                .catch(() =>
-                  animation.onError("Fullscreen preview is unavailable in this browser"),
-                );
-          }}
-        >
-          Fullscreen
-        </button>
-        {animation.previewMode === "fullscreen" && (
-          <button type="button" onClick={() => animation.setPreviewMode("stacked")}>
-            Close expanded preview
-          </button>
-        )}
-      </div>
     </section>
   );
 }

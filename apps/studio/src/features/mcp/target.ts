@@ -21,10 +21,10 @@ export interface IEditorTarget {
     "selection" | "setSelected" | "setSelection" | "range" | "setRange"
   >;
   playback: Pick<ReturnType<typeof usePlayback>, "playhead" | "setPlayhead" | "playing">;
-  audio: Pick<
-    TAudio,
-    "source" | "decoding" | "analysis" | "frameMs" | "trim" | "setTrim" | "generationOptions"
-  >;
+  audio: Pick<TAudio, "source" | "decoding" | "trim" | "setTrim"> & {
+    metrics: Pick<TAudio["metrics"], "frameMs" | "params">;
+    generation: Pick<TAudio["generation"], "options" | "strategyParams">;
+  };
   animation: Pick<
     TAnimation,
     | "source"
@@ -33,8 +33,7 @@ export interface IEditorTarget {
     | "frameMs"
     | "generationOptions"
     | "hybrid"
-    | "intensityChannel"
-    | "frequencyChannel"
+    | "strategyParams"
     | "setSeekMs"
   >;
   media: Pick<AttachedTracks, "importFile" | "detach" | "pending" | "ready"> & {

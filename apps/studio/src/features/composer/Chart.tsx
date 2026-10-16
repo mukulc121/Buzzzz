@@ -1,15 +1,17 @@
-import { useEffect, useId, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useId, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 import { isPattern } from "@buzzzz/core";
 import { LAYERS, selectionKey, type IChart } from "./model";
 import { useChartInteraction } from "./useChartInteraction";
 import { snapTime } from "./viewport";
 
-import { CHART_PADDING as PAD, type IChartGeometry } from "./geometry";
+import { chartGeometry } from "./geometry";
 import { ChartAxes } from "./ChartAxes";
 import { ChartOverlays } from "./ChartOverlays";
 import { EnvelopeLayer } from "./EnvelopeLayer";
 import { TapLayer } from "./TapLayer";
 import { PlaybackCursor } from "./PlaybackCursor";
+import { ChartCrosshair } from "./ChartCrosshair";
+import { DEFAULT_EDITOR_SETTINGS, quantizeValue } from "./editorSettings";
 
 export function Chart(props: IChart) {
   const {
@@ -25,10 +27,12 @@ export function Chart(props: IChart) {
     visibleLayers = LAYERS,
     playbackRange,
     markers = [],
+    editorSettings = DEFAULT_EDITOR_SETTINGS,
   } = props;
   const svg = useRef<SVGSVGElement>(null);
   const clipId = useId();
   const [{ width, height }, setSize] = useState({ width: 800, height: 320 });
+  const [hover, setHover] = useState<{ x: number; y: number } | null>(null);
   const interaction = useChartInteraction({ props, svg, width, height });
   const selectedKeys = new Set(interaction.selection.map(selectionKey));
 
@@ -42,18 +46,12 @@ export function Chart(props: IChart) {
     return () => observer.disconnect();
   }, []);
 
-  const x = (time: number) => PAD + ((time - viewStartMs) / viewMs) * Math.max(1, width - 2 * PAD);
-  const y = (value: number) => PAD + (1 - value) * (height - 2 * PAD);
-  const inView = (time: number) => time >= viewStartMs && time <= viewStartMs + viewMs;
-  const geometry: IChartGeometry = {
-    width,
-    height,
-    startMs: viewStartMs,
-    durationMs: viewMs,
-    x,
-    y,
-    inView,
-  };
+  const geometry = chartGeometry({ width, height, startMs: viewStartMs, durationMs: viewMs });
+  const continuousEnd = Math.max(
+    0,
+    ...pattern.continuousPattern.amplitude.map((point) => point.time),
+    ...pattern.continuousPattern.frequency.map((point) => point.time),
+  );
   const add = (event: MouseEvent<SVGSVGElement>) => {
     if (
       !visibleLayers.includes(layer) ||
@@ -61,7 +59,7 @@ export function Chart(props: IChart) {
     )
       return;
     const bounds = svg.current?.getBoundingClientRect();
-    if (!bounds || event.clientY - bounds.top < PAD || event.clientY - bounds.top > height - PAD)
+    if (!bounds || !geometry.containsPlot(event.clientX - bounds.left, event.clientY - bounds.top))
       return;
     const point = interaction.position(event);
     if (!point) return;
@@ -70,10 +68,17 @@ export function Chart(props: IChart) {
     let index: number;
     if (layer === "discrete") {
       index = next.discretePattern.length;
-      next.discretePattern.push({ time, amplitude: point.value, frequency: 0.5 });
+      next.discretePattern.push({
+        time,
+        amplitude: quantizeValue(point.value, editorSettings.valueDecimals),
+        frequency: 0.5,
+      });
     } else {
       index = next.continuousPattern[layer].length;
-      next.continuousPattern[layer].push({ time, value: point.value });
+      next.continuousPattern[layer].push({
+        time,
+        value: quantizeValue(point.value, editorSettings.valueDecimals),
+      });
     }
     if (!isPattern(next)) {
       props.onError?.("This edit exceeds the pattern point limit.");
@@ -82,6 +87,20 @@ export function Chart(props: IChart) {
     onBegin();
     onChange(next);
     interaction.select([{ layer, index }]);
+  };
+  const move = (event: PointerEvent<SVGSVGElement>) => {
+    interaction.move(event);
+    const bounds = svg.current?.getBoundingClientRect();
+    if (
+      !editorSettings.crosshair ||
+      !bounds ||
+      event.pointerType === "touch" ||
+      !geometry.containsPlot(event.clientX - bounds.left, event.clientY - bounds.top)
+    ) {
+      setHover(null);
+      return;
+    }
+    setHover({ x: event.clientX - bounds.left, y: event.clientY - bounds.top });
   };
 
   return (
@@ -93,7 +112,8 @@ export function Chart(props: IChart) {
       tabIndex={0}
       onDoubleClick={add}
       onPointerDown={interaction.backgroundDown}
-      onPointerMove={interaction.move}
+      onPointerMove={move}
+      onPointerLeave={() => setHover(null)}
       onPointerUp={interaction.reset}
       onPointerCancel={interaction.reset}
       onLostPointerCapture={interaction.reset}
@@ -105,22 +125,27 @@ export function Chart(props: IChart) {
       <defs>
         <clipPath id={clipId}>
           <rect
-            x={PAD - 8}
-            y={PAD - 8}
-            width={Math.max(1, width - 2 * PAD + 16)}
-            height={height - 2 * PAD + 16}
+            x={geometry.left}
+            y={geometry.top}
+            width={geometry.plotWidth}
+            height={geometry.plotHeight}
           />
         </clipPath>
       </defs>
-      <ChartAxes geometry={geometry} />
-      <g clipPath={`url(#${clipId})`}>
-        <ChartOverlays
-          geometry={geometry}
-          range={playbackRange}
-          markers={markers}
-          curves={props.analysisCurves}
-        />
+      <rect
+        x={geometry.left}
+        y={geometry.top}
+        width={geometry.plotWidth}
+        height={geometry.plotHeight}
+        fill="var(--plot)"
+        rx={4}
+      />
+      <ChartAxes geometry={geometry} density={editorSettings.gridDensity} />
+      {editorSettings.timeCursor && (
         <PlaybackCursor time={playhead} geometry={geometry} snapMs={snapMs} onScrub={onScrub} />
+      )}
+      <g clipPath={`url(#${clipId})`}>
+        <ChartOverlays geometry={geometry} range={playbackRange} curves={props.analysisCurves} />
         {visibleLayers.includes("amplitude") && (
           <EnvelopeLayer
             layer="amplitude"
@@ -128,6 +153,8 @@ export function Chart(props: IChart) {
             geometry={geometry}
             selectedKeys={selectedKeys}
             interaction={interaction}
+            valueDecimals={editorSettings.valueDecimals}
+            endMs={continuousEnd}
           />
         )}
         {visibleLayers.includes("frequency") && (
@@ -137,6 +164,8 @@ export function Chart(props: IChart) {
             geometry={geometry}
             selectedKeys={selectedKeys}
             interaction={interaction}
+            valueDecimals={editorSettings.valueDecimals}
+            endMs={continuousEnd}
           />
         )}
         {visibleLayers.includes("discrete") && (
@@ -145,10 +174,26 @@ export function Chart(props: IChart) {
             geometry={geometry}
             selectedKeys={selectedKeys}
             interaction={interaction}
+            valueDecimals={editorSettings.valueDecimals}
           />
         )}
         <ChartOverlays geometry={geometry} rectangle={interaction.rectangle} />
       </g>
+      <ChartOverlays
+        geometry={geometry}
+        markers={markers}
+        markerDurationMs={props.markerDurationMs}
+        onMarkerMove={props.onMarkerMove}
+        onMarkerRename={props.onMarkerRename}
+        onBegin={onBegin}
+      />
+      {editorSettings.crosshair && (
+        <ChartCrosshair
+          position={hover}
+          geometry={geometry}
+          valueDecimals={editorSettings.valueDecimals}
+        />
+      )}
     </svg>
   );
 }

@@ -7,7 +7,7 @@ export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => {
     try {
       const value = localStorage.getItem(THEME_KEY);
-      return value === "light" || value === "dark" || value === "system" ? value : "light";
+      return value === "light" || value === "dark" || value === "system" ? value : "system";
     } catch {
       return "light";
     }

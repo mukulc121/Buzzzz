@@ -1,0 +1,79 @@
+.floating-tool-window {
+  position: fixed;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  min-width: min(300px, calc(100vw - 32px));
+  min-height: 220px;
+  border: 2px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: -4px 4px 0 var(--line-strong);
+  overflow: hidden;
+}
+.floating-tool-window > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: none;
+  gap: 8px;
+  padding: 4px 4px 4px 16px;
+  border-bottom: 2px solid var(--line);
+  background: var(--bg);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.floating-tool-window > header:active {
+  cursor: grabbing;
+}
+.floating-tool-window > header h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+  text-transform: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.floating-tool-window > header > div {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+.floating-tool-window > header button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  color: var(--muted);
+}
+.floating-tool-body {
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  overflow-y: auto;
+}
+.floating-tool-body > .panel-content {
+  padding: 0;
+}
+.floating-tool-resizer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 18px;
+  height: 18px;
+  cursor: nwse-resize;
+  touch-action: none;
+  background: linear-gradient(
+    135deg,
+    transparent 0 45%,
+    var(--line) 45% 55%,
+    transparent 55% 70%,
+    var(--line) 70% 80%,
+    transparent 80%
+  );
+}

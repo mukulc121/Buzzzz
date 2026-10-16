@@ -1,4 +1,3 @@
-import type { IAudioGenerationOptions } from "../audio/model";
 import type { IEditorTarget } from "./target";
 
 export class CommandError extends Error {}
@@ -47,21 +46,6 @@ export function summarize(values: readonly number[], points = 256) {
     series,
   };
 }
-
-export const AUDIO_OPTION_KEYS = [
-  "intensity",
-  "frequencyShift",
-  "smoothingMs",
-  "reductionTolerance",
-  "minimumTapStrength",
-  "contrast",
-  "gamma",
-  "silenceFloor",
-  "transientDuck",
-  "envelopeHz",
-  "maxPoints",
-  "maxEvents",
-] as const satisfies readonly (keyof IAudioGenerationOptions)[];
 
 export function numericOptions<T extends string>(
   options: Record<string, unknown>,

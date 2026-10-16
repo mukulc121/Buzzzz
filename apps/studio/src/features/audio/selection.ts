@@ -1,3 +1,4 @@
+import { toDevice } from "@buzzzz/core";
 import type { Pattern } from "@buzzzz/core";
 
 export function deriveAudioReplacement(
@@ -15,4 +16,9 @@ export function deriveAudioReplacement(
     return "replace";
   if (lastApplied && serialized === JSON.stringify(lastApplied)) return "replace";
   return "confirm";
+}
+
+// Pulsar's edit check: the pattern differs from the approach last applied to it.
+export function isEdited(current: Pattern, applied: Pattern | null) {
+  return applied !== null && JSON.stringify(toDevice(current)) !== JSON.stringify(applied);
 }

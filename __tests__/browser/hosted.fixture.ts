@@ -45,12 +45,12 @@ export const test = base.extend<IHosted>({
       await request.dispose();
     }
   },
-  createHostedContext: async ({ browser }, provide, info) => {
+  createHostedContext: async ({ browser, storageState }, provide, info) => {
     const contexts: BrowserContext[] = [];
     let role = 3;
     try {
       await provide(async (options) => {
-        const context = await browser.newContext(options);
+        const context = await browser.newContext({ storageState, ...options });
         contexts.push(context);
         await identify(context, callerIp(info, role++));
         return context;

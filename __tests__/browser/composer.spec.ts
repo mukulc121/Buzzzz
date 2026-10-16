@@ -15,10 +15,11 @@ function Harness() {
   const [begins, setBegins] = React.useState(0);
   const [layers, setLayers] = React.useState(["amplitude", "frequency", "discrete"]);
   const [error, setError] = React.useState("");
+  const [markers, setMarkers] = React.useState([{ id: "cue", time: 500, label: "Cue" }]);
   return React.createElement("div", null,
     React.createElement("button", { onClick: () => setLayers(["amplitude"]) }, "Hide frequency and taps"),
-    React.createElement(Chart, { pattern, layer: "amplitude", viewMs: viewport.durationMs, viewStartMs: viewport.startMs, onViewChange: setViewport, playhead, onScrub: setPlayhead, selected, onSelect: setSelected, selection, onSelectionChange: setSelection, visibleLayers: layers, snapMs: 25, onBegin: () => setBegins((n) => n + 1), onChange: setPattern, onError: setError, analysisCurves: [{ id: "audio", label: "Audio envelope", color: "rgba(10, 80, 180, 1)", points: [{ time: 0, value: 0.2 }, { time: 1000, value: 0.8 }] }], markers: [{ id: "cue", time: 500, label: "Cue" }], playbackRange: { start: 100, end: 800 } }),
-    React.createElement("output", { id: "composer-state" }, JSON.stringify({ pattern, selection, viewport, playhead, begins, error }))
+    React.createElement(Chart, { pattern, layer: "amplitude", viewMs: viewport.durationMs, viewStartMs: viewport.startMs, onViewChange: setViewport, playhead, onScrub: setPlayhead, selected, onSelect: setSelected, selection, onSelectionChange: setSelection, visibleLayers: layers, snapMs: 25, onBegin: () => setBegins((n) => n + 1), onChange: setPattern, onError: setError, analysisCurves: [{ id: "audio", label: "Audio envelope", color: "rgba(10, 80, 180, 1)", points: [{ time: 0, value: 0.2 }, { time: 1000, value: 0.8 }] }], markers, markerDurationMs: 1000, onMarkerMove: (id, time) => setMarkers((items) => items.map((item) => item.id === id ? { ...item, time } : item)), onMarkerRename: (id, label) => setMarkers((items) => items.map((item) => item.id === id ? { ...item, label } : item)), playbackRange: { start: 100, end: 800 } }),
+    React.createElement("output", { id: "composer-state" }, JSON.stringify({ pattern, selection, viewport, playhead, begins, error, markers }))
   );
 }
 const container = document.createElement("div");
@@ -28,7 +29,7 @@ document.body.append(container);
 createRoot(container).render(React.createElement(Harness));
 `;
 
-async function mount(page: Page) {
+async function mount(page: Page, playhead: number | null = 900) {
   await page.setViewportSize({ width: 1100, height: 700 });
   const entry = await (await page.request.get("/src/main.tsx")).text();
   const react = entry.match(/from "([^"]*\/react\.js\?[^"]*)"/)?.[1];
@@ -38,11 +39,14 @@ async function mount(page: Page) {
     route.fulfill({
       contentType: "application/javascript",
       body: harness
+        .replace("React.useState(900)", `React.useState(${playhead})`)
         .replace("/node_modules/.vite/deps/react.js", react)
         .replace("/node_modules/.vite/deps/react-dom_client.js", dom),
     }),
   );
   await page.goto("/");
+  for (const file of ["tokens", "composer", "chart-details"])
+    await page.addStyleTag({ path: `apps/studio/src/styles/${file}.css` });
   await page.addStyleTag({
     content:
       "#composer-harness { padding: 20px; } #composer-harness .chart { width: 800px; height: 320px; display: block; }",
@@ -116,13 +120,13 @@ test("box selection, layer visibility, scrub, zoom and pan use the controlled vi
   ]);
   await page.getByRole("button", { name: "Hide frequency and taps" }).click();
   await expect(chart.getByRole("button", { name: /^Frequency|^Tap/ })).toHaveCount(0);
-  await chart.click({ position: { x: 400, y: 310 } });
+  await chart.click({ position: { x: 414, y: 310 } });
   expect((await state(page)).playhead).toBe(500);
   const slider = chart.getByRole("slider", { name: "Playback position" });
   await slider.focus();
   await page.keyboard.press("ArrowRight");
   await expect(slider).toHaveAttribute("aria-valuenow", "525");
-  await page.mouse.move(bounds.x + 400, bounds.y + 150);
+  await page.mouse.move(bounds.x + 414, bounds.y + 150);
   await page.mouse.wheel(0, -150);
   await expect.poll(async () => (await state(page)).viewport.durationMs).toBeLessThan(1000);
   const zoomed = (await state(page)).viewport;
@@ -152,7 +156,7 @@ test("group dragging starts one history entry and preserves selected spacing", a
   if (!bounds) throw new Error("Missing point bounds");
   await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
   await page.mouse.down();
-  await page.mouse.move(bounds.x + bounds.width / 2 + 74.4, bounds.y + bounds.height / 2 - 26.4, {
+  await page.mouse.move(bounds.x + bounds.width / 2 + 70.8, bounds.y + bounds.height / 2 - 27.2, {
     steps: 10,
   });
   await page.mouse.up();
@@ -165,4 +169,186 @@ test("group dragging starts one history entry and preserves selected spacing", a
       current.pattern.continuousPattern.amplitude[0].value,
   ).toBeCloseTo(0.3);
   expect(current.begins).toBe(1);
+});
+
+test("hover readouts track plot coordinates without editing and keep the initial cursor visible", async ({
+  page,
+}) => {
+  await mount(page, null);
+  const chart = page.getByRole("group", { name: "Haptic pattern timeline", exact: true });
+  const cursor = chart.getByRole("slider", { name: "Playback position" });
+  await expect(cursor).toHaveAttribute("aria-valuenow", "0");
+  await expect(cursor.locator("text")).toHaveText("0 ms");
+  expect(await cursor.evaluate((element) => element.closest("[clip-path]"))).toBeNull();
+  const before = await state(page);
+  const bounds = await chart.boundingBox();
+  if (!bounds) throw new Error("Missing chart bounds");
+  const x = 60 + (bounds.width - 92) * 0.35;
+  const y = 18 + (bounds.height - 48) * 0.75;
+  await page.mouse.move(bounds.x + x, bounds.y + y);
+  await expect(chart.locator(".chart-hover-time")).toHaveText("350 ms");
+  await expect(chart.locator(".chart-hover-value")).toHaveText("25.0%");
+  const crosshair = chart.locator(".chart-crosshair");
+  await expect(crosshair).toHaveAttribute("aria-hidden", "true");
+  await expect(crosshair.locator("path")).toHaveAttribute("stroke-dasharray", "3 3");
+  const line = await crosshair.locator("path").getAttribute("d");
+  const coordinates = line?.match(/[\d.]+/g)?.map(Number);
+  expect(coordinates).toHaveLength(6);
+  for (const [index, expected] of [x, 18, bounds.height - 30, 46, y, bounds.width - 18].entries())
+    expect(coordinates?.[index]).toBeCloseTo(expected, 2);
+  expect(await state(page)).toEqual(before);
+  const frequency = chart.locator('polyline[data-envelope="frequency"]');
+  const envelopeCoordinates = (await frequency.getAttribute("points"))?.split(/[ ,]+/).map(Number);
+  expect(envelopeCoordinates).toHaveLength(2);
+  for (const [index, expected] of [484.8, 181.2].entries())
+    expect(envelopeCoordinates?.[index]).toBeCloseTo(expected, 5);
+  await expect(chart.getByRole("button", { name: /^Frequency point/ })).toHaveCount(1);
+  const point = chart.getByRole("button", {
+    name: "Intensity point at 200 milliseconds, 30 percent",
+    exact: true,
+  });
+  await point.hover();
+  await expect(point).toHaveCSS("stroke-width", "3px");
+  await expect(chart.locator(".chart-hover-time")).toHaveText("200 ms");
+  await expect(chart.locator(".chart-hover-value")).toHaveText("30.0%");
+  expect(await state(page)).toEqual(before);
+  await page.mouse.move(bounds.x + 5, bounds.y + 5);
+  await expect(crosshair).toHaveCount(0);
+  expect(await state(page)).toEqual(before);
+});
+
+test("discrete bars retain their offsets when dragging and continuous curves stop before later taps", async ({
+  page,
+}) => {
+  await mount(page);
+  const chart = page.getByRole("group", { name: "Haptic pattern timeline", exact: true });
+  const event = chart.getByRole("button", { name: /^Tap at 700 milliseconds/ });
+  const caps = event.locator("circle");
+  const centers = await caps.evaluateAll((elements) =>
+    elements.map((element) => Number(element.getAttribute("cx"))),
+  );
+  expect(centers[0] - centers[1]).toBe(15);
+  const bar = event.locator(".tap-bar").first();
+  const bounds = await bar.boundingBox();
+  if (!bounds) throw new Error("Missing discrete bar bounds");
+  await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(bounds.x + bounds.width / 2 + 70.8, bounds.y + bounds.height / 2, {
+    steps: 8,
+  });
+  await page.mouse.up();
+  const current = await state(page);
+  expect(current.pattern.discretePattern[0]).toEqual({
+    time: 800,
+    amplitude: 0.8,
+    frequency: 0.35,
+  });
+  expect(current.begins).toBe(1);
+  const intensity = chart.locator('polyline[data-envelope="amplitude"]');
+  const frequency = chart.locator('polyline[data-envelope="frequency"]');
+  expect((await intensity.getAttribute("points"))?.split(" ").at(-1)?.split(",")[0]).toBe("484.8");
+  expect((await frequency.getAttribute("points"))?.split(" ")).toHaveLength(1);
+});
+
+test("discrete intensity and frequency caps move independently on the value axis", async ({
+  page,
+}) => {
+  await mount(page);
+  const chart = page.getByRole("group", { name: "Haptic pattern timeline", exact: true });
+  const event = chart.locator(".tap-event");
+  const caps = event.locator("circle");
+  const frequency = await caps.first().boundingBox();
+  if (!frequency) throw new Error("Missing frequency cap");
+  await page.mouse.move(frequency.x + frequency.width / 2, frequency.y + frequency.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(
+    frequency.x + frequency.width / 2 + 70.8,
+    frequency.y + frequency.height / 2 - 27.2,
+    { steps: 6 },
+  );
+  await page.mouse.up();
+  expect((await state(page)).pattern.discretePattern[0]).toEqual({
+    time: 700,
+    amplitude: 0.8,
+    frequency: 0.45,
+  });
+  const intensity = await caps.last().boundingBox();
+  if (!intensity) throw new Error("Missing intensity cap");
+  await page.mouse.move(intensity.x + intensity.width / 2, intensity.y + intensity.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(
+    intensity.x + intensity.width / 2 - 70.8,
+    intensity.y + intensity.height / 2 + 27.2,
+    { steps: 6 },
+  );
+  await page.mouse.up();
+  const current = await state(page);
+  expect(current.pattern.discretePattern[0]).toEqual({
+    time: 700,
+    amplitude: 0.7,
+    frequency: 0.45,
+  });
+  expect(current.begins).toBe(2);
+});
+
+test("crosshair and cursor labels fit the canvas at the plot edges in both themes", async ({
+  page,
+}) => {
+  await mount(page);
+  const chart = page.getByRole("group", { name: "Haptic pattern timeline", exact: true });
+  const bounds = await chart.boundingBox();
+  if (!bounds) throw new Error("Missing chart bounds");
+  for (const theme of ["light", "dark"]) {
+    await page.evaluate((value) => (document.documentElement.dataset.theme = value), theme);
+    for (const x of [47, bounds.width - 19]) {
+      await page.mouse.move(bounds.x + x, bounds.y + 19);
+      const readouts = chart.locator(".chart-crosshair rect, [data-playhead] > rect:last-of-type");
+      for (const label of await readouts.all()) {
+        const rect = await label.boundingBox();
+        if (!rect) throw new Error("Missing readout bounds");
+        expect(rect.x).toBeGreaterThanOrEqual(bounds.x);
+        expect(rect.x + rect.width).toBeLessThanOrEqual(bounds.x + bounds.width);
+        expect(rect.height).toBe(14);
+      }
+    }
+  }
+  expect((await state(page)).begins).toBe(0);
+});
+
+test("chart markers drag within the preset and rename without drawing points or moving playback", async ({
+  page,
+}) => {
+  await mount(page);
+  const chart = page.getByRole("group", { name: "Haptic pattern timeline", exact: true });
+  const initial = await state(page);
+  const marker = chart.getByRole("slider", { name: "Marker Cue", exact: true });
+  const label = marker.locator("rect");
+  const bounds = await label.boundingBox();
+  if (!bounds) throw new Error("Missing marker label");
+  await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(bounds.x + bounds.width / 2 + 70.8, bounds.y + bounds.height / 2, {
+    steps: 6,
+  });
+  await page.mouse.up();
+  await expect(marker).toHaveAttribute("aria-valuenow", "600");
+  expect((await state(page)).begins).toBe(1);
+  await label.dblclick();
+  const input = chart.getByRole("textbox", { name: "Marker label", exact: true });
+  await input.fill(" Landing ");
+  await input.press("Enter");
+  const renamed = chart.getByRole("slider", { name: "Marker Landing", exact: true });
+  await expect(renamed).toHaveAttribute("aria-valuenow", "600");
+  await renamed.locator("rect").dblclick();
+  await input.fill("Cancelled");
+  await input.press("Escape");
+  await expect(renamed).toHaveAttribute("aria-valuenow", "600");
+  await renamed.focus();
+  await page.keyboard.press("End");
+  await expect(renamed).toHaveAttribute("aria-valuenow", "1000");
+  const current = await state(page);
+  expect(current.pattern).toEqual(initial.pattern);
+  expect(current.playhead).toBe(initial.playhead);
+  expect(current.selection).toEqual([]);
+  expect(current.begins).toBe(3);
 });

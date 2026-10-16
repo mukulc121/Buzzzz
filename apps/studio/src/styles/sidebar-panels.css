@@ -1,0 +1,8 @@
+@import "./media-library.css";
+@import "./mcp.css";
+@import "./tools.css";
+
+.sidebar-collapse {
+  display: inline-flex;
+  transform: scaleX(-1);
+}

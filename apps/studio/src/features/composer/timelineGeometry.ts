@@ -1,7 +1,7 @@
 import { MAX_PATTERN_MS } from "@buzzzz/core";
 import type { IPlaybackRange, IViewport } from "./model";
 
-export const MIN_VIEW_MS = 100;
+export const MIN_VIEW_MS = 20;
 export const MIN_RANGE_MS = 10;
 
 export type SpanPart = "pan" | "start" | "end";
@@ -26,17 +26,14 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 
 export function timelineEnd(bounds: ITimelineBounds): number {
   const { patternMs, mediaMs, viewport, range } = bounds;
-  const content = Math.max(patternMs, mediaMs, range?.end ?? 0);
-  const padded = Math.max(1000, Math.ceil((content + 1) / 500) * 500);
-  return clamp(Math.max(padded, viewport.startMs + viewport.durationMs), 1000, MAX_PATTERN_MS);
+  return clamp(
+    Math.max(patternMs, mediaMs, range?.end ?? 0, viewport.startMs + viewport.durationMs),
+    MIN_VIEW_MS,
+    MAX_PATTERN_MS,
+  );
 }
 
 export const fractionOf = (time: number, end: number) => (end > 0 ? clamp(time / end, 0, 1) : 0);
-
-export const spanStyle = (start: number, stop: number, end: number) => ({
-  left: `${fractionOf(start, end) * 100}%`,
-  width: `${(fractionOf(stop, end) - fractionOf(start, end)) * 100}%`,
-});
 
 export function timeAtPointer(input: {
   clientX: number;
@@ -106,11 +103,12 @@ export function curvePoints(
   points: readonly { time: number; value: number }[],
   end: number,
   height: number,
+  start = 0,
 ) {
   return points
     .map(
       (point) =>
-        `${fractionOf(point.time, end) * 1000},${height - clamp(point.value, 0, 1) * height}`,
+        `${((point.time - start) / end) * 1000},${height - clamp(point.value, 0, 1) * height}`,
     )
     .join(" ");
 }
@@ -122,9 +120,4 @@ export function normalize<T>(
 ) {
   const peak = items.reduce((max, item) => Math.max(max, read(item)), 0);
   return items.map((item) => ({ time: time(item), value: peak > 1e-10 ? read(item) / peak : 0 }));
-}
-
-export function timelineTicks(end: number): number[] {
-  const step = [100, 250, 500, 1000, 2000, 5000, 10000].find((value) => end / value <= 8) ?? 10000;
-  return Array.from({ length: Math.ceil(end / step) }, (_, index) => index * step);
 }

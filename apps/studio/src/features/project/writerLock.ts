@@ -57,7 +57,10 @@ export function claimWriter(name: string, onChange: (state: TLockState) => void)
 }
 
 // Runs `task` only if no window holds the project; null means it is open elsewhere.
-export async function whenFree<T extends object>(name: string, task: () => T): Promise<T | null> {
+export async function whenFree<T extends object>(
+  name: string,
+  task: () => T | Promise<T>,
+): Promise<T | null> {
   const locks = typeof navigator === "undefined" ? undefined : navigator.locks;
   if (!locks) return task();
   return locks.request(name, { ifAvailable: true }, (lock) => (lock ? task() : null));

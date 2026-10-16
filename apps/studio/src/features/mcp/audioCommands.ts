@@ -1,10 +1,12 @@
 import { patternEnd } from "@buzzzz/core";
-import { AUDIO_ANALYSES, analyzeAudioAsync } from "../audio/analysis";
-import { AUDIO_APPROACHES, generateAudioCandidates } from "../audio/generation";
-import type { AudioMetric, IAudioAnalysis } from "../audio/model";
+import { generate } from "../audio/generation/client";
+import type { IGenerationOptions } from "../audio/generation/model";
+import { STRATEGIES } from "../audio/generation/strategies";
+import { toPattern } from "../audio/generation/pattern";
+import { AUDIO_METRICS, clampFrameMs, metricDefaults } from "../audio/metrics";
+import { monoMix, trimChannels, trimWindow } from "../audio/signal/mix";
 import type { EditorRequest } from "./commands";
 import {
-  AUDIO_OPTION_KEYS,
   choose,
   CommandError,
   numericOptions,
@@ -18,6 +20,16 @@ import type { ICommandContext, IEditorTarget } from "./target";
 type TAnalyze = Extract<EditorRequest, { command: "audio_analyze" }>;
 type TGenerate = Extract<EditorRequest, { command: "audio_generate" | "animation_generate" }>;
 
+const GENERATION_KEYS = [
+  "envelopeHz",
+  "maxPoints",
+  "maxEvents",
+  "silenceFloor",
+  "gamma",
+  "transientDuck",
+  "contrast",
+] as const satisfies readonly (keyof IGenerationOptions)[];
+
 function readySource(target: IEditorTarget) {
   if (target.media.pending.audio || target.audio.decoding)
     throw new CommandError("Audio is still loading. Retry when it is ready");
@@ -25,90 +37,95 @@ function readySource(target: IEditorTarget) {
   return target.audio.source;
 }
 
-function metricList(names: readonly string[] | undefined): AudioMetric[] {
-  if (!names) return AUDIO_ANALYSES.map((item) => item.id);
+function metricList(names: readonly string[] | undefined) {
+  if (!names) return AUDIO_METRICS;
   return names.map((name) => {
-    const found = AUDIO_ANALYSES.find((item) => item.id === name);
-    if (!found) throw new CommandError(`Unknown audio metric "${name}"`);
-    return found.id;
+    const found = AUDIO_METRICS.find((item) => item.id === name);
+    if (!found)
+      throw new CommandError(
+        `Unknown audio metric "${name}". Use ${AUDIO_METRICS.map((item) => item.id).join(", ")}`,
+      );
+    return found;
   });
 }
 
-// Analyzes the source captured at call time and fails if it is replaced meanwhile.
-async function analyze(
-  context: ICommandContext,
-  options: { frameMs: number; offsetMs: number; durationMs: number },
-) {
+// Measures Pulsar's signal-analysis metrics with the Sound panel's current parameters.
+export async function audioAnalyze(request: TAnalyze, context: ICommandContext) {
+  const { audio } = context.read();
   const source = readySource(context.read());
-  const analysis = await analyzeAudioAsync(source.decoded, options, context.signal);
+  const metrics = metricList(request.metrics);
+  const frameMs = clampFrameMs(request.frameMs ?? audio.metrics.frameMs);
+  const offsetMs = Math.max(0, request.offsetMs ?? audio.trim.startMs);
+  const durationMs = request.durationMs ?? audio.trim.endMs - audio.trim.startMs;
+  const { decoded } = source;
+  const samples = trimWindow(
+    monoMix(decoded.channels),
+    decoded.sampleRate,
+    offsetMs,
+    offsetMs + durationMs,
+  );
+  const series = metrics.map((metric) => {
+    const result = metric.compute(samples, decoded.sampleRate, frameMs, {
+      ...metricDefaults(metric),
+      ...audio.metrics.params[metric.id],
+    });
+    return [metric.id, { stepMs: result.stepMs, ...summarize(Array.from(result.values)) }] as const;
+  });
   throwIfAborted(context.signal);
   if (context.read().audio.source !== source)
     throw new CommandError("The audio changed during analysis. Retry");
-  return { source, analysis };
-}
-
-function report(name: string, analysis: IAudioAnalysis, metrics: AudioMetric[]) {
   return {
-    file: name,
-    sourceDurationMs: analysis.sourceDurationMs,
-    offsetMs: analysis.offsetMs,
-    durationMs: analysis.durationMs,
-    frameMs: analysis.frameMs,
-    frames: analysis.frames.length,
-    tempoBpm: analysis.tempoBpm,
-    beatTimesMs: analysis.beatTimesMs.slice(0, 512),
-    onsets: analysis.onsets.slice(0, 512),
-    metrics: Object.fromEntries(
-      metrics.map((metric) => [metric, summarize(analysis.frames.map((frame) => frame[metric]))]),
-    ),
+    file: source.file.name,
+    sourceDurationMs: decoded.durationMs,
+    offsetMs,
+    durationMs: (samples.length / decoded.sampleRate) * 1000,
+    frameMs,
+    metrics: Object.fromEntries(series),
   };
 }
 
-export async function audioAnalyze(request: TAnalyze, context: ICommandContext) {
-  const { audio } = context.read();
-  const metrics = metricList(request.metrics);
-  const { source, analysis } = await analyze(context, {
-    frameMs: request.frameMs ?? audio.frameMs,
-    offsetMs: request.offsetMs ?? audio.trim.startMs,
-    durationMs: request.durationMs ?? audio.trim.endMs - audio.trim.startMs,
-  });
-  return report(source.file.name, analysis, metrics);
-}
-
+// Runs Pulsar's generation worker with the panel's settings plus any overrides.
 export async function audioGenerate(request: TGenerate, context: ICommandContext) {
   const target = context.read();
   requireWriter(target);
   const source = readySource(target);
-  const approach = choose(request.approach, AUDIO_APPROACHES, "audio approach");
-  rejectUnknown(request.options, AUDIO_OPTION_KEYS);
-  const options = numericOptions(request.options, AUDIO_OPTION_KEYS);
-  const { trim, frameMs } = target.audio;
-  const analysis =
-    target.audio.analysis ??
-    (
-      await analyze(context, {
-        frameMs,
-        offsetMs: trim.startMs,
-        durationMs: trim.endMs - trim.startMs,
-      })
-    ).analysis;
+  const approach = choose(request.approach, STRATEGIES, "audio approach");
+  const strategy = STRATEGIES.find((item) => item.id === approach)!;
+  const paramKeys = strategy.params.map((param) => param.id);
+  rejectUnknown(request.options, [...GENERATION_KEYS, ...paramKeys]);
+  const overrides = numericOptions(request.options, [...GENERATION_KEYS, ...paramKeys]);
+  const { trim, generation } = target.audio;
+  const options = { ...generation.options };
+  const params = { ...generation.strategyParams[approach] };
+  for (const [key, value] of Object.entries(overrides))
+    if (value !== undefined) {
+      if ((GENERATION_KEYS as readonly string[]).includes(key))
+        options[key as keyof IGenerationOptions] = value;
+      else params[key] = value;
+    }
+  const { decoded } = source;
+  const { results } = await generate(
+    trimChannels(decoded.channels, decoded.sampleRate, trim.startMs, trim.endMs),
+    decoded.sampleRate,
+    options,
+    { ...generation.strategyParams, [approach]: params },
+  );
+  throwIfAborted(context.signal);
   const latest = context.read();
   requireWriter(latest);
   if (latest.audio.source !== source) throw new CommandError("The audio changed. Retry");
-  const candidate = generateAudioCandidates(analysis, {
-    ...latest.audio.generationOptions,
-    ...options,
-  }).find((item) => item.id === approach);
-  if (!candidate) throw new CommandError(`Audio approach "${approach}" is unavailable`);
-  if (request.action === "add") latest.preserve(candidate.pattern, candidate.label);
-  else latest.applyGenerated(candidate.pattern);
+  const result = results.find((item) => item.strategyId === approach);
+  if (!result || result.error)
+    throw new CommandError(result?.error ?? `Audio approach "${approach}" is unavailable`);
+  const pattern = toPattern(result.pattern);
+  if (request.action === "add") latest.preserve(pattern, result.name);
+  else latest.applyGenerated(pattern);
   return {
     action: request.action,
-    approach: candidate.id,
-    label: candidate.label,
-    approximate: candidate.approximate,
-    pointCount: candidate.pointCount,
-    eventCount: candidate.eventCount,
-    durationMs: patternEnd(candidate.pattern),
+    approach: result.strategyId,
+    label: result.name,
+    pointCount: result.pattern.intensity.length + result.pattern.frequency.length,
+    eventCount: result.pattern.discrete.length,
+    durationMs: patternEnd(pattern),
   };
 }

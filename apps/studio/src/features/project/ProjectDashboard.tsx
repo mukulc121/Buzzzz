@@ -1,147 +1,169 @@
-import { useState } from "react";
-import { Copy, Plus, X } from "../../components/icons";
+import { useRef, useState } from "react";
+import { DashboardIcon } from "./dashboard/DashboardIcon";
+import { DashboardEmpty } from "./dashboard/DashboardEmpty";
+import { ProjectGrid } from "./dashboard/ProjectGrid";
+import { ProjectNameDialog } from "./dashboard/ProjectNameDialog";
+import { RemoveProjectDialog } from "./dashboard/RemoveProjectDialog";
+import { SortSelect } from "./dashboard/SortSelect";
 import { filterProjects, type IProjectSummary, type TProjectSort } from "./model";
 
 interface IProjectDashboard {
   projects: IProjectSummary[];
   currentId: string;
-  pattern?: { id: string; name: string };
+  loadError: boolean;
+  onRetry: () => void;
   onOpen: (id: string) => void;
-  onCreate: () => void;
-  onRename: (id: string, name: string) => Promise<boolean>;
-  onDuplicate: (id: string) => void;
-  onDelete: (id: string) => Promise<boolean>;
-  onCopyPattern?: (presetId: string, targetId: string) => Promise<boolean>;
+  onCreate: (name: string) => Promise<string | null>;
+  onRename: (id: string, name: string) => Promise<string | null>;
+  onRemove: (id: string) => void;
+  onImport: (file: File) => Promise<string | null>;
+  onCopyPattern: (sourceId: string, presetId: string, targetId: string) => void;
 }
 
-const BUSY = "That project is open in another window. Close it there first.";
-const edited = (time: number) =>
-  new Date(time).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
-
 export function ProjectDashboard(props: IProjectDashboard) {
-  const { projects, currentId, pattern, onOpen, onCreate, onRename, onDuplicate, onDelete } = props;
-  const { onCopyPattern } = props;
+  const { projects, currentId, loadError, onRetry, onOpen, onCreate, onRename, onRemove } = props;
+  const { onImport, onCopyPattern } = props;
+  const picker = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<TProjectSort>("updated");
-  const [editing, setEditing] = useState<{ id: string; name: string } | null>(null);
-  const [confirming, setConfirming] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [naming, setNaming] = useState<IProjectSummary | "new" | null>(null);
+  const [removing, setRemoving] = useState<IProjectSummary | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
   const visible = filterProjects(projects, query, sort);
-
-  const report = (done: boolean, success: string) => setNotice(done ? success : BUSY);
-  const commitRename = async () => {
-    if (!editing) return;
-    report(await onRename(editing.id, editing.name), "Renamed");
-    setEditing(null);
+  const startImport = () => picker.current?.click();
+  const startCreate = () => setNaming("new");
+  const importFile = async (file: File) => {
+    setImportError(null);
+    if (!file.name.toLowerCase().endsWith(".pulsar")) {
+      setImportError("Choose a .pulsar file to import.");
+      return;
+    }
+    setImporting(true);
+    const failure = await onImport(file);
+    setImporting(false);
+    if (failure) setImportError(`${file.name}: ${failure}`);
   };
-
+  const actions = (
+    <>
+      <button
+        type="button"
+        className="dashboard-button secondary"
+        disabled={importing}
+        onClick={startImport}
+      >
+        <DashboardIcon name="file-up" />
+        <span>Import from file</span>
+      </button>
+      <button type="button" className="dashboard-button primary" onClick={startCreate}>
+        <DashboardIcon name="plus" />
+        <span>Create new project</span>
+      </button>
+    </>
+  );
   return (
-    <section className="panel-content" aria-label="Projects">
-      <div className="row project-tools">
-        <input
-          className="search grow"
-          type="search"
-          aria-label="Search projects"
-          placeholder="Search projects"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-        />
-        <select
-          aria-label="Sort projects"
-          value={sort}
-          onChange={(event) => setSort(event.target.value as TProjectSort)}
-        >
-          <option value="updated">Last edited</option>
-          <option value="name">Name</option>
-          <option value="created">Created</option>
-        </select>
-        <button onClick={onCreate}>
-          <Plus /> New
-        </button>
-      </div>
-      {notice && (
-        <p className="notice" role="status">
-          {notice}
-        </p>
+    <section className="project-dashboard" aria-label="Projects">
+      <header className="project-dashboard-header">
+        <div>
+          <h1>Projects</h1>
+          <p>Design, preview, and manage your haptic patterns.</p>
+        </div>
+        <div className="project-dashboard-actions">{actions}</div>
+      </header>
+      <input
+        ref={picker}
+        type="file"
+        accept=".pulsar"
+        hidden
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = "";
+          if (file) void importFile(file);
+        }}
+      />
+      {importError && (
+        <div className="project-import-error" role="alert">
+          <DashboardIcon name="alert" size={15} />
+          <span>{importError}</span>
+        </div>
       )}
-      {visible.length === 0 && <p className="empty">No projects match “{query}”.</p>}
-      <ul className="list project-list">
-        {visible.map((item) => {
-          const current = item.id === currentId;
-          return (
-            <li key={item.id} className={current ? "active" : ""}>
-              {editing?.id === item.id ? (
-                <input
-                  className="grow"
-                  aria-label={`Rename ${item.name}`}
-                  autoFocus
-                  value={editing.name}
-                  onChange={(event) => setEditing({ id: item.id, name: event.target.value })}
-                  onBlur={() => void commitRename()}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") event.currentTarget.blur();
-                    if (event.key === "Escape") setEditing(null);
-                  }}
-                />
-              ) : (
-                <button
-                  className="preset-select"
-                  aria-current={current}
-                  onClick={() => onOpen(item.id)}
-                  onDoubleClick={() => setEditing({ id: item.id, name: item.name })}
-                >
-                  <span className="grow">
-                    {item.name}
-                    <small>
-                      {item.patterns} {item.patterns === 1 ? "pattern" : "patterns"} ·{" "}
-                      {edited(item.updatedAt)}
-                    </small>
-                  </span>
-                </button>
-              )}
-              <button onClick={() => setEditing({ id: item.id, name: item.name })}>Rename</button>
-              <button
-                className="icon"
-                title="Duplicate"
-                aria-label={`Duplicate ${item.name}`}
-                onClick={() => onDuplicate(item.id)}
-              >
-                <Copy />
+      {projects.length > 0 && (
+        <div className="project-dashboard-toolbar">
+          <div className="dashboard-search">
+            <DashboardIcon name="search" className="dashboard-search-icon" />
+            <input
+              type="search"
+              className="dashboard-input"
+              placeholder="Search by name"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+            {query && (
+              <button type="button" aria-label="Clear search" onClick={() => setQuery("")}>
+                <DashboardIcon name="x" size={16} />
               </button>
-              {pattern && onCopyPattern && !current && (
-                <button
-                  title={`Copy ${pattern.name} into this project`}
-                  onClick={async () =>
-                    report(await onCopyPattern(pattern.id, item.id), `Copied ${pattern.name}`)
-                  }
-                >
-                  Copy pattern here
-                </button>
-              )}
-              {confirming === item.id ? (
-                <button
-                  className="primary"
-                  onClick={async () => {
-                    setConfirming(null);
-                    report(await onDelete(item.id), `Deleted ${item.name}`);
-                  }}
-                >
-                  Delete for good
-                </button>
-              ) : (
-                <button
-                  className="icon"
-                  title="Delete"
-                  aria-label={`Delete ${item.name}`}
-                  onClick={() => setConfirming(item.id)}
-                >
-                  <X />
-                </button>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+            )}
+          </div>
+          <SortSelect value={sort} onChange={setSort} />
+        </div>
+      )}
+      {loadError ? (
+        <DashboardEmpty
+          icon="alert"
+          title="Couldn’t load your projects"
+          hint="Check your connection and try again."
+        >
+          <button type="button" className="dashboard-button secondary" onClick={onRetry}>
+            <span>Retry</span>
+          </button>
+        </DashboardEmpty>
+      ) : visible.length > 0 ? (
+        <ProjectGrid
+          projects={visible}
+          currentId={currentId}
+          onOpen={(project) => onOpen(project.id)}
+          onRename={setNaming}
+          onRemove={setRemoving}
+          onCopyPattern={(drag, targetId) =>
+            onCopyPattern(drag.sourceProjectId, drag.presetId, targetId)
+          }
+        />
+      ) : projects.length > 0 ? (
+        <DashboardEmpty
+          icon="folder"
+          title={`No projects match “${query}”`}
+          hint="Try a different name, or clear the search."
+        >
+          <button type="button" className="dashboard-button secondary" onClick={() => setQuery("")}>
+            <span>Clear search</span>
+          </button>
+        </DashboardEmpty>
+      ) : (
+        <DashboardEmpty
+          icon="folder"
+          title="No projects yet"
+          hint="A project holds the haptic patterns you design together - start one, or import a .pulsar file you already have."
+        >
+          {actions}
+        </DashboardEmpty>
+      )}
+      {removing && (
+        <RemoveProjectDialog
+          name={removing.name}
+          onCancel={() => setRemoving(null)}
+          onConfirm={() => {
+            onRemove(removing.id);
+            setRemoving(null);
+          }}
+        />
+      )}
+      {naming && (
+        <ProjectNameDialog
+          name={naming === "new" ? null : naming.name}
+          onSave={(name) => (naming === "new" ? onCreate(name) : onRename(naming.id, name))}
+          onClose={() => setNaming(null)}
+        />
+      )}
     </section>
   );
 }

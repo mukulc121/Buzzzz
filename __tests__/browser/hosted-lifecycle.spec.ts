@@ -83,13 +83,32 @@ async function renameProject(page: Page, name: string) {
   await page.getByRole("button", { name: "Projects", exact: true }).click();
   const current = page
     .getByRole("region", { name: "Projects", exact: true })
-    .locator("li")
+    .locator(".project-card")
     .filter({ has: page.locator('[aria-current="true"]') });
-  await current.getByRole("button", { name: "Rename", exact: true }).click();
-  const field = page.getByRole("textbox", { name: /^Rename / });
-  await field.fill(name);
-  await field.press("Enter");
-  await expect(page.locator(".preset-select").filter({ hasText: name })).toBeVisible();
+  await current.getByRole("button", { name: /^Actions for / }).click();
+  await page.getByRole("menuitem", { name: "Rename", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Rename project" });
+  await dialog.getByRole("textbox", { name: "Project name" }).fill(name);
+  await dialog.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await current.getByRole("button", { name, exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "Pattern name" })).toBeEnabled();
+}
+async function createProject(page: Page) {
+  await page
+    .getByRole("region", { name: "Projects", exact: true })
+    .getByRole("button", { name: "Create new project", exact: true })
+    .click();
+  await page
+    .getByRole("dialog", { name: "Create project" })
+    .getByRole("textbox", { name: "Project name" })
+    .fill("Test project");
+  await page
+    .getByRole("dialog", { name: "Create project" })
+    .getByRole("button", { name: "Create", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/studio\/projects\/[\w-]+(?:[?#]|$)/);
+  await expect(page.locator('.save-status[data-status="editing"]')).toBeVisible();
 }
 
 test("hosted reload retains room and link, and a fresh tab can revoke earlier links", async ({
@@ -218,10 +237,7 @@ test("duplicated session storage cannot make two project writers share a relay r
     );
     await duplicate.goto(STUDIO);
     await duplicate.getByRole("button", { name: "Projects", exact: true }).click();
-    await duplicate
-      .getByRole("region", { name: "Projects", exact: true })
-      .getByRole("button", { name: "New", exact: true })
-      .click();
+    await createProject(duplicate);
     await expect(duplicate.locator('.save-status[data-status="editing"]')).toBeVisible();
     await renameProject(duplicate, "Owned project Q");
     await duplicate.getByRole("textbox", { name: "Pattern name" }).fill("Owned Q pattern");
@@ -265,7 +281,7 @@ test("duplicated session storage cannot make two project writers share a relay r
     await page.getByRole("button", { name: "Projects", exact: true }).click();
     await page
       .getByRole("region", { name: "Projects", exact: true })
-      .locator(".preset-select")
+      .locator(".project-card-open")
       .filter({ hasText: "Owned project P" })
       .click();
     const restored = await mountedRoom(page, rooms);

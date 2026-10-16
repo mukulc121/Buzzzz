@@ -8,6 +8,7 @@ interface ITapLayer {
   geometry: IChartGeometry;
   selectedKeys: ReadonlySet<string>;
   interaction: ReturnType<typeof useChartInteraction>;
+  valueDecimals?: number;
 }
 
 export function TapLayer(props: ITapLayer) {
@@ -25,25 +26,45 @@ export function TapLayer(props: ITapLayer) {
             role="button"
             tabIndex={0}
             aria-pressed={selected}
-            className="handle"
-            aria-label={`Tap at ${Math.round(tap.time)} milliseconds, ${Math.round(tap.amplitude * 100)} percent intensity`}
+            className="handle tap-event"
+            aria-label={`Tap at ${Math.round(tap.time)} milliseconds, ${Number((tap.amplitude * 100).toFixed(props.valueDecimals ?? 1))} percent intensity`}
             onFocus={() => interaction.focusPoint(selection)}
             onKeyDown={(event) => interaction.keyDown(event, selection)}
-            onPointerDown={interaction.grab(selection, tap.time, tap.amplitude)}
+            onPointerDown={interaction.grab(selection, tap.time, "time")}
           >
-            <line
-              x1={x(tap.time)}
-              x2={x(tap.time)}
-              y1={y(0)}
-              y2={y(tap.amplitude)}
-              stroke={COLORS.discrete}
-              strokeWidth={3}
+            <rect
+              className="tap-event-highlight"
+              x={x(tap.time) - 14}
+              y={geometry.top}
+              width={28}
+              height={geometry.plotHeight}
+              rx={3}
+            />
+            <path
+              className="tap-bar"
+              d={`M${x(tap.time) - 11},${y(0)}V${y(tap.amplitude) + 2}q0,-2 2,-2h3q2,0 2,2V${y(0)}Z`}
+              fill={COLORS.discrete}
+            />
+            <path
+              className="tap-bar"
+              d={`M${x(tap.time) + 4},${y(0)}V${y(tap.frequency) + 2}q0,-2 2,-2h3q2,0 2,2V${y(0)}Z`}
+              fill={COLORS.frequency}
             />
             <circle
-              cx={x(tap.time)}
+              cx={x(tap.time) + 7.5}
+              cy={y(tap.frequency)}
+              r={selected ? 6.5 : 5}
+              fill="var(--panel)"
+              stroke={COLORS.frequency}
+              onPointerDown={interaction.grab(selection, tap.time, "frequency")}
+            />
+            <circle
+              cx={x(tap.time) - 7.5}
               cy={y(tap.amplitude)}
-              r={selected ? 7 : 5}
-              fill={selected ? "var(--fg)" : COLORS.discrete}
+              r={selected ? 6.5 : 5}
+              fill="var(--panel)"
+              stroke={COLORS.discrete}
+              onPointerDown={interaction.grab(selection, tap.time, "amplitude")}
             />
           </g>
         );

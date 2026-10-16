@@ -106,7 +106,7 @@ test("viewport zoom anchors time, pan clamps bounds, and snapping stays valid", 
     startMs: 1500,
     durationMs: 2000,
   });
-  expect(clampViewport({ startMs: -100, durationMs: 10 })).toEqual({ startMs: 0, durationMs: 100 });
+  expect(clampViewport({ startMs: -100, durationMs: 10 })).toEqual({ startMs: 0, durationMs: 20 });
   expect(clampViewport({ startMs: MAX_PATTERN_MS, durationMs: 1000 })).toEqual({
     startMs: 59000,
     durationMs: 1000,

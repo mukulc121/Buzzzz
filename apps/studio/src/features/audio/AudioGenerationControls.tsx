@@ -1,70 +1,63 @@
-import type { IAudioGenerationOptions } from "./model";
+import { GENERATION_INFO, GENERATION_SETTINGS } from "./generation/options";
+import { SoundParameter } from "./SoundParameter";
+import { SoundSection } from "./SoundSection";
 import type { useAudioTrack } from "./useAudioTrack";
-import { GenerationTuningControls } from "./GenerationTuningControls";
-import { DEFAULT_GENERATION_OPTIONS } from "./tuning";
 
 interface IAudioGenerationControls {
-  audio: ReturnType<typeof useAudioTrack>;
+  generation: ReturnType<typeof useAudioTrack>["generation"];
 }
-interface IGenerationSetting {
-  id: keyof IAudioGenerationOptions;
-  label: string;
-  min: number;
-  max: number;
-  step: number;
+
+function GenerationSettings(props: IAudioGenerationControls) {
+  const { generation } = props;
+  return (
+    <details className="sound-generation-settings">
+      <summary>Generation settings</summary>
+      <div className="sound-settings-body">
+        <p className="sound-metric-hint">
+          Shared by every approach; a change re-runs them. <strong>Contrast</strong> suppresses
+          low-level buzz and sharpens hits (the fix for flat, mushy output).
+        </p>
+        {GENERATION_SETTINGS.map((setting) => (
+          <SoundParameter
+            key={setting.key}
+            label={setting.label}
+            min={setting.min}
+            max={setting.max}
+            step={setting.step}
+            unit={setting.suffix}
+            value={generation.options[setting.key]}
+            onChange={(value) => generation.setOption(setting.key, value)}
+          />
+        ))}
+        <button type="button" className="sound-text-action" onClick={generation.resetOptions}>
+          Reset to defaults
+        </button>
+      </div>
+    </details>
+  );
 }
-const settings: IGenerationSetting[] = [
-  { id: "intensity", label: "Intensity multiplier", min: 0, max: 2, step: 0.05 },
-  { id: "frequencyShift", label: "Frequency shift", min: -1, max: 1, step: 0.05 },
-  { id: "smoothingMs", label: "Extra smoothing (ms)", min: 0, max: 500, step: 5 },
-  {
-    id: "reductionTolerance",
-    label: "Curve reduction tolerance",
-    min: 0.001,
-    max: 0.2,
-    step: 0.001,
-  },
-  { id: "minimumTapStrength", label: "Minimum tap strength", min: 0, max: 1, step: 0.05 },
-  { id: "maxPoints", label: "Maximum points per envelope", min: 2, max: 10000, step: 1 },
-  { id: "maxEvents", label: "Maximum events", min: 0, max: 10000, step: 1 },
-];
 
 export function AudioGenerationControls(props: IAudioGenerationControls) {
-  const { audio } = props;
+  const { generation } = props;
+  const run = generation.run;
   return (
-    <>
-      <GenerationTuningControls
-        values={audio.generationOptions}
-        onChange={(change) => audio.setGenerationOptions((current) => ({ ...current, ...change }))}
-        onReset={() => audio.setGenerationOptions(DEFAULT_GENERATION_OPTIONS)}
-      />
-      {
-        <details className="audio-settings">
-          <summary>Advanced generation settings</summary>
-          <div className="audio-settings-grid">
-            {settings.map((setting) => (
-              <label className="field" key={setting.id}>
-                {setting.label}
-                <input
-                  type="number"
-                  min={setting.min}
-                  max={setting.max}
-                  step={setting.step}
-                  value={audio.generationOptions[setting.id]}
-                  onChange={(event) => {
-                    const value = event.currentTarget.valueAsNumber;
-                    if (Number.isFinite(value))
-                      audio.setGenerationOptions((current) => ({
-                        ...current,
-                        [setting.id]: Math.min(setting.max, Math.max(setting.min, value)),
-                      }));
-                  }}
-                />
-              </label>
-            ))}
-          </div>
-        </details>
-      }
-    </>
+    <SoundSection title="Generate" description={GENERATION_INFO}>
+      {run?.status === "running" && (
+        <p className="sound-working" role="status">
+          Analyzing…
+        </p>
+      )}
+      <GenerationSettings generation={generation} />
+      {run?.status === "error" && (
+        <>
+          <p className="sound-error" role="alert">
+            {run.error}
+          </p>
+          <button type="button" className="sound-secondary-action" onClick={generation.retry}>
+            Try again
+          </button>
+        </>
+      )}
+    </SoundSection>
   );
 }

@@ -1,11 +1,14 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { emptyPattern, type Pattern } from "@buzzzz/core";
-import { analyzeAudio } from "../src/features/audio/analysis";
-import { DEFAULT_GENERATION_OPTIONS } from "../src/features/audio/tuning";
+import { DEFAULT_GENERATION } from "../src/features/audio/generation/options";
+import { DEFAULT_ANIMATION_OPTIONS } from "../src/features/animation/generationOptions";
 import { fetchRoomAsset, roomAssetUrl } from "../src/features/mcp/asset";
 import { parseCommand } from "../src/features/mcp/commands";
 import { dispatchCommand } from "../src/features/mcp/dispatch";
 import type { ICommandContext, IEditorTarget } from "../src/features/mcp/target";
+import { parseAnimationData } from "../src/features/animation/document";
+import { analyzeAnimation } from "../src/features/animation/analysis";
+import animationReference from "./fixtures/animation-reference.json";
 
 const sampleRate = 24000;
 const decoded = {
@@ -55,21 +58,19 @@ function editor(overrides: Partial<IEditorTarget> = {}) {
     audio: {
       source: null,
       decoding: false,
-      analysis: null,
-      frameMs: 20,
       trim: { startMs: 0, endMs: 0 },
       setTrim: (start, end) => void log.push(`trim:${start}-${end}`),
-      generationOptions: DEFAULT_GENERATION_OPTIONS,
+      metrics: { frameMs: 20, params: {} },
+      generation: { options: DEFAULT_GENERATION, strategyParams: {} },
     },
     animation: {
       source: null,
       loading: false,
       analysis: null,
       frameMs: 1000 / 240,
-      generationOptions: { ...DEFAULT_GENERATION_OPTIONS, smoothingMs: 12 },
+      generationOptions: DEFAULT_ANIMATION_OPTIONS,
       hybrid: { gain: 1.2, threshold: 0.17, minGapMs: 70, freqFollow: 0.7 },
-      intensityChannel: "energy",
-      frequencyChannel: "positionY",
+      strategyParams: {},
       setSeekMs: (time) => void log.push(`seek:${time}`),
     },
     media: {
@@ -115,6 +116,60 @@ describe("parseCommand mirrors the relay schemas", () => {
 });
 
 describe("dispatchCommand", () => {
+  test("animation tools use the real channel gains, detents and motion metrics", async () => {
+    const source = animationReference.scenarios.find(
+      (scenario) => scenario.name === "spin / defaults",
+    );
+    if (!source) throw new Error("Missing spin fixture");
+    const document = parseAnimationData(source.source);
+    const { target } = editor();
+    const applied: Pattern[] = [];
+    target.applyGenerated = (pattern) => {
+      applied.push(pattern);
+    };
+    target.animation.source = {
+      file: new File([JSON.stringify(source.source)], "spin.json"),
+      url: "blob:animation",
+      durationMs: document.durationMs,
+      data: document.data,
+      document,
+      animationId: "spin",
+      animations: [{ id: "spin", document }],
+      assetUrls: [],
+    };
+    target.animation.analysis = analyzeAnimation(document);
+    const result = await dispatchCommand(
+      "animation_generate",
+      {
+        approach: "channel",
+        options: { detentsPerTurn: 0, rotationToIntensity: 0, rotationToFreq: 0 },
+      },
+      context(target),
+    );
+    expect(result).toMatchObject({ approach: "channel", eventCount: 0 });
+    expect(applied[0].continuousPattern.amplitude.every((point) => point.value === 0)).toBe(true);
+    expect(applied[0].continuousPattern.frequency.every((point) => point.value === 0.3)).toBe(true);
+    await expect(
+      dispatchCommand(
+        "animation_generate",
+        { approach: "channel", options: { intensityChannel: "energy" } },
+        context(target),
+      ),
+    ).rejects.toThrow("not a generation setting");
+    await expect(
+      dispatchCommand(
+        "animation_generate",
+        { approach: "channel", options: { detentsPerTurn: 25 } },
+        context(target),
+      ),
+    ).rejects.toThrow("0 to 24");
+    const report = await dispatchCommand("animation_analyze", {}, context(target));
+    expect(report).toMatchObject({
+      smoothingMs: 12,
+      frames: 481,
+      metrics: { rotationRate: { max: 1 }, transient: { max: 1 } },
+    });
+  });
   test("selection checks points against the current pattern", async () => {
     const { target, log } = editor();
     await expect(
@@ -186,29 +241,60 @@ describe("dispatchCommand", () => {
     );
   });
 
-  test("audio_generate applies or adds the chosen candidate from the live analysis", async () => {
+  test("audio_generate applies or adds the chosen Pulsar approach", async () => {
     const file = new File(["x"], "beat.wav");
     const source = { file, url: "blob:x", durationMs: 2000, decoded };
-    const analysis = analyzeAudio(decoded, { frameMs: 20 });
     const { target, log } = editor();
     const ready = {
       ...target,
-      audio: { ...target.audio, source, analysis, trim: { startMs: 0, endMs: 2000 } },
+      audio: { ...target.audio, source, trim: { startMs: 0, endMs: 2000 } },
     };
     const applied = await dispatchCommand(
       "audio_generate",
-      { approach: "transients" },
+      { approach: "transient-taps", options: { stampDecayMs: 60, contrast: 0.5 } },
       context(ready),
     );
-    expect(applied).toMatchObject({ action: "apply", approach: "transients" });
-    await dispatchCommand("audio_generate", { approach: "rms", action: "add" }, context(ready));
+    expect(applied).toMatchObject({ action: "apply", approach: "transient-taps" });
+    await dispatchCommand(
+      "audio_generate",
+      { approach: "rms-envelope", action: "add" },
+      context(ready),
+    );
     expect(log).toEqual(["apply", "add:RMS envelope"]);
     await expect(
       dispatchCommand("audio_generate", { approach: "nope" }, context(ready)),
     ).rejects.toThrow("Unknown audio approach");
     await expect(
-      dispatchCommand("audio_generate", { options: { intensity: "loud" } }, context(ready)),
+      dispatchCommand("audio_generate", { options: { contrast: "loud" } }, context(ready)),
     ).rejects.toThrow("finite number");
+    await expect(
+      dispatchCommand("audio_generate", { options: { intensity: 1 } }, context(ready)),
+    ).rejects.toThrow("not a generation setting");
+  });
+
+  test("audio_analyze reports Pulsar metrics with the panel's parameters", async () => {
+    const file = new File(["x"], "beat.wav");
+    const source = { file, url: "blob:x", durationMs: 2000, decoded };
+    const { target } = editor();
+    const ready = {
+      ...target,
+      audio: {
+        ...target.audio,
+        source,
+        trim: { startMs: 0, endMs: 1000 },
+        metrics: { frameMs: 20, params: { band: { lowHz: 100, highHz: 400 } } },
+      },
+    };
+    const result = await dispatchCommand(
+      "audio_analyze",
+      { metrics: ["band", "sharpness"] },
+      context(ready),
+    );
+    expect(Object.keys((result as { metrics: object }).metrics)).toEqual(["band", "sharpness"]);
+    expect(result).toMatchObject({ frameMs: 20, durationMs: 1000 });
+    await expect(
+      dispatchCommand("audio_analyze", { metrics: ["rms"] }, context(ready)),
+    ).rejects.toThrow("Unknown audio metric");
   });
 
   test("media_trim reports the clamped window it applied", async () => {

@@ -2,9 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { analyzeAnimationAsync } from "./analysisAsync";
 import { generateAnimationCandidates } from "./generation";
 import { readAnimationFile } from "./import";
-import { DEFAULT_GENERATION_OPTIONS } from "../audio/tuning";
-import type { IAudioGenerationOptions } from "../audio/model";
-import type { AnimationMetric, IAnimationAnalysis, IAnimationDocument } from "./model";
+import { DEFAULT_ANIMATION_OPTIONS } from "./generationOptions";
+import type { IAnimationAnalysis, IAnimationDocument, IAnimationGenerationOptions } from "./model";
 
 interface IAnimationSource {
   file: File;
@@ -27,37 +26,37 @@ export function useAnimationTrack(props: IAnimationTrack) {
   const [result, setResult] = useState<{
     source: IAnimationSource;
     frameMs: number;
+    smoothingMs: number;
     analysis: IAnimationAnalysis | null;
   } | null>(null);
   const [frameMs, setFrameMs] = useState(1000 / 240);
-  const [generationOptions, setGenerationOptions] = useState<Required<IAudioGenerationOptions>>({
-    ...DEFAULT_GENERATION_OPTIONS,
-    smoothingMs: 12,
-  });
+  const [generationOptions, setGenerationOptions] = useState(DEFAULT_ANIMATION_OPTIONS);
   const [hybrid, setHybrid] = useState({
     gain: 1.2,
     threshold: 0.17,
     minGapMs: 70,
     freqFollow: 0.7,
   });
+  const [strategyParams, setStrategyParams] = useState<
+    NonNullable<IAnimationGenerationOptions["strategyParams"]>
+  >({});
   const smoothingMs = generationOptions.smoothingMs;
   const setSmoothingMs = useCallback((value: number) => {
     if (Number.isFinite(value))
       setGenerationOptions((current) => ({
         ...current,
-        smoothingMs: Math.max(0, Math.min(1000, value)),
+        smoothingMs: Math.max(0, Math.min(40, value)),
       }));
   }, []);
-  const [intensityChannel, setIntensityChannel] = useState<AnimationMetric>("energy");
-  const [frequencyChannel, setFrequencyChannel] = useState<AnimationMetric>("positionY");
   const [speed, setSpeed] = useState(1);
   const [seekMs, setSeekState] = useState(0);
   const [seekRevision, setSeekRevision] = useState(0);
   const [positionMs, setPositionMs] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [previewMode, setPreviewMode] = useState<"stacked" | "side-by-side" | "fullscreen">(
-    "stacked",
-  );
+  const [previewMode, setPreviewMode] = useState<
+    "stacked" | "side-by-side" | "floating" | "fullscreen"
+  >("side-by-side");
+  const [previewVisible, setPreviewVisible] = useState(true);
   const requestId = useRef(0);
   const errorHandler = useRef(onError);
   const url = source?.url;
@@ -78,34 +77,35 @@ export function useAnimationTrack(props: IAnimationTrack) {
     },
     [url, assetUrls],
   );
-  const matches = result?.source === source && result?.frameMs === frameMs;
+  const matches =
+    result?.source === source && result?.frameMs === frameMs && result?.smoothingMs === smoothingMs;
   const analysis = matches ? result.analysis : null;
   const working = loading || Boolean(source && !matches);
   useEffect(() => {
     if (!source) return;
     const controller = new AbortController();
-    analyzeAnimationAsync(source.document, frameMs, controller.signal)
+    analyzeAnimationAsync(source.document, frameMs, controller.signal, smoothingMs)
       .then((value) => {
-        if (!controller.signal.aborted) setResult({ source, frameMs, analysis: value });
+        if (!controller.signal.aborted)
+          setResult({ source, frameMs, smoothingMs, analysis: value });
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
-        setResult({ source, frameMs, analysis: null });
+        setResult({ source, frameMs, smoothingMs, analysis: null });
         errorHandler.current(error instanceof Error ? error.message : "Animation analysis failed");
       });
     return () => controller.abort();
-  }, [source, frameMs]);
+  }, [source, frameMs, smoothingMs]);
+  const candidateAnalysis = result?.source === source ? result.analysis : null;
   const candidates = useMemo(
     () =>
-      analysis
-        ? generateAnimationCandidates(analysis, {
+      candidateAnalysis
+        ? generateAnimationCandidates(candidateAnalysis, {
             ...generationOptions,
-            ...hybrid,
-            intensityChannel,
-            frequencyChannel,
+            strategyParams: { ...strategyParams, hybrid },
           })
         : [],
-    [analysis, generationOptions, hybrid, intensityChannel, frequencyChannel],
+    [candidateAnalysis, generationOptions, hybrid, strategyParams],
   );
   const loadFile = useCallback(async (file: File) => {
     const request = ++requestId.current;
@@ -129,6 +129,7 @@ export function useAnimationTrack(props: IAnimationTrack) {
         animations: bundle.animations,
         assetUrls: bundle.assetUrls,
       });
+      setPreviewVisible(true);
       setResult(null);
       setSeekState(0);
       setPositionMs(0);
@@ -192,10 +193,8 @@ export function useAnimationTrack(props: IAnimationTrack) {
     setGenerationOptions,
     hybrid,
     setHybrid,
-    intensityChannel,
-    setIntensityChannel,
-    frequencyChannel,
-    setFrequencyChannel,
+    strategyParams,
+    setStrategyParams,
     speed,
     setSpeed,
     seekMs,
@@ -207,6 +206,8 @@ export function useAnimationTrack(props: IAnimationTrack) {
     setPlaying,
     previewMode,
     setPreviewMode,
+    previewVisible,
+    setPreviewVisible,
     loadFile,
     selectAnimation,
     clear,

@@ -1,0 +1,216 @@
+.media-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.media-library {
+  position: relative;
+  flex: 1;
+  gap: 8px;
+}
+.media-usage {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 2px solid var(--line);
+  border-radius: 4px;
+}
+.media-usage-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-size: 12px;
+}
+.media-usage-head strong {
+  font-weight: 600;
+}
+.media-usage-head > span,
+.media-usage > small {
+  color: var(--muted);
+}
+.media-usage-track {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--line);
+}
+.media-usage-track > span {
+  display: block;
+  height: 100%;
+  background: var(--line-strong);
+}
+.media-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 16px;
+  text-align: center;
+}
+.media-empty h3 {
+  font-size: 14px;
+}
+.media-empty .hint {
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.media-empty-icon,
+.media-file-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  background: var(--bg);
+  color: var(--accent);
+}
+.media-empty-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+}
+.media-empty-icon svg {
+  width: 24px;
+  height: 24px;
+}
+.media-items {
+  flex: none;
+  overflow: visible;
+  display: grid;
+  gap: 4px;
+}
+.media-items .media-item {
+  position: relative;
+  gap: 8px;
+  padding: 8px;
+  align-items: flex-start;
+  border: 2px solid var(--line);
+  border-radius: 4px;
+}
+.media-file-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 2px;
+}
+.media-row-name {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  font-weight: 500;
+}
+.media-items .media-item small {
+  display: block;
+  font-size: 12px;
+  margin-top: 2px;
+  white-space: normal;
+}
+.media-item[draggable="true"] {
+  cursor: grab;
+}
+.media-item[data-playing="true"] {
+  border-color: var(--line-strong);
+  background: var(--plot);
+}
+.media-storage-badge {
+  display: inline-flex;
+  margin-left: 6px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: var(--plot);
+  color: var(--fg-2);
+  font-size: 10px;
+  line-height: 1.4;
+}
+.media-remove {
+  flex: none;
+  width: 24px;
+  min-height: 24px;
+  padding: 2px;
+  opacity: 0;
+}
+.media-remove svg {
+  width: 14px;
+  height: 14px;
+}
+.media-item:hover .media-remove,
+.media-item:focus-within .media-remove {
+  opacity: 1;
+}
+.media-item > input {
+  width: 100%;
+  font-size: 14px;
+}
+.context-menu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (hover: none) {
+  .media-remove {
+    opacity: 1;
+  }
+}
+.media-drop-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  background: var(--sunken);
+  border: 2px dashed var(--line-strong);
+  color: var(--fg);
+  pointer-events: none;
+}
+.media-upload-dialog {
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--fg);
+}
+.media-upload-dialog::backdrop {
+  background: rgba(0, 26, 67, 0.35);
+}
+.media-upload-dialog header,
+.media-upload-dialog footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+}
+.media-upload-dialog header {
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+.media-upload-dialog footer {
+  justify-content: flex-end;
+  border-top: 1px solid var(--line);
+}
+.media-upload-body {
+  padding: 16px;
+}
+.media-drop-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 40px 16px;
+  border: 2px dashed var(--line-strong);
+  background: var(--sunken);
+  white-space: normal;
+}
+.media-drop-area svg {
+  width: 28px;
+  height: 28px;
+  color: var(--accent);
+}
+.media-drop-area[data-dragging="true"] {
+  background: var(--accent-soft);
+}

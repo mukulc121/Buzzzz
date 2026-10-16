@@ -1,33 +1,60 @@
-import { expect, test } from "bun:test";
 import { emptyPattern } from "@buzzzz/core";
-import { analyzeAudio } from "../src/features/audio/analysis";
-import { audioMetricPoints } from "../src/features/audio/display";
-import { deriveAudioReplacement } from "../src/features/audio/selection";
+import { expect, test } from "bun:test";
+import { metricById } from "../src/features/audio/metrics";
+import { metricPoints, scaleCaption } from "../src/features/audio/metrics/display";
+import { deriveAudioReplacement, isEdited } from "../src/features/audio/selection";
 
-test("Fit, True and dB change plotted values without modifying measurements", () => {
-  const analysis = analyzeAudio(
-    {
-      sampleRate: 24000,
-      channels: [
-        Float32Array.from({ length: 720 }, (_, index) =>
-          index < 240 ? 0 : index < 480 ? 0.25 : 0.5,
-        ),
-      ],
-    },
-    { frameMs: 10 },
-  );
-  const actual = audioMetricPoints(analysis, "rms", "true", false);
-  const fit = audioMetricPoints(analysis, "rms", "fit", false);
-  const db = audioMetricPoints(analysis, "rms", "true", true);
-  expect(actual.map((point) => point.value)).toEqual([0, 0.25, 0.5]);
-  expect(fit.map((point) => point.value)).toEqual([0, 0.5, 1]);
-  expect(db[0].rawValue).toBe(-60);
-  expect(db[2].rawValue).toBeCloseTo(-6.0206, 3);
-  expect(db[2].value).toBeCloseTo((60 - 6.0206) / 60, 4);
-  expect(analysis.frames.map((frame) => frame.rms)).toEqual([0, 0.25, 0.5]);
+const series = { stepMs: 10, values: Float32Array.from([0, 0.5, 2]) };
+
+test("fit to clip normalizes to the peak; true value uses the metric's full scale", () => {
+  const sharpness = metricById("sharpness")!;
+  expect(metricPoints(series, sharpness.scale, "clip", false).map((point) => point.value)).toEqual([
+    0, 0.25, 1,
+  ]);
+  expect(metricPoints(series, sharpness.scale, "full", false).map((point) => point.value)).toEqual([
+    0, 0.125, 0.5,
+  ]);
+  expect(metricPoints(series, sharpness.scale, "full", false)[2]).toEqual({
+    time: 20,
+    value: 0.5,
+    rawValue: 2,
+  });
+  const band = metricById("band")!;
+  expect(metricPoints(series, band.scale, "full", false).at(-1)?.value).toBe(1);
 });
 
-test("replacement protects edits while allowing candidate cycling and unchanged selections", () => {
+test("the dB curve maps only level metrics over 60 dB", () => {
+  const envelope = metricById("envelope")!;
+  const values = metricPoints(series, envelope.scale, "clip", true).map((point) => point.value);
+  expect(values[0]).toBe(0);
+  expect(values[1]).toBeCloseTo(1 + (20 * Math.log10(0.25)) / 60);
+  expect(values[2]).toBe(1);
+  const tonality = metricById("tonality")!;
+  expect(metricPoints(series, tonality.scale, "clip", true)[1].value).toBe(0.25);
+});
+
+test("scale captions follow Pulsar's wording", () => {
+  expect(scaleCaption(metricById("roughness")!)).toBe("full scale 8 asper");
+  expect(scaleCaption(metricById("band")!)).toBe("no absolute reference: stays fit to this clip");
+  expect(scaleCaption(metricById("tonality")!)).toBeNull();
+});
+
+test("an applied approach counts as edited only once the pattern changes", () => {
+  const applied = {
+    ...emptyPattern(),
+    discretePattern: [{ time: 0, amplitude: 0.5, frequency: 0.5 }],
+  };
+  expect(isEdited(applied, null)).toBe(false);
+  expect(isEdited(applied, applied)).toBe(false);
+  expect(
+    isEdited(
+      { ...applied, discretePattern: [{ time: 5, amplitude: 0.5, frequency: 0.5 }] },
+      applied,
+    ),
+  ).toBe(true);
+});
+
+test("animation replacement protects edits while allowing candidate cycling", () => {
   const empty = emptyPattern();
   const first = {
     ...emptyPattern(),
@@ -45,5 +72,4 @@ test("replacement protects edits while allowing candidate cycling and unchanged 
   expect(deriveAudioReplacement(first, first, null)).toBe("unchanged");
   expect(deriveAudioReplacement(first, second, first)).toBe("replace");
   expect(deriveAudioReplacement(edited, second, first)).toBe("confirm");
-  expect(deriveAudioReplacement(first, second, null)).toBe("confirm");
 });

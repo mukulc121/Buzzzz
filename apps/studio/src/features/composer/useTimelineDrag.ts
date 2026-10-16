@@ -9,8 +9,10 @@ interface IActiveDrag {
   left: number;
   width: number;
   end: number;
+  axis: IViewport;
   viewport: IViewport;
   range: IPlaybackRange | null;
+  effectiveRange: IPlaybackRange;
   playhead: number | null;
   begun: boolean;
 }
@@ -24,8 +26,10 @@ export type TimelinePointerHandlers = Record<
 interface ITimelineDrag {
   track: RefObject<HTMLElement | null>;
   end: number;
+  axis: IViewport;
   viewport: IViewport;
   range: IPlaybackRange | null;
+  defaultRange: IPlaybackRange;
   playhead: number | null;
   onViewChange: (value: IViewport) => void;
   onRangeChange: (value: IPlaybackRange | null) => void;
@@ -40,16 +44,24 @@ export function useTimelineDrag(options: ITimelineDrag) {
   const apply = (state: IActiveDrag, clientX: number) => {
     const { drag, end } = state;
     if (drag.kind === "scrub") {
-      onScrub(timeAtPointer({ clientX, left: state.left, width: state.width, end }));
+      onScrub(
+        state.axis.startMs +
+          timeAtPointer({
+            clientX,
+            left: state.left,
+            width: state.width,
+            end: state.axis.durationMs,
+          }),
+      );
       return;
     }
-    const deltaMs = ((clientX - state.originX) / Math.max(1, state.width)) * end;
+    const deltaMs = ((clientX - state.originX) / Math.max(1, state.width)) * state.axis.durationMs;
     if (drag.kind === "view")
       onViewChange(dragViewport({ viewport: state.viewport, part: drag.part, deltaMs, end }));
-    else if (state.range) {
+    else {
       if (!state.begun && deltaMs !== 0) onBegin?.();
       state.begun ||= deltaMs !== 0;
-      onRangeChange(dragRange({ range: state.range, part: drag.part, deltaMs, end }));
+      onRangeChange(dragRange({ range: state.effectiveRange, part: drag.part, deltaMs, end }));
     }
   };
   const finish = (event: PointerEvent<HTMLElement>, cancelled: boolean) => {
@@ -59,7 +71,23 @@ export function useTimelineDrag(options: ITimelineDrag) {
     setFrozenEnd(null);
     if (event.currentTarget.hasPointerCapture(event.pointerId))
       event.currentTarget.releasePointerCapture(event.pointerId);
-    if (!cancelled) return;
+    if (!cancelled) {
+      if (
+        state.drag.kind === "view" &&
+        state.drag.part === "pan" &&
+        Math.abs(event.clientX - state.originX) < 4
+      )
+        onScrub(
+          state.axis.startMs +
+            timeAtPointer({
+              clientX: event.clientX,
+              left: state.left,
+              width: state.width,
+              end: state.axis.durationMs,
+            }),
+        );
+      return;
+    }
     if (state.drag.kind === "view") onViewChange(state.viewport);
     else if (state.drag.kind === "range" && state.begun) onRangeChange(state.range);
     else if (state.drag.kind === "scrub" && state.playhead !== null) onScrub(state.playhead);
@@ -79,8 +107,10 @@ export function useTimelineDrag(options: ITimelineDrag) {
         left: rect.left,
         width: rect.width,
         end,
+        axis: options.axis,
         viewport,
         range,
+        effectiveRange: range ?? options.defaultRange,
         playhead,
         begun: false,
       };

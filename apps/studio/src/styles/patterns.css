@@ -1,0 +1,134 @@
+.patterns-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+.patterns-heading {
+  gap: 8px;
+  flex: 0 0 48px;
+  height: 48px;
+  padding: 0 8px 0 16px;
+}
+.patterns-heading h2 {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.patterns-heading .icon {
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+}
+.patterns-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.patterns-heading .icon:first-child:hover:not(:disabled) {
+  border-color: var(--line-strong);
+  color: var(--button-focus);
+}
+.pattern-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 16px;
+  gap: 2px;
+  overflow-y: auto;
+}
+.pattern-list-row {
+  position: relative;
+  min-width: 0;
+}
+.pattern-select {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-width: 0;
+  padding: 8px;
+  gap: 8px;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  color: var(--fg);
+  text-align: left;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+.pattern-select:hover:not(:disabled) {
+  background: var(--plot);
+  border-color: transparent;
+}
+.pattern-select[aria-current="true"],
+.pattern-select[aria-current="true"]:hover:not(:disabled) {
+  background: var(--plot);
+  border-color: var(--line-strong);
+}
+.pattern-select:focus-visible {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 2px;
+}
+.pattern-select > svg {
+  color: var(--button-focus);
+  flex-shrink: 0;
+}
+.pattern-row-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  gap: 1px;
+}
+.pattern-row-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg);
+}
+.pattern-row-meta {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.pattern-rename {
+  width: 100%;
+  padding: 8px;
+  border: 2px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+}
+.pattern-rename:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+:root[data-theme="dark"] .pattern-rename:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.inspector-exports {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.inspector-exports button {
+  white-space: normal;
+  width: 100%;
+  font-size: 14px;
+}

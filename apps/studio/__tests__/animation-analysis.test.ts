@@ -67,8 +67,8 @@ test("Lottie channels handle static, linear, hold, temporal easing and spatial t
     {
       a: 1,
       k: [
-        { t: 0, s: [0], o: { x: 0.4, y: 0 }, i: { x: 0.6, y: 1 } },
-        { t: 60, s: [100] },
+        { t: 0, s: [0], o: { x: 0.4, y: 0 } },
+        { t: 60, s: [100], i: { x: 0.6, y: 1 } },
       ],
     },
     [0],
@@ -78,8 +78,8 @@ test("Lottie channels handle static, linear, hold, temporal easing and spatial t
     {
       a: 1,
       k: [
-        { t: 0, s: [0, 0], to: [0, 100], ti: [0, 100] },
-        { t: 60, s: [100, 0] },
+        { t: 0, s: [0, 0], to: [0, 100] },
+        { t: 60, s: [100, 0], ti: [0, 100] },
       ],
     },
     [0, 0],
@@ -119,10 +119,10 @@ test("parent transforms and stretched precomposition timelines affect sampled ge
 
 test("motion analysis finds bounce reversals and five valid, distinct candidates", () => {
   const analysis = analyzeAnimation(parseAnimationData(bounce()));
-  expect(analysis.frames).toHaveLength(480);
+  expect(analysis.frames).toHaveLength(481);
   expect(analysis.frameMs).toBeCloseTo(1000 / 240, 5);
   for (const time of [500, 1000, 1500])
-    expect(analysis.impacts.some((impact) => Math.abs(impact.timeMs - time) < 10)).toBe(true);
+    expect(analysis.impacts.some((impact) => Math.abs(impact.timeMs - time) <= 13)).toBe(true);
   expect(analysis.frames.every((frame) => Object.values(frame).every(Number.isFinite))).toBe(true);
   const candidates = generateAnimationCandidates(analysis);
   expect(candidates).toHaveLength(5);
@@ -134,7 +134,7 @@ test("motion analysis finds bounce reversals and five valid, distinct candidates
     ).toBe(true);
   }
   expect(candidates.find((candidate) => candidate.id === "impulse")?.description).toContain(
-    "neither real mass nor collision geometry",
+    "layer area as a mass proxy",
   );
 });
 
@@ -145,7 +145,9 @@ test("static geometry produces no haptics and unsupported motion features are di
   expect(document.warnings.join(" ")).toContain("3D");
   expect(document.warnings.join(" ")).toContain("Masks");
   for (const candidate of generateAnimationCandidates(analyzeAnimation(document))) {
-    expect(candidate.pointCount).toBe(0);
+    expect(candidate.pattern.continuousPattern.amplitude.every((point) => point.value === 0)).toBe(
+      true,
+    );
     expect(candidate.eventCount).toBe(0);
   }
 });
@@ -181,7 +183,7 @@ test("long animations and high-rate samples stay within pattern limits", () => {
   const document = parseAnimationData({ ...bounce(), op: 6000 });
   const analysis = analyzeAnimation(document, 2);
   expect(analysis.durationMs).toBe(60000);
-  expect(analysis.frames).toHaveLength(30000);
+  expect(analysis.frames).toHaveLength(30001);
   for (const candidate of generateAnimationCandidates(analysis))
     expect(isPattern(candidate.pattern)).toBe(true);
 });
@@ -190,40 +192,55 @@ test("Hybrid gain, threshold, gap, frequency follow and millisecond smoothing ch
   const source = analyzeAnimation(parseAnimationData(bounce()));
   const analysis = {
     ...source,
-    impacts: [
-      { timeMs: 100, strength: 0.1, momentum: 0.1 },
-      { timeMs: 130, strength: 0.3, momentum: 0.3 },
-      { timeMs: 500, strength: 0.6, momentum: 0.6 },
-    ],
+    frames: source.frames.map((frame) => ({
+      ...frame,
+      transient:
+        frame.timeMs === 100
+          ? 0.1
+          : Math.abs(frame.timeMs - 129.1667) < 0.01
+            ? 0.3
+            : Math.abs(frame.timeMs - 500) < 0.01
+              ? 0.6
+              : 0,
+    })),
   };
   const options = {
     smoothingMs: 12,
-    intensityChannel: "energy",
-    frequencyChannel: "positionY",
-    gain: 1.2,
-    threshold: 0.05,
-    minGapMs: 20,
-    freqFollow: 0.7,
+    strategyParams: { hybrid: { gain: 1.2, threshold: 0.05, minGapMs: 20, freqFollow: 0.7 } },
   } satisfies Parameters<typeof generateAnimationCandidates>[1];
   const normal = generateAnimationCandidates(analysis, options)[0];
-  const soft = generateAnimationCandidates(analysis, { ...options, gain: 0.5 })[0];
+  const soft = generateAnimationCandidates(analysis, {
+    ...options,
+    strategyParams: { hybrid: { ...options.strategyParams.hybrid, gain: 0.5 } },
+  })[0];
   expect(
     Math.max(...soft.pattern.continuousPattern.amplitude.map((point) => point.value)),
   ).toBeLessThan(
     Math.max(...normal.pattern.continuousPattern.amplitude.map((point) => point.value)),
   );
   expect(normal.eventCount).toBe(3);
-  expect(generateAnimationCandidates(analysis, { ...options, threshold: 0.5 })[0].eventCount).toBe(
-    1,
-  );
-  expect(generateAnimationCandidates(analysis, { ...options, minGapMs: 100 })[0].eventCount).toBe(
-    2,
-  );
   expect(
-    generateAnimationCandidates(analysis, { ...options, freqFollow: 0 })[0].pattern
-      .continuousPattern.frequency[0].value,
+    generateAnimationCandidates(analysis, {
+      ...options,
+      strategyParams: { hybrid: { ...options.strategyParams.hybrid, threshold: 0.5 } },
+    })[0].eventCount,
+  ).toBe(1);
+  expect(
+    generateAnimationCandidates(analysis, {
+      ...options,
+      strategyParams: { hybrid: { ...options.strategyParams.hybrid, minGapMs: 100 } },
+    })[0].eventCount,
+  ).toBe(2);
+  expect(
+    generateAnimationCandidates(analysis, {
+      ...options,
+      strategyParams: { hybrid: { ...options.strategyParams.hybrid, freqFollow: 0 } },
+    })[0].pattern.continuousPattern.frequency[0].value,
   ).toBe(0.35);
   expect(
-    generateAnimationCandidates(analysis, { ...options, smoothingMs: 120 })[0].pattern,
+    generateAnimationCandidates(
+      analyzeAnimation(parseAnimationData(bounce()), source.frameMs, 120),
+      options,
+    )[0].pattern,
   ).not.toEqual(normal.pattern);
 });

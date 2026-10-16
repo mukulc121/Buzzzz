@@ -10,10 +10,11 @@ export async function analyzeAnimationAsync(
   document: IAnimationDocument,
   frameMs = 1000 / 240,
   signal?: AbortSignal,
+  smoothingMs = 12,
 ): Promise<IAnimationAnalysis> {
   if (signal?.aborted) throw new DOMException("Animation analysis was cancelled", "AbortError");
-  if (typeof Worker === "undefined") return analyzeAnimation(document, frameMs);
-  const request: IAnimationAnalysisRequest = { document: { ...document, data: {} }, frameMs };
+  if (typeof Worker === "undefined") return analyzeAnimation(document, frameMs, smoothingMs);
+  const request: IAnimationAnalysisRequest = { document, frameMs, smoothingMs };
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL("./analysis.worker.ts", import.meta.url), { type: "module" });
     const finish = () => {

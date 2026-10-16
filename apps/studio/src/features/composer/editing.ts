@@ -1,5 +1,6 @@
 import { emptyPattern, isPattern, MAX_PATTERN_MS, patternEnd, type Pattern } from "@buzzzz/core";
 import { LAYERS, selectionKey, type ISelectionBounds, type PointSelection } from "./model";
+import { quantizeValue } from "./editorSettings";
 
 interface IEditSelection {
   pattern: Pattern;
@@ -53,7 +54,9 @@ export function deleteSelection(props: IEditSelection): Pattern {
   };
 }
 
-export function moveSelection(props: IEditSelection & { timeMs: number; value: number }): Pattern {
+export function moveSelection(
+  props: IEditSelection & { timeMs: number; value: number; valueDecimals?: number },
+): Pattern {
   const { pattern, selection, timeMs, value } = props;
   const points = selectedPoints(props);
   if (!points.length) return pattern;
@@ -68,21 +71,25 @@ export function moveSelection(props: IEditSelection & { timeMs: number; value: n
     1 - Math.max(...points.map((point) => point.value)),
   );
   const selected = indices(selection);
+  const movedValue = (value: number) =>
+    props.valueDecimals !== undefined && valueDelta !== 0
+      ? quantizeValue(value + valueDelta, props.valueDecimals)
+      : value + valueDelta;
   return {
     discretePattern: pattern.discretePattern.map((point, index) =>
       selected.discrete.has(index)
-        ? { ...point, time: point.time + timeDelta, amplitude: point.amplitude + valueDelta }
+        ? { ...point, time: point.time + timeDelta, amplitude: movedValue(point.amplitude) }
         : point,
     ),
     continuousPattern: {
       amplitude: pattern.continuousPattern.amplitude.map((point, index) =>
         selected.amplitude.has(index)
-          ? { time: point.time + timeDelta, value: point.value + valueDelta }
+          ? { time: point.time + timeDelta, value: movedValue(point.value) }
           : point,
       ),
       frequency: pattern.continuousPattern.frequency.map((point, index) =>
         selected.frequency.has(index)
-          ? { time: point.time + timeDelta, value: point.value + valueDelta }
+          ? { time: point.time + timeDelta, value: movedValue(point.value) }
           : point,
       ),
     },

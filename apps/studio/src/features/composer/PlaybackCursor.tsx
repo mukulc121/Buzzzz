@@ -1,6 +1,7 @@
 import { MAX_PATTERN_MS } from "@buzzzz/core";
-import { CHART_PADDING as PAD, type IChartGeometry } from "./geometry";
+import type { IChartGeometry } from "./geometry";
 import { snapTime } from "./viewport";
+import { chartReadout } from "./chartReadout";
 
 interface IPlaybackCursor {
   time: number | null;
@@ -10,8 +11,12 @@ interface IPlaybackCursor {
 }
 
 export function PlaybackCursor(props: IPlaybackCursor) {
-  const { time, geometry, snapMs, onScrub } = props;
-  if (time === null || !geometry.inView(time)) return null;
+  const { geometry, snapMs, onScrub } = props;
+  const time = props.time ?? 0;
+  if (!geometry.inView(time)) return null;
+  const label = `${Math.round(time)} ms`;
+  const readout = chartReadout(label, geometry.x(time), geometry.width);
+  const labelTop = Math.max(0, geometry.top - 16);
   return (
     <g
       data-playhead
@@ -39,18 +44,36 @@ export function PlaybackCursor(props: IPlaybackCursor) {
     >
       <rect
         x={geometry.x(time) - 8}
-        y={PAD}
+        y={geometry.top}
         width={16}
-        height={geometry.height - 2 * PAD}
+        height={geometry.plotHeight}
         fill="rgba(0, 0, 0, 0)"
       />
       <line
         x1={geometry.x(time)}
         x2={geometry.x(time)}
-        y1={PAD}
-        y2={geometry.height - PAD}
+        y1={geometry.top}
+        y2={geometry.bottom}
         className="playhead"
       />
+      <rect
+        x={readout.left}
+        y={labelTop}
+        width={readout.width}
+        height={14}
+        rx={3}
+        fill="var(--cursor)"
+      />
+      <text
+        x={readout.left + readout.width / 2}
+        y={labelTop + 11}
+        textAnchor="middle"
+        fill="var(--cursor-text)"
+        fontSize={10}
+        pointerEvents="none"
+      >
+        {label}
+      </text>
     </g>
   );
 }

@@ -1,7 +1,3 @@
-export function download(name: string, data: unknown) {
-  downloadBlob(name, new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
-}
-
 export function downloadBlob(name: string, data: Blob) {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(data);

@@ -1,26 +1,29 @@
-import { CHART_PADDING as PAD, type IChartGeometry } from "./geometry";
-import type { IAnalysisCurve, IPlaybackRange, ITimelineMarker } from "./model";
+import type { IChartGeometry } from "./geometry";
+import type { IAnalysisCurve, IMarkerActions, IPlaybackRange, ITimelineMarker } from "./model";
 import type { useChartInteraction } from "./useChartInteraction";
+import { ChartMarker } from "./ChartMarker";
 
-interface IChartOverlays {
+interface IChartOverlays extends IMarkerActions {
   geometry: IChartGeometry;
   range?: IPlaybackRange;
   markers?: readonly ITimelineMarker[];
   curves?: readonly IAnalysisCurve[];
   rectangle?: ReturnType<typeof useChartInteraction>["rectangle"];
+  markerDurationMs?: number;
+  onBegin?: () => void;
 }
 
 export function ChartOverlays(props: IChartOverlays) {
   const { geometry, range, markers = [], curves = [], rectangle } = props;
-  const { x, y, height, inView } = geometry;
+  const { x, y, top, plotHeight, inView } = geometry;
   return (
     <g pointerEvents="none">
       {range && (
         <rect
           x={x(Math.min(range.start, range.end))}
-          y={PAD}
+          y={top}
           width={Math.abs(x(range.end) - x(range.start))}
-          height={height - 2 * PAD}
+          height={plotHeight}
           fill="var(--accent)"
           fillOpacity={0.08}
           aria-hidden
@@ -44,23 +47,15 @@ export function ChartOverlays(props: IChartOverlays) {
       {markers
         .filter((marker) => inView(marker.time))
         .map((marker) => (
-          <g
+          <ChartMarker
             key={marker.id}
-            role="img"
-            aria-label={`Marker ${marker.label} at ${Math.round(marker.time)} milliseconds`}
-          >
-            <line
-              x1={x(marker.time)}
-              x2={x(marker.time)}
-              y1={PAD}
-              y2={height - PAD}
-              stroke="var(--muted)"
-              strokeDasharray="3 4"
-            />
-            <text x={x(marker.time) + 4} y={PAD + 12} className="tick">
-              {marker.label}
-            </text>
-          </g>
+            marker={marker}
+            geometry={geometry}
+            durationMs={props.markerDurationMs ?? geometry.startMs + geometry.durationMs}
+            onMarkerMove={props.onMarkerMove}
+            onMarkerRename={props.onMarkerRename}
+            onBegin={props.onBegin}
+          />
         ))}
       {rectangle && (
         <rect

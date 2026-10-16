@@ -6,9 +6,9 @@ async function decode(file: Blob): Promise<IAudioDecoded> {
   const metadata = await readAudioMetadata(file);
   if (typeof AudioContext === "undefined")
     throw new Error("This browser does not support Web Audio decoding");
-  const context = new AudioContext({ sampleRate: 48000 });
+  const context = new AudioContext({ sampleRate: 44100 });
   try {
-    if (context.sampleRate !== 48000)
+    if (context.sampleRate !== 44100)
       throw new Error("The browser could not use the bounded audio sample rate");
     const buffer = await context.decodeAudioData(await file.arrayBuffer());
     if (buffer.numberOfChannels !== metadata.channels || buffer.duration > 60.05)

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { IMediaAttachment, IMediaItem, IMediaTrim, MediaKind } from "./model";
 import {
   addMedia,
@@ -16,6 +16,7 @@ import { downloadName, toMediaError } from "./rules";
 interface IMediaLibrary {
   projectId: string;
   presetId: string;
+  writable: boolean;
   onError: (message: string) => void;
 }
 interface ISnapshot {
@@ -33,8 +34,12 @@ async function loadSnapshot(projectId: string, presetId: string, key: string): P
 }
 
 export function useMediaLibrary(props: IMediaLibrary) {
-  const { projectId, presetId, onError } = props;
+  const { projectId, presetId, writable, onError } = props;
   const key = `${projectId}\u0000${presetId}`;
+  const access = useRef({ key, writable });
+  useLayoutEffect(() => {
+    access.current = { key, writable };
+  }, [key, writable]);
   const [snapshot, setSnapshot] = useState<ISnapshot | null>(null);
   const generation = useRef(0);
   const errorHandler = useRef(onError);
@@ -70,17 +75,24 @@ export function useMediaLibrary(props: IMediaLibrary) {
     };
   }, [refresh, projectId, presetId, key]);
 
-  const run = useCallback(async <T>(operation: () => Promise<T>): Promise<T | null> => {
-    try {
-      const result = await operation();
-      await refreshRef.current();
-      return result;
-    } catch (error) {
-      errorHandler.current(toMediaError(error).message);
-      await refreshRef.current();
-      return null;
-    }
-  }, []);
+  const run = useCallback(
+    async <T>(operation: () => Promise<T>): Promise<T | null> => {
+      if (!access.current.writable || access.current.key !== key) {
+        errorHandler.current("Open this project for editing to change media");
+        return null;
+      }
+      try {
+        const result = await operation();
+        await refreshRef.current();
+        return result;
+      } catch (error) {
+        errorHandler.current(toMediaError(error).message);
+        await refreshRef.current();
+        return null;
+      }
+    },
+    [key],
+  );
 
   const ready = snapshot?.key === key;
   const items = useMemo(() => (ready ? snapshot.items : []), [ready, snapshot]);

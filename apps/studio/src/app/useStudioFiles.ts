@@ -8,6 +8,7 @@ import type { AttachedTracks } from "../features/media/useAttachedTracks";
 import type { useProject } from "../features/project/useProject";
 import type { useComposer } from "../features/composer/useComposer";
 import type { useRiveSession } from "../features/rive/useRiveSession";
+import { exportName, selectExportProject, type IExportSelection } from "../features/export/model";
 
 interface IStudioFiles {
   document: ReturnType<typeof useProject>;
@@ -25,28 +26,27 @@ export function useStudioFiles(props: IStudioFiles) {
   useLayoutEffect(() => {
     current.current = document.projectId;
   }, [document.projectId]);
-  const importFile = async (file: File) => {
+  const readFile = async (file: File): Promise<string | null> => {
     const projectId = current.current;
     try {
       const data = await readImport(file);
-      if (current.current !== projectId) return;
+      if (current.current !== projectId) return null;
       switch (data.kind) {
         case "audio":
         case "animation":
           if (!document.isWriter) throw new Error("Open this project for editing to attach media");
           if (await media.importFile(data.file, data.kind))
             onInspector(data.kind === "audio" ? "sound" : "animation");
-          return;
+          return null;
         case "rive":
           if (!document.isWriter) throw new Error("Open this project for editing to attach media");
           if (await media.importFile(file, "rive")) {
             session.setStateMachine(undefined);
             onInspector("animation");
           }
-          return;
+          return null;
         case "pattern":
           document.addPreset(data.pattern, data.name);
-          composer.fit();
           if (data.warnings?.length) onLog(data.warnings.join(" · "));
           break;
         case "project": {
@@ -75,7 +75,7 @@ export function useStudioFiles(props: IStudioFiles) {
             riv: data.riv,
           });
           document.catalog.refresh();
-          if (current.current !== projectId) return;
+          if (current.current !== projectId) return null;
           document.catalog.open(id);
           composer.setSelected(null);
           onLog(`Opened project · ${data.project.presets.length} patterns`);
@@ -83,30 +83,50 @@ export function useStudioFiles(props: IStudioFiles) {
         }
       }
       onError(null);
+      return null;
     } catch (error) {
-      onError(error instanceof Error ? error.message : `Could not read ${file.name}`);
+      const message = error instanceof Error ? error.message : `Could not read ${file.name}`;
+      onError(message);
+      return message;
     }
   };
-  const exportProject = async () => {
+  const importFile = async (file: File) => {
+    await readFile(file);
+  };
+  const attachMediaAsset = async (assetId: string) => {
+    const projectId = current.current;
+    const item = media.library.items.find(
+      (entry) => entry.id === assetId && entry.projectId === projectId,
+    );
+    if (!document.isWriter || !item || !(await media.attachAsset(assetId))) return false;
+    if (current.current !== projectId) return false;
+    if (item.kind === "rive") session.setStateMachine(undefined);
+    onInspector(item.kind === "audio" ? "sound" : "animation");
+    return true;
+  };
+  const exportProject = async (selection?: IExportSelection): Promise<string | null> => {
     try {
+      const project = selectExportProject(document.project, selection);
+      const title = exportName(project, document.projectName);
       const blob = await exportPulsarBundle({
-        project: document.project,
-        name: document.projectName,
+        project,
+        name: title,
         riv: session.riv,
         stateMachine: session.stateMachine ?? document.project.riveStateMachine,
-        media: await exportProjectMedia(document.projectId, document.project),
+        media: await exportProjectMedia(document.projectId, project, selection),
         durations: Object.fromEntries(
-          document.project.presets.flatMap((preset) =>
+          project.presets.flatMap((preset) =>
             preset.editor?.durationMs === undefined ? [] : [[preset.id, preset.editor.durationMs]],
           ),
         ),
       });
-      const name =
-        document.projectName.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "project";
+      const name = title.replace(/[^A-Za-z0-9._-]+/g, "-").toLowerCase() || "pack";
       downloadBlob(`${name}.pulsar`, blob);
+      return null;
     } catch (error) {
-      onError(error instanceof Error ? error.message : "Could not export project");
+      const message = error instanceof Error ? error.message : "Could not export project";
+      return message;
     }
   };
-  return { importFile, exportProject };
+  return { importFile, importFileResult: readFile, attachMediaAsset, exportProject };
 }

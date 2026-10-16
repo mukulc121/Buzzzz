@@ -1,8 +1,9 @@
 import { useRef, useState, type PointerEvent, type RefObject } from "react";
 import { MAX_PATTERN_MS, type Pattern } from "@buzzzz/core";
-import { moveSelection, selectInBounds } from "./editing";
+import { selectInBounds } from "./editing";
+import { dragPoint, type PointDragMode } from "./pointDrag";
 import { LAYERS, selectionKey, type IChart, type IViewport, type PointSelection } from "./model";
-import { CHART_PADDING } from "./geometry";
+import { chartGeometry } from "./geometry";
 import { clampViewport, snapTime } from "./viewport";
 
 interface IPosition {
@@ -16,6 +17,9 @@ type Drag =
   | {
       kind: "point";
       origin: IPosition;
+      time: number;
+      point: PointSelection;
+      mode: PointDragMode;
       pattern: Pattern;
       selection: PointSelection[];
       started: boolean;
@@ -40,20 +44,22 @@ export function useChartPointer(options: IChartPointer) {
   const position = (event: { clientX: number; clientY: number }): IPosition | null => {
     const rect = svg.current?.getBoundingClientRect();
     if (!rect) return null;
-    const x = Math.min(width - CHART_PADDING, Math.max(CHART_PADDING, event.clientX - rect.left));
-    const y = Math.min(height - CHART_PADDING, Math.max(CHART_PADDING, event.clientY - rect.top));
+    const geometry = chartGeometry({
+      width,
+      height,
+      startMs: getProps().viewStartMs ?? 0,
+      durationMs: getProps().viewMs,
+    });
+    const x = Math.min(
+      geometry.axisLeft + geometry.axisWidth,
+      Math.max(geometry.axisLeft, event.clientX - rect.left),
+    );
+    const y = Math.min(geometry.bottom, Math.max(geometry.top, event.clientY - rect.top));
     return {
       x,
       y,
-      time: Math.min(
-        MAX_PATTERN_MS,
-        Math.max(
-          0,
-          (getProps().viewStartMs ?? 0) +
-            ((x - CHART_PADDING) / Math.max(1, width - 2 * CHART_PADDING)) * getProps().viewMs,
-        ),
-      ),
-      value: 1 - (y - CHART_PADDING) / Math.max(1, height - 2 * CHART_PADDING),
+      time: Math.min(MAX_PATTERN_MS, Math.max(0, geometry.timeAtX(x))),
+      value: geometry.valueAtY(y),
     };
   };
   const capture = (event: PointerEvent<SVGElement>) =>
@@ -63,18 +69,22 @@ export function useChartPointer(options: IChartPointer) {
     setRectangle(null);
   };
   const grab =
-    (point: PointSelection, time: number, value: number) => (event: PointerEvent<SVGElement>) => {
+    (point: PointSelection, time: number, mode: PointDragMode = "both") =>
+    (event: PointerEvent<SVGElement>) => {
       if (event.button !== 0 || event.altKey) return;
       event.preventDefault();
       event.stopPropagation();
-      const found = getSelection().some((item) => selectionKey(item) === selectionKey(point));
+      const previous = getSelection().filter(
+        (item) => getProps().multilayerSelection !== false || item.layer === point.layer,
+      );
+      const found = previous.some((item) => selectionKey(item) === selectionKey(point));
       const additive = event.shiftKey || event.metaKey || event.ctrlKey;
       const next = additive
         ? found
-          ? getSelection().filter((item) => selectionKey(item) !== selectionKey(point))
-          : [...getSelection(), point]
+          ? previous.filter((item) => selectionKey(item) !== selectionKey(point))
+          : [...previous, point]
         : found
-          ? [...getSelection()]
+          ? [...previous]
           : [point];
       select(next);
       event.currentTarget.focus();
@@ -83,7 +93,10 @@ export function useChartPointer(options: IChartPointer) {
       if (!origin) return;
       drag.current = {
         kind: "point",
-        origin: { ...origin, time, value },
+        origin,
+        time,
+        point,
+        mode,
         pattern: getProps().pattern,
         selection: next,
         started: false,
@@ -105,16 +118,26 @@ export function useChartPointer(options: IChartPointer) {
       };
     } else {
       const bounds = svg.current?.getBoundingClientRect();
+      const geometry = chartGeometry({
+        width,
+        height,
+        startMs: getProps().viewStartMs ?? 0,
+        durationMs: getProps().viewMs,
+      });
       const outsidePlot =
-        bounds &&
-        (event.clientY - bounds.top < CHART_PADDING ||
-          event.clientY - bounds.top > height - CHART_PADDING);
+        bounds && !geometry.containsPlot(event.clientX - bounds.left, event.clientY - bounds.top);
       const playhead = event.target instanceof Element && event.target.closest("[data-playhead]");
       if (getProps().onScrub && (outsidePlot || playhead)) {
         drag.current = { kind: "scrub" };
         getProps().onScrub?.(snapTime(point.time, getProps().snapMs ?? 0));
       } else {
-        const initial = event.shiftKey || event.metaKey || event.ctrlKey ? [...getSelection()] : [];
+        const initial =
+          event.shiftKey || event.metaKey || event.ctrlKey
+            ? getSelection().filter(
+                (item) =>
+                  getProps().multilayerSelection !== false || item.layer === getProps().layer,
+              )
+            : [];
         select(initial);
         drag.current = { kind: "selection", origin: point, initial };
         setRectangle({ from: point, to: point });
@@ -132,7 +155,13 @@ export function useChartPointer(options: IChartPointer) {
         clampViewport({
           startMs:
             action.viewport.startMs -
-            ((event.clientX - action.clientX) / Math.max(1, width - 2 * CHART_PADDING)) *
+            ((event.clientX - action.clientX) /
+              chartGeometry({
+                width,
+                height,
+                startMs: action.viewport.startMs,
+                durationMs: action.viewport.durationMs,
+              }).axisWidth) *
               action.viewport.durationMs,
           durationMs: action.viewport.durationMs,
         }),
@@ -143,7 +172,10 @@ export function useChartPointer(options: IChartPointer) {
       setRectangle({ from: action.origin, to: point });
       const found = selectInBounds({
         pattern: getProps().pattern,
-        layers: getProps().visibleLayers ?? LAYERS,
+        layers:
+          getProps().multilayerSelection === false
+            ? (getProps().visibleLayers ?? LAYERS).filter((item) => item === getProps().layer)
+            : (getProps().visibleLayers ?? LAYERS),
         bounds: {
           startMs: Math.min(action.origin.time, point.time),
           endMs: Math.max(action.origin.time, point.time),
@@ -163,11 +195,16 @@ export function useChartPointer(options: IChartPointer) {
         action.started = true;
       }
       getProps().onChange(
-        moveSelection({
+        dragPoint({
           pattern: action.pattern,
           selection: action.selection,
-          timeMs: snapTime(point.time, getProps().snapMs ?? 0) - action.origin.time,
+          point: action.point,
+          mode: action.mode,
+          timeMs:
+            snapTime(action.time + point.time - action.origin.time, getProps().snapMs ?? 0) -
+            action.time,
           value: point.value - action.origin.value,
+          valueDecimals: getProps().editorSettings?.valueDecimals ?? 1,
         }),
       );
     }

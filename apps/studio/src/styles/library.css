@@ -1,0 +1,153 @@
+@import "./library-filters.css";
+@import "./library-detail.css";
+
+.preset-library {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.preset-library,
+.library-detail-dialog {
+  --library-intensity: rgba(43, 133, 171, 1);
+  --library-area: rgba(181, 225, 241, 1);
+  --library-frequency: rgba(0, 26, 114, 1);
+  --library-discrete: rgba(56, 172, 221, 1);
+  --library-grid: rgba(215, 235, 245, 1);
+}
+:root[data-theme="dark"] .preset-library,
+:root[data-theme="dark"] .library-detail-dialog {
+  --library-intensity: rgba(92, 192, 234, 1);
+  --library-area: rgba(28, 58, 79, 1);
+  --library-frequency: rgba(174, 191, 255, 1);
+  --library-discrete: rgba(75, 184, 234, 1);
+  --library-grid: rgba(34, 52, 74, 1);
+}
+.library-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.library-search > svg {
+  position: absolute;
+  left: 12px;
+  pointer-events: none;
+  color: var(--muted);
+}
+.library-search > input {
+  width: 100%;
+  padding: 10px 38px;
+  border: 2px solid var(--line);
+  font-size: 16px;
+  line-height: 1.4;
+}
+.library-search input::-webkit-search-cancel-button {
+  appearance: none;
+}
+.library-search > button {
+  position: absolute;
+  right: 6px;
+  min-height: 28px;
+  padding: 4px;
+  border: 0;
+}
+.library-count,
+.library-footnote {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.library-empty {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.library-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.library-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  cursor: grab;
+}
+.library-row:hover {
+  background: var(--bg);
+  border-color: var(--line-strong);
+}
+.library-row:active {
+  cursor: grabbing;
+}
+.library-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+.library-row-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg);
+  overflow-wrap: anywhere;
+}
+.library-row-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+.library-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+.library-row-actions > button.icon {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  border: 2px solid transparent;
+}
+.library-row-actions > button.icon:hover {
+  border-color: var(--line);
+}
+.library-row-actions > button.library-append:hover {
+  border-color: var(--line-strong);
+}
+.library-row-actions > button svg {
+  width: 18px;
+  height: 18px;
+}
+.library-thumbnail {
+  flex: none;
+  width: 36px;
+  height: 28px;
+  border: 2px solid var(--line);
+  border-radius: 2px;
+  background: var(--panel);
+}
+.library-thumbnail-baseline {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.library-thumbnail-curve {
+  fill: none;
+  stroke: var(--library-intensity);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.library-thumbnail-tap {
+  stroke: var(--fg);
+  stroke-width: 2;
+  stroke-linecap: round;
+}

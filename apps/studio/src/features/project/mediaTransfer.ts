@@ -1,12 +1,15 @@
 import type { Project } from "@buzzzz/core";
 import type { IImportedMedia } from "../imports/model";
+import type { IExportFiles } from "../export/model";
 import {
   addMedia,
+  addMediaCopy,
   attachMedia,
   deleteMedia,
   listAttachments,
   listMedia,
   readMediaFile,
+  rollbackMediaCopy,
   setMediaTrim,
 } from "../media/repository";
 
@@ -46,11 +49,18 @@ export async function importProjectMedia(
 export async function exportProjectMedia(
   projectId: string,
   project: Project,
+  files?: IExportFiles,
 ): Promise<IImportedMedia[]> {
   const media: IImportedMedia[] = [];
   for (const preset of project.presets) {
     for (const attachment of await listAttachments(projectId, preset.id)) {
       if (attachment.kind === "rive") continue;
+      if (
+        files &&
+        ((attachment.kind === "audio" && !files.includeAudio) ||
+          (attachment.kind === "animation" && !files.includeAnimation))
+      )
+        continue;
       media.push({
         presetId: preset.id,
         kind: attachment.kind,
@@ -67,4 +77,34 @@ export async function exportProjectMedia(
     }
   }
   return media;
+}
+
+// Copies a pattern's audio/animation into another project; returns an undo for failed copies.
+export async function copyPresetMedia(
+  source: { projectId: string; presetId: string },
+  target: { projectId: string; presetId: string },
+): Promise<() => Promise<void>> {
+  const files: Parameters<typeof rollbackMediaCopy>[1] = [];
+  const undo = () => rollbackMediaCopy(target, files);
+  try {
+    for (const attachment of await listAttachments(source.projectId, source.presetId)) {
+      if (attachment.kind === "rive") continue;
+      const file = await readMediaFile(attachment.assetId);
+      const { item, created } = await addMediaCopy({
+        projectId: target.projectId,
+        file,
+        kind: attachment.kind,
+      });
+      const owned = { id: item.id, kind: attachment.kind, created, attached: false };
+      files.push(owned);
+      await attachMedia({ ...target, assetId: item.id, replace: false });
+      owned.attached = true;
+      if (attachment.trim)
+        await setMediaTrim({ ...target, kind: attachment.kind, trim: attachment.trim });
+    }
+  } catch (error) {
+    await undo();
+    throw error;
+  }
+  return undo;
 }

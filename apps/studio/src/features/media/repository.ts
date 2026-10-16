@@ -73,6 +73,10 @@ export async function readMediaFile(id: string): Promise<File> {
 }
 
 export async function addMedia(props: IAddMedia): Promise<IMediaItem> {
+  return (await addMediaCopy(props)).item;
+}
+
+export async function addMediaCopy(props: IAddMedia) {
   const { projectId, file, kind } = props;
   const early = checkMediaLimits(file.size, []);
   if (early) throw early;
@@ -81,7 +85,7 @@ export async function addMedia(props: IAddMedia): Promise<IMediaItem> {
     const items = tx.objectStore("items");
     const existing = many(await settle(items.index("projectId").getAll(projectId)), isMediaItem);
     const duplicate = existing.find((item) => item.sha256 === hash && item.kind === kind);
-    if (duplicate) return duplicate;
+    if (duplicate) return { item: duplicate, created: false };
     const blocked = checkMediaLimits(file.size, existing);
     if (blocked) throw blocked;
     const item: IMediaItem = {
@@ -100,7 +104,7 @@ export async function addMedia(props: IAddMedia): Promise<IMediaItem> {
       settle(items.add(item)),
       settle(tx.objectStore("blobs").add({ id: item.id, blob: file })),
     ]);
-    return item;
+    return { item, created: true };
   });
 }
 
@@ -127,7 +131,9 @@ export function deleteMedia(id: string) {
   });
 }
 
-export function attachMedia(props: Omit<IAttachTarget, "kind"> & { assetId: string }) {
+export function attachMedia(
+  props: Omit<IAttachTarget, "kind"> & { assetId: string; replace?: boolean },
+) {
   const { projectId, presetId, assetId } = props;
   return transact(["items", "attachments"], "readwrite", async (tx) => {
     const item = await readItem(tx, assetId);
@@ -139,8 +145,29 @@ export function attachMedia(props: Omit<IAttachTarget, "kind"> & { assetId: stri
       assetId,
       trim: null,
     };
-    await settle(tx.objectStore("attachments").put(attachment));
+    const store = tx.objectStore("attachments");
+    await settle(props.replace === false ? store.add(attachment) : store.put(attachment));
     return attachment;
+  });
+}
+
+export function rollbackMediaCopy(
+  target: { projectId: string; presetId: string },
+  files: { id: string; kind: MediaKind; created: boolean; attached: boolean }[],
+) {
+  return transact(["items", "blobs", "attachments"], "readwrite", async (tx) => {
+    const attachments = tx.objectStore("attachments");
+    for (const file of files) {
+      const key = [target.projectId, scopeFor(file.kind, target.presetId), file.kind];
+      const current = await settle(attachments.get(key));
+      if (file.attached && isMediaAttachment(current) && current.assetId === file.id)
+        await settle(attachments.delete(key));
+      const references = await settle(attachments.index("assetId").count(file.id));
+      if (file.created && references === 0) {
+        await settle(tx.objectStore("items").delete(file.id));
+        await settle(tx.objectStore("blobs").delete(file.id));
+      }
+    }
   });
 }
 

@@ -9,12 +9,12 @@ interface IProjectStatus {
 
 const LABEL: Record<TProjectStatus, string> = {
   opening: "Opening…",
-  editing: "Saved locally",
+  editing: "✓ Saved",
   "read-only": "Read only: open in another window",
   "taken-over": "Read only: another window took over",
   conflict: "Another window changed this project",
   "storage-error": "Not saved",
-  unlocked: "Saved locally",
+  unlocked: "✓ Saved",
 };
 
 export function ProjectStatus(props: IProjectStatus) {

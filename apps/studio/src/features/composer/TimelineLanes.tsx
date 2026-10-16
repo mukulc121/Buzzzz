@@ -1,17 +1,20 @@
 import type { ReactNode } from "react";
 import type { Pattern } from "@buzzzz/core";
 import type { IAudioAnalysis } from "../audio/model";
+import { AnimationFilmstrip } from "./AnimationFilmstrip";
+import type { IAnimationDocument } from "../animation/model";
 import type { IAnimationAnalysis } from "../animation/model";
-import { curvePoints, fractionOf, normalize } from "./timelineGeometry";
+import { curvePoints, normalize } from "./timelineGeometry";
 
-export type TimelineLaneId = "pattern" | "audio" | "motion";
+type TimelineLaneId = "pattern" | "audio" | "motion";
 
 interface ITimelineLanes {
   pattern: Pattern;
   audio: IAudioAnalysis | null;
   animation: IAnimationAnalysis | null;
   end: number;
-  lanes: readonly TimelineLaneId[];
+  start: number;
+  animationDocument?: IAnimationDocument | null;
 }
 
 interface ILane {
@@ -23,16 +26,23 @@ interface ILane {
 interface ILaneData<T> {
   data: T;
   end: number;
+  start: number;
 }
 
-const HEIGHT = 48;
-const x = (time: number, end: number) => fractionOf(time, end) * 1000;
+const HEIGHT = 56;
+const x = (time: number, end: number, start: number) => ((time - start) / end) * 1000;
+
+function extendCurve(points: Pattern["continuousPattern"]["amplitude"], end: number) {
+  const sorted = [...points].sort((a, b) => a.time - b.time);
+  const last = sorted.at(-1);
+  if (last && last.time < end) sorted.push({ ...last, time: end });
+  return sorted;
+}
 
 function Lane(props: ILane) {
   const { id, label, children } = props;
   return (
     <div className={`timeline-lane timeline-lane-${id}`} data-lane={id}>
-      <span className="timeline-lane-label">{label}</span>
       <svg viewBox={`0 0 1000 ${HEIGHT}`} preserveAspectRatio="none" role="img" aria-label={label}>
         {children}
       </svg>
@@ -41,30 +51,39 @@ function Lane(props: ILane) {
 }
 
 function PatternLane(props: ILaneData<Pattern>) {
-  const { data: pattern, end } = props;
-  const amplitude = curvePoints(pattern.continuousPattern.amplitude, end, HEIGHT - 4);
-  const frequency = curvePoints(pattern.continuousPattern.frequency, end, HEIGHT - 4);
-  const points = pattern.continuousPattern.amplitude;
+  const { data: pattern, end, start } = props;
+  const continuousEnd = Math.max(
+    0,
+    ...pattern.continuousPattern.amplitude.map((point) => point.time),
+    ...pattern.continuousPattern.frequency.map((point) => point.time),
+  );
+  const points = extendCurve(pattern.continuousPattern.amplitude, continuousEnd);
+  const amplitude = curvePoints(points, end, HEIGHT, start);
+  const frequency = curvePoints(
+    extendCurve(pattern.continuousPattern.frequency, continuousEnd),
+    end,
+    HEIGHT,
+    start,
+  );
   const [first, last] = [points[0]?.time ?? 0, points.at(-1)?.time ?? 0].map((time) =>
-    x(time, end),
+    x(time, end, start),
   );
   return (
     <Lane id="pattern" label="Pattern overview">
       {amplitude && (
         <polygon
-          points={`${first},${HEIGHT - 4} ${amplitude} ${last},${HEIGHT - 4}`}
+          points={`${first},${HEIGHT} ${amplitude} ${last},${HEIGHT}`}
           className="timeline-amp-fill"
         />
       )}
-      <polyline points={amplitude} className="timeline-amp" />
       <polyline points={frequency} className="timeline-freq" />
       {pattern.discretePattern.map((tap, index) => (
         <line
           key={index}
-          x1={x(tap.time, end)}
-          x2={x(tap.time, end)}
-          y1={HEIGHT - 4 - tap.amplitude * (HEIGHT - 8)}
-          y2={HEIGHT - 4}
+          x1={x(tap.time, end, start)}
+          x2={x(tap.time, end, start)}
+          y1={0}
+          y2={HEIGHT}
           className="timeline-tap"
         />
       ))}
@@ -73,36 +92,34 @@ function PatternLane(props: ILaneData<Pattern>) {
 }
 
 function AudioLane(props: ILaneData<IAudioAnalysis>) {
-  const { data: audio, end } = props;
+  const { data: audio, end, start } = props;
   const half = HEIGHT / 2;
   const levels = normalize(
     audio.frames,
     (frame) => frame.rms,
     (frame) => frame.timeMs,
   );
-  const top = levels.map((point) => `${x(point.time, end)},${half - point.value * (half - 2)}`);
-  const bottom = levels
-    .map((point) => `${x(point.time, end)},${half + point.value * (half - 2)}`)
-    .reverse();
   return (
     <Lane id="audio" label="Audio waveform">
-      <polygon points={[...top, ...bottom].join(" ")} className="timeline-wave" />
-      {audio.onsets.map((onset, index) => (
-        <line
-          key={index}
-          x1={x(onset.timeMs, end)}
-          x2={x(onset.timeMs, end)}
-          y1={0}
-          y2={4}
-          className="timeline-onset"
-        />
-      ))}
+      {levels.map((point, index) => {
+        const value = point.value > 0 ? Math.max(0.015, 1 + Math.log10(point.value) / 3) : 0;
+        return (
+          <line
+            key={index}
+            x1={x(point.time, end, start)}
+            x2={x(point.time, end, start)}
+            y1={half - value * (half - 3)}
+            y2={half + value * (half - 3)}
+            className="timeline-wave"
+          />
+        );
+      })}
     </Lane>
   );
 }
 
 function MotionLane(props: ILaneData<IAnimationAnalysis>) {
-  const { data: animation, end } = props;
+  const { data: animation, end, start } = props;
   const energy = normalize(
     animation.frames,
     (frame) => frame.energy,
@@ -110,12 +127,12 @@ function MotionLane(props: ILaneData<IAnimationAnalysis>) {
   );
   return (
     <Lane id="motion" label="Motion energy">
-      <polyline points={curvePoints(energy, end, HEIGHT - 4)} className="timeline-motion" />
+      <polyline points={curvePoints(energy, end, HEIGHT - 4, start)} className="timeline-motion" />
       {animation.impacts.map((impact, index) => (
         <line
           key={index}
-          x1={x(impact.timeMs, end)}
-          x2={x(impact.timeMs, end)}
+          x1={x(impact.timeMs, end, start)}
+          x2={x(impact.timeMs, end, start)}
           y1={0}
           y2={HEIGHT - 4}
           className="timeline-impact"
@@ -126,12 +143,18 @@ function MotionLane(props: ILaneData<IAnimationAnalysis>) {
 }
 
 export function TimelineLanes(props: ITimelineLanes) {
-  const { pattern, audio, animation, end, lanes } = props;
+  const { pattern, audio, animation, animationDocument, end, start } = props;
   return (
     <>
-      {lanes.includes("pattern") && <PatternLane data={pattern} end={end} />}
-      {audio && lanes.includes("audio") && <AudioLane data={audio} end={end} />}
-      {animation && lanes.includes("motion") && <MotionLane data={animation} end={end} />}
+      {audio && <AudioLane data={audio} end={end} start={start} />}
+      {animationDocument ? (
+        <div className="timeline-lane timeline-lane-motion" data-lane="motion">
+          <AnimationFilmstrip document={animationDocument} end={end} start={start} />
+        </div>
+      ) : (
+        animation && <MotionLane data={animation} end={end} start={start} />
+      )}
+      <PatternLane data={pattern} end={end} start={start} />
     </>
   );
 }

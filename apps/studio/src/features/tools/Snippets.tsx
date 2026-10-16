@@ -2,16 +2,24 @@ import { useState } from "react";
 import { patternEnd, type Pattern } from "@buzzzz/core";
 import { snippetRange } from "./patternMath";
 import { loadSnippets, saveSnippets, type ISnippet } from "./snippetsStore";
+import { SnippetRow } from "./SnippetRow";
+import { LibraryDetail } from "../presets/LibraryDetail";
+import type { StudioPreset } from "../presets/catalog";
 
 interface ISnippets {
   pattern: Pattern;
-  onAdd: (pattern?: Pattern, name?: string) => void;
-  onPreview?: (pattern: Pattern) => void;
+  onAppend: (pattern: Pattern, timeMs?: number) => void;
+  onPreview: (pattern: Pattern) => void;
+  onStopPreview: () => void;
+  previewing: boolean;
+  durationMs: number;
+  canEdit: boolean;
   onError: (message: string) => void;
 }
 
 export function Snippets(props: ISnippets) {
   const [snippets, setSnippets] = useState(loadSnippets);
+  const [detail, setDetail] = useState<StudioPreset | null>(null);
   const [name, setName] = useState("New snippet");
   const [start, setStart] = useState(0);
   const [end, setEnd] = useState(Math.max(1, patternEnd(props.pattern)));
@@ -41,7 +49,7 @@ export function Snippets(props: ISnippets) {
     }
   };
   return (
-    <div className="panel-content">
+    <div className="panel-content preset-library">
       <p>Save a range on this browser. Leading and trailing silence stay in the snippet.</p>
       <label>
         Snippet name
@@ -91,36 +99,41 @@ export function Snippets(props: ISnippets) {
           Use full pattern
         </button>
       </div>
-      <ul className="list">
+      <ul className="library-list">
         {snippets.map((snippet) => (
-          <li key={snippet.id}>
-            <span className="grow">
-              {snippet.name}
-              <small>{(snippet.durationMs / 1000).toFixed(2)}s</small>
-            </span>
-            <button
-              disabled={!props.onPreview}
-              onClick={() => props.onPreview?.(snippet.pattern)}
-              aria-label={`Preview snippet ${snippet.name}`}
-            >
-              Preview
-            </button>
-            <button
-              onClick={() => props.onAdd(structuredClone(snippet.pattern), snippet.name)}
-              aria-label={`Add snippet ${snippet.name}`}
-            >
-              Add
-            </button>
-            <button
-              onClick={() => persist(snippets.filter((item) => item.id !== snippet.id))}
-              aria-label={`Delete snippet ${snippet.name}`}
-            >
-              Delete
-            </button>
-          </li>
+          <SnippetRow
+            key={snippet.id}
+            snippet={snippet}
+            canEdit={props.canEdit}
+            onAppend={props.onAppend}
+            onInspect={(entry) =>
+              setDetail({ ...entry, duration: entry.durationMs, description: "", tags: [] })
+            }
+            onRename={(id, name) =>
+              persist(snippets.map((item) => (item.id === id ? { ...item, name } : item)))
+            }
+            onRemove={(id) => persist(snippets.filter((item) => item.id !== id))}
+          />
         ))}
       </ul>
       {!snippets.length && <p>No saved snippets.</p>}
+      {snippets.length > 0 && (
+        <p className="library-footnote">
+          Drag a snippet onto the chart to place it at a specific time, or press + to append it at
+          the end ({Math.round(props.durationMs)} ms).
+        </p>
+      )}
+      {detail && (
+        <LibraryDetail
+          entry={detail}
+          onClose={() => setDetail(null)}
+          onAppend={(entry) => props.onAppend(entry.pattern)}
+          onPreview={props.onPreview}
+          onStopPreview={props.onStopPreview}
+          previewing={props.previewing}
+          canEdit={props.canEdit}
+        />
+      )}
     </div>
   );
 }

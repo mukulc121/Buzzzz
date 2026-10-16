@@ -1,0 +1,140 @@
+.dashboard-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px 20px;
+  border: 2px solid var(--line-strong);
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--fg);
+  white-space: nowrap;
+  user-select: none;
+  box-shadow: -4px 4px 0 var(--dash-shadow);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.dashboard-button > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 2px 0;
+  margin: -2px 0;
+}
+.dashboard-button.primary,
+.dashboard-button.primary:hover:not(:disabled) {
+  font-weight: 500;
+  background: var(--primary-bg);
+  border-color: var(--line-strong);
+  color: var(--fg);
+}
+.dashboard-button.secondary,
+.dashboard-button.secondary:hover:not(:disabled) {
+  background: var(--panel);
+  border-color: var(--line-strong);
+}
+.dashboard-button:hover:not(:disabled) {
+  transform: translate(1px, -1px);
+  box-shadow: -5px 5px 0 var(--dash-shadow);
+}
+.dashboard-button:active:not(:disabled) {
+  transform: translate(-3px, 3px);
+  box-shadow: -1px 1px 0 var(--line-strong);
+}
+.dashboard-button:disabled {
+  opacity: 0.5;
+  box-shadow: none;
+  transform: none;
+}
+.dashboard-button.danger,
+.dashboard-button.danger:hover:not(:disabled) {
+  background: var(--dash-danger-bg);
+  border-color: var(--dash-danger);
+  color: var(--dash-danger);
+  box-shadow: -4px 4px 0 var(--dash-danger);
+}
+.dashboard-button.ghost,
+.dashboard-button.ghost:hover:not(:disabled),
+.dashboard-button.ghost:active:not(:disabled) {
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+  box-shadow: none;
+  transform: none;
+}
+.dashboard-button.ghost:hover:not(:disabled) {
+  background: var(--plot);
+  color: var(--fg);
+}
+.dashboard-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: 4px;
+  color: var(--fg);
+  font-size: 16px;
+  line-height: 1.4;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.dashboard-input::placeholder {
+  color: var(--muted);
+}
+.dashboard-input:hover:not(:disabled) {
+  border-color: var(--dash-blue-30);
+}
+.dashboard-input:focus,
+.dashboard-input:focus-visible {
+  outline: none;
+  border-color: var(--line-strong);
+  box-shadow: 0 0 0 3px var(--dash-ring);
+}
+.dashboard-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 240px;
+}
+.dashboard-search .dashboard-input {
+  padding-left: 40px;
+  padding-right: 40px;
+}
+.dashboard-search-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--muted);
+  pointer-events: none;
+}
+.dashboard-search > button {
+  position: absolute;
+  right: 8px;
+  min-height: 0;
+  padding: 4px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+}
+.dashboard-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.dashboard-field small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.dashboard-field[data-invalid] .dashboard-input {
+  border-color: var(--dash-danger);
+}
+.dashboard-field[data-invalid] small {
+  color: var(--dash-danger);
+}

@@ -1,0 +1,185 @@
+.inspector-exports {
+  --export-accent: var(--fg-2);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.export-settings {
+  border: 2px solid var(--line);
+  border-radius: 4px;
+}
+.export-settings > summary {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--export-accent);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  outline: none;
+}
+.export-settings > summary::-webkit-details-marker {
+  display: none;
+}
+.export-settings > summary:focus-visible,
+.inspector-exports .export-select-all:focus-visible,
+.export-preset:focus-visible {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 2px;
+}
+.export-settings[open] > summary {
+  border-bottom: 2px solid var(--line);
+}
+.export-settings[open] .export-chevron {
+  transform: rotate(90deg);
+}
+.export-chevron {
+  flex-shrink: 0;
+  transition: transform 150ms ease;
+}
+.export-settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+}
+.export-subhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.export-subhead:not(:first-child) {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line-strong);
+}
+.inspector-exports .export-select-all {
+  width: auto;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--export-accent);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.inspector-exports .export-select-all:hover {
+  text-decoration: underline;
+  background: transparent;
+}
+.export-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.inspector-exports .export-preset {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 0;
+  padding: 4px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.inspector-exports .export-preset:hover {
+  background: var(--plot);
+}
+.export-check {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--line-strong);
+  border-radius: 4px;
+  color: var(--panel);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+.export-preset[aria-checked="true"] .export-check {
+  border-color: var(--button-focus);
+  background: var(--button-focus);
+}
+.export-preset-name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.export-preset-name > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.export-preset[aria-checked="true"] .export-preset-name {
+  color: var(--fg);
+}
+.export-preset-tag {
+  flex-shrink: 0;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--line);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+:root:not([data-theme="dark"]) .export-preset-tag {
+  color: var(--fg);
+}
+:root[data-theme="dark"] .inspector-exports {
+  --export-accent: var(--button-focus);
+}
+.export-preset-meta {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.export-settings-body .inspector-switch-row {
+  min-height: 24px;
+  gap: 16px;
+}
+.export-settings-body input[role="switch"] {
+  background: var(--panel);
+}
+.export-settings-body input[role="switch"]::after {
+  background: var(--timeline-fill);
+}
+.export-settings-body input[role="switch"]:checked {
+  background: var(--accent);
+}
+.export-settings-body input[role="switch"]:checked::after {
+  left: 20px;
+  background: rgba(255, 255, 255, 1);
+}

@@ -1,4 +1,4 @@
-import { isProject, isRecord, type Project } from "@buzzzz/core";
+import { isProject, isRecord, type Preset, type Project } from "@buzzzz/core";
 
 export interface IProjectRecord {
   id: string;
@@ -15,6 +15,7 @@ export interface IProjectSummary {
   createdAt: number;
   updatedAt: number;
   patterns: number;
+  previews: Preset[];
 }
 
 export type TProjectSort = "updated" | "name" | "created";
@@ -30,6 +31,7 @@ export type TProjectStatus =
   | "unlocked";
 
 const MAX_NAME = 120;
+export const PREVIEWS = 5;
 
 export const uid = () => Math.random().toString(36).slice(2, 9);
 const projectId = () => crypto.randomUUID();
@@ -96,9 +98,12 @@ export const summarize = (record: IProjectRecord): IProjectSummary => ({
   createdAt: record.createdAt,
   updatedAt: record.updatedAt,
   patterns: record.project.presets.length,
+  previews: record.project.presets.slice(0, PREVIEWS),
 });
 
-export function filterProjects(items: IProjectSummary[], query: string, sort: TProjectSort) {
+type TSortable = Pick<IProjectSummary, "name" | "createdAt" | "updatedAt">;
+
+export function filterProjects<T extends TSortable>(items: T[], query: string, sort: TProjectSort) {
   const needle = query.trim().toLowerCase();
   const found = needle ? items.filter((item) => item.name.toLowerCase().includes(needle)) : items;
   return found.toSorted((a, b) => {
@@ -108,12 +113,41 @@ export function filterProjects(items: IProjectSummary[], query: string, sort: TP
   });
 }
 
-export function copyPatternInto(target: Project, source: Project["presets"][number]): Project {
-  const ids = new Set(target.presets.map((preset) => preset.id));
-  let id = source.id;
-  while (ids.has(id)) id = uid();
+export function copyPatternInto(
+  target: Project,
+  source: Preset,
+  id = freePresetId(target, source.id),
+): Project {
   return { ...target, presets: [...target.presets, { ...structuredClone(source), id }] };
 }
+
+export function freePresetId(target: Project, preferred: string) {
+  const ids = new Set(target.presets.map((preset) => preset.id));
+  let id = preferred;
+  while (ids.has(id)) id = uid();
+  return id;
+}
+
+const MINUTE = 60_000;
+const HOUR = 60 * MINUTE;
+const DAY = 24 * HOUR;
+
+export function editedAgo(time: number, now = Date.now()) {
+  const elapsed = now - time;
+  if (elapsed < MINUTE) return "just now";
+  if (elapsed < HOUR) return `${Math.floor(elapsed / MINUTE)} min ago`;
+  if (elapsed < DAY) return `${Math.floor(elapsed / HOUR)} hr ago`;
+  if (elapsed < 2 * DAY) return "yesterday";
+  if (elapsed < 7 * DAY) return `${Math.floor(elapsed / DAY)} days ago`;
+  return new Date(time).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+export const patternCount = (count: number) =>
+  count === 0 ? "No patterns" : `${count} ${count === 1 ? "pattern" : "patterns"}`;
 
 export function deriveProjectStatus(state: {
   lock: TLockState;

@@ -1,0 +1,55 @@
+.resize-handle {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  width: 0;
+  cursor: col-resize;
+  touch-action: none;
+}
+.resize-handle[data-positioned] {
+  position: absolute;
+  inset-block: 0;
+}
+.resize-handle::before {
+  content: "";
+  position: absolute;
+  inset: 0 -3px;
+  background: transparent;
+  transition: background-color 150ms ease;
+}
+.resize-handle:hover::before,
+.resize-handle:active::before {
+  background: var(--accent-soft);
+}
+.resize-handle[data-orientation="horizontal"] {
+  width: auto;
+  height: 0;
+  cursor: row-resize;
+}
+.resize-handle[data-orientation="horizontal"]::before {
+  inset: -3px 0;
+}
+.resize-grip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 28px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: var(--line);
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+.resize-handle:hover .resize-grip {
+  opacity: 1;
+}
+.resize-handle[data-orientation="horizontal"] .resize-grip {
+  width: 28px;
+  height: 2px;
+}
+@media (max-width: 760px) {
+  .resize-handle[data-positioned] {
+    display: none;
+  }
+}

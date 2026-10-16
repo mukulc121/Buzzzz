@@ -3,12 +3,15 @@ import { patternEnd, rangePattern, toDevice, type Pattern, type Msg } from "@buz
 import { playBuffer, prepareSound, soundNow, stopSound } from "./audio";
 import { soundDuration } from "./soundGraph";
 import type { IPlaybackRange } from "./model";
+import { playbackStart } from "./playbackStart";
 
 interface IPlayback {
   send: (message: Msg) => void;
   phones: number;
   track?: { url: string; startMs: number; endMs: number } | null;
   durationMs?: number;
+  cursor?: number;
+  onCursorChange?: (time: number) => void;
   onError?: (message: string) => void;
   onStart?: (time: number) => void;
   onStop?: () => void;
@@ -16,6 +19,8 @@ interface IPlayback {
 }
 export function usePlayback(props: IPlayback) {
   const { send, phones, track, onError, onStart, onStop, onSeek, durationMs = 0 } = props;
+  const [scrub, setScrub] = useState<number | null>(null);
+  const cursor = props.cursor ?? scrub;
   const [playhead, setPlayhead] = useState<number | null>(null);
   const [playing, setPlaying] = useState(false);
   const [sound, setSound] = useState(true);
@@ -68,7 +73,8 @@ export function usePlayback(props: IPlayback) {
       mode === "document" && track ? track.endMs - track.startMs : 0,
     );
     const end = range?.end ?? fullEnd;
-    const duration = Math.max(1, end - start);
+    let from = mode === "document" ? playbackStart({ start, end }, cursor ?? 0) : start;
+    let duration = Math.max(1, end - from);
     // Like Pulsar, a trimmed end excludes a tap exactly on it; the full length keeps it.
     const clip = (cursor: number) => {
       const clipped = rangePattern(pattern, cursor, end);
@@ -76,10 +82,11 @@ export function usePlayback(props: IPlayback) {
       const discretePattern = clipped.discretePattern.filter((tap) => tap.time < end - cursor);
       return { ...clipped, discretePattern };
     };
-    const ranged = clip(start);
-    const finishAt = Math.max(duration, soundDuration(ranged) * 1000);
+    const ranged = clip(from);
+    let finishAt = Math.max(duration, soundDuration(ranged) * 1000);
     let soundFailed = false;
     let buffer: AudioBuffer | null = null;
+    let loopBuffer: AudioBuffer | null = null;
     const usesTrack = (cursor: number) => {
       const prefs = preferences.current;
       return (
@@ -97,7 +104,7 @@ export function usePlayback(props: IPlayback) {
     let outputKey = "";
     const startOutput = (elapsed: number) => {
       const prefs = preferences.current;
-      const cursor = start + elapsed;
+      const cursor = from + elapsed;
       stopSound(owner);
       player.current?.pause();
       const remaining = clip(cursor);
@@ -121,8 +128,14 @@ export function usePlayback(props: IPlayback) {
       clock =
         soundStart === null ? () => performance.now() - started : () => soundNow() - soundStart;
     };
-    const restart = () => {
-      if (mode === "document") onStart?.(start);
+    const restart = (looping = false) => {
+      if (looping) {
+        from = start;
+        duration = Math.max(1, end - from);
+        finishAt = Math.max(duration, soundDuration(clip(from)) * 1000);
+        buffer = loopBuffer;
+      }
+      if (mode === "document") onStart?.(from);
       else onStop?.();
       output(0);
     };
@@ -131,16 +144,16 @@ export function usePlayback(props: IPlayback) {
       let elapsed = Math.max(0, clock());
       // Loops restart at the range end, clipping the tail as Pulsar does; a last pass rings out.
       if (prefs.loop && elapsed >= duration) {
-        restart();
+        restart(true);
         elapsed = 0;
       } else if (elapsed >= finishAt) {
         finish();
         return;
       }
       if (elapsed < duration && keyOf(prefs) !== outputKey) output(elapsed);
-      if (prefs.track && start + elapsed >= prefs.track.endMs - prefs.track.startMs)
+      if (prefs.track && from + elapsed >= prefs.track.endMs - prefs.track.startMs)
         player.current?.pause();
-      setPlayhead(start + Math.min(duration, elapsed));
+      setPlayhead(from + Math.min(duration, elapsed));
       raf.current = requestAnimationFrame(tick);
     };
     const begin = () => {
@@ -151,10 +164,15 @@ export function usePlayback(props: IPlayback) {
     owner.current = () => {
       if (id === run.current) finish();
     };
-    const sound = prepareSound(ranged).then((rendered) => {
-      buffer = rendered;
+    const firstSound = prepareSound(ranged);
+    const sound = Promise.all([
+      firstSound,
+      from === start ? firstSound : prepareSound(clip(start)),
+    ]).then(([first, repeated]) => {
+      buffer = from === start ? repeated : first;
+      loopBuffer = repeated;
     });
-    if (!usesSound(start)) {
+    if (!usesSound(from)) {
       sound.catch(() => (soundFailed = true));
       return begin();
     }
@@ -163,7 +181,7 @@ export function usePlayback(props: IPlayback) {
       soundFailed = true;
       onError?.("Sound could not start");
       const prefs = preferences.current;
-      if ((prefs.onPhone && prefs.phones) || usesTrack(start)) begin();
+      if ((prefs.onPhone && prefs.phones) || usesTrack(from)) begin();
       else finish();
     });
   };
@@ -177,10 +195,11 @@ export function usePlayback(props: IPlayback) {
     [],
   );
   return {
-    playhead,
+    playhead: playhead ?? cursor,
     setPlayhead: (time: number | null) => {
       if (playing) stop();
-      setPlayhead(time);
+      setScrub(time);
+      props.onCursorChange?.(time ?? 0);
       onSeek?.(time ?? 0);
     },
     playing,

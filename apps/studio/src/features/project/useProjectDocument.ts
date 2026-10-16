@@ -49,13 +49,17 @@ export function useProjectDocument(props: IProjectDocument) {
     return true;
   };
 
-  const editPreset = (recipe: (item: typeof preset) => typeof preset) =>
-    apply((current) =>
-      history.edit(current, preset.id, (pr) => ({
+  const editPreset = (recipe: (item: typeof preset) => typeof preset, id = preset.id) =>
+    apply((current) => {
+      const item = current.project.presets.find((item) => item.id === id);
+      if (!item) return current;
+      const next = recipe(item);
+      if (next === item) return current;
+      return history.edit(current, id, (pr) => ({
         ...pr,
-        presets: pr.presets.map((item) => (item.id === preset.id ? recipe(item) : item)),
-      })),
-    );
+        presets: pr.presets.map((item) => (item.id === id ? next : item)),
+      }));
+    });
 
   const setProject: Dispatch<SetStateAction<Project>> = (action) =>
     apply((current) =>
@@ -72,6 +76,7 @@ export function useProjectDocument(props: IProjectDocument) {
 
   return {
     project,
+    getProject: () => latest.current.project,
     preset,
     pattern: preset.pattern,
     mapped,
@@ -85,6 +90,11 @@ export function useProjectDocument(props: IProjectDocument) {
     setPattern: (pattern: Pattern) => editPreset((item) => ({ ...item, pattern })),
     setEditor: (editor: IPresetEditor) => editPreset((item) => ({ ...item, editor })),
     rename: (name: string) => editPreset((item) => ({ ...item, name })),
+    renamePreset: (id: string, name: string) => {
+      const trimmed = name.trim();
+      if (!trimmed) return false;
+      return editPreset((item) => (item.name === trimmed ? item : { ...item, name: trimmed }), id);
+    },
     addPreset: (
       pattern: Pattern = emptyPattern(),
       name = "Untitled",

@@ -1,105 +1,94 @@
-import { useState } from "react";
-import { Copy } from "../../components/icons";
+import { useEffect, useRef, useState } from "react";
+import { InspectorIcon } from "../../components/InspectorIcon";
 import type { IRoom } from "./cloud";
-import { usePairing } from "./usePairing";
+import { PairingDialog } from "./PairingDialog";
+import { DeviceAppGuide } from "./DeviceAppGuide";
 
 interface IDevice {
   phones: number;
   room?: IRoom | null;
+  onHide: () => void;
+}
+function PhoneIcon() {
+  return (
+    <svg
+      width="26"
+      height="26"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="6" y="2" width="12" height="20" rx="2" />
+      <path d="M12 18h.01" />
+    </svg>
+  );
 }
 export function Device(props: IDevice) {
-  const { phones, room = null } = props;
-  const { url, qr, error, code, loading, renew } = usePairing(room, phones);
-  const [showQr, setShowQr] = useState(false);
-  const [copyStatus, setCopyStatus] = useState("");
+  const { phones, room = null, onHide } = props;
+  const [pairingOpen, setPairingOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
+  const previousPhones = useRef(phones);
+  useEffect(() => {
+    if (phones > previousPhones.current) setPairingOpen(false);
+    previousPhones.current = phones;
+  }, [phones]);
   return (
-    <section className="card">
-      <header className="card-head">
-        <h3>Phone</h3>
-        <span className={phones ? "status on" : "status"}>
-          <i className="dot" />
-          {phones ? `${phones} connected` : "Waiting"}
+    <section className="device-panel" aria-label="Device connection">
+      <header className="panel-heading device-heading">
+        <h2>Device</h2>
+        <span className="device-status" data-online={phones > 0}>
+          {phones ? `${phones} online` : "Offline"}
         </span>
-      </header>
-      {phones > 0 && (
         <button
-          className="link"
-          onClick={() => {
-            if (!showQr) renew();
-            setShowQr(!showQr);
-          }}
+          type="button"
+          className="icon"
+          aria-label="Hide panel"
+          title="Hide panel"
+          onClick={onHide}
         >
-          {showQr ? "Hide pairing code" : "Pair another phone"}
+          <InspectorIcon name="collapse" />
         </button>
-      )}
-      {error && (
-        <p className="hint" role="status">
-          {error}
-        </p>
-      )}
-      {(!phones || showQr) && !error && (
-        <div className="pair">
-          <div className="pair-guide">
-            {qr ? (
-              <img
-                className="qr"
-                src={qr}
-                alt="QR code that pairs Haptics Preview with this editor"
-              />
-            ) : (
-              <div className="qr skeleton" />
-            )}
-            {room && (
-              <div className="pair-code" aria-label="Pairing code">
-                {code ?? "…"}
-              </div>
-            )}
-            <ol className="steps">
-              <li>
-                {room
-                  ? "Open Buzzzz Preview on your phone"
-                  : "Join the same Wi-Fi as this computer"}
-              </li>
-              <li>Scan the pairing QR code</li>
-            </ol>
-          </div>
-          <div className="relay-address">
-            {room && (
-              <button disabled={loading} onClick={renew}>
-                Refresh pairing code
-              </button>
-            )}
-            <div className="relay-address-head">
-              <label htmlFor="relay-url">Or paste this address in the app</label>
-              <button
-                className="icon"
-                aria-label="Copy relay address"
-                onClick={() =>
-                  void navigator.clipboard
-                    .writeText(url)
-                    .then(() => setCopyStatus("Address copied"))
-                    .catch(() => setCopyStatus("Select the address to copy it manually"))
-                }
-              >
-                <Copy />
-              </button>
+      </header>
+      {phones ? (
+        <div className="device-connected">
+          <div className="device-connected-card">
+            <span className="device-live-dot" />
+            <div>
+              <h3>{phones} connected</h3>
+              <p className="hint">Ready to preview haptics from this editor.</p>
             </div>
-            <div className="relay-address-row">
-              <input
-                id="relay-url"
-                className="relay-url"
-                aria-label="Relay address"
-                readOnly
-                value={url}
-                onFocus={(event) => event.currentTarget.select()}
-              />
-            </div>
-            <span className="hint" role="status">
-              {copyStatus}
-            </span>
           </div>
+          <button type="button" onClick={() => setPairingOpen(true)}>
+            Pair another phone
+          </button>
+        </div>
+      ) : (
+        <div className="device-empty">
+          <span className="device-empty-icon">
+            <PhoneIcon />
+          </span>
+          <h3>No device connected</h3>
+          <p>
+            Pair a phone to feel your haptics on real hardware. Open Buzzzz Preview and scan the
+            pairing code. You can pair several.
+          </p>
+          <button type="button" className="device-connect" onClick={() => setPairingOpen(true)}>
+            Connect device
+          </button>
+          <button type="button" className="device-app-link" onClick={() => setGuideOpen(true)}>
+            <PhoneIcon />
+            <span>Don't have Buzzzz Preview?</span>
+          </button>
         </div>
       )}
+      {pairingOpen && (
+        <PairingDialog room={room} phones={phones} onClose={() => setPairingOpen(false)} />
+      )}
+      {guideOpen && <DeviceAppGuide onClose={() => setGuideOpen(false)} />}
     </section>
   );
 }

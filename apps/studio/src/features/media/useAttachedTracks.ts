@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { MediaKind } from "./model";
 import { useAttachmentLoader, type IAttachmentCodecs } from "./useAttachmentLoader";
 import { useAttachmentHydration } from "./useAttachmentHydration";
@@ -14,6 +14,7 @@ interface ILoaded {
 interface IAttachedTracks extends IAttachmentCodecs {
   projectId: string;
   presetId: string;
+  writable: boolean;
 }
 
 const KINDS: readonly MediaKind[] = ["audio", "animation", "rive"];
@@ -21,11 +22,15 @@ const isLoaded = (loaded: ILoaded, scope: string, assetId: string | null) =>
   loaded.scope === scope && loaded.assetId === assetId;
 
 export function useAttachedTracks(props: IAttachedTracks) {
-  const { projectId, presetId, onError, audio, animation, rive } = props;
-  const library = useMediaLibrary({ projectId, presetId, onError });
+  const { projectId, presetId, writable, onError, audio, animation, rive } = props;
+  const library = useMediaLibrary({ projectId, presetId, writable, onError });
   const { ready: libraryReady, attachment, getFile, updateTrim } = library;
   const { load, clearKind } = useAttachmentLoader({ audio, animation, rive, onError });
   const trackScope = `${projectId}\u0000${presetId}`;
+  const access = useRef({ projectId, trackScope, writable });
+  useLayoutEffect(() => {
+    access.current = { projectId, trackScope, writable };
+  }, [projectId, trackScope, writable]);
   const scopeOf = useCallback(
     (kind: MediaKind) => (kind === "rive" ? projectId : trackScope),
     [projectId, trackScope],
@@ -98,8 +103,15 @@ export function useAttachedTracks(props: IAttachedTracks) {
   const apply = useCallback(
     async (kind: MediaKind, file: File, persist: () => Promise<string | null>) => {
       const scope = scopeOf(kind);
+      const canWrite = () =>
+        access.current.writable &&
+        (kind === "rive" ? access.current.projectId : access.current.trackScope) === scope;
+      if (!canWrite()) {
+        errorHandler.current("Open this project for editing to change media");
+        return false;
+      }
       const token = invalidate(kind);
-      const current = () => token === tokens.current[kind];
+      const current = () => token === tokens.current[kind] && canWrite();
       importing.current.add(kind);
       setImportingToken((current) => ({ ...current, [kind]: token }));
       try {
@@ -113,7 +125,7 @@ export function useAttachedTracks(props: IAttachedTracks) {
         return assetId !== null;
       } finally {
         unmark(kind, token);
-        if (current()) {
+        if (token === tokens.current[kind]) {
           importing.current.delete(kind);
           setRevision((value) => value + 1);
         }

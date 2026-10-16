@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Pattern } from "@buzzzz/core";
-import { analyzeAudioAsync } from "../audio/analysis";
+import { trimChannels } from "../audio/signal/mix";
+import { analyzeVoiceAsync } from "../audio/voice/client";
 import { monitorVoice } from "./voiceMeter";
 import { voicePattern } from "./voicePattern";
 
@@ -10,7 +11,6 @@ export function useVoiceSketch(onError: (message: string) => void) {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const alive = useRef(true);
   const request = useRef(0);
-  const analysis = useRef<AbortController | null>(null);
   const metering = useRef<(() => void) | null>(null);
   const [state, setState] = useState<"idle" | "recording" | "processing">("idle");
   const [pattern, setPattern] = useState<Pattern | null>(null);
@@ -29,7 +29,6 @@ export function useVoiceSketch(onError: (message: string) => void) {
     return () => {
       alive.current = false;
       request.current += 1;
-      analysis.current?.abort();
       if (recorder.current?.state === "recording") recorder.current.stop();
       release();
     };
@@ -40,7 +39,6 @@ export function useVoiceSketch(onError: (message: string) => void) {
   };
   const cancel = () => {
     request.current += 1;
-    analysis.current?.abort();
     stop();
     setState("idle");
     setPattern(null);
@@ -89,24 +87,18 @@ export function useVoiceSketch(onError: (message: string) => void) {
         if (!alive.current || current !== request.current) return;
         setState("processing");
         const decode = async () => {
-          const context = new AudioContext();
+          const context = new AudioContext({ sampleRate: 44100 });
           try {
             const blob = new Blob(chunks, { type: capture.mimeType });
             if (blob.size > 4 * 1024 * 1024) throw new Error("Recording exceeds 4 MiB");
             const audio = await context.decodeAudioData(await blob.arrayBuffer());
             if (!alive.current || current !== request.current) return;
-            const controller = new AbortController();
-            analysis.current = controller;
-            const signal = {
-              sampleRate: audio.sampleRate,
-              channels: Array.from({ length: audio.numberOfChannels }, (_, index) =>
-                audio.getChannelData(index),
-              ),
-            };
-            const result = await analyzeAudioAsync(
-              signal,
-              { durationMs: 15000, frameMs: 20 },
-              controller.signal,
+            const channels = Array.from({ length: audio.numberOfChannels }, (_, index) =>
+              audio.getChannelData(index),
+            );
+            const result = await analyzeVoiceAsync(
+              trimChannels(channels, audio.sampleRate, 0, 15000),
+              audio.sampleRate,
             );
             const nextPattern = voicePattern(result);
             if (alive.current && current === request.current) setPattern(nextPattern);

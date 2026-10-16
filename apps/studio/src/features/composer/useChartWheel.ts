@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 import type { IChart } from "./model";
-import { CHART_PADDING } from "./geometry";
+import { chartGeometry } from "./geometry";
 import { clampViewport, zoomViewport } from "./viewport";
 
 interface IChartWheel {
@@ -26,6 +26,7 @@ export function useChartWheel(options: IChartWheel) {
       if (!current.onViewChange || dragging.current()) return;
       event.preventDefault();
       const viewport = { startMs: current.viewStartMs ?? 0, durationMs: current.viewMs };
+      const geometry = chartGeometry({ width, height, ...viewport });
       const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? height : 1;
       if (event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
         current.onViewChange(
@@ -33,8 +34,7 @@ export function useChartWheel(options: IChartWheel) {
             ...viewport,
             startMs:
               viewport.startMs +
-              (((event.deltaX || event.deltaY) * unit) / Math.max(1, width - 2 * CHART_PADDING)) *
-                viewport.durationMs,
+              (((event.deltaX || event.deltaY) * unit) / geometry.axisWidth) * viewport.durationMs,
           }),
         );
       } else {
@@ -43,9 +43,7 @@ export function useChartWheel(options: IChartWheel) {
           zoomViewport({
             ...viewport,
             factor: Math.exp(event.deltaY * unit * 0.002),
-            anchor:
-              (event.clientX - bounds.left - CHART_PADDING) /
-              Math.max(1, width - 2 * CHART_PADDING),
+            anchor: (event.clientX - bounds.left - geometry.axisLeft) / geometry.axisWidth,
           }),
         );
       }

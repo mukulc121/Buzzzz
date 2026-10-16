@@ -16,6 +16,8 @@ interface IRun {
   sampleRate: number;
   messages: string[];
   playheads: number[];
+  starts: number[];
+  phonePatterns: Pattern[];
   error?: string;
 }
 interface IOptions {
@@ -26,6 +28,7 @@ interface IOptions {
   loop?: boolean;
   stopAtMs?: number;
   soundOnAfterStart?: boolean;
+  cursor?: number;
 }
 
 const presets: IPreset[] = JSON.parse(
@@ -97,14 +100,20 @@ const harness = `
 import * as ReactModule from "/node_modules/.vite/deps/react.js";
 import * as DOMModule from "/node_modules/.vite/deps/react-dom_client.js";
 import { usePlayback } from "/src/features/composer/usePlayback.ts";
+import { useComposer } from "/src/features/composer/useComposer.ts";
 const React = ReactModule.default ?? ReactModule;
 const { createRoot } = DOMModule.default ?? DOMModule;
-const log = { messages: [], playheads: [], done: false };
+const log = { messages: [], playheads: [], starts: [], phonePatterns: [], editorChanges: 0, done: false };
 window.__playback = log;
 function Harness() {
+  const [instance, setInstance] = React.useState("project-a/preset-a");
+  const composer = useComposer({ continuousPattern: { amplitude: [], frequency: [] }, discretePattern: [] }, { durationMs: 500, markers: [], range: null }, () => log.editorChanges++, instance);
   const playback = usePlayback({
-    send: (message) => log.messages.push(message.type),
+    send: (message) => { log.messages.push(message.type); if (message.type === "play") log.phonePatterns.push(message.pattern); },
     phones: 1,
+    cursor: composer.cursor,
+    onCursorChange: composer.setCursor,
+    onStart: (time) => log.starts.push(time),
     onError: (message) => (log.error = message),
   });
   React.useEffect(() => {
@@ -116,6 +125,8 @@ function Harness() {
   const second = usePlayback({ send: () => {}, phones: 0 });
   window.__controls = playback;
   window.__second = second;
+  window.__composer = composer;
+  window.__setInstance = setInstance;
   return React.createElement("output", { id: "playing" }, String(playback.playing));
 }
 const container = document.createElement("div");
@@ -152,8 +163,16 @@ async function play(page: Page, pattern: Pattern, options: IOptions = {}): Promi
           setLoop: (loop: boolean) => void;
           setSound: (sound: boolean) => void;
           setOnPhone: (onPhone: boolean) => void;
+          setPlayhead: (time: number) => void;
         };
-        __playback: { messages: string[]; playheads: number[]; done: boolean; error?: string };
+        __playback: {
+          messages: string[];
+          playheads: number[];
+          starts: number[];
+          phonePatterns: Pattern[];
+          done: boolean;
+          error?: string;
+        };
         __blocks: IBlock[];
         __sampleRate: number;
       };
@@ -166,9 +185,16 @@ async function play(page: Page, pattern: Pattern, options: IOptions = {}): Promi
       controls.setLoop(Boolean(options.loop));
       controls.setSound(options.sound ?? true);
       controls.setOnPhone(options.onPhone ?? true);
+      controls.setPlayhead(options.cursor ?? 0);
       await wait(50);
       state.__blocks.length = 0;
-      Object.assign(state.__playback, { messages: [], playheads: [], done: false });
+      Object.assign(state.__playback, {
+        messages: [],
+        playheads: [],
+        starts: [],
+        phonePatterns: [],
+        done: false,
+      });
       state.__controls.play(pattern, options.range, options.mode ?? "pattern");
       if (options.soundOnAfterStart) controls.setSound(true);
       await until(() => state.__playback.playheads.length > 0);
@@ -202,6 +228,8 @@ async function play(page: Page, pattern: Pattern, options: IOptions = {}): Promi
         sampleRate: state.__sampleRate,
         messages: state.__playback.messages,
         playheads: state.__playback.playheads,
+        starts: state.__playback.starts,
+        phonePatterns: state.__playback.phonePatterns,
         error: state.__playback.error,
       };
     },
@@ -333,6 +361,190 @@ test("sound switched on while the buffer renders still plays", async ({ page }) 
     soundOnAfterStart: true,
   });
   expect(bursts(run.samples, run.sampleRate).length).toBeGreaterThanOrEqual(2);
+});
+
+test("editor Play starts strictly inside the range and returns to the scrub cursor", async ({
+  page,
+}) => {
+  await mount(page);
+  for (const [cursor, start, count] of [
+    [0, 25, 2],
+    [25, 25, 2],
+    [75, 75, 2],
+    [100, 100, 1],
+    [150, 25, 2],
+    [200, 25, 2],
+  ]) {
+    const run = await play(page, afterglow, {
+      cursor,
+      range: { start: 25, end: 150 },
+      mode: "document",
+    });
+    expect(run.starts, `cursor ${cursor}`).toEqual([start]);
+    expect(bursts(run.samples, run.sampleRate), `cursor ${cursor}`).toHaveLength(count);
+    expect(run.phonePatterns[0]!.discretePattern.map((tap) => tap.time)).toEqual(
+      afterglow.discretePattern.filter((tap) => tap.time >= start).map((tap) => tap.time - start),
+    );
+    expect(
+      await page.evaluate(
+        () => (window as unknown as { __controls: { playhead: number } }).__controls.playhead,
+      ),
+    ).toBe(cursor);
+  }
+  const full = await play(page, afterglow, { cursor: 75, mode: "document" });
+  expect(full.starts).toEqual([75]);
+  expect(bursts(full.samples, full.sampleRate)).toHaveLength(2);
+});
+
+test("a cursor shortens only the first loop pass, then repeats from the range start", async ({
+  page,
+}) => {
+  await mount(page);
+  const run = await play(page, afterglow, {
+    cursor: 75,
+    range: { start: 25, end: 140 },
+    mode: "document",
+    loop: true,
+  });
+  expect(run.starts.slice(0, 4)).toEqual([75, 25, 25, 25]);
+  expect(
+    run.phonePatterns.slice(0, 4).map((pattern) => pattern.discretePattern.map((tap) => tap.time)),
+  ).toEqual([[0], [50], [50], [50]]);
+  const heard = bursts(run.samples, run.sampleRate);
+  expect(heard.length).toBeGreaterThanOrEqual(3);
+  for (const burst of heard) expect(burst.length).toBeGreaterThan(18);
+  expect(heard[1]!.start).toBeGreaterThan(100);
+  expect(heard[1]!.start).toBeLessThan(190);
+});
+
+test("library preview starts at zero and preserves the editor cursor", async ({ page }) => {
+  await mount(page);
+  const run = await play(page, afterglow, {
+    cursor: 100,
+    mode: "pattern",
+  });
+  expect(bursts(run.samples, run.sampleRate)).toHaveLength(3);
+  expect(run.starts).toEqual([]);
+  expect(run.phonePatterns[0]!.discretePattern.map((tap) => tap.time)).toEqual([0, 75, 150]);
+  expect(
+    await page.evaluate(
+      () => (window as unknown as { __controls: { playhead: number } }).__controls.playhead,
+    ),
+  ).toBe(100);
+  const ranged = await play(page, afterglow, {
+    cursor: 100,
+    range: { start: 25, end: 80 },
+    mode: "pattern",
+  });
+  expect(bursts(ranged.samples, ranged.sampleRate)).toHaveLength(1);
+  expect(ranged.phonePatterns[0]!.discretePattern.map((tap) => tap.time)).toEqual([50]);
+});
+
+test("the separate library player leaves the editor cursor fixed during its audition", async ({
+  page,
+}) => {
+  await mount(page);
+  const result = await page.evaluate(async (pattern) => {
+    const read = () =>
+      window as unknown as {
+        __controls: { setPlayhead: (time: number) => void; playhead: number; playing: boolean };
+        __second: {
+          play: (pattern: Pattern, range?: unknown, mode?: string) => void;
+          playing: boolean;
+        };
+        __blocks: IBlock[];
+        __sampleRate: number;
+      };
+    const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    read().__controls.setPlayhead(100);
+    await wait(50);
+    read().__blocks.length = 0;
+    read().__second.play(pattern, undefined, "pattern");
+    const positions: number[] = [];
+    for (const started = performance.now(); performance.now() - started < 5000;) {
+      positions.push(read().__controls.playhead);
+      if (read().__blocks.length * 128 >= 0.4 * read().__sampleRate) break;
+      await wait(10);
+    }
+    return {
+      positions,
+      playing: read().__controls.playing,
+      samples: read().__blocks.flatMap((block) => block.samples),
+      sampleRate: read().__sampleRate,
+    };
+  }, afterglow);
+  expect(new Set(result.positions)).toEqual(new Set([100]));
+  expect(result.playing).toBe(false);
+  expect(bursts(result.samples, result.sampleRate)).toHaveLength(3);
+});
+
+test("preset and project switches restore independent in-memory views and scrub cursors", async ({
+  page,
+}) => {
+  await mount(page);
+  const result = await page.evaluate(async () => {
+    interface IState {
+      __controls: { setPlayhead: (time: number) => void; playhead: number };
+      __composer: {
+        viewport: { startMs: number; durationMs: number };
+        setViewport: (view: { startMs: number; durationMs: number }) => void;
+      };
+      __setInstance: (key: string) => void;
+      __playback: { editorChanges: number };
+    }
+    const read = () => window as unknown as IState;
+    const flush = () =>
+      new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const switchTo = async (key: string) => {
+      read().__setInstance(key);
+      await flush();
+    };
+    const set = async (cursor: number, startMs: number, durationMs: number) => {
+      read().__controls.setPlayhead(cursor);
+      read().__composer.setViewport({ startMs, durationMs });
+      await flush();
+    };
+    const snapshot = () => ({
+      cursor: read().__controls.playhead,
+      viewport: read().__composer.viewport,
+    });
+    await set(100, 50, 200);
+    await switchTo("project-a/preset-b");
+    const fresh = snapshot();
+    await set(200, 100, 300);
+    await switchTo("project-b/preset-a");
+    await set(300, 200, 100);
+    await switchTo("project-a/preset-a");
+    const first = snapshot();
+    await switchTo("project-a/preset-b");
+    const second = snapshot();
+    await switchTo("project-b/preset-a");
+    return {
+      fresh,
+      first,
+      second,
+      otherProject: snapshot(),
+      edits: read().__playback.editorChanges,
+    };
+  });
+  expect(result).toEqual({
+    fresh: { cursor: 0, viewport: { startMs: 0, durationMs: 500 } },
+    first: { cursor: 100, viewport: { startMs: 50, durationMs: 200 } },
+    second: { cursor: 200, viewport: { startMs: 100, durationMs: 300 } },
+    otherProject: { cursor: 300, viewport: { startMs: 200, durationMs: 100 } },
+    edits: 0,
+  });
+  await page.reload();
+  await expect(page.locator("#playing")).toHaveText("false");
+  expect(
+    await page.evaluate(() => {
+      const state = window as unknown as {
+        __controls: { playhead: number };
+        __composer: { viewport: unknown };
+      };
+      return { cursor: state.__controls.playhead, viewport: state.__composer.viewport };
+    }),
+  ).toEqual({ cursor: 0, viewport: { startMs: 0, durationMs: 500 } });
 });
 
 test("a second playback taking the sound ends the first, and stopping the first spares it", async ({

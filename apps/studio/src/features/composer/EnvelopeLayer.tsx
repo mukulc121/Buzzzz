@@ -9,6 +9,8 @@ interface IEnvelopeLayer {
   geometry: IChartGeometry;
   selectedKeys: ReadonlySet<string>;
   interaction: ReturnType<typeof useChartInteraction>;
+  endMs?: number;
+  valueDecimals?: number;
 }
 
 export function EnvelopeLayer(props: IEnvelopeLayer) {
@@ -17,20 +19,34 @@ export function EnvelopeLayer(props: IEnvelopeLayer) {
   const points = props.points
     .map((point, index) => ({ ...point, index }))
     .sort((a, b) => a.time - b.time);
+  const last = points.at(-1);
+  const linePoints =
+    last && props.endMs !== undefined && props.endMs > last.time
+      ? [...points, { time: props.endMs, value: last.value }]
+      : points;
   return (
     <g>
       {points.length > 0 && (
         <path
           d={
             `M${x(points[0].time)},${y(0)} ` +
-            points.map((point) => `L${x(point.time)},${y(point.value)}`).join(" ") +
-            ` L${x(points.at(-1)!.time)},${y(0)} Z`
+            linePoints.map((point) => `L${x(point.time)},${y(point.value)}`).join(" ") +
+            ` L${x(linePoints.at(-1)!.time)},${y(0)} Z`
           }
-          fill={COLORS[layer]}
-          fillOpacity={0.12}
+          fill={layer === "amplitude" ? "var(--amp-area)" : "none"}
+          fillOpacity={0.55}
+          stroke="none"
+          pointerEvents="none"
+        />
+      )}
+      {points.length > 0 && (
+        <polyline
+          data-envelope={layer}
+          points={linePoints.map((point) => `${x(point.time)},${y(point.value)}`).join(" ")}
+          fill="none"
           stroke={COLORS[layer]}
           strokeWidth={2.5}
-          strokeDasharray={layer === "frequency" ? "6 4" : undefined}
+          strokeDasharray={layer === "frequency" ? "7 4" : undefined}
           pointerEvents="none"
         />
       )}
@@ -42,18 +58,19 @@ export function EnvelopeLayer(props: IEnvelopeLayer) {
           return (
             <circle
               key={point.index}
-              className="handle"
+              className="handle envelope-point"
               role="button"
               tabIndex={0}
               aria-pressed={selected}
-              aria-label={`${layer === "amplitude" ? "Intensity" : "Frequency"} point at ${Math.round(point.time)} milliseconds, ${Math.round(point.value * 100)} percent`}
+              aria-label={`${layer === "amplitude" ? "Intensity" : "Frequency"} point at ${Math.round(point.time)} milliseconds, ${Number((point.value * 100).toFixed(props.valueDecimals ?? 1))} percent`}
               onFocus={() => interaction.focusPoint(selection)}
               onKeyDown={(event) => interaction.keyDown(event, selection)}
               cx={x(point.time)}
               cy={y(point.value)}
-              r={selected ? 7 : 5}
-              fill={selected ? "var(--fg)" : COLORS[layer]}
-              onPointerDown={interaction.grab(selection, point.time, point.value)}
+              r={selected ? 7 : 5.5}
+              fill={selected ? "var(--primary-bg)" : "var(--panel)"}
+              stroke={selected ? "var(--fg)" : COLORS[layer]}
+              onPointerDown={interaction.grab(selection, point.time)}
             />
           );
         })}

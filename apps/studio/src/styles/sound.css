@@ -1,0 +1,97 @@
+@import "./sound-controls.css";
+@import "./sound-generation.css";
+@import "./sound-trim.css";
+
+.sound-panel {
+  min-width: 0;
+  color: var(--fg);
+}
+.sound-section {
+  padding: 16px;
+  min-width: 0;
+}
+.sound-section:not(:last-child) {
+  border-bottom: 2px solid var(--line);
+}
+.sound-section > h3 {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.sound-section-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.sound-section .hint {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.sound-info {
+  display: inline-flex;
+  flex: none;
+  vertical-align: middle;
+  color: var(--muted);
+}
+.sound-info svg {
+  width: 13px;
+  height: 13px;
+}
+.sound-readonly-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+}
+.sound-readonly-row > span:first-child {
+  flex: none;
+  font-weight: 500;
+}
+.sound-readonly-row > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+}
+.sound-secondary-action {
+  width: 100%;
+  min-height: 32px;
+  padding: 4px 10px;
+  border: 2px solid var(--line-strong);
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+  color: var(--fg);
+  background: var(--panel);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: normal;
+}
+.sound-secondary-action svg {
+  width: 16px;
+  height: 16px;
+}
+.sound-text-action {
+  align-self: stretch;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: normal;
+}
+.sound-text-action:hover:not(:disabled) {
+  background: var(--bg);
+  color: var(--fg);
+}
+.sound-working {
+  margin: 0;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--muted);
+}

@@ -75,6 +75,14 @@ export function removeRecord(id: string) {
   return id;
 }
 
+export function storageReadable() {
+  try {
+    return typeof localStorage.length === "number";
+  } catch {
+    return false;
+  }
+}
+
 export function listProjects(): IProjectSummary[] {
   const items: IProjectSummary[] = [];
   try {

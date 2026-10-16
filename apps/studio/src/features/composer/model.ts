@@ -1,4 +1,5 @@
 import type { Pattern } from "@buzzzz/core";
+import type { IEditorSettings } from "./editorSettings";
 
 export type Layer = "amplitude" | "frequency" | "discrete";
 export type Selection = { layer: Layer; index: number } | null;
@@ -34,7 +35,12 @@ export interface IAnalysisCurve {
   points: readonly { time: number; value: number }[];
 }
 
-export interface IChart {
+export interface IMarkerActions {
+  onMarkerMove?: (id: string, time: number) => void;
+  onMarkerRename?: (id: string, label: string) => void;
+}
+
+export interface IChart extends IMarkerActions {
   pattern: Pattern;
   layer: Layer;
   viewMs: number;
@@ -48,9 +54,12 @@ export interface IChart {
   selection?: readonly PointSelection[];
   onSelectionChange?: (selection: PointSelection[]) => void;
   visibleLayers?: readonly Layer[];
+  multilayerSelection?: boolean;
+  editorSettings?: IEditorSettings;
   snapMs?: number;
   playbackRange?: IPlaybackRange;
   markers?: readonly ITimelineMarker[];
+  markerDurationMs?: number;
   onViewChange?: (viewport: IViewport) => void;
   onError?: (message: string) => void;
   analysisCurves?: readonly IAnalysisCurve[];
@@ -62,5 +71,5 @@ export const selectionKey = (point: PointSelection) => `${point.layer}:${point.i
 export const COLORS: Record<Layer, string> = {
   amplitude: "var(--amp)",
   frequency: "var(--freq)",
-  discrete: "var(--tap)",
+  discrete: "var(--discrete)",
 };

@@ -2,6 +2,7 @@ import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { MAX_PATTERN_MS, patternEnd, type Pattern } from "@buzzzz/core";
 import { useProject } from "../features/project/useProject";
 import { useComposer } from "../features/composer/useComposer";
+import { quantizeValue } from "../features/composer/editorSettings";
 import { usePlayback } from "../features/composer/usePlayback";
 import { playSound } from "../features/composer/audio";
 import { useRiveSession } from "../features/rive/useRiveSession";
@@ -16,11 +17,19 @@ import { useSharing } from "../features/connection/useSharing";
 import { useCanonicalProject } from "../features/mcp/useCanonicalProject";
 import { useMcpBridge } from "../features/mcp/useMcpBridge";
 import { useStudioFiles } from "./useStudioFiles";
+import { useToolWorkspace } from "../features/tools/useToolWorkspace";
 import type { Panel } from "./ToolRail";
 
 export function useStudio() {
+  const tools = useToolWorkspace();
   const document = useProject();
-  const composer = useComposer(document.pattern, document.preset.editor, document.setEditor);
+  const instanceKey = `${document.projectId}\u0000${document.preset.id}`;
+  const composer = useComposer(
+    document.pattern,
+    document.preset.editor,
+    document.setEditor,
+    instanceKey,
+  );
   const appearance = useTheme();
   const activity = useActivityLog();
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +59,8 @@ export function useStudio() {
     },
   });
   const playback = usePlayback({
+    cursor: composer.cursor,
+    onCursorChange: composer.setCursor,
     onError: setError,
     onStart: (time) => {
       animation.setSeekMs(time);
@@ -107,6 +118,7 @@ export function useStudio() {
     onError: setError,
   });
   const media = useAttachedTracks({
+    writable: document.isWriter,
     projectId: document.projectId,
     presetId: document.preset.id,
     onError: setError,
@@ -146,15 +158,53 @@ export function useStudio() {
     applyGenerated,
     preserve,
   });
-  const audition = (pattern: Pattern) => playback.play(pattern, undefined, "pattern");
+  const previewPlayback = usePlayback({
+    onError: setError,
+    send: session.send,
+    phones: playback.onPhone ? session.phones : 0,
+  });
+  const audition = (pattern: Pattern) => {
+    if (playback.playing) playback.stop();
+    previewPlayback.play(pattern, undefined, "pattern");
+  };
   const resetPlayback = useEffectEvent(() => {
     playback.stop();
     composer.setSelected(null);
-    composer.fit(Math.max(patternEnd(document.pattern), document.preset.editor?.durationMs ?? 0));
   });
   useEffect(() => {
     resetPlayback();
   }, [document.projectId, document.preset.id]);
+  const attachedViews = useRef(new Map<string, string>());
+  const fitMedia = useEffectEvent(() => {
+    if (!media.ready || media.pending.audio || media.pending.animation) return;
+    const signature = JSON.stringify([
+      media.library.attachment.audio?.assetId,
+      media.library.attachment.animation?.assetId,
+    ]);
+    if (attachedViews.current.get(instanceKey) === signature) return;
+    attachedViews.current.set(instanceKey, signature);
+    composer.fit(
+      Math.max(
+        patternEnd(document.pattern),
+        document.preset.editor?.durationMs ?? 0,
+        audio.source ? audio.trim.endMs - audio.trim.startMs : 0,
+        animation.source?.durationMs ?? 0,
+      ),
+    );
+  });
+  useEffect(() => {
+    fitMedia();
+  }, [
+    instanceKey,
+    media.ready,
+    media.pending.audio,
+    media.pending.animation,
+    media.library.attachment.audio?.assetId,
+    media.library.attachment.animation?.assetId,
+    audio.source?.url,
+    animation.source?.url,
+    animation.source?.animationId,
+  ]);
   const editSelection = (field: string, value: number) => {
     if (!composer.selected || !Number.isFinite(value)) return;
     const next = structuredClone(document.pattern);
@@ -165,14 +215,15 @@ export function useStudio() {
     if (!point) return;
     if (field === "time") point.time = Math.min(MAX_PATTERN_MS, Math.max(0, value));
     else if (field === "value" && "value" in point)
-      point.value = Math.min(1, Math.max(0, value / 100));
+      point.value = quantizeValue(value / 100, composer.settings.values.valueDecimals);
     else if (field === "amplitude" && "amplitude" in point)
-      point.amplitude = Math.min(1, Math.max(0, value / 100));
+      point.amplitude = quantizeValue(value / 100, composer.settings.values.valueDecimals);
     else if (field === "frequency" && "frequency" in point)
-      point.frequency = Math.min(1, Math.max(0, value / 100));
+      point.frequency = quantizeValue(value / 100, composer.settings.values.valueDecimals);
     document.setPattern(next);
   };
   const studio = {
+    tools,
     document,
     composer,
     appearance,
@@ -201,6 +252,7 @@ export function useStudio() {
     canonical,
     mcp,
     audition,
+    previewPlayback,
     editSelection,
   };
   useShortcuts(studio);

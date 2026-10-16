@@ -1,0 +1,100 @@
+.learn-hint,
+.learn-completion {
+  position: fixed;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: var(--panel);
+  border: 2px solid var(--line-strong);
+  border-radius: 4px;
+  box-shadow: -4px 4px 0 var(--line-strong);
+}
+.learn-hint header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.learn-hint header p,
+.learn-completion header p {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+}
+.learn-hint > p,
+.learn-completion > p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.learn-hint footer,
+.learn-completion footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.learn-hint button,
+.learn-completion button {
+  font-size: 14px;
+}
+.learn-completion {
+  right: 16px;
+  bottom: 16px;
+  width: 340px;
+  max-width: calc(100vw - 32px);
+}
+.learn-completion header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.learn-completion header > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.learn-completion header small {
+  font-size: 12px;
+  color: var(--muted);
+}
+.learn-completion-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 4px;
+  background: var(--audio-bg);
+  color: var(--ok);
+}
+.learn-completion strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+.learn-completion footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fg-2);
+  font-size: 14px;
+  text-decoration: none;
+}
+.learn-hint-arrow {
+  position: fixed;
+  z-index: 900;
+  width: 10px;
+  height: 10px;
+  background: var(--panel);
+  border-left: 2px solid var(--line-strong);
+  border-bottom: 2px solid var(--line-strong);
+  transform: rotate(45deg);
+}
+:root {
+  --learn-celebration: rgba(255, 231, 128, 1);
+}

@@ -11,23 +11,22 @@ import {
   normalize,
   timeAtPointer,
   timelineEnd,
-  timelineTicks,
 } from "../src/features/composer/timelineGeometry";
 
 const view = { startMs: 1000, durationMs: 2000 };
 
 describe("timelineEnd", () => {
-  test("covers pattern, media, range and view, padded and capped at 60s", () => {
+  test("covers pattern, media, range and view, exact and capped at 60s", () => {
     const bounds = {
       patternMs: 0,
       mediaMs: 0,
       viewport: { startMs: 0, durationMs: 500 },
       range: null,
     };
-    expect(timelineEnd(bounds)).toBe(1000);
-    expect(timelineEnd({ ...bounds, patternMs: 2000 })).toBe(2500);
-    expect(timelineEnd({ ...bounds, mediaMs: 3200 })).toBe(3500);
-    expect(timelineEnd({ ...bounds, range: { start: 0, end: 4100 } })).toBe(4500);
+    expect(timelineEnd(bounds)).toBe(500);
+    expect(timelineEnd({ ...bounds, patternMs: 2000 })).toBe(2000);
+    expect(timelineEnd({ ...bounds, mediaMs: 3200 })).toBe(3200);
+    expect(timelineEnd({ ...bounds, range: { start: 0, end: 4100 } })).toBe(4100);
     expect(timelineEnd({ ...bounds, viewport: { startMs: 5000, durationMs: 2000 } })).toBe(7000);
     expect(timelineEnd({ ...bounds, mediaMs: 90_000 })).toBe(MAX_PATTERN_MS);
   });
@@ -115,9 +114,7 @@ describe("keyboard and drawing helpers", () => {
     expect(keyDelta("a", false)).toBeNull();
   });
 
-  test("ticks, curves and normalisation share the same time axis", () => {
-    expect(timelineTicks(1000)).toEqual([0, 250, 500, 750]);
-    expect(timelineTicks(60_000)).toHaveLength(6);
+  test("curves and normalisation share the same time axis", () => {
     expect(curvePoints([{ time: 500, value: 0.5 }], 1000, 40)).toBe("500,20");
     expect(
       normalize(

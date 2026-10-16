@@ -12,10 +12,20 @@ import * as repository from "./repository";
 import { useProjectCatalog } from "./useProjectCatalog";
 import { useProjectDocument } from "./useProjectDocument";
 import { claimWriter, lockName, type IWriterLock } from "./writerLock";
+import { parseProjectRoute } from "./projectRouting";
+import { useProjectRoute } from "./useProjectRoute";
 
 function initialState() {
   const shared = repository.sharedLink(location.search);
   if (shared) return { record: repository.sharedRecord(shared), error: null };
+  const route = parseProjectRoute(location);
+  if (route.kind === "project") {
+    const record = repository.readRecord(route.projectId);
+    if (record) {
+      repository.rememberLast(record.id);
+      return { record, error: null };
+    }
+  }
   return repository.initialRecord();
 }
 
@@ -60,9 +70,12 @@ export function useProject() {
   };
 
   const switchTo = (record: IProjectRecord) => {
+    const removed = !isShared && !repository.readRecord(base.current.id);
     load(record);
     setStorageError(null);
     if (!record.id.startsWith("shared-")) repository.rememberLast(record.id);
+    if (removed) route.showDashboard(true);
+    else route.openProject(record.id);
   };
 
   const catalog = useProjectCatalog({
@@ -74,6 +87,22 @@ export function useProject() {
     setStorageError,
   });
   const { refresh } = catalog;
+  const route = useProjectRoute({
+    projectId: active.id,
+    onOpen: (id) => {
+      const record = id.startsWith("shared-")
+        ? repository.sharedRecord(id)
+        : repository.readRecord(id);
+      if (!record) return false;
+      if (id !== active.id) {
+        load(record);
+        setStorageError(null);
+        if (!id.startsWith("shared-")) repository.rememberLast(id);
+        refresh();
+      }
+      return true;
+    },
+  });
 
   // Writers only see a newer revision when someone saved without the lock; followers reload.
   const followStorage = useEffectEvent((acquired: boolean) => {
@@ -127,6 +156,7 @@ export function useProject() {
 
   return {
     ...document,
+    route,
     projectId: active.id,
     projectName: active.name,
     isShared,

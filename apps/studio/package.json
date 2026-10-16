@@ -7,11 +7,14 @@
     "dev": "vp dev",
     "build": "vp build",
     "preview": "vp preview",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "golden:pulsar": "bun scripts/pulsar-golden.mts"
   },
   "dependencies": {
     "@buzzzz/core": "workspace:*",
     "@rive-app/canvas": "^2.44.2",
+    "canvas-confetti": "1.9.4",
+    "driver.js": "1.9.0",
     "fflate": "^0.8.3",
     "lottie-web": "^5.13.0",
     "mediabunny": "1.61.3",
@@ -21,6 +24,7 @@
     "ws": "^8.22.0"
   },
   "devDependencies": {
+    "@types/canvas-confetti": "1.9.0",
     "@types/node": "^24.19.2",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.18",

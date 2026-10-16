@@ -102,13 +102,32 @@ async function renameProject(page: Page, name: string) {
   await page.getByRole("button", { name: "Projects", exact: true }).click();
   const current = page
     .getByRole("region", { name: "Projects", exact: true })
-    .locator("li")
+    .locator(".project-card")
     .filter({ has: page.locator('[aria-current="true"]') });
-  await current.getByRole("button", { name: "Rename", exact: true }).click();
-  const field = page.getByRole("textbox", { name: /^Rename / });
-  await field.fill(name);
-  await field.press("Enter");
-  await expect(page.locator(".preset-select").filter({ hasText: name })).toBeVisible();
+  await current.getByRole("button", { name: /^Actions for / }).click();
+  await page.getByRole("menuitem", { name: "Rename", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Rename project" });
+  await dialog.getByRole("textbox", { name: "Project name" }).fill(name);
+  await dialog.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await current.getByRole("button", { name, exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "Pattern name" })).toBeEnabled();
+}
+async function createProject(page: Page) {
+  await page
+    .getByRole("region", { name: "Projects", exact: true })
+    .getByRole("button", { name: "Create new project", exact: true })
+    .click();
+  await page
+    .getByRole("dialog", { name: "Create project" })
+    .getByRole("textbox", { name: "Project name" })
+    .fill("Test project");
+  await page
+    .getByRole("dialog", { name: "Create project" })
+    .getByRole("button", { name: "Create", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/studio\/projects\/[\w-]+(?:[?#]|$)/);
+  await expect(page.locator('.save-status[data-status="editing"]')).toBeVisible();
 }
 async function privateCatalog(page: Page) {
   return page.evaluate(() =>
@@ -171,6 +190,7 @@ test("hosted pairing and MCP commands reach the mounted editor and its saved pro
       } else await route.fulfill({ response });
     });
     await page.getByRole("button", { name: "Device", exact: true }).click();
+    await page.getByRole("button", { name: "Connect device", exact: true }).click();
     const code = page.getByLabel("Pairing code", { exact: true });
     await expect(code).toHaveText(/^\d{6}$/);
     await expect.poll(() => pairingReads).toBeGreaterThan(1);
@@ -260,10 +280,7 @@ test("public shares stay bound to their project and recipients preserve private 
     const link = await shareField.inputValue();
     const publicA = await sharedProject(request, link);
     await page.getByRole("button", { name: "Projects", exact: true }).click();
-    await page
-      .getByRole("region", { name: "Projects", exact: true })
-      .getByRole("button", { name: "New", exact: true })
-      .click();
+    await createProject(page);
     await renameProject(page, "Private B");
     await page.getByRole("textbox", { name: "Pattern name" }).fill("Private B pattern");
     await expect
@@ -291,7 +308,7 @@ test("public shares stay bound to their project and recipients preserve private 
     await page.getByRole("button", { name: "Projects", exact: true }).click();
     await page
       .getByRole("region", { name: "Projects", exact: true })
-      .locator(".preset-select")
+      .locator(".project-card-open")
       .filter({ hasText: "Public A" })
       .click();
     await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue(
@@ -346,7 +363,7 @@ test("public shares stay bound to their project and recipients preserve private 
     await follower.getByRole("button", { name: "Projects", exact: true }).click();
     await follower
       .getByRole("region", { name: "Projects", exact: true })
-      .locator(".preset-select")
+      .locator(".project-card-open")
       .filter({ hasText: "Recipient private" })
       .click();
     await expect(follower.getByRole("textbox", { name: "Pattern name" })).toHaveValue(

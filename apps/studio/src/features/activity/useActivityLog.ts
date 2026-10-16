@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export interface IActivityEntry {
+interface IActivityEntry {
   id: number;
   time: string;
   text: string;
