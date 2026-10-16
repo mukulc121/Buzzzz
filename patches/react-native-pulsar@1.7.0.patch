@@ -1,8 +1,504 @@
+diff --git a/android/build.gradle b/android/build.gradle
+--- a/android/build.gradle
++++ b/android/build.gradle
+@@ -41,7 +41,7 @@
+   }
+   logger.lifecycle("Using local Pulsar Android sources from ${localPulsarAndroidSourceDir}")
+ } else {
+-  logger.lifecycle("Using published Pulsar Android artifact com.swmansion:pulsar:${pulsarAndroidVersion}")
++  logger.lifecycle("Using pinned Pulsar Android source project :buzzzz-pulsar-core")
+ }
+ 
+ android {
+@@ -103,6 +103,6 @@
+   if (useLocalPulsarAndroid) {
+     implementation "androidx.core:core-ktx:1.17.0"
+   } else {
+-    implementation "com.swmansion:pulsar:$pulsarAndroidVersion"
++    implementation project(":buzzzz-pulsar-core")
+   }
+ }
+diff --git a/android/src/main/java/com/swmansion/pulsar/reactnative/PulsarModule.kt b/android/src/main/java/com/swmansion/pulsar/reactnative/PulsarModule.kt
+--- a/android/src/main/java/com/swmansion/pulsar/reactnative/PulsarModule.kt
++++ b/android/src/main/java/com/swmansion/pulsar/reactnative/PulsarModule.kt
+@@ -1,9 +1,12 @@
+ package com.swmansion.pulsar.reactnative
+ 
++import android.net.Uri
++import com.facebook.react.bridge.Promise
+ import com.facebook.react.bridge.ReactApplicationContext
+ import com.facebook.react.bridge.ReadableArray
+ import com.facebook.react.bridge.ReadableMap
+ import com.facebook.react.module.annotations.ReactModule
++import com.swmansion.pulsar.bundle.LoadedBundle
+ import com.swmansion.pulsar.composers.PatternComposer
+ import com.swmansion.pulsar.composers.RealtimeComposer
+ import com.swmansion.pulsar.types.CompatibilityMode
+@@ -12,6 +15,9 @@
+ import com.swmansion.pulsar.types.ContinuousPattern
+ import com.swmansion.pulsar.types.PatternData
+ import com.swmansion.pulsar.types.ValuePoint
++import java.io.File
++import java.net.URL
++import java.util.concurrent.ConcurrentHashMap
+ 
+ @ReactModule(name = PulsarModule.NAME)
+ class PulsarModule(reactContext: ReactApplicationContext) :
+@@ -21,6 +27,8 @@
+   private var realtimeComposer: RealtimeComposer = pulsar.getRealtimeComposer()
+   private var nextId: Int = 1
+   private val patternComposersRegistry: MutableMap<Int, PatternComposer> = mutableMapOf()
++  private val bundlesRegistry: MutableMap<String, LoadedBundle> = ConcurrentHashMap()
++  private val bundleTokenSeq = java.util.concurrent.atomic.AtomicLong(0)
+ 
+   // Pulsar -----------------------------------------------------------------
+ 
+@@ -166,12 +174,12 @@
+     )
+   }
+ 
+-  override fun PatternComposer_parsePattern(data: ReadableMap?): Double {
++  override fun PatternComposer_parsePattern(data: ReadableMap?, fromMs: Double): Double {
+     val patternComposer = pulsar.getPatternComposer()
+     
+     data?.let {
+       val patternData = patternDataFromJSPattern(it)
+-      patternComposer.parsePattern(patternData)
++      patternComposer.parsePattern(patternData, fromMs.toLong())
+     }
+ 
+     val currentId = nextId
+@@ -189,7 +197,7 @@
+   }
+ 
+   override fun PatternComposer_release(patternId: Double) {
+-    patternComposersRegistry.remove(patternId.toInt())
++    patternComposersRegistry.remove(patternId.toInt())?.release()
+   }
+ 
+   // RealtimeComposer -----------------------------------------------------------------
+@@ -208,6 +216,100 @@
+ 
+   override fun RealtimeComposer_isActive(): Boolean {
+     return realtimeComposer.isActive()
++  }
++
++  // Preset bundles -----------------------------------------------------------------
++
++  private fun registerBundleUnderNewToken(bundle: LoadedBundle): String {
++    val token = "${bundle.id}#${bundleTokenSeq.incrementAndGet()}"
++    bundlesRegistry[token] = bundle
++    return token
++  }
++
++  override fun Pulsar_loadBundleFromUriSync(uri: String?): String {
++    if (uri == null) return ""
++    return try {
++      registerBundleUnderNewToken(pulsar.loadBundle(readBundleUri(uri)))
++    } catch (e: Exception) {
++      android.util.Log.e(NAME, "Pulsar_loadBundleFromUriSync failed", e)
++      ""
++    }
++  }
++
++  override fun Pulsar_loadBundleFromUri(
++    uri: String?,
++    promise: Promise,
++  ) {
++    if (uri == null) {
++      promise.reject("PULSAR_INVALID_BUNDLE_URI", "Pulsar: bundle URI is null")
++      return
++    }
++    Thread {
++      try {
++        promise.resolve(registerBundleUnderNewToken(pulsar.loadBundle(readBundleUri(uri))))
++      } catch (e: Exception) {
++        android.util.Log.e(NAME, "Pulsar_loadBundleFromUri failed", e)
++        promise.reject(
++          "PULSAR_LOAD_BUNDLE_FAILED",
++          "Pulsar: failed to load bundle URI",
++          e,
++        )
++      }
++    }.start()
++  }
++
++  private fun readBundleUri(uriString: String): ByteArray {
++    val uri = Uri.parse(uriString)
++    return when (uri.scheme?.lowercase()) {
++      "http", "https" -> {
++        URL(uriString).openStream().use { it.readBytes() }
++      }
++
++      "content" -> {
++        reactApplicationContext.contentResolver.openInputStream(uri)?.use { it.readBytes() }
++          ?: error("Could not open content URI")
++      }
++
++      "asset" -> {
++        reactApplicationContext.assets.open(uri.path.orEmpty().removePrefix("/")).use { it.readBytes() }
++      }
++
++      "file" -> {
++        val path = uri.path ?: error("File URI has no path")
++        val assetMarker = "/android_asset/"
++        if (path.contains(assetMarker)) {
++          reactApplicationContext.assets.open(path.substringAfter(assetMarker)).use { it.readBytes() }
++        } else {
++          File(path).readBytes()
++        }
++      }
++
++      else -> readRawResource(uriString) ?: File(uriString).readBytes()
++    }
++  }
++
++  private fun readRawResource(resourceName: String): ByteArray? {
++    val resourceId = reactApplicationContext.resources.getIdentifier(
++      resourceName,
++      "raw",
++      reactApplicationContext.packageName,
++    )
++    if (resourceId == 0) return null
++    return reactApplicationContext.resources.openRawResource(resourceId).use { it.readBytes() }
++  }
++
++  override fun Pulsar_playBundlePreset(token: String?, presetId: String?, fromMs: Double) {
++    if (token == null || presetId == null) return
++    bundlesRegistry[token]?.play(presetId, fromMs.toLong())
++  }
++
++  override fun Pulsar_stopBundlePreset(token: String?, presetId: String?) {
++    if (token == null || presetId == null) return
++    bundlesRegistry[token]?.handle(presetId)?.stop()
++  }
++
++  override fun Pulsar_disposeBundle(token: String?) {
++    token?.let { bundlesRegistry.remove(it)?.dispose() }
+   }
+ 
+   companion object {
+diff --git a/ios/Haptics.mm b/ios/Haptics.mm
+--- a/ios/Haptics.mm
++++ b/ios/Haptics.mm
+@@ -22,6 +22,8 @@
+   RealtimeComposer *realtimeComposer_;
+   int nextId;
+   NSMutableDictionary<NSNumber*, PatternComposer*> *patternComposersRegistry_;
++  NSMutableDictionary<NSString*, LoadedBundle*> *bundlesRegistry_;
++  unsigned long bundleTokenSeq_;
+ }
+ 
+ static BOOL RNPulsarIsAppActive(void) {
+@@ -60,6 +62,8 @@
+     realtimeComposer_ = [pulsar_ getRealtimeComposer];
+     nextId = 1;
+     patternComposersRegistry_ = [NSMutableDictionary new];
++    bundlesRegistry_ = [NSMutableDictionary new];
++    bundleTokenSeq_ = 0;
+   }
+   return self;
+ }
+@@ -84,6 +88,137 @@
+ 
+ - (void)Pulsar_preloadPresets:(nonnull NSArray *)presetNames {
+   [pulsar_ preloadPresetsWithPresetNames:presetNames];
++}
++
++// Preset bundles ---------------------------------------------------------
++
++- (LoadedBundle *)bundleForToken:(NSString *)token {
++  if (token == nil) {
++    return nil;
++  }
++  @synchronized (bundlesRegistry_) {
++    return bundlesRegistry_[token];
++  }
++}
++
++- (NSString *)registerBundleUnderNewToken:(LoadedBundle *)bundle {
++  if (bundle == nil) {
++    return @"";
++  }
++  @synchronized (bundlesRegistry_) {
++    NSString *token = [NSString stringWithFormat:@"%@#%lu", bundle.id, ++bundleTokenSeq_];
++    bundlesRegistry_[token] = bundle;
++    return token;
++  }
++}
++
++- (LoadedBundle *)takeBundleForToken:(NSString *)token {
++  if (token == nil) {
++    return nil;
++  }
++  @synchronized (bundlesRegistry_) {
++    LoadedBundle *bundle = bundlesRegistry_[token];
++    [bundlesRegistry_ removeObjectForKey:token];
++    return bundle;
++  }
++}
++
++- (NSURL *)bundleURLForUri:(NSString *)uri {
++  NSURL *url = [NSURL URLWithString:uri];
++  if (!url.scheme) {
++    url = [NSURL fileURLWithPath:uri];
++  }
++  return url;
++}
++
++- (NSString *)Pulsar_loadBundleFromUriSync:(nonnull NSString *)uri {
++  NSURL *url = [self bundleURLForUri:uri];
++  if (!url) {
++    NSLog(@"[RNPulsar] Pulsar_loadBundleFromUriSync: invalid URI %@", uri);
++    return @"";
++  }
++  NSError *error = nil;
++  NSData *data = [NSData dataWithContentsOfURL:url options:0 error:&error];
++  if (!data) {
++    NSLog(@"[RNPulsar] Pulsar_loadBundleFromUriSync: could not read %@: %@", uri, error);
++    return @"";
++  }
++  LoadedBundle *bundle = [pulsar_ loadBundleWithData:data error:&error];
++  if (!bundle) {
++    NSLog(@"[RNPulsar] Pulsar_loadBundleFromUriSync: could not load %@: %@", uri, error);
++    return @"";
++  }
++  return [self registerBundleUnderNewToken:bundle];
++}
++
++- (void)Pulsar_loadBundleFromUri:(nonnull NSString *)uri
++                         resolve:(nonnull RCTPromiseResolveBlock)resolve
++                          reject:(nonnull RCTPromiseRejectBlock)reject {
++  NSURL *url = [self bundleURLForUri:uri];
++  if (!url) {
++    reject(@"PULSAR_INVALID_BUNDLE_URI", @"Pulsar: invalid bundle URI", nil);
++    return;
++  }
++
++  void (^loadData)(NSData *) = ^(NSData *data) {
++    NSError *error = nil;
++    LoadedBundle *bundle = [self->pulsar_ loadBundleWithData:data error:&error];
++    if (!bundle) {
++      reject(@"PULSAR_LOAD_BUNDLE_FAILED", @"Pulsar: failed to load bundle", error);
++      return;
++    }
++    resolve([self registerBundleUnderNewToken:bundle]);
++  };
++
++  if (url.isFileURL) {
++    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
++      NSError *error = nil;
++      NSData *data = [NSData dataWithContentsOfURL:url options:0 error:&error];
++      if (!data) {
++        reject(@"PULSAR_READ_BUNDLE_FAILED", @"Pulsar: failed to read bundle URI", error);
++        return;
++      }
++      loadData(data);
++    });
++    return;
++  }
++
++  NSURLSessionDataTask *task = [[NSURLSession sharedSession]
++      dataTaskWithURL:url
++    completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
++      if (!data || error) {
++        reject(@"PULSAR_READ_BUNDLE_FAILED", @"Pulsar: failed to read bundle URI", error);
++        return;
++      }
++      loadData(data);
++    }];
++  [task resume];
++}
++
++- (void)Pulsar_playBundlePreset:(nonnull NSString *)token
++                      presetId:(nonnull NSString *)presetId
++                        fromMs:(double)fromMs {
++  if (!RNPulsarIsAppActive()) {
++    return;
++  }
++  LoadedBundle *bundle = [self bundleForToken:token];
++  RNPulsarPerformSafely(@"Pulsar_playBundlePreset", ^{
++    [bundle play:presetId fromMs:fromMs];
++  });
++}
++
++- (void)Pulsar_stopBundlePreset:(nonnull NSString *)token presetId:(nonnull NSString *)presetId {
++  LoadedBundle *bundle = [self bundleForToken:token];
++  RNPulsarPerformSafely(@"Pulsar_stopBundlePreset", ^{
++    [[bundle handle:presetId] stop];
++  });
++}
++
++- (void)Pulsar_disposeBundle:(nonnull NSString *)token {
++  LoadedBundle *bundle = [self takeBundleForToken:token];
++  RNPulsarPerformSafely(@"Pulsar_disposeBundle", ^{
++    [bundle dispose];
++  });
+ }
+ 
+ - (void)Pulsar_enableHaptics:(BOOL)state {
+@@ -156,11 +291,12 @@
+   return [[PatternData alloc] initWithContinuousPattern:continuousPattern discretePattern:discretePoints];
+ }
+ 
+-- (nonnull NSNumber *)PatternComposer_parsePattern:(JS::NativeRNPulsar::Pattern &)data {
++- (nonnull NSNumber *)PatternComposer_parsePattern:(JS::NativeRNPulsar::Pattern &)data
++                                           fromMs:(double)fromMs {
+   auto patternComposer = [pulsar_ getPatternComposer];
+ 
+   PatternData *patternData = PatternDataFromJSPattern(data);
+-  [patternComposer parsePatternWithHapticsData:patternData];
++  [patternComposer parsePatternWithHapticsData:patternData fromMs:fromMs];
+ 
+   int currentId = nextId;
+   nextId++;
+diff --git a/lib/module/createBundle.js b/lib/module/createBundle.js
+new file mode 100644
+--- /dev/null
++++ b/lib/module/createBundle.js
+@@ -0,0 +1,121 @@
++import { Image } from 'react-native';
++import Pulsar from './NativeRNPulsar.js';
++// workaround for RN prototype caching issue
++Pulsar.PatternComposer_play;
++const SIDECAR_SCHEMA = 'pulsar.sidecar/1';
++function assertDefinition(definition) {
++    if (definition?.schema !== SIDECAR_SCHEMA) {
++        throw new Error(`Pulsar: expected a generated "${SIDECAR_SCHEMA}" bundle but got ` +
++            `"${definition?.schema ?? 'undefined'}". Regenerate it with \`npx pulsar-gen-rn\`.`);
++    }
++}
++function withNonEnumerableMeta(presets, meta) {
++    const descriptors = Object.fromEntries(Object.entries(meta).map(([key, value]) => [
++        key,
++        { value, enumerable: false },
++    ]));
++    return Object.defineProperties(presets, descriptors);
++}
++function resolveAssetUri(definition) {
++    const source = Image.resolveAssetSource(definition.asset);
++    if (!source?.uri) {
++        throw new Error('Pulsar: could not resolve .pulsar asset — is withPulsar() configured in metro.config.js?');
++    }
++    return source.uri;
++}
++function assertToken(token, definition) {
++    if (!token) {
++        throw new Error(`Pulsar: failed to load bundle "${definition.id}" — see the native log for the cause.`);
++    }
++    return token;
++}
++/** Called by a generated `*.bundle.ts` module, which re-exports the two loaders. */
++export function defineBundle(definition) {
++    assertDefinition(definition);
++    return {
++        loadBundleSync: (includeAssets = false) => {
++            if (!includeAssets)
++                return createLoadedBundle(definition);
++            const uri = resolveAssetUri(definition);
++            const token = Pulsar.Pulsar_loadBundleFromUriSync(uri);
++            return createLoadedBundle(definition, assertToken(token, definition));
++        },
++        loadBundleAsync: async () => {
++            const uri = resolveAssetUri(definition);
++            const token = await Pulsar.Pulsar_loadBundleFromUri(uri);
++            return createLoadedBundle(definition, assertToken(token, definition));
++        },
++    };
++}
++function createLoadedBundle(definition, bundleToken) {
++    const parsedIds = new Map();
++    const parsedFrom = new Map();
++    const presets = {};
++    let disposed = false;
++    const warnDisposed = (action, id) => {
++        if (__DEV__) {
++            console.warn(`Pulsar: ignored ${action}() on preset "${id}" — bundle "${definition.id}" is disposed.`);
++        }
++    };
++    for (const [id, preset] of Object.entries(definition.presets)) {
++        const parseAt = (fromMs) => {
++            const previousId = parsedIds.get(id);
++            const alreadyParsedHere = previousId !== undefined && parsedFrom.get(id) === fromMs;
++            if (alreadyParsedHere)
++                return previousId;
++            if (previousId !== undefined)
++                Pulsar.PatternComposer_release(previousId);
++            const parsedId = Pulsar.PatternComposer_parsePattern(preset.pattern, fromMs);
++            parsedIds.set(id, parsedId);
++            parsedFrom.set(id, fromMs);
++            return parsedId;
++        };
++        presets[id] = {
++            id,
++            name: preset.name,
++            duration: preset.duration,
++            pattern: preset.pattern,
++            animation: preset.lottie,
++            hasAudio: preset.audio,
++            hasAnimation: preset.animation,
++            play: (fromMs = 0) => {
++                if (disposed)
++                    return warnDisposed('play', id);
++                const from = Math.max(0, fromMs);
++                if (bundleToken) {
++                    Pulsar.Pulsar_playBundlePreset(bundleToken, id, from);
++                    return;
++                }
++                Pulsar.PatternComposer_play(parseAt(from));
++            },
++            stop: () => {
++                if (disposed)
++                    return warnDisposed('stop', id);
++                if (bundleToken) {
++                    Pulsar.Pulsar_stopBundlePreset(bundleToken, id);
++                    return;
++                }
++                const parsedId = parsedIds.get(id);
++                if (parsedId !== undefined)
++                    Pulsar.PatternComposer_stop(parsedId);
++            },
++        };
++    }
++    return withNonEnumerableMeta(presets, {
++        id: definition.id,
++        contentHash: definition.contentHash,
++        get: (id) => presets[id],
++        dispose: () => {
++            if (disposed)
++                return;
++            disposed = true;
++            if (bundleToken)
++                Pulsar.Pulsar_disposeBundle(bundleToken);
++            for (const parsedId of parsedIds.values()) {
++                Pulsar.PatternComposer_release(parsedId);
++            }
++            parsedIds.clear();
++            parsedFrom.clear();
++        },
++    });
++}
+diff --git a/lib/module/index.js b/lib/module/index.js
+--- a/lib/module/index.js
++++ b/lib/module/index.js
+@@ -1,10 +1,11 @@
+ "use strict";
+ 
++import { defineBundle } from "./createBundle.js";
+ import Presets from "./Presets.js";
+ import Settings from "./Settings.js";
+ import useRealtimeComposer from "./useRealtimeComposer.js";
+ import usePatternComposer from "./usePatternComposer.js";
+ import useAdaptiveHaptics from "./useAdaptiveHaptics.js";
+-export { Presets, Settings, useRealtimeComposer, usePatternComposer, useAdaptiveHaptics };
++export { Presets, Settings, useRealtimeComposer, usePatternComposer, useAdaptiveHaptics, defineBundle };
+ export { HapticSupport, RealtimeComposerStrategy } from "./NativeRNPulsar.js";
+ //# sourceMappingURL=index.js.map
+\ No newline at end of file
 diff --git a/lib/module/usePatternComposer.js b/lib/module/usePatternComposer.js
-index 7d3f6b474469651853ef2cf20884135c35c46f71..180ac30fd1bfbf850c2d7f86a87992c20e1feb87 100644
 --- a/lib/module/usePatternComposer.js
 +++ b/lib/module/usePatternComposer.js
-@@ -24,10 +24,18 @@ export default function usePatternComposer(pattern) {
+@@ -24,10 +24,18 @@
        Pulsar.PatternComposer_stop(id);
      }
    }, []);
@@ -14,15 +510,16 @@ index 7d3f6b474469651853ef2cf20884135c35c46f71..180ac30fd1bfbf850c2d7f86a87992c2
 +  }, []);
 +
    const parse = useCallback(pattern => {
+-    const newPatternId = Pulsar.PatternComposer_parsePattern(pattern);
 +    release();
-     const newPatternId = Pulsar.PatternComposer_parsePattern(pattern);
++    const newPatternId = Pulsar.PatternComposer_parsePattern(pattern, 0);
      patternId.set(newPatternId);
 -  }, [pattern]);
 +  }, [release]);
    const isParsed = () => {
      return patternId.get() !== -1;
    };
-@@ -35,13 +43,8 @@ export default function usePatternComposer(pattern) {
+@@ -35,13 +43,8 @@
      if (pattern) {
        parse(pattern);
      }
@@ -38,11 +535,359 @@ index 7d3f6b474469651853ef2cf20884135c35c46f71..180ac30fd1bfbf850c2d7f86a87992c2
    return {
      play,
      stop,
+diff --git a/lib/typescript/src/NativeRNPulsar.d.ts b/lib/typescript/src/NativeRNPulsar.d.ts
+--- a/lib/typescript/src/NativeRNPulsar.d.ts
++++ b/lib/typescript/src/NativeRNPulsar.d.ts
+@@ -45,10 +45,15 @@
+     RealtimeComposer_stop(): void;
+     RealtimeComposer_isActive(): boolean;
+     RealtimeComposer_playDiscrete(amplitude: number, frequency: number): void;
+-    PatternComposer_parsePattern(data: Pattern): number;
++    PatternComposer_parsePattern(data: Pattern, fromMs: number): number;
+     PatternComposer_play(patternId: number): void;
+     PatternComposer_stop(patternId: number): void;
+     PatternComposer_release(patternId: number): void;
++    Pulsar_loadBundleFromUriSync(uri: string): string;
++    Pulsar_loadBundleFromUri(uri: string): Promise<string>;
++    Pulsar_playBundlePreset(token: string, presetId: string, fromMs: number): void;
++    Pulsar_stopBundlePreset(token: string, presetId: string): void;
++    Pulsar_disposeBundle(token: string): void;
+ }
+ declare const _default: Spec;
+ export default _default;
+diff --git a/lib/typescript/src/createBundle.d.ts b/lib/typescript/src/createBundle.d.ts
+new file mode 100644
+--- /dev/null
++++ b/lib/typescript/src/createBundle.d.ts
+@@ -0,0 +1,58 @@
++import type { Pattern } from './types';
++export type PresetAnimation = {
++    readonly source: object;
++    readonly frameRate?: number;
++    readonly totalFrames?: number;
++};
++export type PresetHandle = {
++    readonly id: string;
++    readonly name: string;
++    readonly duration?: number;
++    readonly pattern?: Pattern;
++    readonly animation?: PresetAnimation;
++    readonly hasAudio: boolean;
++    readonly hasAnimation: boolean;
++    /** Plays the preset from `fromMs` into its timeline — haptics plus its synced audio. */
++    play: (fromMs?: number) => void;
++    stop: () => void;
++};
++export type BundleMeta = {
++    readonly id: string;
++    readonly contentHash: string;
++    get: (id: string) => PresetHandle | undefined;
++    dispose: () => void;
++};
++export type Bundle<P> = P & BundleMeta;
++type SidecarPreset = {
++    name: string;
++    duration?: number;
++    pattern: Pattern;
++    audio: boolean;
++    animation: boolean;
++    lottie?: {
++        source: object;
++        frameRate?: number;
++        totalFrames?: number;
++    };
++};
++/** Definition embedded in a generated `*.bundle.ts` module. */
++export type BundleDefinition = {
++    schema: string;
++    id: string;
++    contentHash: string;
++    revision?: number;
++    presets: Record<string, SidecarPreset>;
++    asset: number;
++};
++type PresetsOf<M extends BundleDefinition> = {
++    [K in keyof M['presets']]: PresetHandle;
++};
++type LoadedBundle<M extends BundleDefinition> = Bundle<PresetsOf<M>>;
++export interface BundleLoaders<M extends BundleDefinition> {
++    /** `includeAssets` reads the `.pulsar` on the calling thread — in dev, that blocks on Metro. */
++    loadBundleSync(includeAssets?: boolean): LoadedBundle<M>;
++    loadBundleAsync(): Promise<LoadedBundle<M>>;
++}
++/** Called by a generated `*.bundle.ts` module, which re-exports the two loaders. */
++export declare function defineBundle<M extends BundleDefinition>(definition: M): BundleLoaders<M>;
++export {};
+diff --git a/lib/typescript/src/index.d.ts b/lib/typescript/src/index.d.ts
+--- a/lib/typescript/src/index.d.ts
++++ b/lib/typescript/src/index.d.ts
+@@ -1,3 +1,4 @@
++import { defineBundle } from './createBundle';
+ import Presets from './Presets';
+ import Settings from './Settings';
+ import useRealtimeComposer from './useRealtimeComposer';
+@@ -7,4 +8,6 @@
+ export type { Pattern, PatternComposer, AdaptivePreset, AdaptivePresetConfig, AdaptiveHaptics } from './types';
+ export { HapticSupport, RealtimeComposerStrategy } from './NativeRNPulsar';
+ export type { RealtimeComposer } from './useRealtimeComposer';
+-//# sourceMappingURL=index.d.ts.map
+\ No newline at end of file
++//# sourceMappingURL=index.d.ts.map
++export { defineBundle };
++export type { Bundle, BundleDefinition, BundleLoaders, BundleMeta, PresetHandle, PresetAnimation } from './createBundle';
+diff --git a/src/NativeRNPulsar.ts b/src/NativeRNPulsar.ts
+--- a/src/NativeRNPulsar.ts
++++ b/src/NativeRNPulsar.ts
+@@ -41,10 +41,15 @@
+   RealtimeComposer_isActive(): boolean;
+   RealtimeComposer_playDiscrete(amplitude: number, frequency: number): void;
+ 
+-  PatternComposer_parsePattern(data: Pattern): number;
++  PatternComposer_parsePattern(data: Pattern, fromMs: number): number;
+   PatternComposer_play(patternId: number): void;
+   PatternComposer_stop(patternId: number): void;
+   PatternComposer_release(patternId: number): void;
++  Pulsar_loadBundleFromUriSync(uri: string): string;
++  Pulsar_loadBundleFromUri(uri: string): Promise<string>;
++  Pulsar_playBundlePreset(token: string, presetId: string, fromMs: number): void;
++  Pulsar_stopBundlePreset(token: string, presetId: string): void;
++  Pulsar_disposeBundle(token: string): void;
+ }
+ 
+ export default TurboModuleRegistry.getEnforcing<Spec>('RNPulsar');
+diff --git a/src/createBundle.ts b/src/createBundle.ts
+new file mode 100644
+--- /dev/null
++++ b/src/createBundle.ts
+@@ -0,0 +1,209 @@
++import { Image } from 'react-native';
++import Pulsar from './NativeRNPulsar';
++import type { Pattern } from './types';
++
++// workaround for RN prototype caching issue
++Pulsar.PatternComposer_play;
++
++const SIDECAR_SCHEMA = 'pulsar.sidecar/1';
++
++export type PresetAnimation = {
++  readonly source: object;
++  readonly frameRate?: number;
++  readonly totalFrames?: number;
++};
++
++export type PresetHandle = {
++  readonly id: string;
++  readonly name: string;
++  readonly duration?: number;
++  readonly pattern?: Pattern;
++  readonly animation?: PresetAnimation;
++  readonly hasAudio: boolean;
++  readonly hasAnimation: boolean;
++  /** Plays the preset from `fromMs` into its timeline — haptics plus its synced audio. */
++  play: (fromMs?: number) => void;
++  stop: () => void;
++};
++
++export type BundleMeta = {
++  readonly id: string;
++  readonly contentHash: string;
++  get: (id: string) => PresetHandle | undefined;
++  dispose: () => void;
++};
++
++export type Bundle<P> = P & BundleMeta;
++
++type SidecarPreset = {
++  name: string;
++  duration?: number;
++  pattern: Pattern;
++  audio: boolean;
++  animation: boolean;
++  lottie?: { source: object; frameRate?: number; totalFrames?: number };
++};
++
++/** Definition embedded in a generated `*.bundle.ts` module. */
++export type BundleDefinition = {
++  schema: string;
++  id: string;
++  contentHash: string;
++  revision?: number;
++  presets: Record<string, SidecarPreset>;
++  asset: number;
++};
++
++type PresetsOf<M extends BundleDefinition> = {
++  [K in keyof M['presets']]: PresetHandle;
++};
++
++type LoadedBundle<M extends BundleDefinition> = Bundle<PresetsOf<M>>;
++
++export interface BundleLoaders<M extends BundleDefinition> {
++  /** `includeAssets` reads the `.pulsar` on the calling thread — in dev, that blocks on Metro. */
++  loadBundleSync(includeAssets?: boolean): LoadedBundle<M>;
++  loadBundleAsync(): Promise<LoadedBundle<M>>;
++}
++
++function assertDefinition(definition: BundleDefinition | undefined): void {
++  if (definition?.schema !== SIDECAR_SCHEMA) {
++    throw new Error(
++      `Pulsar: expected a generated "${SIDECAR_SCHEMA}" bundle but got ` +
++        `"${definition?.schema ?? 'undefined'}". Regenerate it with \`npx pulsar-gen-rn\`.`
++    );
++  }
++}
++
++function withNonEnumerableMeta<P extends object>(
++  presets: P,
++  meta: BundleMeta
++): Bundle<P> {
++  const descriptors = Object.fromEntries(
++    Object.entries(meta).map(([key, value]) => [
++      key,
++      { value, enumerable: false },
++    ])
++  );
++  return Object.defineProperties(presets, descriptors) as Bundle<P>;
++}
++
++function resolveAssetUri(definition: BundleDefinition): string {
++  const source = Image.resolveAssetSource(definition.asset);
++  if (!source?.uri) {
++    throw new Error(
++      'Pulsar: could not resolve .pulsar asset — is withPulsar() configured in metro.config.js?'
++    );
++  }
++  return source.uri;
++}
++
++function assertToken(token: string, definition: BundleDefinition): string {
++  if (!token) {
++    throw new Error(
++      `Pulsar: failed to load bundle "${definition.id}" — see the native log for the cause.`
++    );
++  }
++  return token;
++}
++
++/** Called by a generated `*.bundle.ts` module, which re-exports the two loaders. */
++export function defineBundle<M extends BundleDefinition>(
++  definition: M
++): BundleLoaders<M> {
++  assertDefinition(definition);
++
++  return {
++    loadBundleSync: (includeAssets = false) => {
++      if (!includeAssets) return createLoadedBundle(definition);
++      const uri = resolveAssetUri(definition);
++      const token = Pulsar.Pulsar_loadBundleFromUriSync(uri);
++      return createLoadedBundle(definition, assertToken(token, definition));
++    },
++    loadBundleAsync: async () => {
++      const uri = resolveAssetUri(definition);
++      const token = await Pulsar.Pulsar_loadBundleFromUri(uri);
++      return createLoadedBundle(definition, assertToken(token, definition));
++    },
++  };
++}
++
++function createLoadedBundle<M extends BundleDefinition>(
++  definition: M,
++  bundleToken?: string
++): Bundle<PresetsOf<M>> {
++  const parsedIds = new Map<string, number>();
++  const parsedFrom = new Map<string, number>();
++  const presets: Record<string, PresetHandle> = {};
++  let disposed = false;
++
++  const warnDisposed = (action: string, id: string) => {
++    if (__DEV__) {
++      console.warn(
++        `Pulsar: ignored ${action}() on preset "${id}" — bundle "${definition.id}" is disposed.`
++      );
++    }
++  };
++
++  for (const [id, preset] of Object.entries(definition.presets)) {
++    const parseAt = (fromMs: number) => {
++      const previousId = parsedIds.get(id);
++      const alreadyParsedHere =
++        previousId !== undefined && parsedFrom.get(id) === fromMs;
++      if (alreadyParsedHere) return previousId;
++      if (previousId !== undefined) Pulsar.PatternComposer_release(previousId);
++
++      const parsedId = Pulsar.PatternComposer_parsePattern(
++        preset.pattern,
++        fromMs
++      );
++      parsedIds.set(id, parsedId);
++      parsedFrom.set(id, fromMs);
++      return parsedId;
++    };
++
++    presets[id] = {
++      id,
++      name: preset.name,
++      duration: preset.duration,
++      pattern: preset.pattern,
++      animation: preset.lottie,
++      hasAudio: preset.audio,
++      hasAnimation: preset.animation,
++      play: (fromMs = 0) => {
++        if (disposed) return warnDisposed('play', id);
++        const from = Math.max(0, fromMs);
++        if (bundleToken) {
++          Pulsar.Pulsar_playBundlePreset(bundleToken, id, from);
++          return;
++        }
++        Pulsar.PatternComposer_play(parseAt(from));
++      },
++      stop: () => {
++        if (disposed) return warnDisposed('stop', id);
++        if (bundleToken) {
++          Pulsar.Pulsar_stopBundlePreset(bundleToken, id);
++          return;
++        }
++        const parsedId = parsedIds.get(id);
++        if (parsedId !== undefined) Pulsar.PatternComposer_stop(parsedId);
++      },
++    };
++  }
++
++  return withNonEnumerableMeta(presets as PresetsOf<M>, {
++    id: definition.id,
++    contentHash: definition.contentHash,
++    get: (id: string) => presets[id],
++    dispose: () => {
++      if (disposed) return;
++      disposed = true;
++      if (bundleToken) Pulsar.Pulsar_disposeBundle(bundleToken);
++      for (const parsedId of parsedIds.values()) {
++        Pulsar.PatternComposer_release(parsedId);
++      }
++      parsedIds.clear();
++      parsedFrom.clear();
++    },
++  });
++}
+diff --git a/src/index.tsx b/src/index.tsx
+--- a/src/index.tsx
++++ b/src/index.tsx
+@@ -1,3 +1,4 @@
++import { defineBundle } from './createBundle';
+ import Presets from './Presets';
+ import Settings from './Settings';
+ import useRealtimeComposer from './useRealtimeComposer';
+@@ -15,3 +16,6 @@
+ export type { Pattern, PatternComposer, AdaptivePreset, AdaptivePresetConfig, AdaptiveHaptics } from './types';
+ export { HapticSupport, RealtimeComposerStrategy } from './NativeRNPulsar';
+ export type { RealtimeComposer } from './useRealtimeComposer';
++
++export { defineBundle };
++export type { Bundle, BundleDefinition, BundleLoaders, BundleMeta, PresetHandle, PresetAnimation } from './createBundle';
 diff --git a/src/usePatternComposer.ts b/src/usePatternComposer.ts
-index 13437b9c5bc68c2e663753664f3c6b20b0afaa12..0737b911e7a41eae5bb2e55b565444d1475435ce 100644
 --- a/src/usePatternComposer.ts
 +++ b/src/usePatternComposer.ts
-@@ -25,10 +25,18 @@ export default function usePatternComposer(pattern?: Pattern): PatternComposer {
+@@ -25,10 +25,18 @@
      }
    }, []);
  
@@ -54,15 +899,16 @@ index 13437b9c5bc68c2e663753664f3c6b20b0afaa12..0737b911e7a41eae5bb2e55b565444d1
 +  }, []);
 +
    const parse = useCallback((pattern: Pattern) => {
+-    const newPatternId = Pulsar.PatternComposer_parsePattern(pattern);
 +    release();
-     const newPatternId = Pulsar.PatternComposer_parsePattern(pattern);
++    const newPatternId = Pulsar.PatternComposer_parsePattern(pattern, 0);
      patternId.set(newPatternId);
 -  }, [pattern]);
 +  }, [release]);
  
    const isParsed = () => {
      return patternId.get() !== -1;
-@@ -39,13 +47,8 @@ export default function usePatternComposer(pattern?: Pattern): PatternComposer {
+@@ -39,13 +47,8 @@
        parse(pattern);
      }
  

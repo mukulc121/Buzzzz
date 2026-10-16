@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 
-// JS mirror of the native preset clock so the scrubber can follow playback.
 export function usePlaybackClock(durationMs: number) {
   const [positionMs, setPositionMs] = useState(0);
   const [isRunning, setIsRunning] = useState(false);

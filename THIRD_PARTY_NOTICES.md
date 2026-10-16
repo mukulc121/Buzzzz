@@ -6,6 +6,8 @@ Studio's preset library in `packages/core/src/presets/pulsar-presets.json` is co
 
 The native preset catalog, chart images, and `pulsar-icons.ttf` with its layer metadata are copied from the published Pulsar app. The icon font is identical in its iOS and Android distributions.
 
+The patched native cores use unreleased source at revision `abdee706282598ab0194ba739dce835dc828f164`, pinned in [`source.json`](apps/preview/native/pulsar/source.json), with their license retained in [`native/pulsar/LICENSE`](apps/preview/native/pulsar/LICENSE).
+
 These use Pulsar's [MIT license](https://github.com/software-mansion/pulsar/blob/main/LICENSE):
 
 ```text
@@ -31,6 +33,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Fanfare audio
+
+The Fanfare sound in the native [`PulsarAppBundle.pulsar`](apps/preview/assets/bundles/PulsarAppBundle.pulsar) is by [freesound_community](https://pixabay.com/users/freesound_community-46691455/) from Pixabay, under the [Pixabay Content License](https://pixabay.com/service/license-summary/). It is part of the synchronized audio/haptics example and is not relicensed under MIT. The [starter attribution](apps/studio/src/features/project/starter/ATTRIBUTION.md) records its provenance and matching SHA-256.
 
 ## Expo
 

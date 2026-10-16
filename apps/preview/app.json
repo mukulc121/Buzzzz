@@ -32,6 +32,7 @@
     "plugins": [
       "./plugins/metro-port",
       "./plugins/local-relay",
+      "./plugins/pulsar-core",
       "expo-system-ui",
       "expo-font",
       [

@@ -25,7 +25,7 @@ Open [localhost:5173](http://localhost:5173). This starts Studio on port 5173 an
 
 Bun installs dependencies and runs unit tests. Vite+ runs development tasks, builds Studio, and handles linting and formatting.
 
-The editor works without a phone. Patterns, editor state, and trigger mappings save locally; imported media stays in the browser's media library. Export a portable `.pulsar` archive to keep patterns, original media, trim windows, mappings, markers, and the Rive file together.
+The editor works without a phone. Projects save in localStorage; original media and attachments save in IndexedDB. Projects opens the full project browser, and each local project has a `/studio/projects/:id` URL. These URLs refer to this browser's records. Use a portable `.pulsar` export or a configured hosted share link to transfer a project.
 
 ## Preview on a phone
 
@@ -43,17 +43,20 @@ Native projects under `apps/preview/ios` and `apps/preview/android` are generate
 
 ## Make a pattern
 
-1. Open Patterns to draw intensity, frequency, and taps, or start from the Pulsar library. Use multi-selection, snapping, markers, a play range, and undo.
-2. Open Sound to import and trim audio, inspect analysis overlays, and compare nine generation approaches. Open Animation for Lottie or dotLottie playback and five motion/channel approaches.
-3. Use Tools for snippets, tap rhythm, microphone voice sketch, time warp, audio trim, signal analysis, and compatibility checks.
-4. Import a `.riv` with view-model Trigger properties. Map triggers to patterns, then interact in Studio or Preview.
-5. Export a pattern as Pulsar JSON, a project as JSON, or a portable `.pulsar` archive. Imports also accept AHAP and Lofelt, with conversion warnings where needed.
+1. Create or open a project in Projects. Use Patterns to draw intensity, frequency, and taps, with multi-selection, snapping, markers, a play range, and undo.
+2. In Library, click a preset's About button, then Play to audition it separately from the project pattern. Use + or drag it onto the chart to append it.
+3. Attach media from Media. Sound has trimming, 12 signal metrics, and nine generation approaches. Animation has Lottie and dotLottie playback with five approaches.
+4. Use Tools for snippets, tap rhythm, microphone voice sketch, time warp, audio trim, signal analysis, and compatibility checks.
+5. Import a `.riv` with view-model Trigger properties. Map triggers to patterns, then interact in Studio or Preview.
+6. Export Pulsar JSON, project JSON, or a portable `.pulsar` archive containing patterns, original media, trim windows, mappings, markers, and Rive. Imports also accept AHAP and Lofelt, with conversion warnings where needed.
 
 Pattern time is in milliseconds; amplitude and frequency use values from 0 to 1. The shared model accepts patterns up to 60 seconds. The exported `discretePattern` and `continuousPattern` fields match Pulsar's device format.
 
-Keyboard shortcuts outside form controls: Space plays or stops, `1`/`2`/`3` select a layer, Delete removes the selected point, and Cmd/Ctrl+Z undoes an edit.
+Settings controls theme, grid density, value precision, crosshairs, the time cursor, and multilayer selection. Learn has four walkthroughs with 27 steps covering editing, phone pairing, sound, and animation.
 
-Audio is decoded with Web Audio and analyzed in a cancellable worker. Loudness, roughness, fluctuation, sharpness, pitch, and motion-derived physics are estimates. The independently implemented generators do not establish identical output to Pulsar Studio. See [development](docs/development.md#media-analysis) for limits.
+Outside form controls, Space or `P` plays or stops, `1`/`2`/`3` selects a layer, Delete removes the selection, and Cmd/Ctrl+Z undoes an edit. Settings lists the remaining shortcuts.
+
+Sound processing follows the inspected Pulsar Studio source. Browser sound comparisons and reference fixtures have specific input and platform limits; physical haptics still need a phone check. See [media analysis](docs/development.md#media-analysis), [sound reference checks](docs/verification.md#sound-reference-checks), and [verification limits](docs/verification.md#current-evidence-limits).
 
 ## Checks
 
@@ -88,6 +91,6 @@ Narration uses macOS `say` and `afconvert`. Set `VOICE` and `RATE` to change the
 
 Install from the repository root and keep the single `bun.lock`. Apps may import `@buzzzz/core`; shared packages must not import apps. Read [architecture](docs/architecture.md) before changing the relay or shared format.
 
-The preview app includes a Pulsar 1.7.0 composer leak backport and a local Rive Android surface fix. See [dependency patches](docs/development.md#dependency-patches) and [third-party notices](THIRD_PARTY_NOTICES.md).
+Preview patches React Native Pulsar 1.7.0 with the composer fix and bundle/audio APIs, and builds both native cores from pinned unreleased source. The local iOS `1.4.0` and Android `1.3.0` metadata satisfy dependency constraints; they are compatibility labels for that source, not new published releases. A separate Rive patch handles Android surfaces. See the exact [source pin and patch removal checks](docs/development.md#dependency-patches) and [third-party notices](THIRD_PARTY_NOTICES.md).
 
 The official Pulsar app can audition exported patterns through official Studio. Full Rive preview uses this repository's app. See [Pulsar compatibility](docs/pulsar-compatibility.md) for the tested boundaries.

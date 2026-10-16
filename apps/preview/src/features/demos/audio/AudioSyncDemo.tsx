@@ -1,60 +1,100 @@
-import { useEffect, useRef } from "react";
-import { Text, View } from "react-native";
-import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
-import { rangePattern } from "@buzzzz/core";
-import type { Theme } from "../../../theme/colors";
-import { DemoButton } from "../shared/DemoButton";
-import { DemoCard } from "../shared/DemoCard";
-import { demoStyles } from "../shared/demoStyles";
-import { useAppBackground } from "../shared/useAppBackground";
-import { useDemoHaptics } from "../shared/useDemoHaptics";
-import { BeatLane } from "./BeatLane";
-import { TRACK_MS, beatPattern } from "./beats";
+import { useEffect, useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+import type { PresetHandle } from "react-native-pulsar";
+import { Button } from "../../../components/Button";
+import { Card } from "../../../components/Card";
+import { ThemedText } from "../../../components/ThemedText";
+import { margins } from "../../../theme/margins";
+import { loadBundleAsync } from "../../../../assets/bundles/PulsarAppBundle.bundle";
+import { formatMs } from "./formatMs";
+import { MediaCredit } from "./MediaCredit";
+import { MediaScrubber } from "./MediaScrubber";
+import { usePlaybackClock } from "./usePlaybackClock";
 
-const TRACK = require("./beat.wav");
-
-interface IAudioSyncDemo {
-  t: Theme;
-}
-export function AudioSyncDemo(props: IAudioSyncDemo) {
-  const { t } = props;
-  const s = demoStyles(t);
-  const player = useAudioPlayer(TRACK, { updateInterval: 50 });
-  const status = useAudioPlayerStatus(player);
-  const haptics = useDemoHaptics();
-  const armed = useRef(false);
-  const stop = () => {
-    armed.current = false;
-    player.pause();
-    haptics.stop();
-  };
-  useAppBackground(stop);
-  // Haptics start from the player's own reported position once audio is actually running.
+export function AudioSyncDemo() {
+  const [preset, setPreset] = useState<PresetHandle | null>(null);
   useEffect(() => {
-    if (!armed.current || !status.playing) return;
-    armed.current = false;
-    haptics.play(rangePattern(beatPattern(), player.currentTime * 1000, TRACK_MS));
-  }, [status.playing, haptics, player]);
-  const play = async () => {
-    stop();
-    await setAudioModeAsync({ playsInSilentMode: true, interruptionMode: "mixWithOthers" });
-    await player.seekTo(0);
-    armed.current = true;
-    player.play();
+    let cancelled = false;
+    let loaded: Awaited<ReturnType<typeof loadBundleAsync>> | null = null;
+    loadBundleAsync()
+      .then((bundle) => {
+        if (cancelled) return bundle.dispose();
+        loaded = bundle;
+        setPreset(bundle.fanfaresound);
+      })
+      .catch((error: unknown) => console.warn("Pulsar: could not load the demo bundle", error));
+    return () => {
+      cancelled = true;
+      loaded?.dispose();
+    };
+  }, []);
+  const duration = preset?.duration ?? 0;
+  const clock = usePlaybackClock(duration);
+  const [draggedMs, setDraggedMs] = useState<number | null>(null);
+  const playFrom = (ms: number) => {
+    if (!preset) return;
+    preset.stop();
+    preset.play(ms);
+    clock.start(ms);
   };
-  const progress = status.duration ? status.currentTime / status.duration : 0;
+  const stopPlayback = () => {
+    preset?.stop();
+    clock.stop();
+  };
+  const onTransport = () => {
+    if (clock.isRunning) return stopPlayback();
+    playFrom(clock.positionMs >= duration ? 0 : clock.positionMs);
+  };
+  const onSeek = (ms: number) => {
+    if (clock.isRunning) return playFrom(ms);
+    preset?.stop();
+    clock.jumpTo(ms);
+  };
   return (
-    <DemoCard t={t} title="Kick and hat loop">
-      <Text style={s.body}>
-        A 4-second beat generated for this app. Kicks land as heavy low taps, hats as light sharp
-        ones, both scheduled from the audio clock.
-      </Text>
-      <BeatLane t={t} progress={status.playing ? progress : 0} />
-      <View style={s.row}>
-        <DemoButton t={t} primary label={status.playing ? "Restart" : "Play"} onPress={play} />
-        <DemoButton t={t} label="Stop" onPress={stop} disabled={!status.playing} />
+    <ScrollView contentContainerStyle={styles.scrollContent}>
+      <View style={styles.container}>
+        <ThemedText type="title" style={margins.marginTop4X}>
+          Audio-synced haptics
+        </ThemedText>
+        <ThemedText style={margins.marginTop2X}>
+          A preset from a <ThemedText type="defaultSemiBold">.pulsar</ThemedText> bundle, its audio
+          and haptics on one native clock. Drag the bar to play from anywhere. Best felt on a real
+          device.
+        </ThemedText>
+        <Card style={margins.marginTop4X}>
+          <ThemedText testID="audio-demo-source" type="defaultSemiBold" numberOfLines={1}>
+            fanfare.mp3
+          </ThemedText>
+          <View style={margins.marginTop1X}>
+            <MediaScrubber
+              testID="audio-demo-scrubber"
+              positionMs={clock.positionMs}
+              durationMs={duration}
+              onScrub={setDraggedMs}
+              onSeek={onSeek}
+            />
+          </View>
+          <ThemedText testID="audio-demo-position" style={styles.meta}>
+            {formatMs(draggedMs ?? clock.positionMs)} / {formatMs(duration)}
+          </ThemedText>
+          <Button
+            testID="audio-demo-transport"
+            accessibilityLabel={clock.isRunning ? "Stop" : "Play"}
+            label={clock.isRunning ? "Stop" : "Play"}
+            showIcon={clock.isRunning ? "stop" : "play"}
+            style={margins.marginTop3X}
+            state={preset ? "default" : "loading"}
+            disableHaptics
+            onClick={onTransport}
+          />
+        </Card>
+        <MediaCredit />
       </View>
-      {status.error ? <Text style={[s.muted, { color: t.err }]}>{status.error}</Text> : null}
-    </DemoCard>
+    </ScrollView>
   );
 }
+const styles = StyleSheet.create({
+  scrollContent: { paddingBottom: 40 },
+  container: { paddingLeft: 15, paddingRight: 15 },
+  meta: { fontSize: 14, color: "rgba(73, 102, 149, 1)" },
+});

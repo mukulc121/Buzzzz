@@ -14,7 +14,7 @@ Apps depend on shared packages, never one another. Packages never depend on apps
 
 ## Source layout
 
-Studio's `src/app` wires the workspace together. `src/features` contains composer, audio, animation, imports, presets, project, connection, activity, Rive, and tools. Shared controls live in `src/components`, styling in `src/styles`. Feature workers keep analysis off the UI thread. Import parsers validate external data before application state changes.
+Studio's `src/app` wires the workspace together. `src/features` contains composer, audio, animation, imports, presets, project, connection, activity, Rive, tools, and Learn. Shared controls live in `src/components`, styling in `src/styles`. Audio generation and animation analysis use workers; Sound metric overlays read the decoded mono clip. Import parsers validate external data before application state changes.
 
 Preview's `src/app` contains Expo Router routes. Home, presets, playground, demos, connection, and playback live under `src/features`, with shared components and theme beside them. Relay separates room storage, sessions, sockets, assets, shares, project revisions, and MCP dispatch. Core groups pattern/project models under `src/patterns` and the wire protocol under `src/relay`.
 
@@ -24,7 +24,9 @@ Explainer separates application registration, composition and timing, scene comp
 
 Core validates patterns with times from 0 to 60,000 milliseconds and amplitude/frequency from 0 to 1. Each point array accepts at most 10,000 entries. A project contains named presets and trigger mappings. Optional per-preset editor state contains markers, play range, and duration.
 
-Studio persists project state locally and stores original media in its browser library. Audio decoding uses Web Audio, followed by worker analysis and independent pattern generation. Animation playback uses Lottie's canvas renderer; a worker samples transforms and channels to generate patterns. These estimates share the validated pattern model with manual editing and native playback. See [analysis limits](development.md#media-analysis).
+Studio stores project records in localStorage and media blobs, attachments, and trim windows in IndexedDB. `/studio/projects` lists local projects; `/studio/projects/:id` addresses a record in the same browser. These routes carry no project data or account synchronization. Hosted share URLs and portable exports transfer project data explicitly.
+
+Audio decoding uses Web Audio. Its 12 signal metrics and nine generators follow the inspected Pulsar Studio source. Animation playback uses Lottie's canvas renderer; a worker samples transforms and channels for five generation approaches. They share the validated pattern model with manual editing and native playback. See [analysis limits](development.md#media-analysis).
 
 Project JSON includes patterns, mappings, editor state, and optional embedded Rive. Portable `.pulsar` ZIP exports include original media, trim windows, and a content hash. Public manifest entries use `pulsar.bundle/1`; Buzzzz-specific state lives in a namespaced manifest extension. Referenced files pass format and metadata checks before saving; audio decoding happens when loading a track. Rive imports allow 20 MiB; project JSON allows 32 MiB for base64 round trips. Portable archives additionally bound member count and expanded size.
 
@@ -54,3 +56,5 @@ Static Studio hosting supplies no local relay. Configure and verify the separate
 ## Native ownership
 
 Expo generates ignored iOS and Android projects from `apps/preview/app.json` and config plugins. Rebuild after native dependency, patch, or configuration changes. Preview requires a native development build because Expo Go lacks its Rive and Pulsar modules. Simulators can verify UI and connections; haptic output requires physical hardware.
+
+React Native Pulsar remains on 1.7.0 with a local patch. Its native cores come from pinned unreleased source, verified by archive hash. The local iOS 1.4.0 and Android 1.3.0 metadata satisfy dependency constraints; the source pin determines their implementation. See [dependency patches](development.md#dependency-patches) for the revision, checksum, and removal checks.
