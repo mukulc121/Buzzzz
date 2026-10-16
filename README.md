@@ -31,7 +31,7 @@ The editor works without a phone. Patterns, editor state, and trigger mappings s
 
 The native app needs a development build. Expo Go does not include its native dependencies. For iOS, use macOS, Xcode, CocoaPods, and an Apple account. For Android, install the Android SDK and configure a device or emulator.
 
-1. For your own iPhone, set `ios.bundleIdentifier` in `apps/preview/app.json` and choose your signing team in Xcode. Connect and trust the phone, then enable Developer Mode.
+1. Connect and trust your iPhone, then enable Developer Mode. Set your signing team and personal bundle identifier in the generated Xcode project, which is ignored by Git. Keep them out of `app.json`.
 2. With `bun run dev` running, run `bun run ios` and select a target. Use `bun run android` for Android.
 3. Keep the phone and computer on the same Wi-Fi. Allow Local Network access on iOS.
 4. Scan Studio's pairing QR in Preview, or paste its relay address. Confirm the destination host before connecting. Plain WebSocket connections require a private or loopback IP address; remote relays require WSS.

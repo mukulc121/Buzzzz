@@ -33,10 +33,10 @@ The preview app uses Expo SDK 57 and React Native 0.86. Use `bunx expo install <
 
 ## First iPhone build
 
-1. Change `ios.bundleIdentifier` in `apps/preview/app.json`. Choose your signing team in Xcode, or add `ios.appleTeamId` to the config.
-2. Connect the iPhone by USB, trust the Mac, and enable Developer Mode in Settings.
-3. Start `bun run dev`, then run `bun run ios` in another terminal and select the phone.
-4. If signing needs attention, open the generated `.xcworkspace` under `apps/preview/ios`, select the app target, and choose your team in Signing & Capabilities.
+1. Connect the iPhone by USB, trust the Mac, and enable Developer Mode in Settings.
+2. Start `bun run dev`, then run `bun run ios` in another terminal to generate the native project.
+3. Open the generated `.xcworkspace` under `apps/preview/ios`, select the app target, and set your signing team and personal bundle identifier in Signing & Capabilities.
+4. Build and run on the phone from Xcode. Keep personal signing values in the ignored native project. Regenerating that project resets those local settings.
 5. Allow Local Network access, then scan Studio's pairing QR or paste its relay URL into the app.
 
 For a simulator UI check, choose an iOS simulator as the build target. It cannot prove haptic playback. Expo Go cannot run the preview app's native modules.
