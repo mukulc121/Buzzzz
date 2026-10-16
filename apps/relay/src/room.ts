@@ -1,5 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
-import { bearer, failure, HttpError, json } from "./security.ts";
+import { bearer, failure, HttpError, json, tokenHash } from "./security.ts";
 
 import { RoomAssets } from "./assets.ts";
 import { RoomShares } from "./shares.ts";
@@ -33,6 +33,7 @@ export class RelayRoom extends DurableObject<Env> {
       () => this.room(),
       env.PAIR_TTL_SECONDS,
       this.rates,
+      env.PAIRING_CODES,
     );
     this.sockets = new RoomSockets(
       ctx,
@@ -67,6 +68,27 @@ export class RelayRoom extends DurableObject<Env> {
     const row = this.ctx.storage.sql.exec<Room>("SELECT * FROM room").toArray()[0];
     if (!row || row.expires <= Date.now()) throw new HttpError(410, "Room expired or revoked");
     return row;
+  }
+
+  // fallow-ignore-next-line unused-class-member
+  async pairByCode(code: string, device: string, ip: string): Promise<Response> {
+    try {
+      const hash = await tokenHash(code);
+      const room = this.room();
+      const encoder = new TextEncoder();
+      if (!crypto.subtle.timingSafeEqual(encoder.encode(hash), encoder.encode(room.pair_hash)))
+        throw new HttpError(401, "Pairing code expired or invalid");
+      return await this.sessions.pair(
+        new Request(new URL(`/v1/rooms/${room.id}/pair`, room.origin), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "CF-Connecting-IP": ip },
+          body: JSON.stringify({ code, device }),
+        }),
+        room,
+      );
+    } catch (error) {
+      return failure(error);
+    }
   }
 
   // fallow-ignore-next-line unused-class-member

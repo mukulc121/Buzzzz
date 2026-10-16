@@ -1,3 +1,4 @@
+import { isPairingCode } from "./pairing.ts";
 export function isRiveAssetUrl(input: unknown): input is string {
   if (typeof input !== "string" || input.length > 1024) return false;
   if (/^\/riv\/[a-f0-9]+\.riv$/.test(input)) return true;
@@ -45,7 +46,7 @@ export function pairingLink(
       server.search ||
       server.hash ||
       !/^[a-f0-9]{32}$/.test(room) ||
-      !/^\d{6}$/.test(code)
+      !isPairingCode(code)
     )
       return null;
     return { server: server.origin, room, code };

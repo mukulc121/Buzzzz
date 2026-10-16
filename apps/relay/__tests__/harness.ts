@@ -35,10 +35,14 @@ export async function runtime(bindings: Record<string, string> = {}) {
     ),
     compatibilityDate: "2026-08-06",
     compatibilityFlags: ["nodejs_compat"],
-    durableObjects: { ROOMS: { className: "RelayRoom", useSQLite: true } },
+    durableObjects: {
+      ROOMS: { className: "RelayRoom", useSQLite: true },
+      PAIRING_CODES: { className: "PairingCode", useSQLite: true },
+    },
     r2Buckets: ["ASSETS"],
     ratelimits: {
       EDGE_RATE_LIMITER: { namespace_id: "1001", simple: { limit: 10000, period: 60 } },
+      PAIRING_RATE_LIMITER: { namespace_id: "1002", simple: { limit: 10, period: 60 } },
     },
     bindings: {
       STUDIO_ORIGINS: "https://studio.example",

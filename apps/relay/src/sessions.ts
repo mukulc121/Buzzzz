@@ -1,16 +1,10 @@
-import { isRecord } from "@buzzzz/core";
-import {
-  HttpError,
-  json,
-  randomPairCode,
-  randomToken,
-  readJson,
-  tokenHash,
-  tokenMatches,
-} from "./security.ts";
+import { HttpError, json, randomToken, readJson, tokenHash, tokenMatches } from "./security.ts";
 import type { Room } from "./model.ts";
 import type { RoomRateLimit } from "./rates.ts";
 import { PairingAttempts } from "./pairingAttempts.ts";
+import type { PairingCode } from "./pairingCodes.ts";
+import { allocatePairingCode } from "./pairingCode.ts";
+import { pairingInput } from "./pairingInput.ts";
 
 type Role = "host" | "phone";
 type Session = { hash: string; role: Role; expires: number };
@@ -35,24 +29,37 @@ export class RoomSessions {
     private active: () => Room,
     private pairTtl: string,
     private rates: RoomRateLimit,
+    private codes: DurableObjectNamespace<PairingCode>,
   ) {
     this.attempts = new PairingAttempts(sql, rates);
+  }
+
+  private async reserveCode(roomId: string, expiresAt: number) {
+    const code = await allocatePairingCode(async (candidate) => {
+      const hash = await tokenHash(candidate);
+      return this.codes.getByName(hash).reserve(roomId, expiresAt);
+    });
+    return { code, hash: await tokenHash(code) };
   }
 
   async createRoom(id: string, origin: string, sessionTtl: string) {
     if (this.sql.exec("SELECT id FROM room").toArray().length)
       throw new HttpError(409, "Room already exists");
     const hostToken = randomToken();
-    const code = randomPairCode();
     const expiresAt = Date.now() + ttl(sessionTtl, 86400);
     const pairExpires = Math.min(expiresAt, Date.now() + ttl(this.pairTtl, 600));
-    const [hostHash, pairHash] = await Promise.all([tokenHash(hostToken), tokenHash(code)]);
+    const [hostHash, pairing] = await Promise.all([
+      tokenHash(hostToken),
+      this.reserveCode(id, pairExpires),
+    ]);
+    if (this.sql.exec("SELECT id FROM room").toArray().length)
+      throw new HttpError(409, "Room already exists");
     this.sql.exec(
       "INSERT INTO room (id, origin, expires, pair_hash, pair_expires) VALUES (?, ?, ?, ?, ?)",
       id,
       origin,
       expiresAt,
-      pairHash,
+      pairing.hash,
       pairExpires,
     );
     this.sql.exec(
@@ -64,7 +71,7 @@ export class RoomSessions {
       roomId: id,
       hostToken,
       expiresAt,
-      pairing: { code, expiresAt: pairExpires },
+      pairing: { code: pairing.code, expiresAt: pairExpires },
       relayUrl: sessionRelayUrl(origin, id, hostToken),
     };
   }
@@ -82,31 +89,24 @@ export class RoomSessions {
   }
 
   async rotate(room: Room): Promise<Response> {
-    const code = randomPairCode();
-    const hash = await tokenHash(code);
-    this.active();
+    const previous = this.active();
     const expiresAt = Math.min(room.expires, Date.now() + ttl(this.pairTtl));
+    const pairing = await this.reserveCode(room.id, expiresAt);
+    const current = this.active();
+    if (current.pair_hash !== previous.pair_hash)
+      throw new HttpError(409, "Pairing code changed. Refresh it in Studio");
     this.sql.exec(
       "UPDATE room SET pair_hash = ?, pair_expires = ?, pair_used = 0, pair_attempts = 0",
-      hash,
+      pairing.hash,
       expiresAt,
     );
     this.attempts.reset();
-    return json({ code, expiresAt });
+    return json({ code: pairing.code, expiresAt });
   }
 
   async pair(request: Request, room: Room): Promise<Response> {
     this.attempts.reserve(request, room);
-    const input = await readJson(request, 1024);
-    if (
-      !isRecord(input) ||
-      typeof input.code !== "string" ||
-      !/^\d{6}$/.test(input.code) ||
-      typeof input.device !== "string" ||
-      !input.device.trim() ||
-      input.device.length > 128
-    )
-      throw new HttpError(400, "Expected a pairing code and device name");
+    const input = pairingInput(await readJson(request, 1024));
     if (
       room.pair_used ||
       room.pair_expires <= Date.now() ||
@@ -136,6 +136,7 @@ export class RoomSessions {
     );
     return json(
       {
+        roomId: room.id,
         phoneToken,
         expiresAt: room.expires,
         relayUrl: sessionRelayUrl(room.origin, room.id, phoneToken),

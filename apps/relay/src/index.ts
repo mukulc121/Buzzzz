@@ -1,7 +1,9 @@
 import { failure, HttpError, json, randomId } from "./security.ts";
 import { isStudioOrigin } from "./origins.ts";
+import { pairByCode } from "./pairByCode.ts";
 
 export { RelayRoom } from "./room.ts";
+export { PairingCode } from "./pairingCodes.ts";
 
 function allowedOrigin(request: Request, env: Env): string | null {
   const origin = request.headers.get("Origin");
@@ -47,6 +49,8 @@ export default {
         const roomId = randomId();
         const result = await env.ROOMS.getByName(roomId).create(roomId, url.origin);
         response = json(result, 201);
+      } else if (url.pathname === "/v1/pair" && request.method === "POST") {
+        response = await pairByCode(request, env);
       } else {
         const roomId =
           url.pathname === "/relay"
