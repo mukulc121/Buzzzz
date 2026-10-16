@@ -280,6 +280,7 @@ describe("private relay rooms", () => {
           headers: { ...auth(room.hostToken), "Content-Length": String(20 * 1024 * 1024 + 1) },
         },
         (response) => {
+          response.on("error", reject);
           response.resume();
           response.on("end", () => {
             resolve(response.statusCode ?? 0);
@@ -288,7 +289,7 @@ describe("private relay rooms", () => {
         },
       );
       upload.on("error", reject);
-      upload.end(new Uint8Array(20 * 1024 * 1024 + 1));
+      upload.flushHeaders();
     });
     assert.equal(tooLarge, 413);
     const body = new Uint8Array(20 * 1024 * 1024);
