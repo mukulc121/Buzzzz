@@ -30,6 +30,9 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "rivehaptics"
+    "scheme": "rivehaptics",
+    "plugins": [
+      "./plugins/metro-port"
+    ]
   }
 }
