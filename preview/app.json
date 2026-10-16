@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Haptics Preview",
+    "slug": "haptics-preview",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.rivehaptics.preview",
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "Connects to Haptics Studio on your local network to preview patterns.",
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        }
+      },
+      "appleTeamId": "39X8FS89ST"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "dev.rivehaptics.preview"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "scheme": "rivehaptics"
+  }
+}

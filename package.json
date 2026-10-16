@@ -1,0 +1,9 @@
+{
+  "name": "rive-haptics",
+  "private": true,
+  "scripts": {
+    "setup": "npm --prefix studio install && npm --prefix preview install",
+    "dev": "trap 'kill 0' INT TERM EXIT; npm --prefix studio run dev -- --clearScreen false & npm --prefix preview start -- --port 8082 & wait",
+    "ios": "npm --prefix preview exec -- expo run:ios --device --port 8082"
+  }
+}
