@@ -1,13 +1,39 @@
 import { expect, test, type Page } from "@playwright/test";
 import { isProjectRecord } from "../../apps/studio/src/features/project/model";
 
-test.use({
-  permissions: ["microphone"],
-  launchOptions: { args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"] },
-});
-
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("buzzzz.onboarding.seen", "true"));
+  await page.addInitScript(() => {
+    navigator.mediaDevices.getUserMedia = async () => {
+      const context = new AudioContext();
+      const source = context.createOscillator();
+      const gain = context.createGain();
+      const destination = context.createMediaStreamDestination();
+      source.frequency.value = 220;
+      gain.gain.value = 0.3;
+      source.connect(gain).connect(destination);
+      source.start();
+      await context.resume();
+      const monitor = document.createElement("audio");
+      monitor.id = "test-microphone-stream";
+      monitor.hidden = true;
+      monitor.srcObject = destination.stream;
+      document.body.append(monitor);
+      for (const track of destination.stream.getTracks()) {
+        const stop = track.stop.bind(track);
+        track.stop = () => {
+          stop();
+          source.stop();
+          void context.close();
+        };
+      }
+      if (document.documentElement.dataset.delayMicrophone)
+        await new Promise<void>((resolve) =>
+          document.addEventListener("release-test-microphone", () => resolve(), { once: true }),
+        );
+      return destination.stream;
+    };
+  });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/");
   await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toBeEnabled();
@@ -80,4 +106,31 @@ test("blocked microphone shows the source error inline", async ({ page }) => {
     "Microphone access was blocked. Allow it for this site and try again.",
   );
   await expect(tool.getByRole("button", { name: "Start recording", exact: true })).toBeEnabled();
+});
+
+test("leaving before microphone permission resolves releases the eventual stream", async ({
+  page,
+}) => {
+  await page.evaluate(() => {
+    document.documentElement.dataset.delayMicrophone = "true";
+  });
+  await page.getByRole("button", { name: "Start recording", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Start recording", exact: true })).toContainText(
+    "Waiting for the microphone…",
+  );
+  await page.getByRole("button", { name: "Back to tools", exact: true }).click();
+  await page.evaluate(() => document.dispatchEvent(new Event("release-test-microphone")));
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const stream =
+          document.querySelector<HTMLAudioElement>("#test-microphone-stream")?.srcObject;
+        return (
+          stream instanceof MediaStream &&
+          stream.getTracks().every((track) => track.readyState === "ended")
+        );
+      }),
+    )
+    .toBe(true);
+  await expect(page.getByRole("heading", { name: "Tools", exact: true })).toBeVisible();
 });
