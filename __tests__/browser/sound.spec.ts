@@ -23,7 +23,8 @@ for (const fixture of reference.cases) {
     await page.goto("/");
     const rendered = await page.evaluate(
       async ({ fixture, windowSamples }) => {
-        const { schedulePatternSound } = await import("/src/features/composer/soundGraph.ts");
+        const modulePath = "/src/features/composer/soundGraph.ts";
+        const { schedulePatternSound } = await import(modulePath);
         const context = new OfflineAudioContext(1, fixture.length, fixture.sampleRate);
         schedulePatternSound(context, fixture.pattern, 0);
         const buffer = await context.startRendering();
@@ -59,7 +60,8 @@ for (const fixture of reference.cases) {
 test("stopping scheduled sound and incomplete envelopes stay silent", async ({ page }) => {
   await page.goto("/");
   const peaks = await page.evaluate(async (pattern) => {
-    const { schedulePatternSound } = await import("/src/features/composer/soundGraph.ts");
+    const modulePath = "/src/features/composer/soundGraph.ts";
+    const { schedulePatternSound } = await import(modulePath);
     const cases = [
       { pattern, stop: true },
       { pattern: { discretePattern: [], continuousPattern: { amplitude: [], frequency: [] } } },
