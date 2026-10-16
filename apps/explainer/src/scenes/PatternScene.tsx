@@ -61,7 +61,7 @@ export function PatternScene() {
     }),
   );
   return (
-    <Scene kicker="1 · Design" title="A pattern is three layers over time">
+    <Scene kicker="Compose" title="A pattern is three layers over time">
       <Card x={120} y={270} w={1060} h={600}>
         <div style={{ display: "flex", gap: 14, marginBottom: 24 }}>
           <Pill color={C.amp}>Intensity</Pill>
@@ -144,7 +144,7 @@ export function PatternScene() {
       </Appear>
       <Appear delay={150} style={{ position: "absolute", left: 120, top: 920 }}>
         <div style={{ fontSize: 26, color: C.fg2 }}>
-          Start from scratch or from 206 Pulsar presets in the library. Values 0–1, time in ms.
+          Draw · Multi-select · Snap · Markers · Play ranges · Undo · Values 0–1, time in ms
         </div>
       </Appear>
     </Scene>

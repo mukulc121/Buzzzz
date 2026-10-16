@@ -82,7 +82,7 @@ export function Scene(props: IScene) {
         }}
       >
         <span style={{ fontWeight: 750, letterSpacing: -0.4 }}>Buzzzz</span>
-        <span>Rive + Pulsar · UI illustrations</span>
+        <span>Studio · UI illustrations</span>
       </div>
     </div>
   );

@@ -31,7 +31,7 @@ export function LiveLoopScene() {
   });
   const pressed = frame >= 6 && frame < 14;
   return (
-    <Scene kicker="3 · Feel" title="One press, end to end">
+    <Scene kicker="Preview flow" title="One press, end to end">
       {/* Studio */}
       <Card x={SX - 210} y={NY - 140} w={420} h={280}>
         <div style={{ fontSize: 30, fontWeight: 700 }}>Studio</div>
@@ -78,7 +78,7 @@ export function LiveLoopScene() {
       >
         <div style={{ fontSize: 30, fontWeight: 700 }}>Relay</div>
         <div style={{ fontFamily: MONO, fontSize: 20, color: C.muted, marginTop: 6 }}>
-          Studio dev server · /relay
+          Local or Cloudflare room
         </div>
       </Card>
       {/* Phone */}

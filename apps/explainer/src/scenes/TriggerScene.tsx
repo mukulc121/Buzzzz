@@ -9,7 +9,7 @@ const TRIG = [
 ];
 export function TriggerScene() {
   return (
-    <Scene kicker="2 · Map" title="Rive triggers become haptic slots">
+    <Scene kicker="Rive" title="Rive triggers become haptic slots">
       <Appear delay={6}>
         <Card x={120} y={330} w={420} h={420}>
           <div style={{ fontSize: 22, color: C.muted }}>card.riv</div>

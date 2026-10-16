@@ -8,12 +8,18 @@ import { PairingScene } from "../scenes/PairingScene";
 import { ShipScene } from "../scenes/ShipScene";
 import { OutroScene } from "../scenes/OutroScene";
 import { WorkspaceScene } from "../scenes/WorkspaceScene";
+import { AudioScene } from "../scenes/AudioScene";
+import { AnimationScene } from "../scenes/AnimationScene";
+import { ToolsScene } from "../scenes/ToolsScene";
 
 const SCENES = [
   { Component: TitleScene, minimum: 110 },
   { Component: WorkspaceScene, minimum: 250 },
   { Component: PiecesScene, minimum: 210 },
   { Component: PatternScene, minimum: 230 },
+  { Component: AudioScene, minimum: 250 },
+  { Component: AnimationScene, minimum: 250 },
+  { Component: ToolsScene, minimum: 230 },
   { Component: TriggerScene, minimum: 230 },
   { Component: LiveLoopScene, minimum: 320 },
   { Component: PairingScene, minimum: 200 },
