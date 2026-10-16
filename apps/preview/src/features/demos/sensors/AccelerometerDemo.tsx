@@ -1,87 +1,40 @@
-import { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
-import { Accelerometer } from "expo-sensors";
+import { StyleSheet, View } from "react-native";
+import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import { ThemedText } from "../../../components/ThemedText";
 import type { Theme } from "../../../theme/colors";
-import { DemoButton } from "../shared/DemoButton";
-import { DemoCard } from "../shared/DemoCard";
-import { demoColors, demoStyles } from "../shared/demoStyles";
-import { SupportNote } from "../shared/SupportNote";
-import { useAppBackground } from "../shared/useAppBackground";
-import { useDemoHaptics } from "../shared/useDemoHaptics";
-import { tiltFeel } from "./tilt";
-
-type Sub = ReturnType<typeof Accelerometer.addListener>;
-const RANGE = 70;
+import { useSensorDemo } from "./useSensorDemo";
 
 interface IAccelerometerDemo {
   t: Theme;
 }
 export function AccelerometerDemo(props: IAccelerometerDemo) {
   const { t } = props;
-  const s = demoStyles(t);
-  const haptics = useDemoHaptics();
-  const sub = useRef<Sub | null>(null);
-  const [state, setState] = useState<"idle" | "running" | "unavailable">("idle");
-  const x = useSharedValue(0);
-  const y = useSharedValue(0);
-  const bubble = useAnimatedStyle(() => ({
-    transform: [{ translateX: x.value * RANGE }, { translateY: -y.value * RANGE }],
+  const state = useSensorDemo();
+  const dot = useAnimatedStyle(() => ({
+    transform: [{ translateX: state.get().dotX }, { translateY: state.get().dotY }],
   }));
-  const stop = () => {
-    sub.current?.remove();
-    sub.current = null;
-    haptics.realtime.stop();
-    setState((prev) => (prev === "running" ? "idle" : prev));
-  };
-  useAppBackground(stop);
-  useEffect(() => () => sub.current?.remove(), []);
-  const start = async () => {
-    if (!(await Accelerometer.isAvailableAsync())) {
-      setState("unavailable");
-      return;
-    }
-    stop();
-    Accelerometer.setUpdateInterval(50);
-    sub.current = Accelerometer.addListener((reading) => {
-      x.set(Math.max(-1, Math.min(1, reading.x)));
-      y.set(Math.max(-1, Math.min(1, reading.y)));
-      const feel = tiltFeel(reading);
-      if (feel.amplitude) haptics.realtime.set(feel.amplitude, feel.frequency);
-      else haptics.realtime.stop();
-    });
-    setState("running");
-  };
   return (
-    <DemoCard t={t} title="Tilt and shake">
-      <Text style={s.body}>
-        Tilt the phone to move the bubble. Tilting raises the pitch, shaking makes it stronger.
-      </Text>
-      <SupportNote t={t} />
-      <View style={s.stage}>
-        <View style={[styles.well, { borderColor: t.line, backgroundColor: t.sunken }]}>
-          <Animated.View style={[styles.bubble, bubble]} />
+    <View>
+      <ThemedText>
+        Tilt your device to move the dot inside the circle. Feel different haptics as the dot moves.
+      </ThemedText>
+      <View style={styles.stage}>
+        <View style={[styles.circle, { backgroundColor: t.panel, borderColor: t.fg }]}>
+          <Animated.View style={[styles.dot, { backgroundColor: t.fg }, dot]} />
         </View>
       </View>
-      {state === "unavailable" ? (
-        <Text style={[s.muted, { color: t.err }]}>No accelerometer on this device.</Text>
-      ) : null}
-      <View style={s.row}>
-        <DemoButton t={t} primary label="Start" onPress={start} disabled={state === "running"} />
-        <DemoButton t={t} label="Stop" onPress={stop} disabled={state !== "running"} />
-      </View>
-    </DemoCard>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  well: {
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
+  stage: { marginTop: 40, marginBottom: 40, alignItems: "center", justifyContent: "center" },
+  circle: {
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    borderWidth: 2,
+    position: "relative",
   },
-  bubble: { width: 36, height: 36, borderRadius: 18, backgroundColor: demoColors.cyan },
+  dot: { position: "absolute", width: 30, height: 30, borderRadius: 15 },
 });

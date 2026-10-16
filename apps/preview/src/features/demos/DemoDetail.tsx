@@ -6,6 +6,7 @@ import type { DemoId } from "./catalog";
 import { ButtonsDemo } from "./controls/ButtonsDemo";
 import { SliderDemo } from "./controls/SliderDemo";
 import { LottieDemo } from "./lottie/LottieDemo";
+import { NotificationDemo } from "./notifications/NotificationDemo";
 import { AccelerometerDemo } from "./sensors/AccelerometerDemo";
 import { CountdownDemo } from "./timers/CountdownDemo";
 import { DotLoaderDemo } from "./timers/DotLoaderDemo";
@@ -19,6 +20,7 @@ const SCREENS: Record<DemoId, (props: { t: Theme }) => ReactNode> = {
   countdown: CountdownDemo,
   balloon: BalloonDemo,
   dots: DotLoaderDemo,
+  notification: NotificationDemo,
 };
 
 interface IDemoDetail {

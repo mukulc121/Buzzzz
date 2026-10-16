@@ -1,54 +1,41 @@
-import { useRef, useState } from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { ThemedText } from "../../../components/ThemedText";
 import type { Theme } from "../../../theme/colors";
-import { DemoButton } from "../shared/DemoButton";
-import { DemoCard } from "../shared/DemoCard";
-import { demoStyles } from "../shared/demoStyles";
-import { useDemoHaptics } from "../shared/useDemoHaptics";
-import { useTicker } from "../shared/useTicker";
 import { Dot } from "./Dot";
-import { DOT_COUNT, DOT_MS, dotFeel, nextDot } from "./dots";
-
-const DOTS = Array.from({ length: DOT_COUNT }, (_, i) => i);
+import { DOT_PATTERNS } from "./dots";
 
 interface IDotLoaderDemo {
   t: Theme;
 }
 export function DotLoaderDemo(props: IDotLoaderDemo) {
   const { t } = props;
-  const s = demoStyles(t);
-  const haptics = useDemoHaptics();
-  const [active, setActive] = useState<number | null>(null);
-  const index = useRef(0);
-  const ticker = useTicker(() => setActive(null));
-  const step = () => {
-    const feel = dotFeel(index.current);
-    haptics.realtime.playDiscrete(feel.amplitude, feel.frequency);
-    setActive(index.current);
-    index.current = nextDot(index.current);
-  };
-  const play = () => {
-    index.current = 0;
-    step();
-    ticker.start(DOT_MS, step);
-  };
-  const stop = () => {
-    ticker.stop();
-    haptics.stop();
-    setActive(null);
-  };
   return (
-    <DemoCard t={t} title="Dot loader">
-      <Text style={s.body}>A looping loader where every dot you see also lands as a tap.</Text>
-      <View style={[s.stage, { flexDirection: "row", gap: 18 }]}>
-        {DOTS.map((i) => (
-          <Dot key={i} active={i === active} />
-        ))}
+    <View>
+      <ThemedText>
+        Watch the three dots move in a wave pattern and feel the haptic feedback each time a dot
+        hits the bottom.
+      </ThemedText>
+      <View style={styles.stage}>
+        <View style={styles.row}>
+          {DOT_PATTERNS.map((pattern, index) => (
+            <View key={index} style={styles.wrapper}>
+              <Dot index={index} pattern={pattern} color={t.fg} />
+            </View>
+          ))}
+        </View>
       </View>
-      <View style={s.row}>
-        <DemoButton t={t} primary label="Play" onPress={play} disabled={ticker.running} />
-        <DemoButton t={t} label="Stop" onPress={stop} disabled={!ticker.running} />
-      </View>
-    </DemoCard>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  stage: {
+    marginTop: 60,
+    marginBottom: 60,
+    alignSelf: "center",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  row: { flexDirection: "row", alignItems: "center", justifyContent: "center" },
+  wrapper: { marginHorizontal: 10 },
+});

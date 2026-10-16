@@ -1,55 +1,62 @@
-import { useFocusEffect } from "expo-router";
-import { useCallback, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
-import { ChevronLeft, ChevronRight } from "lucide-react-native";
+import { Link } from "expo-router";
+import { ChevronRight } from "lucide-react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { ThemedText } from "../../components/ThemedText";
 import type { Theme } from "../../theme/colors";
-import { DEMOS, type DemoId } from "./catalog";
-import { DemoDetail } from "./DemoDetail";
-import { demoColors, demoStyles } from "./shared/demoStyles";
+import { DEMOS } from "./catalog";
 
 interface IDemosScreen {
   t: Theme;
 }
 export function DemosScreen(props: IDemosScreen) {
   const { t } = props;
-  const s = demoStyles(t);
-  const [open, setOpen] = useState<DemoId | null>(null);
-  useFocusEffect(useCallback(() => () => setOpen(null), []));
-  const demo = DEMOS.find((d) => d.id === open);
   return (
-    <ScrollView style={s.page} contentContainerStyle={s.content}>
-      {demo ? (
-        <>
-          <Pressable style={s.back} onPress={() => setOpen(null)} accessibilityRole="button">
-            <ChevronLeft size={20} color={t.fg2} />
-            <Text style={s.backText}>Back to demos</Text>
-          </Pressable>
-          <Text style={s.title}>{demo.title}</Text>
-          {/* key remounts the demo so every timer, sensor and composer is torn down on leave */}
-          <DemoDetail key={demo.id} t={t} id={demo.id} />
-        </>
-      ) : (
-        <>
-          <Text style={s.title}>Demos</Text>
-          {DEMOS.map((d) => (
+    <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={styles.content}>
+      <ThemedText type="title" style={styles.title}>
+        Haptics demos
+      </ThemedText>
+      <ThemedText style={styles.subtitle}>Feel them with real use cases.</ThemedText>
+      <View style={styles.list}>
+        {DEMOS.map((demo) => (
+          <Link key={demo.id} href={`/demos/${demo.slug}`} asChild>
             <Pressable
-              key={d.id}
-              style={({ pressed }) => [s.card, pressed && { opacity: 0.85 }]}
-              onPress={() => setOpen(d.id)}
+              style={StyleSheet.flatten([
+                styles.card,
+                {
+                  backgroundColor: t.panel,
+                  borderColor: t.highlight,
+                  boxShadow: `-3px 3px 0px ${t.highlight}`,
+                },
+              ])}
               accessibilityRole="button"
-              accessibilityLabel={`${d.title}. ${d.blurb}`}
+              accessibilityLabel={demo.title}
             >
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-                <View style={{ flex: 1, gap: 4 }}>
-                  <Text style={s.cardTitle}>{d.title}</Text>
-                  <Text style={s.muted}>{d.blurb}</Text>
-                </View>
-                <ChevronRight size={22} color={demoColors.cyan} />
-              </View>
+              <ThemedText type="subtitle" style={styles.cardTitle}>
+                {demo.title}
+              </ThemedText>
+              <ChevronRight size={20} color={t.highlight} style={styles.arrow} />
             </Pressable>
-          ))}
-        </>
-      )}
+          </Link>
+        ))}
+      </View>
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  content: { paddingHorizontal: 15, paddingBottom: 24 },
+  title: { marginTop: 20 },
+  subtitle: { marginTop: 10 },
+  list: { marginTop: 20, gap: 12 },
+  card: {
+    borderRadius: 4,
+    borderWidth: 2,
+    padding: 15,
+    paddingVertical: 18,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  cardTitle: { fontSize: 20, lineHeight: 28, flex: 1 },
+  arrow: { marginLeft: 8 },
+});
