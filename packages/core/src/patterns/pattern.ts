@@ -34,7 +34,7 @@ export const emptyPattern = (): Pattern => ({
   continuousPattern: { amplitude: [], frequency: [] },
 });
 const byTime = (a: { time: number }, b: { time: number }) => a.time - b.time;
-const unit = (n: number) => Math.round(Math.min(1, Math.max(0, n)) * 1000) / 1000;
+const unit = (n: number) => Math.round(Math.min(1, Math.max(0, n)) * 10000) / 10000;
 const time = (n: number) => Math.round(Math.min(MAX_PATTERN_MS, Math.max(0, n)));
 export function toDevice(pattern: Pattern): Pattern {
   const point = (p: Point) => ({ time: time(p.time), value: unit(p.value) });

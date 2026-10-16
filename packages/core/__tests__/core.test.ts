@@ -42,6 +42,13 @@ describe("Pulsar patterns", () => {
     expect(patternEnd(emptyPattern())).toBe(0);
     expect(patternEnd(pattern)).toBe(10.7);
   });
+  test("preserves 0.01 percent precision in exported and device values", () => {
+    const pattern = emptyPattern();
+    pattern.discretePattern.push({ time: 100, amplitude: 0.6436, frequency: 0.4527 });
+    pattern.continuousPattern.amplitude.push({ time: 100, value: 0.6436 });
+    pattern.continuousPattern.frequency.push({ time: 100, value: 0.4527 });
+    expect(toDevice(pattern)).toEqual(pattern);
+  });
 });
 describe("project imports", () => {
   const preset = { id: "p1", name: "Test", pattern: emptyPattern() };
