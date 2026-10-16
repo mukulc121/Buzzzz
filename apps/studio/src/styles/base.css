@@ -115,7 +115,7 @@ button.link {
   border: 0;
   background: transparent;
   padding: 0;
-  color: var(--accent);
+  color: var(--fg-2);
   min-height: 24px;
 }
 input,
