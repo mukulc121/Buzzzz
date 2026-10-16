@@ -103,7 +103,7 @@
 .pattern-row-meta {
   color: var(--muted);
   font-size: 12px;
-  white-space: nowrap;
+  white-space: normal;
 }
 .pattern-rename {
   width: 100%;

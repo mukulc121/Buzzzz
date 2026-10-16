@@ -159,7 +159,84 @@ Object.defineProperty(globalThis, "navigator", {
     },
   },
 });
-if (scenario === "concurrent" || scenario === "active-concurrent") {
+if (scenario.startsWith("duplicate")) {
+  activeId = "source";
+  target.project = structuredClone(source.project);
+  target.project.presets[0].editor = {
+    markers: [{ id: "marker", time: 500, label: "Hit" }],
+    range: { start: 100, end: 1000 },
+    durationMs: 5187,
+  };
+  await media.setMediaTrim({
+    projectId: "source",
+    presetId: "copied",
+    kind: "audio",
+    trim: { startMs: 20, endMs: 200 },
+  });
+  const animation = await media.addMedia({
+    projectId: "source",
+    file: new File(["{}"], "test.json", { type: "application/json" }),
+    kind: "animation",
+  });
+  await media.attachMedia({ projectId: "source", presetId: "copied", assetId: animation.id });
+  const original = structuredClone(target.project.presets[0]);
+  if (scenario === "duplicate-read-only") ownsActive = false;
+  renderCatalog();
+  const duplicate = catalog.api.duplicatePreset;
+  if (scenario === "duplicate-stale") {
+    activeId = "other";
+    renderCatalog();
+  }
+  const pause =
+    scenario === "duplicate-switch" || scenario === "duplicate-takeover" ? pauseMedia() : null;
+  const pending = duplicate("copied");
+  if (pause) {
+    await pause.started;
+    if (scenario === "duplicate-switch") activeId = "other";
+    else ownsActive = false;
+    renderCatalog();
+    pause.release();
+  }
+  const second = scenario === "duplicate-concurrent" ? catalog.api.duplicatePreset("copied") : null;
+  const id = await pending;
+  const secondId = second ? await second : null;
+  renderCatalog();
+  assert.deepEqual(document.project.presets[0], original);
+  if (scenario === "duplicate" || scenario === "duplicate-concurrent") {
+    assert.equal(typeof id, "string");
+    const copy = document.project.presets.find((preset) => preset.id === id);
+    assert.equal(copy.name, "Thud copy");
+    assert.deepEqual(copy.pattern, original.pattern);
+    assert.deepEqual(copy.editor.range, original.editor.range);
+    assert.equal(copy.editor.durationMs, original.editor.durationMs);
+    assert.notEqual(copy.editor.markers[0].id, original.editor.markers[0].id);
+    assert.equal(copy.editor.markers[0].label, "Hit");
+    const attachments = await media.listAttachments("source", id);
+    assert.deepEqual(
+      attachments.map(({ kind, assetId, trim }) => ({ kind, assetId, trim })),
+      (await media.listAttachments("source", "copied")).map(({ kind, assetId, trim }) => ({
+        kind,
+        assetId,
+        trim,
+      })),
+    );
+    assert.equal((await media.listMedia("source")).length, 2);
+    if (second) {
+      assert.notEqual(secondId, id);
+      assert.equal(document.project.presets.length, 3);
+    }
+  } else {
+    assert.equal(id, null);
+    assert.equal(document.project.presets.length, 1);
+    const attachments = [...tables.attachments.values()].filter(
+      (item) => item.projectId === "source",
+    );
+    assert.equal(attachments.length, 2);
+    assert.equal((await media.listMedia("source")).length, 2);
+    if (scenario === "duplicate-read-only" || scenario === "duplicate-stale")
+      assert.equal(reads, 0);
+  }
+} else if (scenario === "concurrent" || scenario === "active-concurrent") {
   if (scenario === "active-concurrent") activeId = "target";
   const pause = pauseMedia();
   renderCatalog();

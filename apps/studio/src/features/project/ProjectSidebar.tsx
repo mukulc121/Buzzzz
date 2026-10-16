@@ -1,4 +1,4 @@
-import type { Pattern, Project } from "@buzzzz/core";
+import type { Project } from "@buzzzz/core";
 import { PatternListItem } from "./PatternListItem";
 import { PatternActionIcon } from "./PatternActionIcon";
 
@@ -6,14 +6,31 @@ interface IProjectSidebar {
   project: Project;
   preset: Project["presets"][number];
   writable: boolean;
-  onAdd: (pattern?: Pattern, name?: string) => void;
+  renamingId: string | null;
+  onAdd: () => void;
+  onDuplicate: (id: string) => void;
   onSelect: (id: string) => void;
   onRemove: (id: string) => void;
   onRename: (id: string, name: string) => void;
+  onStartRename: (id: string) => void;
+  onCancelRename: () => void;
   onHide: () => void;
 }
 export function ProjectSidebar(props: IProjectSidebar) {
-  const { project, preset, writable, onAdd, onSelect, onRemove, onRename, onHide } = props;
+  const {
+    project,
+    preset,
+    writable,
+    renamingId,
+    onAdd,
+    onDuplicate,
+    onSelect,
+    onRemove,
+    onRename,
+    onStartRename,
+    onCancelRename,
+    onHide,
+  } = props;
   return (
     <aside className="patterns-panel" aria-label="Project patterns">
       <header className="panel-heading patterns-heading">
@@ -47,14 +64,17 @@ export function ProjectSidebar(props: IProjectSidebar) {
             preset={item}
             active={item.id === preset.id}
             writable={writable}
+            renaming={item.id === renamingId}
             canRemove={project.presets.length > 1}
             triggers={Object.entries(project.map)
               .filter(([, id]) => id === item.id)
               .map(([trigger]) => trigger)}
             onSelect={onSelect}
-            onAdd={onAdd}
+            onDuplicate={onDuplicate}
             onRemove={onRemove}
             onRename={onRename}
+            onStartRename={onStartRename}
+            onCancelRename={onCancelRename}
           />
         ))}
       </ul>

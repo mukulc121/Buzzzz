@@ -110,8 +110,16 @@ export function useStudio() {
     composer.setSelected(null);
   };
   const addPreset = (pattern?: Pattern, name?: string) => {
-    document.addPreset(pattern, name);
+    const creating = pattern === undefined && name === undefined;
+    document.addPreset(pattern, name, { rename: creating, durationMs: creating ? 100 : undefined });
     composer.setSelected(null);
+  };
+  const duplicatePreset = async (id: string) => {
+    const copied = await document.duplicatePreset(id);
+    if (!copied) return;
+    const preset = document.getProject().presets.find((item) => item.id === copied);
+    if (!preset) return;
+    selectPreset(copied);
   };
   const sharing = useSharing({
     room: session.room,
@@ -248,6 +256,7 @@ export function useStudio() {
     preserve,
     selectPreset,
     addPreset,
+    duplicatePreset,
     ...files,
     media,
     sharing,

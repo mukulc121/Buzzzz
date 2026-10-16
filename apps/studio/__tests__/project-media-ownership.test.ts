@@ -11,6 +11,12 @@ for (const scenario of [
   "decode",
   "locked-target",
   "save-failure",
+  "duplicate",
+  "duplicate-concurrent",
+  "duplicate-switch",
+  "duplicate-takeover",
+  "duplicate-read-only",
+  "duplicate-stale",
 ]) {
   test(`project media ownership: ${scenario}`, async () => {
     const url = new URL("./fixtures/project-media-runtime.mjs", import.meta.url);

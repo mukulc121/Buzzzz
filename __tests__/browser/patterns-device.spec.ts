@@ -25,27 +25,27 @@ test("patterns show duration and events, duplicate/delete through row actions, a
   await expect(patterns.getByRole("button", { name: "Thud copy", exact: true })).toHaveCount(0);
   await patterns.getByRole("button", { name: "New pattern", exact: true }).click();
   await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-    "Untitled",
+    "Untitled pattern",
   );
   const exports = page.locator('[data-tour="inspector-export"]');
   await exports.locator("summary").click();
   await exports.getByRole("button", { name: "Clear all", exact: true }).click();
-  await exports.getByRole("checkbox", { name: "Untitled", exact: true }).click();
+  await exports.getByRole("checkbox", { name: "Untitled pattern", exact: true }).click();
   const waiting = page.waitForEvent("download");
   await exports.getByRole("button", { name: "Export 1 pattern", exact: true }).click();
   const download = await waiting;
-  expect(download.suggestedFilename()).toBe("untitled.pulsar");
+  expect(download.suggestedFilename()).toBe("untitled-pattern.pulsar");
   const path = await download.path();
   if (!path) throw new Error("Missing exported project archive");
   const buffer = await readFile(path);
   await page.getByRole("button", { name: "Projects", exact: true }).click();
   await page.locator('.project-dashboard input[type="file"]').setInputFiles({
-    name: "untitled.pulsar",
+    name: "untitled-pattern.pulsar",
     mimeType: "application/octet-stream",
     buffer,
   });
   await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-    "Untitled",
+    "Untitled pattern",
   );
   await expect(patterns.locator(".pattern-select")).toHaveCount(1);
 });

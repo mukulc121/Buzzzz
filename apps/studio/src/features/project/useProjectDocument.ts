@@ -24,6 +24,7 @@ export function useProjectDocument(props: IProjectDocument) {
   const [state, setState] = useState(() => history.startDocument(initial));
   const latest = useRef(state);
   const [currentId, setCurrentId] = useState(() => initial.presets[0].id);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
   const { project } = state;
   const preset = project.presets.find((item) => item.id === currentId) ?? project.presets[0];
 
@@ -69,6 +70,7 @@ export function useProjectDocument(props: IProjectDocument) {
     );
 
   const reset = (next: Project) => {
+    setRenamingId(null);
     latest.current = history.startDocument(next);
     setState(latest.current);
     if (!next.presets.some((item) => item.id === currentId)) setCurrentId(next.presets[0].id);
@@ -78,6 +80,7 @@ export function useProjectDocument(props: IProjectDocument) {
     project,
     getProject: () => latest.current.project,
     preset,
+    renamingId,
     pattern: preset.pattern,
     mapped,
     reset,
@@ -92,19 +95,36 @@ export function useProjectDocument(props: IProjectDocument) {
     rename: (name: string) => editPreset((item) => ({ ...item, name })),
     renamePreset: (id: string, name: string) => {
       const trimmed = name.trim();
+      setRenamingId((current) => (current === id ? null : current));
       if (!trimmed) return false;
       return editPreset((item) => (item.name === trimmed ? item : { ...item, name: trimmed }), id);
     },
+    startRenaming: (id: string) => {
+      if (writable && latest.current.project.presets.some((item) => item.id === id))
+        setRenamingId(id);
+    },
+    cancelRenaming: () => setRenamingId(null),
     addPreset: (
       pattern: Pattern = emptyPattern(),
-      name = "Untitled",
-      options?: { select?: boolean },
+      name = "Untitled pattern",
+      options?: { select?: boolean; rename?: boolean; durationMs?: number },
     ) => {
       const id = uid();
+      const editor =
+        options?.durationMs === undefined
+          ? undefined
+          : { markers: [], range: null, durationMs: options.durationMs };
       const added = apply((current) =>
-        step(current, (pr) => ({ ...pr, presets: [...pr.presets, { id, name, pattern }] })),
+        step(current, (pr) => ({
+          ...pr,
+          presets: [...pr.presets, { id, name, pattern, ...(editor ? { editor } : {}) }],
+        })),
       );
-      if (added && options?.select !== false) setCurrentId(id);
+      if (added && options?.select !== false) {
+        setCurrentId(id);
+        setRenamingId(options?.rename ? id : null);
+      }
+      return added ? id : null;
     },
     removePreset: (id: string) => {
       if (project.presets.length === 1) return;
@@ -116,12 +136,14 @@ export function useProjectDocument(props: IProjectDocument) {
         })),
       );
       const next = project.presets.find((item) => item.id !== id);
+      if (removed) setRenamingId((current) => (current === id ? null : current));
       if (removed && id === preset.id && next) setCurrentId(next.id);
     },
     openProject: (next: Project) => {
       if (apply((current) => step(current, () => next))) setCurrentId(next.presets[0].id);
     },
     selectPreset: (id: string) => {
+      setRenamingId(null);
       setCurrentId(id);
       latest.current = history.arm(latest.current);
       setState(latest.current);

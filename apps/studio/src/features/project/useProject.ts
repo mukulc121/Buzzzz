@@ -156,6 +156,7 @@ export function useProject() {
 
   return {
     ...document,
+    duplicatePreset: catalog.api.duplicatePreset,
     route,
     projectId: active.id,
     projectName: active.name,

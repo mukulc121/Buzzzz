@@ -72,10 +72,11 @@ test("patterns persist, undo/redo works and malformed imports leave the project 
   await page.reload();
   await expect(page.getByRole("button", { name: "Browser check", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "New pattern", exact: true }).click();
+  await page.getByRole("textbox", { name: "Rename Untitled pattern", exact: true }).press("Escape");
   await page.keyboard.press("Control+z");
   await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue("Thud");
   await page.keyboard.press("Control+Shift+z");
-  await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue("Untitled");
+  await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue("Untitled pattern");
   await expect(page.getByRole("button", { name: "New pattern", exact: true })).toBeEnabled();
   const savedProject = () =>
     page.evaluate(() => {
@@ -91,7 +92,7 @@ test("patterns persist, undo/redo works and malformed imports leave the project 
   await page.locator(".shell").dispatchEvent("drop", { dataTransfer: transfer });
   await transfer.dispose();
   await expect(page.getByRole("alert")).toContainText("Invalid project haptic data");
-  await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue("Untitled");
+  await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue("Untitled pattern");
   expect(await savedProject()).toBe(before);
 });
 

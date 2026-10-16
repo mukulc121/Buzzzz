@@ -144,7 +144,7 @@ test("renaming an inactive pattern updates only its target and keeps the editor 
   const panel = page.getByRole("complementary", { name: "Project patterns", exact: true });
   await panel.getByRole("button", { name: "New pattern", exact: true }).click();
   await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-    "Untitled",
+    "Untitled pattern",
   );
   const thud = panel.getByRole("button", { name: "Thud", exact: true });
   await thud.click({ button: "right" });
@@ -166,7 +166,7 @@ test("renaming an inactive pattern updates only its target and keeps the editor 
     "false",
   );
   await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-    "Untitled",
+    "Untitled pattern",
   );
   await page.reload();
   await expect(panel.getByRole("button", { name: "Renamed", exact: true })).toBeVisible();
@@ -174,4 +174,70 @@ test("renaming an inactive pattern updates only its target and keeps the editor 
   await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
     "Renamed",
   );
+});
+
+test("long pattern metadata wraps inside the minimum-width side panel", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("buzzzz.onboarding.seen", "true");
+    localStorage.setItem("buzzzz.lastProject", "metadata");
+    localStorage.setItem(
+      "buzzzz.project.metadata",
+      JSON.stringify({
+        id: "metadata",
+        name: "Metadata",
+        createdAt: 1,
+        updatedAt: 1,
+        revision: 0,
+        project: {
+          presets: [
+            {
+              id: "long",
+              name: "Long pattern",
+              pattern: {
+                discretePattern: Array.from({ length: 38 }, (_, time) => ({
+                  time,
+                  amplitude: 1,
+                  frequency: 0.5,
+                })),
+                continuousPattern: { amplitude: [], frequency: [] },
+              },
+              editor: { markers: [], range: null, durationMs: 60000 },
+            },
+          ],
+          map: {},
+        },
+      }),
+    );
+  });
+  await page.routeWebSocket("**/relay?role=studio", (socket) =>
+    socket.send(JSON.stringify({ type: "peers", phones: 0 })),
+  );
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const panel = page.getByRole("complementary", { name: "Project patterns", exact: true });
+  const row = panel.getByRole("button", { name: "Long pattern", exact: true });
+  await expect(row).toContainText("60000 ms · 38 discrete");
+  const handle = await page
+    .getByRole("separator", { name: "Resize side panel", exact: true })
+    .boundingBox();
+  if (!handle) throw new Error("Missing side panel resize handle");
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(handle.x - 100, handle.y + handle.height / 2);
+  await page.mouse.up();
+  await expect(page.locator(".workspace-sidebar")).toHaveCSS("width", "200px");
+  const metadata = row.locator(".pattern-row-meta");
+  await expect(metadata).toHaveCSS("white-space", "normal");
+  const lines = await metadata.evaluate((node) => {
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    const column = node.getBoundingClientRect();
+    return [...range.getClientRects()].map((line) => ({
+      top: line.top,
+      right: line.right,
+      columnRight: column.right,
+    }));
+  });
+  expect(new Set(lines.map((line) => line.top)).size).toBeGreaterThan(1);
+  for (const line of lines) expect(line.right).toBeLessThanOrEqual(line.columnRight + 1);
 });

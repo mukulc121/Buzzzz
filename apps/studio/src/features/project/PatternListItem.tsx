@@ -1,57 +1,50 @@
 import { useRef, useState } from "react";
-import { patternEnd, type Pattern, type Project } from "@buzzzz/core";
+import { patternEnd, type Project } from "@buzzzz/core";
 import { ContextMenu } from "../../components/ContextMenu";
 import { PatternActionIcon } from "./PatternActionIcon";
 import { PatternSymbol } from "./PatternSymbol";
+import { PatternRename } from "./PatternRename";
 
 interface IPatternListItem {
   preset: Project["presets"][number];
   active: boolean;
   writable: boolean;
+  renaming: boolean;
   canRemove: boolean;
   triggers: string[];
   onSelect: (id: string) => void;
-  onAdd: (pattern?: Pattern, name?: string) => void;
+  onDuplicate: (id: string) => void;
+  onStartRename: (id: string) => void;
+  onCancelRename: () => void;
   onRename: (id: string, name: string) => void;
   onRemove: (id: string) => void;
 }
 export function PatternListItem(props: IPatternListItem) {
-  const { preset, active, writable, canRemove, triggers, onSelect, onAdd, onRename, onRemove } =
-    props;
+  const {
+    preset,
+    active,
+    writable,
+    renaming,
+    canRemove,
+    triggers,
+    onSelect,
+    onDuplicate,
+    onStartRename,
+    onCancelRename,
+    onRename,
+    onRemove,
+  } = props;
   const button = useRef<HTMLButtonElement>(null);
-  const renamed = useRef(false);
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
-  const [draft, setDraft] = useState<string | null>(null);
   const duration = Math.max(patternEnd(preset.pattern), preset.editor?.durationMs ?? 0);
-  const commit = () => {
-    if (renamed.current) return;
-    renamed.current = true;
-    if (writable && draft?.trim()) onRename(preset.id, draft.trim());
-    setDraft(null);
-  };
   return (
     <li className="pattern-list-row">
-      {draft !== null ? (
-        <input
-          className="pattern-rename"
-          aria-label={`Rename ${preset.name}`}
-          value={draft}
-          autoFocus
-          onFocus={(event) => event.currentTarget.select()}
-          onChange={(event) => setDraft(event.currentTarget.value)}
-          onBlur={commit}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              event.preventDefault();
-              commit();
-            }
-            if (event.key === "Escape") {
-              event.preventDefault();
-              event.stopPropagation();
-              renamed.current = true;
-              setDraft(null);
-            }
-          }}
+      {renaming ? (
+        <PatternRename
+          name={preset.name}
+          writable={writable}
+          onCommit={(name) => onRename(preset.id, name)}
+          onCancel={onCancelRename}
         />
       ) : (
         <button
@@ -95,16 +88,13 @@ export function PatternListItem(props: IPatternListItem) {
               label: "Rename",
               icon: <PatternActionIcon name="rename" />,
               disabled: !writable,
-              onSelect: () => {
-                renamed.current = false;
-                setDraft(preset.name);
-              },
+              onSelect: () => onStartRename(preset.id),
             },
             {
               label: "Duplicate",
               icon: <PatternActionIcon name="duplicate" />,
               disabled: !writable,
-              onSelect: () => onAdd(structuredClone(preset.pattern), `${preset.name} copy`),
+              onSelect: () => onDuplicate(preset.id),
             },
             { separator: true },
             {
