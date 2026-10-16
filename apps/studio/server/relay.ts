@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { networkInterfaces } from "node:os";
 import type { Plugin, ViteDevServer } from "vite";
 import { WebSocket, WebSocketServer } from "ws";
-import { parseMessage } from "@buzzzz/core";
+import { isRelayMessageAllowed, parseMessage } from "@buzzzz/core";
 
 const MAX_FILE_BYTES = 20 * 1024 * 1024;
 const MAX_STORE_BYTES = 100 * 1024 * 1024;
@@ -71,10 +71,10 @@ function configureRelay(server: ViteDevServer) {
     ws.on("message", (data, binary) => {
       if (binary) return;
       const message = parseMessage(data.toString());
-      if (!message || message.type === "peers") return;
+      if (!message) return;
       const role = roles.get(ws);
-      const fromPhone = message.type === "hello" || message.type === "fired";
-      if ((role === "phone") !== fromPhone) return;
+      if (!role || !isRelayMessageAllowed(role === "studio" ? "host" : "phone", message.type))
+        return;
       for (const client of wss.clients) {
         if (roles.get(client) !== role && client.readyState === WebSocket.OPEN)
           client.send(JSON.stringify(message));

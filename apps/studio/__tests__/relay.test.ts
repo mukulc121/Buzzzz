@@ -83,6 +83,45 @@ test("ignores malformed payloads and commands sent by a phone", async () => {
   expect(received).toEqual(['{"type":"hello","device":"test"}']);
   studio.off("message", record);
 });
+test("relays saved-pattern manifests, requests and full patterns with role checks", async () => {
+  const studio = connect("studio");
+  await message(studio, "peers");
+  const phone = connect("phone");
+  await message(phone, "peers");
+  const manifest: Msg = {
+    type: "library-manifest",
+    presets: [{ resourceId: "saved-pattern", name: "Tap" }],
+  };
+  const full: Msg = {
+    type: "haptic-preset",
+    resourceId: "saved-pattern",
+    name: "Tap",
+    version: "ab".repeat(32),
+    pattern: {
+      discretePattern: [{ time: 25, amplitude: 1, frequency: 0.5 }],
+      continuousPattern: { amplitude: [], frequency: [] },
+    },
+  };
+  const received = message(phone, "library-manifest");
+  studio.send(JSON.stringify(manifest));
+  expect(await received).toEqual(manifest);
+  const requested = message(studio, "library-manifest-request");
+  phone.send(JSON.stringify({ type: "library-manifest-request" }));
+  expect(await requested).toEqual({ type: "library-manifest-request" });
+  const played = message(phone, "haptic-preset");
+  studio.send(JSON.stringify(full));
+  expect(await played).toEqual(full);
+  const rejected: string[] = [];
+  const record = (data: Buffer) => rejected.push(data.toString());
+  studio.on("message", record);
+  phone.send(JSON.stringify(manifest));
+  phone.send(JSON.stringify(full));
+  const barrier = message(studio, "hello");
+  phone.send(JSON.stringify({ type: "hello", device: "Role check" }));
+  await barrier;
+  expect(rejected).toEqual(['{"type":"hello","device":"Role check"}']);
+  studio.off("message", record);
+});
 async function requestUpgrade(host: string, origin: string) {
   const url = new URL(base);
   return new Promise<string>((resolve, reject) => {

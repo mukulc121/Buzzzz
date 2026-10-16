@@ -1,4 +1,4 @@
-import { isRecord, parseMessage, type Msg } from "@buzzzz/core";
+import { isRecord, isRelayMessageAllowed, parseMessage, type Msg } from "@buzzzz/core";
 import { HttpError } from "./security.ts";
 import type { RoomAssets } from "./assets.ts";
 import type { RoomSessions } from "./sessions.ts";
@@ -8,9 +8,6 @@ import { closeSocket } from "./socketClose.ts";
 import { EditorBridge } from "./editorBridge.ts";
 import { socketState, type IConnection } from "./socketState.ts";
 import type { RoomRateLimit } from "./rates.ts";
-
-const HOST_COMMANDS = new Set(["load", "map", "play", "stop", "fire", "restart", "pause"]);
-const PHONE_EVENTS = new Set(["hello", "fired"]);
 
 type Role = "host" | "phone";
 export class RoomSockets {
@@ -92,8 +89,7 @@ export class RoomSockets {
         return;
       }
       if (!message) throw new HttpError(400, "Invalid relay message");
-      const allowed = connection.role === "host" ? HOST_COMMANDS : PHONE_EVENTS;
-      if (!allowed.has(message.type))
+      if (!isRelayMessageAllowed(connection.role, message.type))
         throw new HttpError(403, "Message is not allowed for this role");
       if (message.type === "load") {
         await this.assets.validateRive(message.riv, room);
@@ -174,7 +170,7 @@ export class RoomSockets {
     return await this.bridge.call(command, args);
   }
   command(message: Msg) {
-    if (!HOST_COMMANDS.has(message.type) || !parseMessage(JSON.stringify(message)))
+    if (!isRelayMessageAllowed("host", message.type) || !parseMessage(JSON.stringify(message)))
       throw new HttpError(400, "Invalid host command");
     this.active();
     this.broadcast(message, "phone");

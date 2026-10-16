@@ -98,6 +98,70 @@ describe("private relay rooms", () => {
     hostSocket.socket.close();
   });
 
+  test("keeps saved-pattern delivery inside its room and enforces library message roles", async () => {
+    const first = await createRoom(mf);
+    const second = await createRoom(mf);
+    const firstPhone = await pairPhone(mf, first);
+    const secondPhone = await pairPhone(mf, second);
+    const host = await connect(mf, first.relayUrl, true);
+    const phone = await connect(mf, firstPhone.relayUrl);
+    const otherHost = await connect(mf, second.relayUrl, true);
+    const otherPhone = await connect(mf, secondPhone.relayUrl);
+    const manifest = {
+      type: "library-manifest",
+      presets: [{ resourceId: "saved-pattern", name: "Tap" }],
+    };
+    const full = {
+      type: "haptic-preset",
+      resourceId: "saved-pattern",
+      name: "Tap",
+      version: "ab".repeat(32),
+      pattern: {
+        discretePattern: [{ time: 25, amplitude: 1, frequency: 0.5 }],
+        continuousPattern: { amplitude: [], frequency: [] },
+      },
+    };
+    host.socket.send(JSON.stringify(manifest));
+    assert.deepEqual(await phone.next("library-manifest"), manifest);
+    phone.socket.send(JSON.stringify({ type: "library-manifest-request" }));
+    assert.deepEqual(await host.next("library-manifest-request"), {
+      type: "library-manifest-request",
+    });
+    host.socket.send(JSON.stringify(full));
+    assert.deepEqual(await phone.next("haptic-preset"), full);
+    const reconnected = await connect(mf, firstPhone.relayUrl);
+    await reconnected.next("session");
+    await reconnected.next("peers");
+    assert.equal(
+      reconnected.messages.some((message) => message.type === "haptic-preset"),
+      false,
+    );
+    otherHost.socket.send(JSON.stringify({ type: "stop" }));
+    await otherPhone.next("stop");
+    for (const receiver of [otherHost, otherPhone])
+      assert.equal(
+        receiver.messages.some((message) =>
+          ["library-manifest", "library-manifest-request", "haptic-preset"].includes(
+            String(message.type),
+          ),
+        ),
+        false,
+      );
+    const phoneClosed = new Promise<number>((resolve) =>
+      phone.socket.addEventListener("close", (event) => resolve(event.code), { once: true }),
+    );
+    phone.socket.send(JSON.stringify(full));
+    assert.equal(await phoneClosed, 1008);
+    const hostClosed = new Promise<number>((resolve) =>
+      host.socket.addEventListener("close", (event) => resolve(event.code), { once: true }),
+    );
+    host.socket.send(JSON.stringify({ type: "library-manifest-request" }));
+    assert.equal(await hostClosed, 1008);
+    reconnected.socket.close();
+    otherHost.socket.close();
+    otherPhone.socket.close();
+  });
+
   test("stores bounded private assets and revokes read access", async () => {
     const room = await createRoom(mf);
     const response = await mf.dispatchFetch(

@@ -1,6 +1,7 @@
 import { isPattern, isRecord, type Pattern } from "../patterns/pattern.ts";
 import { isRiveAssetUrl } from "./assets.ts";
 import { parseEditorMessage, type EditorMsg } from "./editor.ts";
+import { parseLibraryMessage, type LibraryMsg } from "./library.ts";
 export type Msg =
   | { type: "load"; riv: string; stateMachine?: string; map: Record<string, Pattern> }
   | { type: "map"; map: Record<string, Pattern> }
@@ -12,6 +13,7 @@ export type Msg =
   | { type: "hello"; device: string }
   | { type: "fired"; name: string }
   | { type: "peers"; phones: number }
+  | LibraryMsg
   | EditorMsg;
 const text = (v: unknown): v is string => typeof v === "string" && v.length <= 512;
 const isMap = (v: unknown): v is Record<string, Pattern> =>
@@ -54,7 +56,7 @@ function parseValue(value: Record<string, unknown>): Msg | null {
     case "stop":
       return { type: value.type };
     default:
-      return parseEditorMessage(value);
+      return parseLibraryMessage(value) ?? parseEditorMessage(value);
   }
 }
 export function parseMessage(data: string): Msg | null {
