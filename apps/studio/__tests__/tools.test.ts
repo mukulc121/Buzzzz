@@ -125,9 +125,12 @@ test("compatibility distinguishes near taps from short envelope segments", () =>
   expect(issues.some((issue) => issue.includes("segments shorter than 20"))).toBe(true);
 });
 
-test("voice analysis rejects silence and combines loudness, pitch, and onsets", () => {
+test("voice analysis accepts quiet takes and combines loudness, pitch, and onsets", () => {
   const samples = new Float32Array(16000);
-  expect(() => voicePattern(analyzeVoice(workerClip([samples], 16000)))).toThrow("No voice");
+  const quiet = voicePattern(analyzeVoice(workerClip([samples], 16000)));
+  expect(isPattern(quiet)).toBe(true);
+  expect(quiet.discretePattern).toHaveLength(0);
+  expect(quiet.continuousPattern.amplitude.every((point) => point.value === 0)).toBe(true);
   for (let index = 0; index < samples.length; index += 1)
     samples[index] = index % 4000 < 2000 ? Math.sin((2 * Math.PI * 220 * index) / 16000) * 0.4 : 0;
   const result = voicePattern(analyzeVoice(workerClip([samples], 16000)));

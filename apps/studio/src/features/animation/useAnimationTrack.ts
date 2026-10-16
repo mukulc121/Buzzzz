@@ -23,11 +23,14 @@ export function useAnimationTrack(props: IAnimationTrack) {
   const { onError } = props;
   const [source, setSource] = useState<IAnimationSource | null>(null);
   const [loading, setLoading] = useState(false);
+  const [analysisRevision, setAnalysisRevision] = useState(0);
   const [result, setResult] = useState<{
     source: IAnimationSource;
     frameMs: number;
     smoothingMs: number;
     analysis: IAnimationAnalysis | null;
+    revision: number;
+    error?: string;
   } | null>(null);
   const [frameMs, setFrameMs] = useState(1000 / 240);
   const [generationOptions, setGenerationOptions] = useState(DEFAULT_ANIMATION_OPTIONS);
@@ -78,8 +81,13 @@ export function useAnimationTrack(props: IAnimationTrack) {
     [url, assetUrls],
   );
   const matches =
-    result?.source === source && result?.frameMs === frameMs && result?.smoothingMs === smoothingMs;
+    result?.source === source &&
+    result?.frameMs === frameMs &&
+    result?.smoothingMs === smoothingMs &&
+    result?.revision === analysisRevision;
   const analysis = matches ? result.analysis : null;
+  const analysisError = matches ? (result.error ?? null) : null;
+  const retryAnalysis = useCallback(() => setAnalysisRevision((revision) => revision + 1), []);
   const working = loading || Boolean(source && !matches);
   useEffect(() => {
     if (!source) return;
@@ -87,15 +95,22 @@ export function useAnimationTrack(props: IAnimationTrack) {
     analyzeAnimationAsync(source.document, frameMs, controller.signal, smoothingMs)
       .then((value) => {
         if (!controller.signal.aborted)
-          setResult({ source, frameMs, smoothingMs, analysis: value });
+          setResult({ source, frameMs, smoothingMs, analysis: value, revision: analysisRevision });
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
-        setResult({ source, frameMs, smoothingMs, analysis: null });
-        errorHandler.current(error instanceof Error ? error.message : "Animation analysis failed");
+        const message = error instanceof Error ? error.message : "Animation analysis failed";
+        setResult({
+          source,
+          frameMs,
+          smoothingMs,
+          analysis: null,
+          revision: analysisRevision,
+          error: message,
+        });
       });
     return () => controller.abort();
-  }, [source, frameMs, smoothingMs]);
+  }, [source, frameMs, smoothingMs, analysisRevision]);
   const candidateAnalysis = result?.source === source ? result.analysis : null;
   const candidates = useMemo(
     () =>
@@ -182,6 +197,8 @@ export function useAnimationTrack(props: IAnimationTrack) {
   return {
     source,
     analysis,
+    analysisError,
+    retryAnalysis,
     candidates,
     working,
     loading,

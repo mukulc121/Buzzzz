@@ -3,7 +3,7 @@ import { ThemeChooser } from "./ThemeChooser";
 import { InspectorSwitch } from "./inspector/InspectorSwitch";
 import { InspectorIcon } from "../components/InspectorIcon";
 import type { GridDensity } from "../features/composer/editorSettings";
-import { SettingsSelect } from "./settings/SettingsSelect";
+import { Select } from "../components/Select";
 import { SettingsShortcuts } from "./settings/SettingsShortcuts";
 import type { Studio } from "./useStudio";
 
@@ -76,7 +76,7 @@ export function WorkspaceSettings(props: IWorkspaceSettings) {
             text="Density"
             hint={DENSITIES.find((item) => item.value === values.gridDensity)?.hint ?? ""}
           />
-          <SettingsSelect
+          <Select
             label="Grid density"
             value={values.gridDensity}
             options={DENSITIES}
@@ -90,7 +90,7 @@ export function WorkspaceSettings(props: IWorkspaceSettings) {
             text="Precision"
             hint="Controls the precision of new intensity and frequency edits. Existing values are kept until you edit them."
           />
-          <SettingsSelect
+          <Select
             label="Value precision"
             value={values.valueDecimals}
             options={PRECISIONS}

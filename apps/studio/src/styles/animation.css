@@ -1,6 +1,12 @@
 .animation-panel {
   min-width: 0;
 }
+.animation-panel > .inspector-section:last-child {
+  border-bottom: 0;
+}
+.animation-panel .inspector-section h3 {
+  gap: 2px;
+}
 .animation-track-summary {
   display: flex;
   flex-direction: column;
@@ -22,6 +28,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.animation-track-summary dt {
+  flex-shrink: 0;
+  font-weight: 500;
 }
 .animation-preview {
   display: flex;
@@ -135,6 +145,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  margin-top: 8px;
 }
 .animation-generation-settings > summary {
   color: var(--accent-strong, var(--fg-2));
@@ -151,19 +162,72 @@
   gap: 16px;
 }
 .animation-settings-body {
-  padding-top: 16px;
+  padding-top: 8px;
+  gap: 8px;
+}
+.animation-metric-hint {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.animation-analysis-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.animation-analysis-status svg {
+  animation: animation-analysis-spin 1s linear infinite;
+}
+.animation-analysis-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin: 0;
+  color: var(--tap);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.animation-analysis-error svg {
+  flex: none;
+}
+@keyframes animation-analysis-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animation-inspector-layout {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 2px;
+  background: var(--bg);
+}
+.animation-inspector-layout button {
+  min-height: 0;
+  padding: 3px 5px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--muted);
+}
+.animation-inspector-layout button:hover:not(:disabled) {
+  background: transparent;
+  color: var(--fg);
+}
+.animation-inspector-layout button[aria-pressed="true"],
+.animation-inspector-layout button[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--panel);
+  color: var(--fg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 .animation-setting .inspector-selection-label > span:first-child {
   font-weight: 500;
-}
-.animation-position output {
-  color: var(--muted);
-}
-.animation-position input {
-  width: 100%;
-}
-.animation-speed {
-  justify-content: space-between;
 }
 .animation-approach-controls {
   border-left: 2px solid var(--line-strong);
@@ -228,10 +292,6 @@
 .generation-approach-info svg {
   width: 14px;
   height: 14px;
-}
-.animation-warnings {
-  padding-left: 18px;
-  margin: 0;
 }
 @media (max-width: 1000px) {
   .preview-side-by-side {

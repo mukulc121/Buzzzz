@@ -1,11 +1,10 @@
 import { DEFAULT_ANIMATION_OPTIONS } from "./generationOptions";
 import type { useAnimationTrack } from "./useAnimationTrack";
 import { AnimationSetting } from "./AnimationSetting";
-import { AnimationPreviewIcon } from "./AnimationPreviewIcon";
+import { AnimationInspectorIcon } from "./AnimationInspectorIcon";
 
 interface IAnimationGenerationSettings {
   animation: ReturnType<typeof useAnimationTrack>;
-  onSeek?: (timeMs: number) => void;
 }
 const controls: {
   id: keyof typeof DEFAULT_ANIMATION_OPTIONS;
@@ -21,17 +20,23 @@ const controls: {
   { id: "transientDuck", label: "Transient ducking", min: 0, max: 0.6, step: 0.05 },
 ];
 export function AnimationGenerationSettings(props: IAnimationGenerationSettings) {
-  const { animation, onSeek } = props;
+  const { animation } = props;
   return (
     <details className="animation-generation-settings">
       <summary>Generation settings</summary>
       <div className="animation-settings-body">
+        <p className="animation-metric-hint">
+          Shared by every approach; a change re-runs them. <strong>Sampling rate</strong>{" "}
+          oversamples the eased keyframes so quick moves aren't averaged away;{" "}
+          <strong>Contrast</strong> suppresses low-level buzz and sharpens hits.
+        </p>
         <AnimationSetting
           label="Sampling rate"
           value={Number((1000 / animation.frameMs).toFixed(1))}
           min={60}
           max={480}
           step={30}
+          unit="Hz"
           onChange={(value) => animation.setFrameMs(1000 / value)}
         />
         <AnimationSetting
@@ -56,51 +61,15 @@ export function AnimationGenerationSettings(props: IAnimationGenerationSettings)
         <button
           type="button"
           className="inspector-text-action"
-          onClick={() => animation.setGenerationOptions(DEFAULT_ANIMATION_OPTIONS)}
-        >
-          Reset defaults
-        </button>
-        <label className="field animation-speed">
-          Playback speed
-          <select
-            aria-label="Playback speed"
-            value={animation.speed}
-            onChange={(event) => animation.setSpeed(Number(event.currentTarget.value))}
-          >
-            {[0.25, 0.5, 0.75, 1, 1.5, 2].map((speed) => (
-              <option key={speed} value={speed}>
-                {speed}×
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="field animation-position">
-          Animation position
-          <input
-            type="range"
-            aria-label="Animation position"
-            min={0}
-            max={animation.source?.durationMs ?? 0}
-            step={1}
-            value={Math.min(animation.source?.durationMs ?? 0, animation.positionMs)}
-            onChange={(event) => {
-              const value = event.currentTarget.valueAsNumber;
-              if (onSeek) onSeek(value);
-              else animation.setSeekMs(value);
-            }}
-          />
-          <output>{(animation.positionMs / 1000).toFixed(2)} s</output>
-        </label>
-        <button
-          type="button"
-          className="inspector-text-action"
           onClick={() => {
-            animation.setPreviewVisible(true);
-            animation.setPreviewMode("fullscreen");
+            animation.setFrameMs(1000 / 240);
+            animation.setGenerationOptions(DEFAULT_ANIMATION_OPTIONS);
+            animation.setStrategyParams({});
+            animation.setHybrid({ gain: 1.2, threshold: 0.17, minGapMs: 70, freqFollow: 0.7 });
           }}
         >
-          <AnimationPreviewIcon name="fullscreen" />
-          Fullscreen preview
+          <AnimationInspectorIcon name="reset" />
+          Reset to defaults
         </button>
       </div>
     </details>

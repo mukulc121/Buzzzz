@@ -4,7 +4,8 @@ import { X } from "../../components/icons";
 import { InspectorSection } from "../../components/InspectorSection";
 import { AnimationApproachControls } from "./AnimationApproachControls";
 import { AnimationGenerationSettings } from "./AnimationGenerationSettings";
-import { AnimationFilePicker } from "./AnimationFilePicker";
+import { AnimationPlaybackLayout } from "./AnimationPlaybackLayout";
+import { AnimationInspectorIcon } from "./AnimationInspectorIcon";
 import type { useAnimationTrack } from "./useAnimationTrack";
 
 interface IAnimationPanel {
@@ -15,15 +16,27 @@ interface IAnimationPanel {
   onPreserve?: (pattern: Pattern, label: string) => void;
   onFile: (file: File) => Promise<unknown>;
   onRemove: () => void;
-  onSeek?: (timeMs: number) => void;
+  onOpenMedia: () => void;
 }
+
+const GENERATION_INFO =
+  "Analyzes how the animation's shapes move - velocity, impacts, mass, spins, fades - and derives a haptic pattern from it, several ways at once - as soon as one is attached and again whenever a setting changes. You audition each approach on the chart and keep the one that feels right.";
+
 function durationLabel(durationMs: number) {
   const seconds = Math.round(durationMs / 1000);
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 }
 export function AnimationPanel(props: IAnimationPanel) {
-  const { animation, currentPattern, onApply, onRestore, onPreserve, onFile, onRemove, onSeek } =
-    props;
+  const {
+    animation,
+    currentPattern,
+    onApply,
+    onRestore,
+    onPreserve,
+    onFile,
+    onRemove,
+    onOpenMedia,
+  } = props;
   const source = animation.source;
   return (
     <div
@@ -32,9 +45,20 @@ export function AnimationPanel(props: IAnimationPanel) {
       role="region"
       aria-busy={animation.working}
     >
-      <InspectorSection title="Animation">
-        {source ? (
-          <>
+      <input
+        hidden
+        type="file"
+        aria-label="Lottie file"
+        accept=".json,.lottie,application/json,application/zip+dotlottie"
+        onChange={(event) => {
+          const file = event.currentTarget.files?.[0];
+          if (file) void onFile(file);
+          event.currentTarget.value = "";
+        }}
+      />
+      {source ? (
+        <>
+          <InspectorSection title="Animation">
             <dl className="animation-track-summary">
               <div>
                 <dt>File</dt>
@@ -48,67 +72,38 @@ export function AnimationPanel(props: IAnimationPanel) {
                 <dt>Frames</dt>
                 <dd>
                   {Math.round((source.durationMs * source.document.frameRate) / 1000)} ·{" "}
-                  {source.document.frameRate} fps
+                  {Math.round(source.document.frameRate)} fps
                 </dd>
               </div>
             </dl>
-            {source.animations.length > 1 && (
-              <label className="field">
-                Package animation
-                <select
-                  value={source.animationId}
-                  onChange={(event) => animation.selectAnimation(event.currentTarget.value)}
-                >
-                  {source.animations.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.id}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
-            {!animation.previewVisible && (
-              <button type="button" onClick={() => animation.setPreviewVisible(true)}>
-                Show on canvas
-              </button>
-            )}
             <button type="button" className="inspector-text-action" onClick={onRemove}>
               <X />
               Remove from canvas
             </button>
-          </>
-        ) : (
-          <>
-            <AnimationFilePicker onFile={onFile} disabled={animation.loading} />
-            <p className="hint">
-              Add a Lottie animation to preview it and generate haptics from its motion.
-            </p>
-          </>
-        )}
-        {animation.loading && (
-          <p className="hint" role="status">
-            Reading animation…
-          </p>
-        )}
-      </InspectorSection>
-      {source && (
-        <>
-          <InspectorSection
-            title="Generate"
-            description="Generate haptics from the animation's motion."
-          >
-            <AnimationGenerationSettings animation={animation} onSeek={onSeek} />
+          </InspectorSection>
+          <InspectorSection title="Generate" description={GENERATION_INFO}>
             {animation.working && (
-              <p className="hint" role="status">
-                Sampling animation motion…
+              <p className="animation-analysis-status" role="status">
+                <AnimationInspectorIcon name="loading" size={14} />
+                Analyzing…
               </p>
             )}
-            {source.document.warnings.length > 0 && (
-              <ul className="hint animation-warnings">
-                {source.document.warnings.map((warning) => (
-                  <li key={warning}>{warning}</li>
-                ))}
-              </ul>
+            <AnimationGenerationSettings animation={animation} />
+            {animation.analysisError && (
+              <>
+                <p className="animation-analysis-error" role="alert">
+                  <AnimationInspectorIcon name="error" size={14} />
+                  {animation.analysisError}
+                </p>
+                <button
+                  type="button"
+                  className="sound-secondary-action"
+                  onClick={animation.retryAnalysis}
+                >
+                  <AnimationInspectorIcon name="reset" />
+                  Try again
+                </button>
+              </>
             )}
           </InspectorSection>
           {animation.candidates.length > 0 && (
@@ -126,6 +121,25 @@ export function AnimationPanel(props: IAnimationPanel) {
               />
             </section>
           )}
+          <AnimationPlaybackLayout animation={animation} />
+        </>
+      ) : (
+        <>
+          <InspectorSection title="No animation attached">
+            <p className="hint">
+              Drag and drop a <strong>.json</strong> or <strong>.lottie</strong> file from your
+              computer or the Media panel.
+            </p>
+            <button type="button" className="sound-secondary-action" onClick={onOpenMedia}>
+              <AnimationInspectorIcon name="media" />
+              Open Media panel
+            </button>
+          </InspectorSection>
+          <InspectorSection title="Generate" description={GENERATION_INFO}>
+            <p className="hint">
+              Attach an animation and the approaches are derived from it for you.
+            </p>
+          </InspectorSection>
         </>
       )}
     </div>

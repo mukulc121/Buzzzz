@@ -1,12 +1,12 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 
-interface ISettingsSelect<T extends string | number> {
+interface ISelect<T extends string | number> {
   label: string;
   options: readonly { value: T; label: string }[];
   value: T;
   onChange: (value: T) => void;
 }
-export function SettingsSelect<T extends string | number>(props: ISettingsSelect<T>) {
+export function Select<T extends string | number>(props: ISelect<T>) {
   const { label, options, value, onChange } = props;
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);

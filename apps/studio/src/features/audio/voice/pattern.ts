@@ -17,7 +17,7 @@ export interface IVoiceOptions {
   accents: boolean;
 }
 
-const DEFAULT_VOICE: IVoiceOptions = {
+export const DEFAULT_VOICE: IVoiceOptions = {
   frequency: "pitch",
   releaseMs: 90,
   floorDb: -45,

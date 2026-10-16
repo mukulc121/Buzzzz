@@ -56,13 +56,13 @@ export function InspectorPanel(props: IInspectorPanel) {
           <AnimationPanel
             key={`${document.projectId}/${document.preset.id}/${studio.animation.source?.url ?? ""}/${studio.animation.source?.animationId ?? ""}`}
             animation={studio.animation}
-            onSeek={studio.playback.setPlayhead}
             currentPattern={document.pattern}
             onApply={studio.applyGenerated}
             onRestore={studio.restore}
             onPreserve={studio.preserve}
             onFile={studio.importFile}
             onRemove={() => void studio.media.detach("animation")}
+            onOpenMedia={() => studio.setPanel("media")}
           />
         ) : (
           <>

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import animationReference from "../../apps/studio/__tests__/fixtures/animation-reference.json" with { type: "json" };
 
 test.beforeEach(async ({ page }) => {
@@ -7,6 +7,99 @@ test.beforeEach(async ({ page }) => {
     localStorage.setItem("buzzzz.mobile-notice-dismissed", "1");
   });
 });
+
+async function seek(page: Page, time: number) {
+  const cursor = page.getByRole("slider", { name: "Scrub position", exact: true });
+  await cursor.focus();
+  await cursor.press("Home");
+  for (let index = 0; index < Math.floor(time / 100); index++)
+    await cursor.press("Shift+ArrowRight");
+  for (let index = 0; index < (time % 100) / 10; index++) await cursor.press("ArrowRight");
+  await expect(cursor).toHaveAttribute("aria-valuenow", String(time));
+}
+
+for (const theme of ["Light", "Dark"])
+  test(`${theme} animation inspector follows the published empty and loaded sections`, async ({
+    page,
+  }) => {
+    const { default: AxeBuilder } = await import("@axe-core/playwright");
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto("/");
+    await page.getByRole("button", { name: "Settings", exact: true }).click();
+    await page.getByRole("radio", { name: theme, exact: true }).click();
+    await page.getByRole("tab", { name: "animation", exact: true }).click();
+    const panel = page.getByRole("region", { name: "Animation tools", exact: true });
+    await expect(panel.locator("h3")).toHaveText(["No animation attached", "Generate"]);
+    await expect(
+      panel.getByText(
+        "Drag and drop a .json or .lottie file from your computer or the Media panel.",
+      ),
+    ).toBeVisible();
+    await expect(
+      panel.getByText("Attach an animation and the approaches are derived from it for you."),
+    ).toBeVisible();
+    await expect(panel.getByRole("button", { name: "Add animation", exact: true })).toHaveCount(0);
+    await expect(panel.getByLabel("Lottie file", { exact: true })).not.toBeVisible();
+    await panel.getByRole("button", { name: "Open Media panel", exact: true }).click();
+    const media = page.getByRole("region", { name: "Media library", exact: true });
+    await expect(media).toBeVisible();
+    await panel.getByRole("button", { name: "Open Media panel", exact: true }).click();
+    await expect(media).toBeVisible();
+    await panel
+      .getByLabel("Lottie file", { exact: true })
+      .setInputFiles("apps/preview/src/features/demos/lottie/bounce.json");
+    await expect(panel.locator(".animation-candidates .audio-candidate")).toHaveCount(5);
+    await expect(panel.locator("h3")).toHaveText([
+      "Animation",
+      "Generate",
+      "Approaches",
+      "Playback",
+      "Layout",
+    ]);
+    await expect(panel.getByLabel("Animation position", { exact: true })).toHaveCount(0);
+    await expect(
+      panel.getByRole("button", { name: "Fullscreen preview", exact: true }),
+    ).toHaveCount(0);
+    await expect(panel.getByRole("spinbutton", { name: "Speed", exact: true })).toHaveValue("1.00");
+    await panel.getByRole("spinbutton", { name: "Speed", exact: true }).fill("1.25");
+    await expect(panel.getByRole("slider", { name: "Speed slider", exact: true })).toHaveValue(
+      "1.25",
+    );
+    const layout = panel.getByRole("group", { name: "Animation layout", exact: true });
+    await expect(layout.getByRole("button", { name: "Side by side", exact: true })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await layout.getByRole("button", { name: "Stacked", exact: true }).click();
+    await expect(page.getByRole("region", { name: "Animation canvas preview" })).toHaveClass(
+      /stacked/,
+    );
+    await panel.getByRole("button", { name: "Hide preview", exact: true }).click();
+    await expect(page.getByRole("region", { name: "Animation canvas preview" })).toHaveCount(0);
+    await panel.getByRole("button", { name: "Show preview", exact: true }).click();
+    await expect(
+      page.getByRole("region", { name: "Animation canvas preview" }).locator("canvas"),
+    ).toBeVisible();
+    await panel.locator(".animation-generation-settings > summary").click();
+    const sampling = panel.getByRole("spinbutton", { name: "Sampling rate", exact: true });
+    await sampling.fill("480");
+    await panel.getByRole("spinbutton", { name: "Motion smoothing", exact: true }).fill("40");
+    await panel.getByRole("button", { name: "Reset to defaults", exact: true }).click();
+    await expect(sampling).toHaveValue("240");
+    await expect(
+      panel.getByRole("spinbutton", { name: "Motion smoothing", exact: true }),
+    ).toHaveValue("12");
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include(".animation-panel")
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    await panel.getByRole("button", { name: "Remove from canvas", exact: true }).click();
+    await expect(panel.locator("h3")).toHaveText(["No animation attached", "Generate"]);
+  });
 
 test("animation approach controls regenerate the selected pattern without replacing manual edits", async ({
   page,
@@ -59,6 +152,39 @@ test("animation approach controls regenerate the selected pattern without replac
   await expect(
     page.getByRole("button", { name: "Apply Channel mapping", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Reset to defaults", exact: true }).click();
+  await expect(
+    page.getByRole("spinbutton", { name: "Rotation detents / turn", exact: true }),
+  ).toHaveValue("4");
+});
+
+test("animation analysis reports the real worker error and retries without reattaching", async ({
+  page,
+}) => {
+  let attempts = 0;
+  await page.route(/\/src\/features\/animation\/analysis\.worker\.ts(?:\?.*)?$/, async (route) => {
+    attempts++;
+    if (attempts === 1)
+      await route.fulfill({
+        contentType: "application/javascript",
+        body: `self.addEventListener("message", () => self.postMessage({ error: "Motion worker stopped." }));`,
+      });
+    else await route.continue();
+  });
+  await page.goto("/");
+  await page.getByRole("tab", { name: "animation", exact: true }).click();
+  const panel = page.getByRole("region", { name: "Animation tools", exact: true });
+  await panel
+    .getByLabel("Lottie file", { exact: true })
+    .setInputFiles("apps/preview/src/features/demos/lottie/bounce.json");
+  await expect(panel.getByRole("alert")).toHaveText("Motion worker stopped.");
+  await expect(page.getByRole("alert")).toHaveCount(1);
+  await panel.getByRole("button", { name: "Try again", exact: true }).click();
+  await expect(panel.locator(".animation-candidates .audio-candidate")).toHaveCount(5);
+  await expect(panel.getByRole("alert")).toHaveCount(0);
+  await expect(panel.getByRole("button", { name: "Try again", exact: true })).toHaveCount(0);
+  await expect(panel.locator("dd").first()).toHaveText("bounce.json");
+  expect(attempts).toBe(2);
 });
 
 for (const width of [390, 1440])
@@ -80,9 +206,7 @@ for (const width of [390, 1440])
     await page.getByRole("button", { name: "Play animation", exact: true }).click();
     await expect(page.getByRole("button", { name: "Pause animation", exact: true })).toBeVisible();
     await page.getByRole("button", { name: "Pause animation", exact: true }).click();
-    await page.locator(".animation-generation-settings > summary").click();
-    await page.getByLabel("Animation position", { exact: true }).fill("500");
-    await expect(page.getByText("0.50 s", { exact: true })).toBeVisible();
+    await seek(page, 500);
     const canvas = preview.locator("canvas");
     const frame = () =>
       canvas.evaluate((element) => {
@@ -90,10 +214,10 @@ for (const width of [390, 1440])
         return element.toDataURL();
       });
     const frameAtOne = await frame();
-    await page.getByRole("combobox", { name: "Playback speed", exact: true }).selectOption("2");
-    await page.getByLabel("Animation position", { exact: true }).fill("250");
+    await page.getByRole("spinbutton", { name: "Speed", exact: true }).fill("2");
+    await seek(page, 250);
     await expect.poll(frame).not.toBe(frameAtOne);
-    await page.getByLabel("Animation position", { exact: true }).fill("500");
+    await seek(page, 500);
     await expect.poll(frame).toBe(frameAtOne);
     const apply = page
       .locator(".animation-candidates")
@@ -157,6 +281,6 @@ test("animation preview layouts, floating movement and hide/show keep a live can
   await expect(preview).toHaveClass(/side-by-side/);
   await preview.getByRole("button", { name: "Hide animation preview", exact: true }).click();
   await expect(preview).toHaveCount(0);
-  await page.getByRole("button", { name: "Show on canvas", exact: true }).click();
+  await page.getByRole("button", { name: "Show preview", exact: true }).click();
   await expect(preview.locator("canvas")).toBeVisible();
 });
