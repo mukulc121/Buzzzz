@@ -25,10 +25,13 @@ export function AnimationPreview(props: IAnimationPreview) {
     if (!target || !data) return;
     let disposed = false;
     let item: AnimationItem | undefined;
-    import("lottie-web/build/player/lottie_light_canvas")
-      .then((module) => {
-        if (disposed) return;
-        item = module.default.loadAnimation({
+    let lottie: typeof import("lottie-web").default | undefined;
+    const resize = () => {
+      if (disposed || !target.offsetWidth || !target.offsetHeight || !lottie) return;
+      if (item) {
+        item.resize();
+      } else {
+        item = lottie.loadAnimation({
           container: target,
           renderer: "canvas",
           animationData: structuredClone(data),
@@ -58,9 +61,15 @@ export function AnimationPreview(props: IAnimationPreview) {
             "The Lottie canvas player could not load this animation",
           ),
         );
+      }
+    };
+    import("lottie-web/build/player/lottie_light_canvas")
+      .then((module) => {
+        lottie = module.default;
+        resize();
       })
       .catch(() => controls.current.animation.onError("The Lottie canvas player could not start"));
-    const observer = new ResizeObserver(() => player.current?.resize());
+    const observer = new ResizeObserver(resize);
     observer.observe(target);
     return () => {
       disposed = true;
