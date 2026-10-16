@@ -1,4 +1,6 @@
 import { isPattern, isRecord, type Pattern } from "../patterns/pattern.ts";
+import { isRiveAssetUrl } from "./assets.ts";
+import { parseEditorMessage, type EditorMsg } from "./editor.ts";
 export type Msg =
   | { type: "load"; riv: string; stateMachine?: string; map: Record<string, Pattern> }
   | { type: "map"; map: Record<string, Pattern> }
@@ -9,15 +11,15 @@ export type Msg =
   | { type: "pause"; paused: boolean }
   | { type: "hello"; device: string }
   | { type: "fired"; name: string }
-  | { type: "peers"; phones: number };
+  | { type: "peers"; phones: number }
+  | EditorMsg;
 const text = (v: unknown): v is string => typeof v === "string" && v.length <= 512;
 const isMap = (v: unknown): v is Record<string, Pattern> =>
   isRecord(v) &&
   Object.keys(v).length <= 512 &&
   Object.entries(v).every(([key, value]) => text(key) && isPattern(value));
 function loadMessage(value: Record<string, unknown>): Msg | null {
-  if (!text(value.riv) || !/^\/riv\/[a-f0-9]+\.riv$/.test(value.riv) || !isMap(value.map))
-    return null;
+  if (!isRiveAssetUrl(value.riv) || !isMap(value.map)) return null;
   if (value.stateMachine !== undefined && !text(value.stateMachine)) return null;
   return { type: "load", riv: value.riv, stateMachine: value.stateMachine, map: value.map };
 }
@@ -52,7 +54,7 @@ function parseValue(value: Record<string, unknown>): Msg | null {
     case "stop":
       return { type: value.type };
     default:
-      return null;
+      return parseEditorMessage(value);
   }
 }
 export function parseMessage(data: string): Msg | null {

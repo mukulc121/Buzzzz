@@ -1,0 +1,4467 @@
+[
+  {
+    "name": "Afterglow",
+    "description": "A three-beat phrase that dissolves gently, ideal for soft endings or gradually quieting feedback.",
+    "tags": ["Bold", "Soft", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 1, "frequency": 0.3 },
+        { "time": 75, "amplitude": 0.703, "frequency": 0.203 },
+        { "time": 150, "amplitude": 0.5, "frequency": 0.1 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Aftershock",
+    "description": "A firm opening that settles calmly, ideal for transitions needing a strong start and a gentle finish.",
+    "tags": ["Substantial", "Flexible", "Impulses", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 0.8, "frequency": 0.8 },
+        { "time": 299, "amplitude": 0.5, "frequency": 0.247 },
+        { "time": 399, "amplitude": 0.494, "frequency": 0.266 },
+        { "time": 500, "amplitude": 0.497, "frequency": 0.263 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Alarm",
+    "description": "Relentless and urgent, best for critical errors or emergencies that require immediate attention.",
+    "tags": ["Bold", "Rigid", "Pattern", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.9, "frequency": 0.8 },
+        { "time": 200, "amplitude": 0.9, "frequency": 0.5 },
+        { "time": 400, "amplitude": 0.9, "frequency": 0.8 },
+        { "time": 600, "amplitude": 0.9, "frequency": 0.5 },
+        { "time": 800, "amplitude": 0.9, "frequency": 0.8 },
+        { "time": 1000, "amplitude": 0.9, "frequency": 0.5 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 10, "value": 0.9 },
+          { "time": 130, "value": 0 },
+          { "time": 200, "value": 0.9 },
+          { "time": 330, "value": 0 },
+          { "time": 400, "value": 0.9 },
+          { "time": 530, "value": 0 },
+          { "time": 600, "value": 0.9 },
+          { "time": 730, "value": 0 },
+          { "time": 800, "value": 0.9 },
+          { "time": 930, "value": 0 },
+          { "time": 1000, "value": 0.9 },
+          { "time": 1130, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.82 },
+          { "time": 130, "value": 0.82 },
+          { "time": 200, "value": 0.48 },
+          { "time": 330, "value": 0.48 },
+          { "time": 400, "value": 0.82 },
+          { "time": 530, "value": 0.82 },
+          { "time": 600, "value": 0.48 },
+          { "time": 730, "value": 0.48 },
+          { "time": 800, "value": 0.82 },
+          { "time": 930, "value": 0.82 },
+          { "time": 1000, "value": 0.48 },
+          { "time": 1130, "value": 0.48 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Anvil",
+    "description": "The full weight of a massive collision, conveys sheer physical force and momentum.",
+    "tags": ["Bold", "Soft", "Ramp", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 1, "frequency": 0.15 },
+        { "time": 80, "amplitude": 0.5, "frequency": 0.2 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 1 },
+          { "time": 60, "value": 0.6 },
+          { "time": 150, "value": 0.3 },
+          { "time": 300, "value": 0.1 },
+          { "time": 500, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.12 },
+          { "time": 5, "value": 0.1 },
+          { "time": 500, "value": 0.08 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Applause",
+    "description": "A growing wave of appreciation, ideal for celebratory moments or social approval.",
+    "tags": ["Substantial", "Flexible", "Solid", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.2, "frequency": 0.5 },
+        { "time": 150, "amplitude": 0.25, "frequency": 0.52 },
+        { "time": 290, "amplitude": 0.3, "frequency": 0.54 },
+        { "time": 420, "amplitude": 0.4, "frequency": 0.56 },
+        { "time": 540, "amplitude": 0.5, "frequency": 0.58 },
+        { "time": 650, "amplitude": 0.484, "frequency": 0.6 },
+        { "time": 750, "amplitude": 0.509, "frequency": 0.62 },
+        { "time": 868, "amplitude": 0.503, "frequency": 0.65 },
+        { "time": 968, "amplitude": 0.45, "frequency": 0.716 },
+        { "time": 1063, "amplitude": 0.434, "frequency": 0.725 },
+        { "time": 1159, "amplitude": 0.488, "frequency": 0.759 },
+        { "time": 1256, "amplitude": 0.506, "frequency": 1 },
+        { "time": 1349, "amplitude": 0.528, "frequency": 1 },
+        { "time": 1432, "amplitude": 0.519, "frequency": 1 },
+        { "time": 1530, "amplitude": 0.528, "frequency": 1 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 10, "value": 0.2 },
+          { "time": 1482, "value": 0.266 },
+          { "time": 1564, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.5 },
+          { "time": 990, "value": 0.72 },
+          { "time": 1250, "value": 0.7 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Ascent",
+    "description": "The rush of leveling up, evoking the classic RPG reward of growth and progression.",
+    "tags": ["Bold", "Flexible", "Pattern", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.55, "frequency": 0.3 },
+        { "time": 200, "amplitude": 0.65, "frequency": 0.37 },
+        { "time": 380, "amplitude": 0.75, "frequency": 0.42 },
+        { "time": 540, "amplitude": 0.85, "frequency": 0.55 },
+        { "time": 680, "amplitude": 0.92, "frequency": 0.65 },
+        { "time": 800, "amplitude": 0.97, "frequency": 0.73 },
+        { "time": 900, "amplitude": 1, "frequency": 0.87 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.55 },
+          { "time": 155, "value": 0 },
+          { "time": 205, "value": 0.65 },
+          { "time": 335, "value": 0 },
+          { "time": 385, "value": 0.75 },
+          { "time": 495, "value": 0 },
+          { "time": 545, "value": 0.85 },
+          { "time": 635, "value": 0 },
+          { "time": 685, "value": 0.92 },
+          { "time": 755, "value": 0 },
+          { "time": 805, "value": 0.97 },
+          { "time": 860, "value": 0 },
+          { "time": 905, "value": 1 },
+          { "time": 1700, "value": 0.65 },
+          { "time": 2100, "value": 0.25 },
+          { "time": 2400, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.3 },
+          { "time": 200, "value": 0.37 },
+          { "time": 380, "value": 0.42 },
+          { "time": 540, "value": 0.55 },
+          { "time": 680, "value": 0.65 },
+          { "time": 800, "value": 0.73 },
+          { "time": 900, "value": 0.87 },
+          { "time": 2400, "value": 0.87 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "BalloonPop",
+    "description": "Mounting suspense that bursts into release, perfect for countdowns or suspenseful reveals.",
+    "tags": ["Substantial", "Flexible", "Bumps", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.1, "frequency": 0.3 },
+        { "time": 300, "amplitude": 0.2, "frequency": 0.35 },
+        { "time": 600, "amplitude": 0.3, "frequency": 0.4 },
+        { "time": 900, "amplitude": 0.45, "frequency": 0.45 },
+        { "time": 1200, "amplitude": 0.6, "frequency": 0.5 },
+        { "time": 1400, "amplitude": 1, "frequency": 0.9 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 50, "value": 0.1 },
+          { "time": 200, "value": 0 },
+          { "time": 300, "value": 0.15 },
+          { "time": 500, "value": 0 },
+          { "time": 600, "value": 0.25 },
+          { "time": 800, "value": 0 },
+          { "time": 900, "value": 0.35 },
+          { "time": 1100, "value": 0 },
+          { "time": 1200, "value": 0.5 },
+          { "time": 1380, "value": 0 },
+          { "time": 1400, "value": 1 },
+          { "time": 1440, "value": 0.6 },
+          { "time": 1550, "value": 0.1 },
+          { "time": 1700, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.2 },
+          { "time": 1380, "value": 0.5 },
+          { "time": 1400, "value": 1 },
+          { "time": 1700, "value": 0.3 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Barrage",
+    "description": "An overwhelming storm of rapid impacts, suited for maxing out a meter or total sensory overload moments.",
+    "tags": ["Bold", "Rigid", "Impulses", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 0.994, "frequency": 0.994 },
+        { "time": 51, "amplitude": 0.994, "frequency": 0.994 },
+        { "time": 100, "amplitude": 0.991, "frequency": 0.991 },
+        { "time": 156, "amplitude": 1, "frequency": 1 },
+        { "time": 208, "amplitude": 0.991, "frequency": 0.991 },
+        { "time": 260, "amplitude": 1, "frequency": 1 },
+        { "time": 309, "amplitude": 1, "frequency": 1 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "BassDrop",
+    "description": "Two grounded thumps with a tonal descent, suited for distinct double-confirmation feedback.",
+    "tags": ["Bold", "Soft", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 1, "frequency": 0.509 },
+        { "time": 71, "amplitude": 1, "frequency": 0.069 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Batter",
+    "description": "An unrestrained explosion of rage, suited for catastrophic errors or total loss of control.",
+    "tags": ["Bold", "Flexible", "Saw", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.9, "frequency": 0.35 },
+        { "time": 60, "amplitude": 0.82, "frequency": 0.32 },
+        { "time": 120, "amplitude": 0.95, "frequency": 0.36 },
+        { "time": 175, "amplitude": 0.85, "frequency": 0.33 },
+        { "time": 225, "amplitude": 1, "frequency": 0.38 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.9 },
+          { "time": 45, "value": 0.35 },
+          { "time": 60, "value": 0.8 },
+          { "time": 102, "value": 0.32 },
+          { "time": 120, "value": 0.93 },
+          { "time": 158, "value": 0.35 },
+          { "time": 175, "value": 0.83 },
+          { "time": 208, "value": 0.38 },
+          { "time": 225, "value": 1 },
+          { "time": 380, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.35 },
+          { "time": 225, "value": 0.38 },
+          { "time": 380, "value": 0.32 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "BellToll",
+    "description": "Three notes that soften as they land, suited for closing interactions or softening after a strong start.",
+    "tags": ["Bold", "Flexible", "Impulses", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 10, "amplitude": 1, "frequency": 0.903 },
+        { "time": 201, "amplitude": 1, "frequency": 0.513 },
+        { "time": 399, "amplitude": 0.997, "frequency": 0.147 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Blip",
+    "description": "A composed, subtle heads-up, ideal for non-critical warnings that should not interrupt the user.",
+    "tags": ["Gentle", "Flexible", "Peak", "Short"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.55, "frequency": 0.6 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 10, "value": 0.5 },
+          { "time": 100, "value": 0.35 },
+          { "time": 200, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.6 },
+          { "time": 200, "value": 0.58 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Bloom",
+    "description": "A quiet confirmation of completion, ideal for subtle task completions or non-intrusive positive reinforcement.",
+    "tags": ["Gentle", "Flexible", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.3, "frequency": 0.5 },
+        { "time": 120, "amplitude": 0.55, "frequency": 0.62 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 15, "value": 0.28 },
+          { "time": 80, "value": 0.15 },
+          { "time": 120, "value": 0.5 },
+          { "time": 200, "value": 0.15 },
+          { "time": 300, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.48 },
+          { "time": 200, "value": 0.62 },
+          { "time": 300, "value": 0.58 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Bongo",
+    "description": "Two balanced bursts of three, suited for structured multi-step or paired sequence feedback.",
+    "tags": ["Substantial", "Flexible", "Impulses", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 0.594, "frequency": 0.594 },
+        { "time": 73, "amplitude": 0.588, "frequency": 0.588 },
+        { "time": 151, "amplitude": 0.588, "frequency": 0.588 },
+        { "time": 299, "amplitude": 0.4, "frequency": 0.4 },
+        { "time": 380, "amplitude": 0.394, "frequency": 0.394 },
+        { "time": 451, "amplitude": 0.394, "frequency": 0.394 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Boulder",
+    "description": "Deep and weighty without sharpness, great for heavy object impacts or grounded confirmation feedback.",
+    "tags": ["Bold", "Soft", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 1, "frequency": 0.2 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "BreakingWave",
+    "description": "Two measured steps leading into a stronger landing, ideal for escalating confirmations or staged actions.",
+    "tags": ["Substantial", "Flexible", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.497, "frequency": 0.497 },
+        { "time": 89, "amplitude": 0.497, "frequency": 0.497 },
+        { "time": 202, "amplitude": 1, "frequency": 0.1 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Breath",
+    "description": "Slow, calming in-and-out rhythm, ideal for breathing exercises.",
+    "tags": ["Substantial", "Soft", "Bumps", "Long"],
+    "pattern": {
+      "discretePattern": [],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 800, "value": 0.5 },
+          { "time": 1600, "value": 0.05 },
+          { "time": 2400, "value": 0.5 },
+          { "time": 3200, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.15 },
+          { "time": 800, "value": 0.25 },
+          { "time": 1600, "value": 0.1 },
+          { "time": 2400, "value": 0.25 },
+          { "time": 3200, "value": 0.15 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Buildup",
+    "description": "An energizing crescendo of rising intensity, ideal for charging actions or building anticipation.",
+    "tags": ["Bold", "Flexible", "Impulses", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 0.994, "frequency": 0.053 },
+        { "time": 51, "amplitude": 0.994, "frequency": 0.122 },
+        { "time": 100, "amplitude": 0.991, "frequency": 0.228 },
+        { "time": 156, "amplitude": 1, "frequency": 0.394 },
+        { "time": 208, "amplitude": 0.991, "frequency": 0.613 },
+        { "time": 260, "amplitude": 1, "frequency": 0.803 },
+        { "time": 309, "amplitude": 1, "frequency": 1 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Burst",
+    "description": "The tension-and-release of a sneeze, imitates the involuntary build and explosion.",
+    "tags": ["Bold", "Flexible", "Peak", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.2, "frequency": 0.55 },
+        { "time": 100, "amplitude": 0.45, "frequency": 0.65 },
+        { "time": 180, "amplitude": 0.9, "frequency": 0.7 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 15, "value": 0.18 },
+          { "time": 80, "value": 0.4 },
+          { "time": 100, "value": 0.85 },
+          { "time": 130, "value": 0.3 },
+          { "time": 300, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.55 },
+          { "time": 80, "value": 0.65 },
+          { "time": 100, "value": 0.72 },
+          { "time": 300, "value": 0.4 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Buzz",
+    "description": "An unmistakable hard rejection, suited for critical errors, access denied, or blocked actions.",
+    "tags": ["Bold", "Rigid", "Ramp", "Extended"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.9, "frequency": 0.85 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.9 },
+          { "time": 100, "value": 0.85 },
+          { "time": 150, "value": 0.65 },
+          { "time": 250, "value": 0.3 },
+          { "time": 350, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.85 },
+          { "time": 350, "value": 0.8 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Cadence",
+    "description": "A natural two-beat rhythm with a subtle textural shift, suitable for double-tap confirmations.",
+    "tags": ["Bold", "Rigid", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 0.809, "frequency": 0.897 },
+        { "time": 199, "amplitude": 1, "frequency": 0.413 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "CameraShutter",
+    "description": "The satisfying click of capturing a moment, ideal for photo capture or scan confirmation.",
+    "tags": ["Substantial", "Rigid", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.6, "frequency": 0.75 },
+        { "time": 60, "amplitude": 0.8, "frequency": 0.7 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.6 },
+          { "time": 30, "value": 0.05 },
+          { "time": 60, "value": 0.8 },
+          { "time": 100, "value": 0.1 },
+          { "time": 150, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.78 },
+          { "time": 30, "value": 0.6 },
+          { "time": 60, "value": 0.72 },
+          { "time": 150, "value": 0.65 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Canter",
+    "description": "A three-beat rhythm with natural variation, suited for multi-step feedback where each step has character.",
+    "tags": ["Bold", "Soft", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 1, "frequency": 0.203 },
+        { "time": 77, "amplitude": 0.697, "frequency": 0.5 },
+        { "time": 173, "amplitude": 0.703, "frequency": 0.244 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Cascade",
+    "description": "A long sequence that unwinds from intensity to calm, ideal for complex multi-phase transitions or step-by-step completions.",
+    "tags": ["Substantial", "Flexible", "Impulses", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 0.994, "frequency": 0.994 },
+        { "time": 99, "amplitude": 0.997, "frequency": 0.997 },
+        { "time": 199, "amplitude": 0.997, "frequency": 0.997 },
+        { "time": 551, "amplitude": 0.8, "frequency": 0.8 },
+        { "time": 649, "amplitude": 0.803, "frequency": 0.803 },
+        { "time": 751, "amplitude": 0.797, "frequency": 0.797 },
+        { "time": 1118, "amplitude": 0.5, "frequency": 0.5 },
+        { "time": 1219, "amplitude": 0.491, "frequency": 0.491 },
+        { "time": 1318, "amplitude": 0.494, "frequency": 0.494 },
+        { "time": 1660, "amplitude": 0.497, "frequency": 0.213 },
+        { "time": 1762, "amplitude": 0.506, "frequency": 0.209 },
+        { "time": 1863, "amplitude": 0.488, "frequency": 0.213 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Castanets",
+    "description": "A crisp, decisive pair of sharp taps, ideal for double-confirmation or back-to-back interaction feedback.",
+    "tags": ["Bold", "Rigid", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 1, "frequency": 0.897 },
+        { "time": 199, "amplitude": 1, "frequency": 0.9 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "CatPaw",
+    "description": "A calm, warm pair of taps, ideal for gentle confirmations or soft paired acknowledgements.",
+    "tags": ["Substantial", "Soft", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 0.6, "frequency": 0.3 },
+        { "time": 75, "amplitude": 0.6, "frequency": 0.08 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Charge",
+    "description": "The electric buildup of a countdown, perfect for race starts or any go moment.",
+    "tags": ["Bold", "Rigid", "Pattern", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.65, "frequency": 0.62 },
+        { "time": 900, "amplitude": 0.85, "frequency": 0.68 },
+        { "time": 1600, "amplitude": 1, "frequency": 0.82 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.62 },
+          { "time": 100, "value": 0.35 },
+          { "time": 200, "value": 0 },
+          { "time": 900, "value": 0 },
+          { "time": 905, "value": 0.85 },
+          { "time": 980, "value": 0.5 },
+          { "time": 1100, "value": 0.35 },
+          { "time": 1250, "value": 0 },
+          { "time": 1600, "value": 0 },
+          { "time": 1603, "value": 1 },
+          { "time": 1770, "value": 1 },
+          { "time": 1873, "value": 0.334 },
+          { "time": 2046, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.62 },
+          { "time": 200, "value": 0.6 },
+          { "time": 900, "value": 0.68 },
+          { "time": 1250, "value": 0.65 },
+          { "time": 1600, "value": 0.82 },
+          { "time": 1680, "value": 0.7 },
+          { "time": 1860, "value": 0.6 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Chime",
+    "description": "A warm, friendly double-tap, ideal for incoming messages or chat notifications.",
+    "tags": ["Substantial", "Flexible", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.5, "frequency": 0.5 },
+        { "time": 180, "amplitude": 0.7, "frequency": 0.65 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.5 },
+          { "time": 70, "value": 0.08 },
+          { "time": 150, "value": 0 },
+          { "time": 180, "value": 0.7 },
+          { "time": 260, "value": 0.12 },
+          { "time": 380, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.48 },
+          { "time": 150, "value": 0.48 },
+          { "time": 180, "value": 0.65 },
+          { "time": 380, "value": 0.6 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Chip",
+    "description": "Sharp, authoritative, and precise, suited for confirmations that demand clarity and definition.",
+    "tags": ["Substantial", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.75, "frequency": 1 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Chirp",
+    "description": "Light-hearted and cheerful, ideal for positive micro-interactions or small wins.",
+    "tags": ["Gentle", "Flexible", "Saw", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.4, "frequency": 0.65 },
+        { "time": 150, "amplitude": 0.5, "frequency": 0.68 },
+        { "time": 280, "amplitude": 0.6, "frequency": 0.72 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 10, "value": 0.35 },
+          { "time": 80, "value": 0 },
+          { "time": 150, "value": 0.45 },
+          { "time": 230, "value": 0 },
+          { "time": 280, "value": 0.55 },
+          { "time": 360, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.6 },
+          { "time": 360, "value": 0.72 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Clamor",
+    "description": "Impossible to ignore, suited for critical warnings, emergency alerts, or safety-critical states.",
+    "tags": ["Bold", "Flexible", "Saw", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.8, "frequency": 0.68 },
+        { "time": 120, "amplitude": 0.8, "frequency": 0.68 },
+        { "time": 240, "amplitude": 0.8, "frequency": 0.68 },
+        { "time": 360, "amplitude": 0.8, "frequency": 0.68 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.78 },
+          { "time": 70, "value": 0 },
+          { "time": 120, "value": 0.78 },
+          { "time": 190, "value": 0 },
+          { "time": 240, "value": 0.78 },
+          { "time": 310, "value": 0 },
+          { "time": 360, "value": 0.78 },
+          { "time": 430, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.68 },
+          { "time": 430, "value": 0.68 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Clasp",
+    "description": "The satisfying snap of acquiring a target, ideal for lock-on, cursor snap-to, or radar acquisition.",
+    "tags": ["Bold", "Rigid", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.65, "frequency": 0.72 },
+        { "time": 80, "amplitude": 0.9, "frequency": 0.78 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.65 },
+          { "time": 45, "value": 0 },
+          { "time": 80, "value": 0.9 },
+          { "time": 130, "value": 0.3 },
+          { "time": 220, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.72 },
+          { "time": 80, "value": 0.78 },
+          { "time": 220, "value": 0.75 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Cleave",
+    "description": "Signals an irreversible, high-stakes action for deletes, removes, or anything the user cannot undo.",
+    "tags": ["Bold", "Rigid", "Impulses", "Bumps", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.85, "frequency": 0.8 },
+        { "time": 100, "amplitude": 0.7, "frequency": 0.78 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.85 },
+          { "time": 65, "value": 0 },
+          { "time": 100, "value": 0.7 },
+          { "time": 165, "value": 0.2 },
+          { "time": 250, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.8 },
+          { "time": 250, "value": 0.76 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Coil",
+    "description": "Rising tension that releases into certainty, ideal for long-press activation or charge-complete feedback.",
+    "tags": ["Substantial", "Flexible", "Peak", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.2, "frequency": 0.4 },
+        { "time": 600, "amplitude": 1, "frequency": 0.7 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 50, "value": 0.15 },
+          { "time": 200, "value": 0.2 },
+          { "time": 400, "value": 0.3 },
+          { "time": 570, "value": 0.4 },
+          { "time": 590, "value": 0 },
+          { "time": 600, "value": 1 },
+          { "time": 650, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.3 },
+          { "time": 570, "value": 0.5 },
+          { "time": 600, "value": 0.8 },
+          { "time": 650, "value": 0.8 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "CoinDrop",
+    "description": "A playful cascade of coins, ideal for reward moments, payment confirmations, or in-app purchases.",
+    "tags": ["Bold", "Rigid", "Saw", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.5, "frequency": 0.8 },
+        { "time": 120, "amplitude": 0.7, "frequency": 0.85 },
+        { "time": 210, "amplitude": 0.4, "frequency": 0.75 },
+        { "time": 300, "amplitude": 0.8, "frequency": 0.9 },
+        { "time": 380, "amplitude": 0.35, "frequency": 0.7 },
+        { "time": 460, "amplitude": 0.6, "frequency": 0.8 },
+        { "time": 520, "amplitude": 0.9, "frequency": 0.9 },
+        { "time": 590, "amplitude": 0.45, "frequency": 0.75 },
+        { "time": 650, "amplitude": 0.7, "frequency": 0.85 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.5 },
+          { "time": 35, "value": 0 },
+          { "time": 120, "value": 0.7 },
+          { "time": 145, "value": 0 },
+          { "time": 210, "value": 0.4 },
+          { "time": 230, "value": 0 },
+          { "time": 300, "value": 0.8 },
+          { "time": 325, "value": 0 },
+          { "time": 380, "value": 0.35 },
+          { "time": 397, "value": 0 },
+          { "time": 460, "value": 0.6 },
+          { "time": 480, "value": 0 },
+          { "time": 520, "value": 0.9 },
+          { "time": 550, "value": 0 },
+          { "time": 590, "value": 0.45 },
+          { "time": 608, "value": 0 },
+          { "time": 650, "value": 0.7 },
+          { "time": 675, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.8 },
+          { "time": 675, "value": 0.9 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "CombinationLock",
+    "description": "The ritual of cracking a code, ideal for combination inputs or multi-step secure unlocking.",
+    "tags": ["Bold", "Rigid", "Saw", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.62, "frequency": 0.75 },
+        { "time": 180, "amplitude": 0.6, "frequency": 0.75 },
+        { "time": 360, "amplitude": 0.63, "frequency": 0.75 },
+        { "time": 540, "amplitude": 0.6, "frequency": 0.75 },
+        { "time": 720, "amplitude": 0.62, "frequency": 0.75 },
+        { "time": 900, "amplitude": 0.9, "frequency": 0.72 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 4, "value": 0.62 },
+          { "time": 25, "value": 0 },
+          { "time": 180, "value": 0.6 },
+          { "time": 201, "value": 0 },
+          { "time": 360, "value": 0.63 },
+          { "time": 381, "value": 0 },
+          { "time": 540, "value": 0.6 },
+          { "time": 561, "value": 0 },
+          { "time": 720, "value": 0.62 },
+          { "time": 741, "value": 0 },
+          { "time": 900, "value": 0.9 },
+          { "time": 935, "value": 0.2 },
+          { "time": 980, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.75 },
+          { "time": 900, "value": 0.75 },
+          { "time": 980, "value": 0.7 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Crescendo",
+    "description": "A rising build that peaks with energy, ideal for charge-up moments or building anticipation.",
+    "tags": ["Substantial", "Rigid", "Impulses", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 0.303, "frequency": 0.303 },
+        { "time": 99, "amplitude": 0.397, "frequency": 0.397 },
+        { "time": 202, "amplitude": 0.506, "frequency": 0.506 },
+        { "time": 300, "amplitude": 0.609, "frequency": 0.609 },
+        { "time": 399, "amplitude": 0.703, "frequency": 0.703 },
+        { "time": 502, "amplitude": 0.809, "frequency": 0.809 },
+        { "time": 601, "amplitude": 0.981, "frequency": 0.981 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Dewdrop",
+    "description": "A quiet confirmation of success, ideal for operations that completed without needing attention.",
+    "tags": ["Substantial", "Flexible", "Bumps", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.4, "frequency": 0.52 },
+        { "time": 130, "amplitude": 0.6, "frequency": 0.65 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.4 },
+          { "time": 65, "value": 0 },
+          { "time": 130, "value": 0.6 },
+          { "time": 210, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.5 },
+          { "time": 130, "value": 0.65 },
+          { "time": 210, "value": 0.62 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Dirge",
+    "description": "Heavy and fading like a dying heartache, best for conveying grief, loss, or deep sorrow.",
+    "tags": ["Substantial", "Soft", "Pattern", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.45, "frequency": 0.15 },
+        { "time": 900, "amplitude": 0.4, "frequency": 0.13 },
+        { "time": 1900, "amplitude": 0.35, "frequency": 0.12 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 30, "value": 0.4 },
+          { "time": 300, "value": 0.2 },
+          { "time": 700, "value": 0 },
+          { "time": 900, "value": 0 },
+          { "time": 930, "value": 0.38 },
+          { "time": 1200, "value": 0.18 },
+          { "time": 1700, "value": 0 },
+          { "time": 1900, "value": 0 },
+          { "time": 1930, "value": 0.32 },
+          { "time": 2200, "value": 0.12 },
+          { "time": 2600, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.14 },
+          { "time": 2600, "value": 0.11 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Dissolve",
+    "description": "A gentle, soothing fade, ideal for calm relief after a mild challenge or successful low-stakes action.",
+    "tags": ["Gentle", "Soft", "Ramp", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.4, "frequency": 0.4 },
+        { "time": 400, "amplitude": 0.25, "frequency": 0.2 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 50, "value": 0.38 },
+          { "time": 300, "value": 0.28 },
+          { "time": 600, "value": 0.2 },
+          { "time": 900, "value": 0.12 },
+          { "time": 1200, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.38 },
+          { "time": 1200, "value": 0.18 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "DogBark",
+    "description": "Two forceful low bursts like a sharp bark, ideal for alert sounds or short punchy notification moments.",
+    "tags": ["Bold", "Soft", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.9, "frequency": 0.22 },
+        { "time": 280, "amplitude": 0.85, "frequency": 0.22 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.9 },
+          { "time": 50, "value": 0.65 },
+          { "time": 120, "value": 0.15 },
+          { "time": 200, "value": 0 },
+          { "time": 280, "value": 0.85 },
+          { "time": 325, "value": 0.6 },
+          { "time": 400, "value": 0.12 },
+          { "time": 500, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.2 },
+          { "time": 500, "value": 0.2 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Drone",
+    "description": "Flat and going nowhere, communicates idle waiting, disengagement, or nothing happening.",
+    "tags": ["Gentle", "Flexible", "Pattern", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.3, "frequency": 0.45 },
+        { "time": 500, "amplitude": 0.3, "frequency": 0.45 },
+        { "time": 1000, "amplitude": 0.3, "frequency": 0.45 },
+        { "time": 1500, "amplitude": 0.3, "frequency": 0.45 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 20, "value": 0.28 },
+          { "time": 180, "value": 0.28 },
+          { "time": 280, "value": 0 },
+          { "time": 500, "value": 0 },
+          { "time": 520, "value": 0.28 },
+          { "time": 680, "value": 0.28 },
+          { "time": 780, "value": 0 },
+          { "time": 1000, "value": 0 },
+          { "time": 1020, "value": 0.28 },
+          { "time": 1180, "value": 0.28 },
+          { "time": 1280, "value": 0 },
+          { "time": 1500, "value": 0 },
+          { "time": 1520, "value": 0.28 },
+          { "time": 1680, "value": 0.28 },
+          { "time": 1780, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.45 },
+          { "time": 1780, "value": 0.45 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "EngineRev",
+    "description": "The thrill of revving to full throttle, ideal for racing games or mechanical acceleration feedback.",
+    "tags": ["Bold", "Flexible", "Bumps", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 700, "amplitude": 0.8, "frequency": 0.4 },
+        { "time": 1400, "amplitude": 1, "frequency": 0.5 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0.15 },
+          { "time": 700, "value": 0.75 },
+          { "time": 710, "value": 0.2 },
+          { "time": 720, "value": 0.25 },
+          { "time": 1400, "value": 0.95 },
+          { "time": 1600, "value": 0.5 },
+          { "time": 1800, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.08 },
+          { "time": 700, "value": 0.45 },
+          { "time": 720, "value": 0.12 },
+          { "time": 1400, "value": 0.55 },
+          { "time": 1800, "value": 0.3 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Exhale",
+    "description": "Tension releasing into calm, ideal for completing a stressful task or resolving an error.",
+    "tags": ["Substantial", "Flexible", "Ramp", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.6, "frequency": 0.6 },
+        { "time": 150, "amplitude": 0.35, "frequency": 0.3 },
+        { "time": 500, "amplitude": 0.2, "frequency": 0.15 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 10, "value": 0.6 },
+          { "time": 100, "value": 0.4 },
+          { "time": 200, "value": 0.25 },
+          { "time": 500, "value": 0.2 },
+          { "time": 800, "value": 0.15 },
+          { "time": 1200, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.6 },
+          { "time": 200, "value": 0.28 },
+          { "time": 1200, "value": 0.15 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Explosion",
+    "description": "A catastrophic detonation that echoes into rumble, ideal for game destruction events or dramatic impacts.",
+    "tags": ["Bold", "Soft", "Ramp", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 1, "frequency": 0.4 },
+        { "time": 50, "amplitude": 0.8, "frequency": 0.328 },
+        { "time": 120, "amplitude": 0.722, "frequency": 0.256 },
+        { "time": 187, "amplitude": 0.594, "frequency": 0.138 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 1 },
+          { "time": 80, "value": 0.7 },
+          { "time": 200, "value": 0.5 },
+          { "time": 400, "value": 0.3 },
+          { "time": 700, "value": 0.1 },
+          { "time": 1000, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.2 },
+          { "time": 5, "value": 0.15 },
+          { "time": 1000, "value": 0.05 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "FadeOut",
+    "description": "A graceful drift toward silence, ideal for dismissals or transitions that should feel calm and natural.",
+    "tags": ["Substantial", "Flexible", "Impulses", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 1, "frequency": 1 },
+        { "time": 86, "amplitude": 0.8, "frequency": 0.8 },
+        { "time": 192, "amplitude": 0.603, "frequency": 0.603 },
+        { "time": 298, "amplitude": 0.406, "frequency": 0.406 },
+        { "time": 408, "amplitude": 0.291, "frequency": 0.209 },
+        { "time": 506, "amplitude": 0.297, "frequency": 0.075 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Fanfare",
+    "description": "A short burst of triumph, ideal for achievement unlocked, rank-ups, or moments that deserve a cheer.",
+    "tags": ["Bold", "Rigid", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.6, "frequency": 0.4 },
+        { "time": 130, "amplitude": 0.7, "frequency": 0.55 },
+        { "time": 250, "amplitude": 0.8, "frequency": 0.65 },
+        { "time": 360, "amplitude": 1, "frequency": 0.8 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.6 },
+          { "time": 80, "value": 0 },
+          { "time": 130, "value": 0.7 },
+          { "time": 200, "value": 0 },
+          { "time": 250, "value": 0.8 },
+          { "time": 315, "value": 0 },
+          { "time": 360, "value": 1 },
+          { "time": 460, "value": 0.5 },
+          { "time": 580, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.38 },
+          { "time": 130, "value": 0.52 },
+          { "time": 250, "value": 0.62 },
+          { "time": 360, "value": 0.78 },
+          { "time": 580, "value": 0.82 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Feather",
+    "description": "A gentle, non-disruptive nudge, ideal for low-priority reminders.",
+    "tags": ["Substantial", "Flexible", "Ramp", "Short"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.45, "frequency": 0.45 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 10, "value": 0.45 },
+          { "time": 70, "value": 0.15 },
+          { "time": 180, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.42 },
+          { "time": 180, "value": 0.38 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Finale",
+    "description": "A countdown that closes with emphasis, ideal for timer completions or countdown-finished alerts.",
+    "tags": ["Bold", "Flexible", "Bumps", "Long"],
+    "pattern": {
+      "discretePattern": [{ "time": 400, "amplitude": 0.9, "frequency": 0.65 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.7 },
+          { "time": 75, "value": 0 },
+          { "time": 200, "value": 0.7 },
+          { "time": 275, "value": 0 },
+          { "time": 400, "value": 0.9 },
+          { "time": 520, "value": 0.3 },
+          { "time": 680, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.55 },
+          { "time": 400, "value": 0.65 },
+          { "time": 680, "value": 0.6 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "FingerDrum",
+    "description": "Three casual, even taps, ideal for low-key acknowledgements or non-urgent rhythm patterns.",
+    "tags": ["Substantial", "Flexible", "Impulses", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.591, "frequency": 0.591 },
+        { "time": 100, "amplitude": 0.588, "frequency": 0.588 },
+        { "time": 231, "amplitude": 0.6, "frequency": 0.328 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Firecracker",
+    "description": "Two maximum-force strikes demanding immediate response, suited for urgent double-confirmations or critical alerts.",
+    "tags": ["Bold", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 1, "frequency": 1 },
+        { "time": 75, "amplitude": 1, "frequency": 1 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Fizz",
+    "description": "Bubbling with joy, ideal for success celebrations or upbeat positive feedback.",
+    "tags": ["Substantial", "Rigid", "Saw", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.5, "frequency": 0.65 },
+        { "time": 120, "amplitude": 0.6, "frequency": 0.7 },
+        { "time": 230, "amplitude": 0.7, "frequency": 0.73 },
+        { "time": 330, "amplitude": 0.75, "frequency": 0.75 },
+        { "time": 420, "amplitude": 0.65, "frequency": 0.7 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.5 },
+          { "time": 60, "value": 0.15 },
+          { "time": 120, "value": 0.6 },
+          { "time": 178, "value": 0.1 },
+          { "time": 230, "value": 0.7 },
+          { "time": 290, "value": 0.15 },
+          { "time": 330, "value": 0.75 },
+          { "time": 390, "value": 0.2 },
+          { "time": 420, "value": 0.65 },
+          { "time": 500, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.62 },
+          { "time": 420, "value": 0.72 },
+          { "time": 500, "value": 0.68 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Flare",
+    "description": "A mind-blowing jolt, ideal for overwhelming surprise or impossible-to-believe reveals.",
+    "tags": ["Bold", "Rigid", "Peak", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.2, "frequency": 0.7 },
+        { "time": 60, "amplitude": 0.55, "frequency": 0.8 },
+        { "time": 100, "amplitude": 1, "frequency": 0.9 },
+        { "time": 140, "amplitude": 0.7, "frequency": 0.85 },
+        { "time": 200, "amplitude": 0.4, "frequency": 0.75 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 20, "value": 0.18 },
+          { "time": 60, "value": 0.52 },
+          { "time": 90, "value": 0.95 },
+          { "time": 100, "value": 1 },
+          { "time": 120, "value": 0.75 },
+          { "time": 140, "value": 0.65 },
+          { "time": 200, "value": 0.35 },
+          { "time": 380, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.7 },
+          { "time": 60, "value": 0.82 },
+          { "time": 100, "value": 0.92 },
+          { "time": 200, "value": 0.75 },
+          { "time": 380, "value": 0.6 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Flick",
+    "description": "A light, quick tap with minimal presence, ideal for chips, tags, and filters.",
+    "tags": ["Gentle", "Flexible", "Peak", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.42, "frequency": 0.5 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 6, "value": 0.4 },
+          { "time": 45, "value": 0.05 },
+          { "time": 80, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.5 },
+          { "time": 80, "value": 0.5 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Flinch",
+    "description": "A shock to the senses, ideal for unexpected alerts or startling reveals.",
+    "tags": ["Bold", "Flexible", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.9, "frequency": 0.75 },
+        { "time": 120, "amplitude": 0.75, "frequency": 0.7 },
+        { "time": 200, "amplitude": 0.4, "frequency": 0.58 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 4, "value": 0.95 },
+          { "time": 60, "value": 0.3 },
+          { "time": 120, "value": 0.8 },
+          { "time": 170, "value": 0.4 },
+          { "time": 280, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.73 },
+          { "time": 120, "value": 0.68 },
+          { "time": 280, "value": 0.55 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Flourish",
+    "description": "Triumphant and expansive, ideal for achievement unlocked or major task completions.",
+    "tags": ["Bold", "Rigid", "Peak", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.25, "frequency": 0.45 },
+        { "time": 200, "amplitude": 0.7, "frequency": 0.65 },
+        { "time": 380, "amplitude": 0.95, "frequency": 0.78 },
+        { "time": 500, "amplitude": 0.6, "frequency": 0.62 },
+        { "time": 584, "amplitude": 0.628, "frequency": 0.628 },
+        { "time": 682, "amplitude": 0.6, "frequency": 0.6 },
+        { "time": 754, "amplitude": 0.456, "frequency": 0.456 },
+        { "time": 827, "amplitude": 0.303, "frequency": 0.303 },
+        { "time": 917, "amplitude": 0.2, "frequency": 0.2 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 50, "value": 0.2 },
+          { "time": 200, "value": 0.65 },
+          { "time": 380, "value": 0.95 },
+          { "time": 480, "value": 0.5 },
+          { "time": 650, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.43 },
+          { "time": 380, "value": 0.78 },
+          { "time": 650, "value": 0.65 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Flurry",
+    "description": "The thrill of a combo streak, ideal for hit combos, chain multipliers, or rapid-fire scoring.",
+    "tags": ["Bold", "Rigid", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.5, "frequency": 0.55 },
+        { "time": 60, "amplitude": 0.6, "frequency": 0.6 },
+        { "time": 115, "amplitude": 0.7, "frequency": 0.65 },
+        { "time": 165, "amplitude": 0.85, "frequency": 0.7 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.45 },
+          { "time": 40, "value": 0 },
+          { "time": 60, "value": 0.55 },
+          { "time": 95, "value": 0 },
+          { "time": 115, "value": 0.65 },
+          { "time": 148, "value": 0 },
+          { "time": 165, "value": 0.82 },
+          { "time": 240, "value": 0.1 },
+          { "time": 300, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.55 },
+          { "time": 165, "value": 0.72 },
+          { "time": 300, "value": 0.7 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Flush",
+    "description": "The involuntary heave of disgust, ideal for aversion reactions or gross-out moments in playful UI contexts.",
+    "tags": ["Bold", "Flexible", "Peak", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.25, "frequency": 0.3 },
+        { "time": 100, "amplitude": 0.5, "frequency": 0.35 },
+        { "time": 150, "amplitude": 0.8, "frequency": 0.3 },
+        { "time": 200, "amplitude": 0.55, "frequency": 0.25 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 30, "value": 0.22 },
+          { "time": 80, "value": 0.45 },
+          { "time": 100, "value": 0.78 },
+          { "time": 140, "value": 0.52 },
+          { "time": 200, "value": 0.2 },
+          { "time": 380, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.3 },
+          { "time": 100, "value": 0.35 },
+          { "time": 150, "value": 0.28 },
+          { "time": 380, "value": 0.22 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Gallop",
+    "description": "A natural four-beat rhythm, suited for multi-step processes or organic rhythmic feedback.",
+    "tags": ["Bold", "Flexible", "Impulses", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 10, "amplitude": 1, "frequency": 0.603 },
+        { "time": 155, "amplitude": 1, "frequency": 0.163 },
+        { "time": 601, "amplitude": 0.997, "frequency": 0.609 },
+        { "time": 750, "amplitude": 1, "frequency": 0.153 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Gavel",
+    "description": "Two weighty, deliberate taps, suited for decisive double-step actions or bold acknowledgement feedback.",
+    "tags": ["Bold", "Flexible", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 10, "amplitude": 1, "frequency": 0.106 },
+        { "time": 201, "amplitude": 1, "frequency": 0.609 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Glitch",
+    "description": "The haptic feel of a system glitching, ideal for data corruption, errors, or intentional glitch aesthetics.",
+    "tags": ["Bold", "Rigid", "Pattern", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.9, "frequency": 0.9 },
+        { "time": 30, "amplitude": 0.2, "frequency": 0.3 },
+        { "time": 55, "amplitude": 1, "frequency": 0.95 },
+        { "time": 70, "amplitude": 0.1, "frequency": 0.2 },
+        { "time": 100, "amplitude": 0.85, "frequency": 0.85 },
+        { "time": 130, "amplitude": 0.05, "frequency": 0.1 },
+        { "time": 160, "amplitude": 0.95, "frequency": 0.9 },
+        { "time": 185, "amplitude": 0.3, "frequency": 0.4 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0.9 },
+          { "time": 20, "value": 0.1 },
+          { "time": 55, "value": 1 },
+          { "time": 65, "value": 0 },
+          { "time": 100, "value": 0.85 },
+          { "time": 118, "value": 0 },
+          { "time": 160, "value": 0.95 },
+          { "time": 175, "value": 0.15 },
+          { "time": 220, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.9 },
+          { "time": 20, "value": 0.2 },
+          { "time": 55, "value": 1 },
+          { "time": 65, "value": 0.1 },
+          { "time": 100, "value": 0.88 },
+          { "time": 118, "value": 0.15 },
+          { "time": 160, "value": 0.92 },
+          { "time": 220, "value": 0.3 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "GuitarStrum",
+    "description": "A rich, resonant strike that lingers, ideal for musical interactions or warm confirmation moments.",
+    "tags": ["Bold", "Flexible", "Ramp", "Long"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.9, "frequency": 0.55 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.9 },
+          { "time": 60, "value": 0.65 },
+          { "time": 200, "value": 0.45 },
+          { "time": 450, "value": 0.28 },
+          { "time": 750, "value": 0.14 },
+          { "time": 1100, "value": 0.05 },
+          { "time": 1400, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.58 },
+          { "time": 5, "value": 0.55 },
+          { "time": 1400, "value": 0.52 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Hail",
+    "description": "An unpredictable, relentless barrage, ideal for weather events or disorienting overload feedback.",
+    "tags": ["Gentle", "Rigid", "Solid", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.6, "frequency": 0.7 },
+        { "time": 40, "amplitude": 0.8, "frequency": 0.75 },
+        { "time": 75, "amplitude": 0.4, "frequency": 0.65 },
+        { "time": 100, "amplitude": 0.9, "frequency": 0.8 },
+        { "time": 130, "amplitude": 0.5, "frequency": 0.7 },
+        { "time": 165, "amplitude": 0.7, "frequency": 0.75 },
+        { "time": 190, "amplitude": 1, "frequency": 0.85 },
+        { "time": 225, "amplitude": 0.45, "frequency": 0.65 },
+        { "time": 255, "amplitude": 0.8, "frequency": 0.78 },
+        { "time": 285, "amplitude": 0.6, "frequency": 0.7 },
+        { "time": 310, "amplitude": 0.9, "frequency": 0.82 },
+        { "time": 345, "amplitude": 0.5, "frequency": 0.68 },
+        { "time": 370, "amplitude": 0.7, "frequency": 0.74 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 10, "value": 0.3 },
+          { "time": 400, "value": 0.3 },
+          { "time": 430, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.7 },
+          { "time": 430, "value": 0.7 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Hammer",
+    "description": "The insistent urgency of a fist on a door, ideal for forceful alerts or escalating persistent notifications.",
+    "tags": ["Bold", "Soft", "Saw", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.75, "frequency": 0.3 },
+        { "time": 220, "amplitude": 0.8, "frequency": 0.32 },
+        { "time": 420, "amplitude": 0.88, "frequency": 0.3 },
+        { "time": 590, "amplitude": 0.92, "frequency": 0.32 },
+        { "time": 740, "amplitude": 1, "frequency": 0.3 },
+        { "time": 870, "amplitude": 1, "frequency": 0.3 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.75 },
+          { "time": 90, "value": 0.05 },
+          { "time": 180, "value": 0 },
+          { "time": 220, "value": 0.8 },
+          { "time": 310, "value": 0.05 },
+          { "time": 380, "value": 0 },
+          { "time": 420, "value": 0.88 },
+          { "time": 508, "value": 0.05 },
+          { "time": 550, "value": 0 },
+          { "time": 590, "value": 0.92 },
+          { "time": 678, "value": 0.05 },
+          { "time": 710, "value": 0 },
+          { "time": 740, "value": 1 },
+          { "time": 816, "value": 0.05 },
+          { "time": 840, "value": 0 },
+          { "time": 870, "value": 1 },
+          { "time": 950, "value": 0.05 },
+          { "time": 1050, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.28 },
+          { "time": 1050, "value": 0.28 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Heartbeat",
+    "description": "The familiar lub-dub of life and tension, perfect for health apps or anxious waiting moments.",
+    "tags": ["Substantial", "Soft", "Pattern", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.9, "frequency": 0.2 },
+        { "time": 120, "amplitude": 0.6, "frequency": 0.2 },
+        { "time": 800, "amplitude": 0.9, "frequency": 0.2 },
+        { "time": 920, "amplitude": 0.6, "frequency": 0.2 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 10, "value": 0.8 },
+          { "time": 80, "value": 0 },
+          { "time": 120, "value": 0.5 },
+          { "time": 200, "value": 0 },
+          { "time": 800, "value": 0 },
+          { "time": 810, "value": 0.8 },
+          { "time": 880, "value": 0 },
+          { "time": 920, "value": 0.5 },
+          { "time": 1000, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.2 },
+          { "time": 1000, "value": 0.2 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Herald",
+    "description": "Two gentle knocks building to a decisive third, ideal for staged confirmations with a clear conclusion.",
+    "tags": ["Substantial", "Rigid", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.497, "frequency": 0.497 },
+        { "time": 89, "amplitude": 0.497, "frequency": 0.497 },
+        { "time": 208, "amplitude": 1, "frequency": 1 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "HoofBeat",
+    "description": "Two warm, grounded taps, ideal for mellow double confirmations or soft paired feedback.",
+    "tags": ["Bold", "Soft", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 10, "amplitude": 1, "frequency": 0.106 },
+        { "time": 201, "amplitude": 1, "frequency": 0.109 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Ignition",
+    "description": "Three beats that sharpen with each hit, ideal for staged confirmations or escalating emphasis.",
+    "tags": ["Bold", "Flexible", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 1, "frequency": 0.203 },
+        { "time": 77, "amplitude": 0.697, "frequency": 0.5 },
+        { "time": 173, "amplitude": 1, "frequency": 0.703 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Impact",
+    "description": "The instant punch of impact, perfect for collision events or taking a hit in games.",
+    "tags": ["Bold", "Flexible", "Peak", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.9, "frequency": 0.6 },
+        { "time": 80, "amplitude": 0.5, "frequency": 0.5 },
+        { "time": 150, "amplitude": 0.25, "frequency": 0.4 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.85 },
+          { "time": 60, "value": 0.35 },
+          { "time": 120, "value": 0.15 },
+          { "time": 200, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.6 },
+          { "time": 200, "value": 0.35 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Jolt",
+    "description": "The most intense hit possible, suited for critical alerts or any moment that demands absolute impact.",
+    "tags": ["Bold", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 1, "frequency": 1 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "KeyboardMechanical",
+    "description": "The satisfying two-stage snap of a mechanical key, great for precision typing or keyboard simulations.",
+    "tags": ["Gentle", "Flexible", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.55, "frequency": 0.68 },
+        { "time": 22, "amplitude": 0.72, "frequency": 0.74 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 4, "value": 0.52 },
+          { "time": 18, "value": 0.2 },
+          { "time": 22, "value": 0.7 },
+          { "time": 38, "value": 0.15 },
+          { "time": 55, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.68 },
+          { "time": 22, "value": 0.76 },
+          { "time": 55, "value": 0.7 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "KeyboardMembrane",
+    "description": "A soft, muffled press, best for simulating the quiet feel of a membrane keyboard.",
+    "tags": ["Gentle", "Soft", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.35, "frequency": 0.38 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 12, "value": 0.33 },
+          { "time": 50, "value": 0.18 },
+          { "time": 100, "value": 0.06 },
+          { "time": 140, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.38 },
+          { "time": 140, "value": 0.35 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Knell",
+    "description": "A commanding last-chance signal, ideal for final reminders or deadline-critical alerts.",
+    "tags": ["Bold", "Flexible", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.9, "frequency": 0.58 },
+        { "time": 350, "amplitude": 0.5, "frequency": 0.5 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.9 },
+          { "time": 200, "value": 0.5 },
+          { "time": 300, "value": 0.1 },
+          { "time": 350, "value": 0.5 },
+          { "time": 430, "value": 0.1 },
+          { "time": 550, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.58 },
+          { "time": 300, "value": 0.52 },
+          { "time": 550, "value": 0.48 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Knock",
+    "description": "A polite knock announcing arrival, ideal for gentle attention requests or non-urgent presence alerts.",
+    "tags": ["Substantial", "Soft", "Bumps", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.65, "frequency": 0.35 },
+        { "time": 280, "amplitude": 0.65, "frequency": 0.35 },
+        { "time": 560, "amplitude": 0.65, "frequency": 0.35 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.65 },
+          { "time": 70, "value": 0.08 },
+          { "time": 200, "value": 0 },
+          { "time": 280, "value": 0.65 },
+          { "time": 348, "value": 0.08 },
+          { "time": 480, "value": 0 },
+          { "time": 560, "value": 0.65 },
+          { "time": 628, "value": 0.08 },
+          { "time": 760, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.32 },
+          { "time": 760, "value": 0.32 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Lament",
+    "description": "The sinking finality of defeat, captures the deflating feeling of a game-over moment.",
+    "tags": ["Bold", "Flexible", "Pattern", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.85, "frequency": 0.55 },
+        { "time": 350, "amplitude": 0.7, "frequency": 0.42 },
+        { "time": 700, "amplitude": 0.55, "frequency": 0.37 },
+        { "time": 1050, "amplitude": 0.75, "frequency": 0.3 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.85 },
+          { "time": 190, "value": 0.3 },
+          { "time": 295, "value": 0 },
+          { "time": 355, "value": 0.7 },
+          { "time": 535, "value": 0.25 },
+          { "time": 645, "value": 0 },
+          { "time": 705, "value": 0.55 },
+          { "time": 880, "value": 0.18 },
+          { "time": 995, "value": 0 },
+          { "time": 1055, "value": 0.75 },
+          { "time": 1620, "value": 0.35 },
+          { "time": 2150, "value": 0.1 },
+          { "time": 2450, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.55 },
+          { "time": 350, "value": 0.42 },
+          { "time": 700, "value": 0.37 },
+          { "time": 1050, "value": 0.3 },
+          { "time": 2450, "value": 0.26 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Latch",
+    "description": "The clear feel of something switching off, communicates deactivation or opting out.",
+    "tags": ["Substantial", "Flexible", "Bumps", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.75, "frequency": 0.68 },
+        { "time": 100, "amplitude": 0.4, "frequency": 0.45 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.72 },
+          { "time": 60, "value": 0.15 },
+          { "time": 100, "value": 0.38 },
+          { "time": 170, "value": 0.08 },
+          { "time": 230, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.68 },
+          { "time": 100, "value": 0.45 },
+          { "time": 230, "value": 0.42 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Lighthouse",
+    "description": "Steady and bias-free, suitable for neutral status updates or steady-state notifications.",
+    "tags": ["Substantial", "Flexible", "Pattern", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.45, "frequency": 0.5 },
+        { "time": 400, "amplitude": 0.45, "frequency": 0.5 },
+        { "time": 800, "amplitude": 0.45, "frequency": 0.5 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 15, "value": 0.4 },
+          { "time": 150, "value": 0.4 },
+          { "time": 250, "value": 0 },
+          { "time": 400, "value": 0 },
+          { "time": 415, "value": 0.4 },
+          { "time": 550, "value": 0.4 },
+          { "time": 650, "value": 0 },
+          { "time": 800, "value": 0 },
+          { "time": 815, "value": 0.4 },
+          { "time": 950, "value": 0.4 },
+          { "time": 1050, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.5 },
+          { "time": 1050, "value": 0.5 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Lilt",
+    "description": "Warm and personal, ideal for direct messages or social notifications from people you know.",
+    "tags": ["Substantial", "Flexible", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.45, "frequency": 0.52 },
+        { "time": 160, "amplitude": 0.65, "frequency": 0.65 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.45 },
+          { "time": 72, "value": 0 },
+          { "time": 160, "value": 0.65 },
+          { "time": 240, "value": 0.12 },
+          { "time": 360, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.5 },
+          { "time": 160, "value": 0.65 },
+          { "time": 360, "value": 0.6 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Lock",
+    "description": "The satisfying click of locking into place, ideal for locking, latching, or secure-confirmation interactions.",
+    "tags": ["Substantial", "Flexible", "Bumps", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.3, "frequency": 0.5 },
+        { "time": 150, "amplitude": 0.9, "frequency": 0.7 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 10, "value": 0.25 },
+          { "time": 100, "value": 0.15 },
+          { "time": 140, "value": 0 },
+          { "time": 150, "value": 0.9 },
+          { "time": 175, "value": 0.2 },
+          { "time": 220, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.4 },
+          { "time": 140, "value": 0.5 },
+          { "time": 150, "value": 0.75 },
+          { "time": 220, "value": 0.6 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Lope",
+    "description": "A galloping bounce with swagger, ideal for adventurous or playful UI moments.",
+    "tags": ["Substantial", "Rigid", "Pattern", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.7, "frequency": 0.72 },
+        { "time": 80, "amplitude": 0.45, "frequency": 0.65 },
+        { "time": 160, "amplitude": 0.7, "frequency": 0.72 },
+        { "time": 240, "amplitude": 0.45, "frequency": 0.65 },
+        { "time": 320, "amplitude": 0.75, "frequency": 0.75 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 6, "value": 0.68 },
+          { "time": 60, "value": 0.15 },
+          { "time": 80, "value": 0.43 },
+          { "time": 140, "value": 0.12 },
+          { "time": 160, "value": 0.68 },
+          { "time": 220, "value": 0.15 },
+          { "time": 240, "value": 0.43 },
+          { "time": 300, "value": 0.12 },
+          { "time": 320, "value": 0.73 },
+          { "time": 450, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.72 },
+          { "time": 450, "value": 0.7 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "March",
+    "description": "Like an encouraging pat on the back, ideal for motivational confirmations or achievement feedback.",
+    "tags": ["Substantial", "Soft", "Bumps", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.65, "frequency": 0.28 },
+        { "time": 300, "amplitude": 0.7, "frequency": 0.28 },
+        { "time": 600, "amplitude": 0.65, "frequency": 0.28 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 15, "value": 0.6 },
+          { "time": 150, "value": 0.45 },
+          { "time": 250, "value": 0 },
+          { "time": 300, "value": 0 },
+          { "time": 315, "value": 0.65 },
+          { "time": 450, "value": 0.5 },
+          { "time": 550, "value": 0 },
+          { "time": 600, "value": 0 },
+          { "time": 615, "value": 0.6 },
+          { "time": 750, "value": 0.4 },
+          { "time": 900, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.25 },
+          { "time": 900, "value": 0.25 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Metronome",
+    "description": "Balanced and unemotional, ideal for neutral confirmations, pagination steps, or generic two-step feedback.",
+    "tags": ["Substantial", "Flexible", "Impulses", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.5, "frequency": 0.5 },
+        { "time": 200, "amplitude": 0.5, "frequency": 0.5 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.45 },
+          { "time": 80, "value": 0 },
+          { "time": 200, "value": 0 },
+          { "time": 208, "value": 0.45 },
+          { "time": 280, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.5 },
+          { "time": 280, "value": 0.5 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Murmur",
+    "description": "Two soft, quiet taps, ideal for subtle double-step interactions or unobtrusive confirmations.",
+    "tags": ["Substantial", "Soft", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.6, "frequency": 0.303 },
+        { "time": 80, "amplitude": 0.6, "frequency": 0.3 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Nudge",
+    "description": "A polite, unobtrusive double tap that announces a notification without being intrusive.",
+    "tags": ["Substantial", "Flexible", "Bumps", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.6, "frequency": 0.5 },
+        { "time": 120, "amplitude": 0.4, "frequency": 0.5 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 10, "value": 0.6 },
+          { "time": 60, "value": 0 },
+          { "time": 120, "value": 0.4 },
+          { "time": 180, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.5 },
+          { "time": 180, "value": 0.5 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "PassingCar",
+    "description": "The whoosh of something passing at speed, ideal for vehicle pass-by or motion-blur effects.",
+    "tags": ["Bold", "Flexible", "Peak", "Long"],
+    "pattern": {
+      "discretePattern": [],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 80, "value": 0.1 },
+          { "time": 200, "value": 0.35 },
+          { "time": 350, "value": 0.75 },
+          { "time": 450, "value": 1 },
+          { "time": 550, "value": 0.7 },
+          { "time": 700, "value": 0.3 },
+          { "time": 900, "value": 0.08 },
+          { "time": 1100, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.35 },
+          { "time": 200, "value": 0.42 },
+          { "time": 450, "value": 0.38 },
+          { "time": 700, "value": 0.3 },
+          { "time": 1100, "value": 0.22 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Patter",
+    "description": "Three mild, unforced taps, ideal for low-key acknowledgements or non-urgent triple feedback.",
+    "tags": ["Substantial", "Soft", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.603, "frequency": 0.2 },
+        { "time": 82, "amplitude": 0.606, "frequency": 0.197 },
+        { "time": 179, "amplitude": 0.609, "frequency": 0.594 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Peal",
+    "description": "Firm and measured, conveys that something needs attention soon without triggering panic.",
+    "tags": ["Bold", "Flexible", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.75, "frequency": 0.62 },
+        { "time": 180, "amplitude": 0.75, "frequency": 0.62 },
+        { "time": 360, "amplitude": 0.75, "frequency": 0.62 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.75 },
+          { "time": 80, "value": 0 },
+          { "time": 180, "value": 0.75 },
+          { "time": 258, "value": 0 },
+          { "time": 360, "value": 0.75 },
+          { "time": 438, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.62 },
+          { "time": 438, "value": 0.62 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Peck",
+    "description": "An ultra-short, precise tap, perfect for small icon buttons.",
+    "tags": ["Gentle", "Flexible", "Peak", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.55, "frequency": 0.58 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 4, "value": 0.55 },
+          { "time": 28, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.58 },
+          { "time": 28, "value": 0.56 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Pendulum",
+    "description": "A rhythmic swing that gradually settles, ideal for winding-down moments or calm settling effects.",
+    "tags": ["Substantial", "Flexible", "Bumps", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 300, "amplitude": 0.12, "frequency": 0.35 },
+        { "time": 900, "amplitude": 0.08, "frequency": 0.35 },
+        { "time": 1500, "amplitude": 0.05, "frequency": 0.35 },
+        { "time": 2100, "amplitude": 0.02, "frequency": 0.35 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0.7 },
+          { "time": 300, "value": 0.08 },
+          { "time": 600, "value": 0.5 },
+          { "time": 900, "value": 0.05 },
+          { "time": 1200, "value": 0.3 },
+          { "time": 1500, "value": 0.03 },
+          { "time": 1800, "value": 0.15 },
+          { "time": 2100, "value": 0.01 },
+          { "time": 2400, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.42 },
+          { "time": 2400, "value": 0.38 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Ping",
+    "description": "A precise, definitive click, ideal for list selections or any interaction where clarity of choice matters.",
+    "tags": ["Substantial", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.65, "frequency": 0.72 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 4, "value": 0.65 },
+          { "time": 35, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.72 },
+          { "time": 35, "value": 0.68 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Pip",
+    "description": "A light, sparkling burst, ideal for in-game collectibles or power-up feedback.",
+    "tags": ["Gentle", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.35, "frequency": 0.65 },
+        { "time": 60, "amplitude": 0.25, "frequency": 0.7 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.32 },
+          { "time": 40, "value": 0 },
+          { "time": 60, "value": 0.22 },
+          { "time": 100, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.65 },
+          { "time": 100, "value": 0.7 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Piston",
+    "description": "Two forceful, immediate strikes, ideal for commanding double-confirmations or high-energy paired actions.",
+    "tags": ["Bold", "Flexible", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 1, "frequency": 0.397 },
+        { "time": 73, "amplitude": 1, "frequency": 0.397 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Plink",
+    "description": "A neutral heads-up suited as a baseline for informational notifications.",
+    "tags": ["Substantial", "Flexible", "Bumps", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.55, "frequency": 0.52 },
+        { "time": 150, "amplitude": 0.55, "frequency": 0.52 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.55 },
+          { "time": 65, "value": 0 },
+          { "time": 150, "value": 0.55 },
+          { "time": 215, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.52 },
+          { "time": 215, "value": 0.52 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Plummet",
+    "description": "The terrifying pause before impact, ideal for drop effects or dramatic collision moments.",
+    "tags": ["Bold", "Soft", "Peak", "Long"],
+    "pattern": {
+      "discretePattern": [{ "time": 900, "amplitude": 1, "frequency": 0.4 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 300, "value": 0.02 },
+          { "time": 600, "value": 0.06 },
+          { "time": 800, "value": 0.15 },
+          { "time": 880, "value": 0.3 },
+          { "time": 895, "value": 0.5 },
+          { "time": 900, "value": 0 },
+          { "time": 905, "value": 1 },
+          { "time": 960, "value": 0.4 },
+          { "time": 1050, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.3 },
+          { "time": 895, "value": 0.4 },
+          { "time": 905, "value": 0.3 },
+          { "time": 1050, "value": 0.25 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Plunk",
+    "description": "Understated but present, suitable for subdued feedback that still has noticeable weight.",
+    "tags": ["Substantial", "Soft", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.5, "frequency": 0.2 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Poke",
+    "description": "Someone specifically called your name, ideal for mentions, tags, or direct-attention notifications.",
+    "tags": ["Substantial", "Flexible", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.6, "frequency": 0.6 },
+        { "time": 100, "amplitude": 0.6, "frequency": 0.6 },
+        { "time": 200, "amplitude": 0.7, "frequency": 0.65 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.6 },
+          { "time": 62, "value": 0 },
+          { "time": 100, "value": 0.6 },
+          { "time": 162, "value": 0 },
+          { "time": 200, "value": 0.7 },
+          { "time": 280, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.6 },
+          { "time": 200, "value": 0.65 },
+          { "time": 280, "value": 0.63 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Pound",
+    "description": "Impossible to ignore, ideal for critical alerts or notifications that cannot wait.",
+    "tags": ["Bold", "Rigid", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.95, "frequency": 0.7 },
+        { "time": 100, "amplitude": 0.95, "frequency": 0.7 },
+        { "time": 200, "amplitude": 0.95, "frequency": 0.7 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.95 },
+          { "time": 65, "value": 0 },
+          { "time": 100, "value": 0.95 },
+          { "time": 165, "value": 0 },
+          { "time": 200, "value": 0.95 },
+          { "time": 265, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.72 },
+          { "time": 265, "value": 0.72 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "PowerDown",
+    "description": "A steady deceleration to silence, communicates shutdown, power-off, or deactivation.",
+    "tags": ["Bold", "Flexible", "Ramp", "Long"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.8, "frequency": 0.6 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0.8 },
+          { "time": 200, "value": 0.7 },
+          { "time": 450, "value": 0.55 },
+          { "time": 750, "value": 0.4 },
+          { "time": 1050, "value": 0.25 },
+          { "time": 1350, "value": 0.12 },
+          { "time": 1600, "value": 0.03 },
+          { "time": 1800, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.6 },
+          { "time": 1800, "value": 0.03 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Propel",
+    "description": "A confident forward push communicating that a form or action has been decisively submitted.",
+    "tags": ["Bold", "Flexible", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.6, "frequency": 0.58 },
+        { "time": 120, "amplitude": 0.9, "frequency": 0.72 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.55 },
+          { "time": 70, "value": 0.2 },
+          { "time": 120, "value": 0.88 },
+          { "time": 200, "value": 0.2 },
+          { "time": 300, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.56 },
+          { "time": 120, "value": 0.72 },
+          { "time": 300, "value": 0.65 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Pulse",
+    "description": "A gentle, steady pulse that quietly signals ongoing activity without demanding attention.",
+    "tags": ["Gentle", "Flexible", "Bumps", "Long"],
+    "pattern": {
+      "discretePattern": [],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 300, "value": 0.3 },
+          { "time": 700, "value": 0.3 },
+          { "time": 1000, "value": 0 },
+          { "time": 1300, "value": 0.3 },
+          { "time": 1700, "value": 0.3 },
+          { "time": 2000, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.4 },
+          { "time": 2000, "value": 0.4 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Pummel",
+    "description": "Escalating rage that peaks at full force, suited for blocked actions, critical failures, or frustrated moments.",
+    "tags": ["Bold", "Rigid", "Saw", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.9, "frequency": 0.85 },
+        { "time": 70, "amplitude": 0.75, "frequency": 0.82 },
+        { "time": 130, "amplitude": 0.95, "frequency": 0.87 },
+        { "time": 190, "amplitude": 0.8, "frequency": 0.83 },
+        { "time": 250, "amplitude": 1, "frequency": 0.88 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 4, "value": 0.9 },
+          { "time": 45, "value": 0.6 },
+          { "time": 70, "value": 0.78 },
+          { "time": 100, "value": 0.55 },
+          { "time": 130, "value": 0.92 },
+          { "time": 165, "value": 0.65 },
+          { "time": 190, "value": 0.82 },
+          { "time": 230, "value": 0.7 },
+          { "time": 250, "value": 1 },
+          { "time": 320, "value": 0.4 },
+          { "time": 450, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.85 },
+          { "time": 450, "value": 0.82 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Push",
+    "description": "A quieter click that supports without competing, ideal for secondary actions.",
+    "tags": ["Gentle", "Flexible", "Peak", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.5, "frequency": 0.52 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 6, "value": 0.48 },
+          { "time": 50, "value": 0.15 },
+          { "time": 90, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.52 },
+          { "time": 90, "value": 0.5 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Radar",
+    "description": "The focused sweep of active scanning, ideal for network requests or polling states.",
+    "tags": ["Substantial", "Flexible", "Pattern", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.55, "frequency": 0.55 },
+        { "time": 800, "amplitude": 0.55, "frequency": 0.55 },
+        { "time": 1600, "amplitude": 0.55, "frequency": 0.55 },
+        { "time": 2400, "amplitude": 0.55, "frequency": 0.55 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 6, "value": 0.55 },
+          { "time": 50, "value": 0.2 },
+          { "time": 120, "value": 0 },
+          { "time": 800, "value": 0 },
+          { "time": 806, "value": 0.55 },
+          { "time": 850, "value": 0.2 },
+          { "time": 920, "value": 0 },
+          { "time": 1600, "value": 0 },
+          { "time": 1606, "value": 0.55 },
+          { "time": 1650, "value": 0.2 },
+          { "time": 1720, "value": 0 },
+          { "time": 2400, "value": 0 },
+          { "time": 2406, "value": 0.55 },
+          { "time": 2450, "value": 0.2 },
+          { "time": 2520, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.55 },
+          { "time": 2520, "value": 0.55 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Rain",
+    "description": "Soft and unpredictable, ideal for ambient atmospheric effects or organic ambient notifications.",
+    "tags": ["Gentle", "Flexible", "Pattern", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.2, "frequency": 0.6 },
+        { "time": 80, "amplitude": 0.15, "frequency": 0.5 },
+        { "time": 150, "amplitude": 0.3, "frequency": 0.7 },
+        { "time": 210, "amplitude": 0.1, "frequency": 0.5 },
+        { "time": 310, "amplitude": 0.25, "frequency": 0.6 },
+        { "time": 380, "amplitude": 0.2, "frequency": 0.55 },
+        { "time": 460, "amplitude": 0.35, "frequency": 0.65 },
+        { "time": 520, "amplitude": 0.1, "frequency": 0.5 },
+        { "time": 610, "amplitude": 0.2, "frequency": 0.6 },
+        { "time": 700, "amplitude": 0.15, "frequency": 0.55 },
+        { "time": 760, "amplitude": 0.3, "frequency": 0.7 },
+        { "time": 850, "amplitude": 0.2, "frequency": 0.6 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 50, "value": 0.08 },
+          { "time": 200, "value": 0.05 },
+          { "time": 400, "value": 0.08 },
+          { "time": 600, "value": 0.05 },
+          { "time": 850, "value": 0.08 },
+          { "time": 950, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.6 },
+          { "time": 950, "value": 0.6 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Ramp",
+    "description": "The joy of growing stronger, ideal for level-up moments or rank promotion celebrations.",
+    "tags": ["Bold", "Rigid", "Bumps", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.4, "frequency": 0.5 },
+        { "time": 120, "amplitude": 0.6, "frequency": 0.6 },
+        { "time": 240, "amplitude": 0.8, "frequency": 0.7 },
+        { "time": 380, "amplitude": 1, "frequency": 0.8 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 15, "value": 0.38 },
+          { "time": 80, "value": 0 },
+          { "time": 120, "value": 0.55 },
+          { "time": 190, "value": 0 },
+          { "time": 240, "value": 0.72 },
+          { "time": 310, "value": 0 },
+          { "time": 380, "value": 1 },
+          { "time": 520, "value": 0.2 },
+          { "time": 650, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.48 },
+          { "time": 380, "value": 0.78 },
+          { "time": 650, "value": 0.75 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Rap",
+    "description": "A clean double-knock that announces an alert quietly, ideal for non-urgent in-app notifications.",
+    "tags": ["Substantial", "Flexible", "Bumps", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.6, "frequency": 0.5 },
+        { "time": 120, "amplitude": 0.4, "frequency": 0.5 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Ratchet",
+    "description": "A firm, assertive triple beat, suited for strong confirmations or emphatic acknowledgements.",
+    "tags": ["Bold", "Rigid", "Impulses", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 10, "amplitude": 1, "frequency": 0.9 },
+        { "time": 201, "amplitude": 1, "frequency": 0.906 },
+        { "time": 398, "amplitude": 0.997, "frequency": 0.906 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Rebound",
+    "description": "A strong opening that softens on the second hit, ideal for double-tap confirmations.",
+    "tags": ["Bold", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 1, "frequency": 1 },
+        { "time": 80, "amplitude": 1, "frequency": 0.3 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Ripple",
+    "description": "A strong hit that radiates outward in softening waves, ideal for touch ripples or impact echo effects.",
+    "tags": ["Bold", "Flexible", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.858, "frequency": 0.72 },
+        { "time": 140, "amplitude": 0.52, "frequency": 0.48 },
+        { "time": 260, "amplitude": 0.22, "frequency": 0.32 },
+        { "time": 360, "amplitude": 0.08, "frequency": 0.2 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 70, "value": 0 },
+          { "time": 145, "value": 0.5 },
+          { "time": 200, "value": 0 },
+          { "time": 265, "value": 0.2 },
+          { "time": 310, "value": 0 },
+          { "time": 365, "value": 0.07 },
+          { "time": 420, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.7 },
+          { "time": 140, "value": 0.5 },
+          { "time": 260, "value": 0.33 },
+          { "time": 420, "value": 0.18 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Rivet",
+    "description": "Three sharp, assertive beats, suited for triple-step confirmations or high-confidence feedback.",
+    "tags": ["Bold", "Rigid", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 1, "frequency": 1 },
+        { "time": 75, "amplitude": 1, "frequency": 1 },
+        { "time": 150, "amplitude": 1, "frequency": 1 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Rustle",
+    "description": "A gentle heads-up that does not demand immediate action, ideal for mild warnings.",
+    "tags": ["Substantial", "Flexible", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.65 },
+          { "time": 75, "value": 0.05 },
+          { "time": 200, "value": 0.3 },
+          { "time": 290, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.6 },
+          { "time": 200, "value": 0.48 },
+          { "time": 290, "value": 0.45 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Shockwave",
+    "description": "The pressure wave of a nearby explosion, ideal for detonations, force fields, or dramatic impacts.",
+    "tags": ["Bold", "Flexible", "Ramp", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 1, "frequency": 0.35 },
+        { "time": 200, "amplitude": 0.4, "frequency": 0.3 },
+        { "time": 450, "amplitude": 0.15, "frequency": 0.25 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 1 },
+          { "time": 50, "value": 0.7 },
+          { "time": 120, "value": 0.45 },
+          { "time": 200, "value": 0.3 },
+          { "time": 320, "value": 0.15 },
+          { "time": 450, "value": 0.08 },
+          { "time": 600, "value": 0.03 },
+          { "time": 800, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.4 },
+          { "time": 5, "value": 0.3 },
+          { "time": 800, "value": 0.2 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Snap",
+    "description": "A firm snap that conveys a locked-in selection, perfect for toggles, switches, or confirming a choice.",
+    "tags": ["Substantial", "Flexible", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.7, "frequency": 0.55 },
+        { "time": 40, "amplitude": 0.3, "frequency": 0.48 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 4, "value": 0.7 },
+          { "time": 30, "value": 0.15 },
+          { "time": 40, "value": 0.3 },
+          { "time": 90, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.55 },
+          { "time": 40, "value": 0.47 },
+          { "time": 90, "value": 0.45 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Sonar",
+    "description": "The eureka moment, ideal for conveying the satisfying rush of finding what you were looking for.",
+    "tags": ["Bold", "Rigid", "Pattern", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.35, "frequency": 0.7 },
+        { "time": 600, "amplitude": 0.35, "frequency": 0.7 },
+        { "time": 1200, "amplitude": 0.35, "frequency": 0.7 },
+        { "time": 1800, "amplitude": 0.65, "frequency": 0.65 },
+        { "time": 1920, "amplitude": 0.4, "frequency": 0.6 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.35 },
+          { "time": 130, "value": 0.04 },
+          { "time": 500, "value": 0 },
+          { "time": 600, "value": 0.35 },
+          { "time": 730, "value": 0.04 },
+          { "time": 1100, "value": 0 },
+          { "time": 1200, "value": 0.35 },
+          { "time": 1330, "value": 0.04 },
+          { "time": 1550, "value": 0 },
+          { "time": 1620, "value": 0 },
+          { "time": 1663, "value": 0.855 },
+          { "time": 1700, "value": 0 },
+          { "time": 1800, "value": 0.65 },
+          { "time": 1855, "value": 0 },
+          { "time": 1920, "value": 0.4 },
+          { "time": 2000, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.72 },
+          { "time": 1550, "value": 0.72 },
+          { "time": 1655, "value": 0.8 },
+          { "time": 2000, "value": 0.7 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Spark",
+    "description": "The snap of electric ignition, ideal for discharge effects, ignition moments, or quick-fire activation.",
+    "tags": ["Bold", "Rigid", "Peak", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.22, "frequency": 0.55 },
+        { "time": 65, "amplitude": 0.52, "frequency": 0.78 },
+        { "time": 138, "amplitude": 1, "frequency": 1 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 4, "value": 0.22 },
+          { "time": 28, "value": 0 },
+          { "time": 69, "value": 0.52 },
+          { "time": 95, "value": 0 },
+          { "time": 142, "value": 1 },
+          { "time": 185, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.5 },
+          { "time": 65, "value": 0.75 },
+          { "time": 138, "value": 1 },
+          { "time": 185, "value": 1 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Spin",
+    "description": "A crisp, mechanical rhythm communicating repeating progress, great for looping or spinner states.",
+    "tags": ["Substantial", "Flexible", "Saw", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.4, "frequency": 0.55 },
+        { "time": 250, "amplitude": 0.4, "frequency": 0.55 },
+        { "time": 500, "amplitude": 0.4, "frequency": 0.55 },
+        { "time": 750, "amplitude": 0.4, "frequency": 0.55 },
+        { "time": 1000, "amplitude": 0.4, "frequency": 0.55 },
+        { "time": 1250, "amplitude": 0.4, "frequency": 0.55 },
+        { "time": 1500, "amplitude": 0.4, "frequency": 0.55 },
+        { "time": 1750, "amplitude": 0.4, "frequency": 0.55 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.38 },
+          { "time": 60, "value": 0 },
+          { "time": 250, "value": 0.38 },
+          { "time": 308, "value": 0 },
+          { "time": 500, "value": 0.38 },
+          { "time": 558, "value": 0 },
+          { "time": 750, "value": 0.38 },
+          { "time": 808, "value": 0 },
+          { "time": 1000, "value": 0.38 },
+          { "time": 1058, "value": 0 },
+          { "time": 1250, "value": 0.38 },
+          { "time": 1308, "value": 0 },
+          { "time": 1500, "value": 0.38 },
+          { "time": 1558, "value": 0 },
+          { "time": 1750, "value": 0.38 },
+          { "time": 1808, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.55 },
+          { "time": 1808, "value": 0.55 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Stagger",
+    "description": "Woozy and disorienting, ideal for confusion, error overload, or hit-stun effects.",
+    "tags": ["Substantial", "Flexible", "Saw", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.7, "frequency": 0.55 },
+        { "time": 60, "amplitude": 0.4, "frequency": 0.65 },
+        { "time": 120, "amplitude": 0.55, "frequency": 0.5 },
+        { "time": 180, "amplitude": 0.35, "frequency": 0.6 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.68 },
+          { "time": 45, "value": 0.15 },
+          { "time": 60, "value": 0.38 },
+          { "time": 100, "value": 0.15 },
+          { "time": 120, "value": 0.52 },
+          { "time": 162, "value": 0.12 },
+          { "time": 180, "value": 0.33 },
+          { "time": 320, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.55 },
+          { "time": 60, "value": 0.65 },
+          { "time": 120, "value": 0.5 },
+          { "time": 180, "value": 0.6 },
+          { "time": 320, "value": 0.55 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Stamp",
+    "description": "Calm and decisive, communicates acceptance without drama, suited for dialog confirmations.",
+    "tags": ["Substantial", "Soft", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.55, "frequency": 0.5 },
+        { "time": 150, "amplitude": 0.55, "frequency": 0.5 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.55 },
+          { "time": 55, "value": 0 },
+          { "time": 150, "value": 0.55 },
+          { "time": 205, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.5 },
+          { "time": 205, "value": 0.5 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Stampede",
+    "description": "Four deep, measured thumps, suited for grounded step-by-step confirmation feedback.",
+    "tags": ["Bold", "Soft", "Impulses", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 10, "amplitude": 1, "frequency": 0.306 },
+        { "time": 155, "amplitude": 1, "frequency": 0.163 },
+        { "time": 601, "amplitude": 0.997, "frequency": 0.303 },
+        { "time": 750, "amplitude": 1, "frequency": 0.153 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Stomp",
+    "description": "Three deep, grounded beats, suitable for unhurried triple confirmations or calm rhythmic emphasis.",
+    "tags": ["Bold", "Soft", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 1, "frequency": 0.3 },
+        { "time": 75, "amplitude": 1, "frequency": 0.3 },
+        { "time": 150, "amplitude": 1, "frequency": 0.3 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "StoneSkip",
+    "description": "Three firm taps with a softening finish, suited for decisive but composed triple confirmations.",
+    "tags": ["Bold", "Flexible", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 0.706, "frequency": 0.706 },
+        { "time": 77, "amplitude": 0.697, "frequency": 0.5 },
+        { "time": 181, "amplitude": 0.703, "frequency": 0.244 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Strike",
+    "description": "A confident, decisive strike that delivers a clear and satisfying response for the main call-to-action.",
+    "tags": ["Substantial", "Flexible", "Peak", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.75, "frequency": 0.62 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.72 },
+          { "time": 40, "value": 0.2 },
+          { "time": 80, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.62 },
+          { "time": 80, "value": 0.6 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Summon",
+    "description": "A commanding signal that refuses to be ignored, ideal for incoming calls or urgent attention-demand moments.",
+    "tags": ["Bold", "Flexible", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.8, "frequency": 0.55 },
+        { "time": 300, "amplitude": 0.7, "frequency": 0.6 },
+        { "time": 430, "amplitude": 0.7, "frequency": 0.6 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 10, "value": 0.8 },
+          { "time": 180, "value": 0 },
+          { "time": 300, "value": 0.7 },
+          { "time": 370, "value": 0 },
+          { "time": 430, "value": 0.7 },
+          { "time": 500, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.52 },
+          { "time": 180, "value": 0.52 },
+          { "time": 300, "value": 0.62 },
+          { "time": 500, "value": 0.62 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Surge",
+    "description": "An irrepressible swell of delight, ideal for reaction moments or expressions of pure joy.",
+    "tags": ["Bold", "Rigid", "Saw", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.5, "frequency": 0.82 },
+        { "time": 75, "amplitude": 0.62, "frequency": 0.86 },
+        { "time": 145, "amplitude": 0.74, "frequency": 0.9 },
+        { "time": 210, "amplitude": 0.8, "frequency": 0.92 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.45 },
+          { "time": 60, "value": 0.1 },
+          { "time": 75, "value": 0.58 },
+          { "time": 130, "value": 0.12 },
+          { "time": 145, "value": 0.7 },
+          { "time": 195, "value": 0.15 },
+          { "time": 210, "value": 0.8 },
+          { "time": 330, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.82 },
+          { "time": 210, "value": 0.93 },
+          { "time": 330, "value": 0.9 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Sway",
+    "description": "Reassuring and rhythmic, ideal for calming or encouraging feedback.",
+    "tags": ["Substantial", "Soft", "Bumps", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.5, "frequency": 0.25 },
+        { "time": 700, "amplitude": 0.5, "frequency": 0.25 },
+        { "time": 1400, "amplitude": 0.5, "frequency": 0.25 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 20, "value": 0.45 },
+          { "time": 250, "value": 0.35 },
+          { "time": 500, "value": 0 },
+          { "time": 700, "value": 0 },
+          { "time": 720, "value": 0.45 },
+          { "time": 950, "value": 0.35 },
+          { "time": 1200, "value": 0 },
+          { "time": 1400, "value": 0 },
+          { "time": 1420, "value": 0.45 },
+          { "time": 1650, "value": 0.35 },
+          { "time": 1900, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.22 },
+          { "time": 1900, "value": 0.22 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Sweep",
+    "description": "The rhythmic pulse of active searching, ideal for search operations or background polling states.",
+    "tags": ["Substantial", "Rigid", "Pattern", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.4, "frequency": 0.7 },
+        { "time": 600, "amplitude": 0.4, "frequency": 0.7 },
+        { "time": 1200, "amplitude": 0.4, "frequency": 0.7 },
+        { "time": 1800, "amplitude": 0.4, "frequency": 0.7 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.4 },
+          { "time": 120, "value": 0.05 },
+          { "time": 400, "value": 0.02 },
+          { "time": 590, "value": 0 },
+          { "time": 600, "value": 0.4 },
+          { "time": 720, "value": 0.05 },
+          { "time": 1000, "value": 0.02 },
+          { "time": 1190, "value": 0 },
+          { "time": 1200, "value": 0.4 },
+          { "time": 1320, "value": 0.05 },
+          { "time": 1600, "value": 0.02 },
+          { "time": 1790, "value": 0 },
+          { "time": 1800, "value": 0.4 },
+          { "time": 1920, "value": 0.05 },
+          { "time": 2100, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.72 },
+          { "time": 2100, "value": 0.72 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Swell",
+    "description": "A patient nudge that quietly escalates, ideal for reminders that build attention without anxiety.",
+    "tags": ["Substantial", "Flexible", "Bumps", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.45, "frequency": 0.48 },
+        { "time": 350, "amplitude": 0.65, "frequency": 0.52 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 10, "value": 0.45 },
+          { "time": 75, "value": 0 },
+          { "time": 350, "value": 0.65 },
+          { "time": 425, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.45 },
+          { "time": 350, "value": 0.52 },
+          { "time": 425, "value": 0.52 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Syncopate",
+    "description": "A lively three-beat rhythm with mixed texture, ideal for multi-step confirmations or animated feedback.",
+    "tags": ["Bold", "Rigid", "Impulses", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 10, "amplitude": 1, "frequency": 0.903 },
+        { "time": 201, "amplitude": 1, "frequency": 0.513 },
+        { "time": 399, "amplitude": 0.997, "frequency": 0.906 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Throb",
+    "description": "An accelerated heartbeat that signals something is wrong, ideal for pre-danger tension or warning states.",
+    "tags": ["Substantial", "Flexible", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.8, "frequency": 0.65 },
+        { "time": 150, "amplitude": 0.45, "frequency": 0.6 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.8 },
+          { "time": 80, "value": 0 },
+          { "time": 150, "value": 0.45 },
+          { "time": 230, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.65 },
+          { "time": 230, "value": 0.6 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Thud",
+    "description": "A soft, warm acknowledgement, ideal for opening a menu or drawer.",
+    "tags": ["Substantial", "Flexible", "Peak", "Short"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.5, "frequency": 0.42 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 15, "value": 0.45 },
+          { "time": 80, "value": 0.35 },
+          { "time": 160, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.42 },
+          { "time": 160, "value": 0.4 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Thump",
+    "description": "Confident and present without being harsh, useful for bold feedback that avoids aggression.",
+    "tags": ["Bold", "Flexible", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 1, "frequency": 0.45 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Thunder",
+    "description": "The raw power of a thunderstorm, ideal for dramatic reveals or moments of overwhelming force.",
+    "tags": ["Bold", "Soft", "Peak", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 600, "amplitude": 1, "frequency": 0.15 },
+        { "time": 700, "amplitude": 0.8, "frequency": 0.12 },
+        { "time": 900, "amplitude": 0.5, "frequency": 0.1 },
+        { "time": 1200, "amplitude": 0.3, "frequency": 0.08 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 100, "value": 0.05 },
+          { "time": 300, "value": 0.1 },
+          { "time": 500, "value": 0.2 },
+          { "time": 590, "value": 0.3 },
+          { "time": 600, "value": 1 },
+          { "time": 680, "value": 0.7 },
+          { "time": 800, "value": 0.5 },
+          { "time": 1000, "value": 0.3 },
+          { "time": 1300, "value": 0.15 },
+          { "time": 1700, "value": 0.05 },
+          { "time": 2000, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.1 },
+          { "time": 600, "value": 0.08 },
+          { "time": 2000, "value": 0.05 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "ThunderRoll",
+    "description": "A dramatic arc of mounting intensity, ideal for thunderstorm effects or climactic UI transitions.",
+    "tags": ["Bold", "Flexible", "Impulses", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 0.994, "frequency": 0.053 },
+        { "time": 51, "amplitude": 0.994, "frequency": 0.122 },
+        { "time": 100, "amplitude": 0.991, "frequency": 0.228 },
+        { "time": 156, "amplitude": 1, "frequency": 0.394 },
+        { "time": 208, "amplitude": 0.991, "frequency": 0.613 },
+        { "time": 260, "amplitude": 1, "frequency": 0.803 },
+        { "time": 309, "amplitude": 1, "frequency": 1 },
+        { "time": 368, "amplitude": 1, "frequency": 1 },
+        { "time": 420, "amplitude": 0.8, "frequency": 0.8 },
+        { "time": 482, "amplitude": 0.606, "frequency": 0.606 },
+        { "time": 544, "amplitude": 0.394, "frequency": 0.394 },
+        { "time": 605, "amplitude": 0.194, "frequency": 0.194 },
+        { "time": 670, "amplitude": 0.091, "frequency": 0.091 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "TickTock",
+    "description": "The steady pulse of time, ideal for timing feedback, countdowns, or metronome-style interactions.",
+    "tags": ["Bold", "Flexible", "Pattern", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 0.8, "frequency": 0.8 },
+        { "time": 400, "amplitude": 0.4, "frequency": 0.4 },
+        { "time": 800, "amplitude": 0.8, "frequency": 0.8 },
+        { "time": 1200, "amplitude": 0.4, "frequency": 0.4 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "TidalSurge",
+    "description": "Two waves of escalating intensity, suited for compound actions or impactful paired confirmations.",
+    "tags": ["Bold", "Flexible", "Impulses", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 0.594, "frequency": 0.594 },
+        { "time": 73, "amplitude": 0.588, "frequency": 0.588 },
+        { "time": 151, "amplitude": 0.588, "frequency": 0.588 },
+        { "time": 299, "amplitude": 1, "frequency": 0.3 },
+        { "time": 380, "amplitude": 1, "frequency": 0.303 },
+        { "time": 455, "amplitude": 1, "frequency": 0.3 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "TideSwell",
+    "description": "A long wave-like arc that rises and falls, ideal for extended ambient effects or fluid UI transitions.",
+    "tags": ["Substantial", "Flexible", "Impulses", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 0.775, "frequency": 0.053 },
+        { "time": 51, "amplitude": 0.722, "frequency": 0.122 },
+        { "time": 100, "amplitude": 0.7, "frequency": 0.228 },
+        { "time": 156, "amplitude": 0.653, "frequency": 0.394 },
+        { "time": 208, "amplitude": 0.638, "frequency": 0.613 },
+        { "time": 260, "amplitude": 0.622, "frequency": 0.803 },
+        { "time": 309, "amplitude": 0.606, "frequency": 1 },
+        { "time": 368, "amplitude": 0.6, "frequency": 1 },
+        { "time": 420, "amplitude": 0.606, "frequency": 0.8 },
+        { "time": 482, "amplitude": 0.609, "frequency": 0.606 },
+        { "time": 549, "amplitude": 0.647, "frequency": 0.394 },
+        { "time": 605, "amplitude": 0.684, "frequency": 0.181 },
+        { "time": 670, "amplitude": 0.728, "frequency": 0.075 },
+        { "time": 727, "amplitude": 0.775, "frequency": 0.034 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Tremor",
+    "description": "Pure, heavy rumble with no sharpness, ideal for seismic events or maximum-weight impact simulations.",
+    "tags": ["Bold", "Soft", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 1, "frequency": 0 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Trigger",
+    "description": "The decisive moment of release, ideal for weapon discharge, trigger confirmation, or releasing a charged gesture.",
+    "tags": ["Bold", "Flexible", "Peak", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.872, "frequency": 0.7 },
+        { "time": 80, "amplitude": 0.5, "frequency": 0.55 },
+        { "time": 200, "amplitude": 0.25, "frequency": 0.45 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 4, "value": 1 },
+          { "time": 55, "value": 0.35 },
+          { "time": 80, "value": 0.5 },
+          { "time": 140, "value": 0.2 },
+          { "time": 200, "value": 0.25 },
+          { "time": 280, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.72 },
+          { "time": 80, "value": 0.55 },
+          { "time": 280, "value": 0.42 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Triumph",
+    "description": "Pure triumph, conveys the overwhelming joy of a major win or achievement.",
+    "tags": ["Bold", "Flexible", "Saw", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.4, "frequency": 0.55 },
+        { "time": 120, "amplitude": 0.55, "frequency": 0.6 },
+        { "time": 260, "amplitude": 0.7, "frequency": 0.65 },
+        { "time": 420, "amplitude": 0.85, "frequency": 0.7 },
+        { "time": 600, "amplitude": 1, "frequency": 0.8 },
+        { "time": 750, "amplitude": 1, "frequency": 0.8 },
+        { "time": 900, "amplitude": 1, "frequency": 0.8 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 10, "value": 0.4 },
+          { "time": 70, "value": 0 },
+          { "time": 120, "value": 0.55 },
+          { "time": 180, "value": 0 },
+          { "time": 260, "value": 0.7 },
+          { "time": 320, "value": 0 },
+          { "time": 420, "value": 0.85 },
+          { "time": 480, "value": 0 },
+          { "time": 600, "value": 1 },
+          { "time": 660, "value": 0 },
+          { "time": 750, "value": 1 },
+          { "time": 810, "value": 0 },
+          { "time": 900, "value": 1 },
+          { "time": 980, "value": 0.4 },
+          { "time": 1100, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.5 },
+          { "time": 600, "value": 0.75 },
+          { "time": 1100, "value": 0.85 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Trumpet",
+    "description": "A joyful flourish that peaks in triumph, ideal for celebrations or milestone completions.",
+    "tags": ["Bold", "Flexible", "Saw", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.3, "frequency": 0.5 },
+        { "time": 80, "amplitude": 0.4, "frequency": 0.55 },
+        { "time": 150, "amplitude": 0.5, "frequency": 0.6 },
+        { "time": 210, "amplitude": 0.6, "frequency": 0.65 },
+        { "time": 260, "amplitude": 0.7, "frequency": 0.7 },
+        { "time": 310, "amplitude": 1, "frequency": 0.85 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 10, "value": 0.3 },
+          { "time": 40, "value": 0 },
+          { "time": 80, "value": 0.4 },
+          { "time": 110, "value": 0 },
+          { "time": 150, "value": 0.5 },
+          { "time": 175, "value": 0 },
+          { "time": 210, "value": 0.6 },
+          { "time": 232, "value": 0 },
+          { "time": 260, "value": 0.7 },
+          { "time": 278, "value": 0 },
+          { "time": 310, "value": 1 },
+          { "time": 380, "value": 0.6 },
+          { "time": 460, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.4 },
+          { "time": 310, "value": 0.7 },
+          { "time": 460, "value": 0.9 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Typewriter",
+    "description": "The nostalgic thud of a vintage typewriter, perfect for retro keyboard or analog-feel experiences.",
+    "tags": ["Bold", "Flexible", "Peak", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.88, "frequency": 0.42 },
+        { "time": 55, "amplitude": 0.35, "frequency": 0.38 },
+        { "time": 110, "amplitude": 0.12, "frequency": 0.35 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 6, "value": 0.85 },
+          { "time": 40, "value": 0.3 },
+          { "time": 55, "value": 0.38 },
+          { "time": 90, "value": 0.12 },
+          { "time": 110, "value": 0.15 },
+          { "time": 160, "value": 0.04 },
+          { "time": 200, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.42 },
+          { "time": 55, "value": 0.38 },
+          { "time": 200, "value": 0.34 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Unfurl",
+    "description": "The unmistakable thrill of discovery, evoking the iconic joy of opening a treasure chest.",
+    "tags": ["Bold", "Flexible", "Pattern", "Long"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.5, "frequency": 0.28 },
+        { "time": 90, "amplitude": 0.62, "frequency": 0.4 },
+        { "time": 180, "amplitude": 0.74, "frequency": 0.49 },
+        { "time": 270, "amplitude": 0.86, "frequency": 0.62 },
+        { "time": 360, "amplitude": 1, "frequency": 0.7 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.5 },
+          { "time": 68, "value": 0 },
+          { "time": 93, "value": 0.62 },
+          { "time": 158, "value": 0 },
+          { "time": 183, "value": 0.74 },
+          { "time": 248, "value": 0 },
+          { "time": 273, "value": 0.86 },
+          { "time": 338, "value": 0 },
+          { "time": 363, "value": 1 },
+          { "time": 850, "value": 0.6 },
+          { "time": 1050, "value": 0.2 },
+          { "time": 1180, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.28 },
+          { "time": 90, "value": 0.4 },
+          { "time": 180, "value": 0.49 },
+          { "time": 270, "value": 0.62 },
+          { "time": 360, "value": 0.7 },
+          { "time": 1180, "value": 0.7 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Vortex",
+    "description": "An irresistible pull into the unknown, ideal for drain animations or dramatic disappearing transitions.",
+    "tags": ["Substantial", "Flexible", "Peak", "Long"],
+    "pattern": {
+      "discretePattern": [{ "time": 1200, "amplitude": 1, "frequency": 0.8 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0.05 },
+          { "time": 200, "value": 0.08 },
+          { "time": 400, "value": 0.13 },
+          { "time": 600, "value": 0.22 },
+          { "time": 800, "value": 0.35 },
+          { "time": 950, "value": 0.52 },
+          { "time": 1050, "value": 0.72 },
+          { "time": 1150, "value": 0.9 },
+          { "time": 1195, "value": 0 },
+          { "time": 1200, "value": 1 },
+          { "time": 1250, "value": 0.3 },
+          { "time": 1400, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.25 },
+          { "time": 600, "value": 0.4 },
+          { "time": 1000, "value": 0.62 },
+          { "time": 1150, "value": 0.82 },
+          { "time": 1200, "value": 0.9 },
+          { "time": 1400, "value": 0.5 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Wane",
+    "description": "A lazy, dismissive fade, fitting for sarcastic or indifferent UI moments.",
+    "tags": ["Gentle", "Flexible", "Ramp", "Extended"],
+    "pattern": {
+      "discretePattern": [],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 20, "value": 0.42 },
+          { "time": 180, "value": 0.22 },
+          { "time": 450, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.5 },
+          { "time": 180, "value": 0.4 },
+          { "time": 450, "value": 0.35 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "WarDrum",
+    "description": "Three steady drum-like beats, ideal for grounded triple confirmations or structured repetitive feedback.",
+    "tags": ["Bold", "Soft", "Impulses", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 10, "amplitude": 1, "frequency": 0.106 },
+        { "time": 201, "amplitude": 1, "frequency": 0.109 },
+        { "time": 398, "amplitude": 0.997, "frequency": 0.103 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Waterfall",
+    "description": "A rush of energy that spills and softens, ideal for clearing actions or flowing state transitions.",
+    "tags": ["Bold", "Flexible", "Impulses", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 1, "amplitude": 0.994, "frequency": 0.994 },
+        { "time": 51, "amplitude": 0.994, "frequency": 0.806 },
+        { "time": 100, "amplitude": 0.991, "frequency": 0.597 },
+        { "time": 156, "amplitude": 1, "frequency": 0.394 },
+        { "time": 208, "amplitude": 0.991, "frequency": 0.203 },
+        { "time": 260, "amplitude": 1, "frequency": 0.094 },
+        { "time": 309, "amplitude": 1, "frequency": 0.072 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "Wave",
+    "description": "Gentle and uninterrupting, communicates ongoing activity without breaking the user's focus.",
+    "tags": ["Substantial", "Soft", "Bumps", "Long"],
+    "pattern": {
+      "discretePattern": [],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 400, "value": 0.38 },
+          { "time": 800, "value": 0.05 },
+          { "time": 1200, "value": 0.4 },
+          { "time": 1600, "value": 0.05 },
+          { "time": 2000, "value": 0.38 },
+          { "time": 2400, "value": 0.05 },
+          { "time": 2800, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.35 },
+          { "time": 2800, "value": 0.35 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Wisp",
+    "description": "A barely-there touch, best for ghost or outline buttons that should feel subtle and unobtrusive.",
+    "tags": ["Gentle", "Flexible", "Peak", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.25, "frequency": 0.48 }],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 8, "value": 0.22 },
+          { "time": 60, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.48 },
+          { "time": 60, "value": 0.48 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Wobble",
+    "description": "A gentle correction without alarm, ideal for minor validation errors or soft negative feedback.",
+    "tags": ["Substantial", "Rigid", "Peak", "Ramp", "Short"],
+    "pattern": {
+      "discretePattern": [],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.65 },
+          { "time": 80, "value": 0.5 },
+          { "time": 180, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.82 },
+          { "time": 180, "value": 0.75 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Woodpecker",
+    "description": "Mechanical and relentless, ideal for repetitive automated sequences where precision is key.",
+    "tags": ["Bold", "Rigid", "Solid", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.75, "frequency": 0.82 },
+        { "time": 45, "amplitude": 0.75, "frequency": 0.82 },
+        { "time": 90, "amplitude": 0.75, "frequency": 0.82 },
+        { "time": 135, "amplitude": 0.75, "frequency": 0.82 },
+        { "time": 180, "amplitude": 0.75, "frequency": 0.82 },
+        { "time": 225, "amplitude": 0.75, "frequency": 0.82 },
+        { "time": 270, "amplitude": 0.75, "frequency": 0.82 },
+        { "time": 315, "amplitude": 0.75, "frequency": 0.82 },
+        { "time": 360, "amplitude": 0.75, "frequency": 0.82 },
+        { "time": 405, "amplitude": 0.75, "frequency": 0.82 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 5, "value": 0.65 },
+          { "time": 430, "value": 0.65 },
+          { "time": 460, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.82 },
+          { "time": 460, "value": 0.82 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Zipper",
+    "description": "The familiar drag and snap of a zipper closing, ideal for closure interactions or drawer animations.",
+    "tags": ["Gentle", "Flexible", "Solid", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.35, "frequency": 0.8 },
+        { "time": 40, "amplitude": 0.35, "frequency": 0.8 },
+        { "time": 80, "amplitude": 0.35, "frequency": 0.8 },
+        { "time": 120, "amplitude": 0.35, "frequency": 0.8 },
+        { "time": 160, "amplitude": 0.35, "frequency": 0.8 },
+        { "time": 200, "amplitude": 0.35, "frequency": 0.8 },
+        { "time": 240, "amplitude": 0.35, "frequency": 0.8 },
+        { "time": 280, "amplitude": 0.35, "frequency": 0.8 },
+        { "time": 320, "amplitude": 0.35, "frequency": 0.8 },
+        { "time": 360, "amplitude": 0.35, "frequency": 0.8 },
+        { "time": 400, "amplitude": 0.35, "frequency": 0.8 },
+        { "time": 430, "amplitude": 0.6, "frequency": 0.75 }
+      ],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 6, "value": 0.234 },
+          { "time": 432, "value": 0.231 },
+          { "time": 460, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.616 },
+          { "time": 358, "value": 0.594 },
+          { "time": 460, "value": 0.35 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "SystemImpactHeavy",
+    "description": "UIImpactFeedbackGenerator.heavy",
+    "tags": ["iOS", "System", "Bold", "Soft", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 1, "frequency": 0.45 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemImpactLight",
+    "description": "UIImpactFeedbackGenerator.light",
+    "tags": ["iOS", "System", "Gentle", "Soft", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.55, "frequency": 0.4 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemImpactMedium",
+    "description": "UIImpactFeedbackGenerator.medium",
+    "tags": ["iOS", "System", "Substantial", "Flexible", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.7, "frequency": 0.3 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemImpactRigid",
+    "description": "UIImpactFeedbackGenerator.rigid",
+    "tags": ["iOS", "System", "Substantial", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.8, "frequency": 0.95 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemImpactSoft",
+    "description": "UIImpactFeedbackGenerator.soft",
+    "tags": ["iOS", "System", "Gentle", "Soft", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.6, "frequency": 0.1 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemNotificationError",
+    "description": "UINotificationFeedbackGenerator.error",
+    "tags": ["iOS", "System", "Substantial", "Elastic", "Impulses", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.7, "frequency": 0.5 },
+        { "time": 100, "amplitude": 0.7, "frequency": 0.5 },
+        { "time": 200, "amplitude": 0.7, "frequency": 0.8 },
+        { "time": 250, "amplitude": 0.8, "frequency": 0.4 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemNotificationSuccess",
+    "description": "UINotificationFeedbackGenerator.success",
+    "tags": ["iOS", "System", "Substantial", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.6, "frequency": 0.6 },
+        { "time": 150, "amplitude": 1, "frequency": 1 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemNotificationWarning",
+    "description": "UINotificationFeedbackGenerator.warning",
+    "tags": ["iOS", "System", "Substantial", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.95, "frequency": 1 },
+        { "time": 150, "amplitude": 0.6, "frequency": 0.9 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemSelection",
+    "description": "UISelectionFeedbackGenerator.selection",
+    "tags": ["iOS", "System", "Gentle", "Flexible", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.4, "frequency": 0.7 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemCalendarDatePreset",
+    "description": "HapticFeedbackConstants.CALENDAR_DATE (Vendor-specific)",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Vendor",
+      "Substantial",
+      "Rigid",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.65, "frequency": 0.85 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemClockTickPreset",
+    "description": "HapticFeedbackConstants.CLOCK_TICK (Vendor-specific)",
+    "tags": ["Android", "System", "Android", "Vendor", "Gentle", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.12, "frequency": 0.9 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemConfirmPreset",
+    "description": "HapticFeedbackConstants.CONFIRM (Vendor-specific)",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Vendor",
+      "Substantial",
+      "Rigid",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.65, "frequency": 0.85 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemContextClickPreset",
+    "description": "HapticFeedbackConstants.CONTEXT_CLICK (Vendor-specific)",
+    "tags": ["Android", "System", "Android", "Vendor", "Gentle", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.2, "frequency": 0.9 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemDragCrossingPreset",
+    "description": "HapticFeedbackConstants.DRAG_CROSSING (Vendor-specific)",
+    "tags": ["Android", "System", "Android", "Vendor", "Gentle", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.2, "frequency": 0.9 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemDragStartPreset",
+    "description": "HapticFeedbackConstants.DRAG_START (Vendor-specific)",
+    "tags": ["Android", "System", "Android", "Vendor", "Bold", "Flexible", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.9, "frequency": 0.45 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemEdgeReleasePreset",
+    "description": "HapticFeedbackConstants.EDGE_RELEASE (Vendor-specific)",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Vendor",
+      "Substantial",
+      "Rigid",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.65, "frequency": 0.85 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemEdgeSqueezePreset",
+    "description": "HapticFeedbackConstants.EDGE_SQUEEZE (Vendor-specific)",
+    "tags": ["Android", "System", "Android", "Vendor", "Bold", "Flexible", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.9, "frequency": 0.45 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemEffectClickPreset",
+    "description": "VibrationEffect.EFFECT_CLICK",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Effect",
+      "Substantial",
+      "Rigid",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.65, "frequency": 0.85 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemEffectDoubleClickPreset",
+    "description": "VibrationEffect.EFFECT_DOUBLE_CLICK",
+    "tags": ["Android", "System", "Android", "Effect", "Bold", "Flexible", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.81, "frequency": 0.61 },
+        { "time": 120, "amplitude": 0.7, "frequency": 0.35 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemEffectHeavyClickPreset",
+    "description": "VibrationEffect.EFFECT_HEAVY_CLICK",
+    "tags": ["Android", "System", "Android", "Effect", "Bold", "Flexible", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.9, "frequency": 0.45 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemEffectTickPreset",
+    "description": "VibrationEffect.EFFECT_TICK",
+    "tags": ["Android", "System", "Android", "Effect", "Gentle", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.2, "frequency": 0.9 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemGestureEndPreset",
+    "description": "HapticFeedbackConstants.GESTURE_END (Vendor-specific)",
+    "tags": ["Android", "System", "Android", "Vendor", "Gentle", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.2, "frequency": 0.9 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemGestureStartPreset",
+    "description": "HapticFeedbackConstants.GESTURE_START (Vendor-specific)",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Vendor",
+      "Substantial",
+      "Rigid",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.65, "frequency": 0.85 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemImpactHeavy",
+    "description": "Fallback implementation of iOS UIImpactFeedbackGenerator.heavy preset.",
+    "tags": ["Android", "iOS Fallback", "Bold", "Soft", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 1, "frequency": 0.45 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemImpactLight",
+    "description": "Fallback implementation of iOS UIImpactFeedbackGenerator.light preset.",
+    "tags": ["Android", "iOS Fallback", "Gentle", "Soft", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.55, "frequency": 0.4 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemImpactMedium",
+    "description": "Fallback implementation of iOS UIImpactFeedbackGenerator.medium preset.",
+    "tags": ["Android", "iOS Fallback", "Substantial", "Flexible", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.7, "frequency": 0.3 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemImpactRigid",
+    "description": "Fallback implementation of iOS UIImpactFeedbackGenerator.rigid preset.",
+    "tags": ["Android", "iOS Fallback", "Substantial", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.8, "frequency": 0.95 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemImpactSoft",
+    "description": "Fallback implementation of iOS UIImpactFeedbackGenerator.soft preset.",
+    "tags": ["Android", "iOS Fallback", "Gentle", "Soft", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.6, "frequency": 0.1 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemKeyboardPressPreset",
+    "description": "HapticFeedbackConstants.KEYBOARD_PRESS (Vendor-specific)",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Vendor",
+      "Substantial",
+      "Rigid",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.65, "frequency": 0.85 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemKeyboardReleasePreset",
+    "description": "HapticFeedbackConstants.KEYBOARD_RELEASE (Vendor-specific)",
+    "tags": ["Android", "System", "Android", "Vendor", "Gentle", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.2, "frequency": 0.9 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemKeyboardTapPreset",
+    "description": "HapticFeedbackConstants.KEYBOARD_TAP (Vendor-specific)",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Vendor",
+      "Substantial",
+      "Rigid",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.65, "frequency": 0.85 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemLongPressPreset",
+    "description": "HapticFeedbackConstants.LONG_PRESS (Vendor-specific)",
+    "tags": ["Android", "System", "Android", "Vendor", "Bold", "Flexible", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.9, "frequency": 0.45 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemNotificationError",
+    "description": "Fallback implementation of iOS UINotificationFeedbackGenerator.error preset.",
+    "tags": ["Android", "iOS Fallback", "Substantial", "Elastic", "Impulses", "Extended"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.7, "frequency": 0.5 },
+        { "time": 100, "amplitude": 0.7, "frequency": 0.5 },
+        { "time": 200, "amplitude": 0.7, "frequency": 0.8 },
+        { "time": 250, "amplitude": 0.8, "frequency": 0.4 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemNotificationSuccess",
+    "description": "Fallback implementation of iOS UINotificationFeedbackGenerator.success preset.",
+    "tags": ["Android", "iOS Fallback", "Substantial", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.6, "frequency": 0.6 },
+        { "time": 150, "amplitude": 1, "frequency": 1 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemNotificationWarning",
+    "description": "Fallback implementation of iOS UINotificationFeedbackGenerator.warning preset.",
+    "tags": ["Android", "iOS Fallback", "Substantial", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.95, "frequency": 1 },
+        { "time": 150, "amplitude": 0.6, "frequency": 0.9 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemPrimitiveClickPreset",
+    "description": "VibrationEffect.Composition.PRIMITIVE_CLICK",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Primitive",
+      "Substantial",
+      "Rigid",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.9, "frequency": 0.5 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemPrimitiveLowTickPreset",
+    "description": "VibrationEffect.Composition.PRIMITIVE_LOW_TICK",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Primitive",
+      "Gentle",
+      "Flexible",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.2, "frequency": 0.3 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemPrimitiveQuickFallPreset",
+    "description": "VibrationEffect.Composition.PRIMITIVE_QUICK_FALL",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Primitive",
+      "Substantial",
+      "Rigid",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0.65 },
+          { "time": 100, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 1 },
+          { "time": 100, "value": 0.5 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "SystemPrimitiveQuickRisePreset",
+    "description": "VibrationEffect.Composition.PRIMITIVE_QUICK_RISE",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Primitive",
+      "Substantial",
+      "Flexible",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 150, "value": 0.5 },
+          { "time": 155, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.25 },
+          { "time": 150, "value": 0.33 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "SystemPrimitiveSlowRisePreset",
+    "description": "VibrationEffect.Composition.PRIMITIVE_SLOW_RISE",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Primitive",
+      "Gentle",
+      "Flexible",
+      "Impulses",
+      "Short"
+    ],
+    "pattern": {
+      "discretePattern": [],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 500, "value": 0.5 },
+          { "time": 505, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.25 },
+          { "time": 500, "value": 0.33 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "SystemPrimitiveSpinPreset",
+    "description": "VibrationEffect.Composition.PRIMITIVE_SPIN",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Primitive",
+      "Gentle",
+      "Flexible",
+      "Impulses",
+      "Short"
+    ],
+    "pattern": {
+      "discretePattern": [],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0 },
+          { "time": 75, "value": 0.5 },
+          { "time": 150, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.33 },
+          { "time": 75, "value": 0.17 },
+          { "time": 150, "value": 0.25 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "SystemPrimitiveThudPreset",
+    "description": "VibrationEffect.Composition.PRIMITIVE_THUD",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Primitive",
+      "Bold",
+      "Flexible",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [],
+      "continuousPattern": {
+        "amplitude": [
+          { "time": 0, "value": 0.2 },
+          { "time": 300, "value": 0 }
+        ],
+        "frequency": [
+          { "time": 0, "value": 0.25 },
+          { "time": 300, "value": 0.17 }
+        ]
+      }
+    }
+  },
+  {
+    "name": "SystemPrimitiveTickPreset",
+    "description": "VibrationEffect.Composition.PRIMITIVE_TICK",
+    "tags": ["Android", "System", "Android", "Primitive", "Gentle", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.65, "frequency": 1 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemReleasePreset",
+    "description": "HapticFeedbackConstants.REJECT (Vendor-specific)",
+    "tags": ["Android", "System", "Android", "Vendor", "Bold", "Flexible", "Impulses", "Short"],
+    "pattern": {
+      "discretePattern": [
+        { "time": 0, "amplitude": 0.81, "frequency": 0.61 },
+        { "time": 120, "amplitude": 0.7, "frequency": 0.35 }
+      ],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemScrollItemFocusPreset",
+    "description": "HapticFeedbackConstants.SCROLL_ITEM_FOCUS (Vendor-specific)",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Vendor",
+      "Substantial",
+      "Rigid",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.65, "frequency": 0.85 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemScrollLimitPreset",
+    "description": "HapticFeedbackConstants.SCROLL_LIMIT (Vendor-specific)",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Vendor",
+      "Substantial",
+      "Rigid",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.65, "frequency": 0.85 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemScrollTickPreset",
+    "description": "HapticFeedbackConstants.SCROLL_TICK (Vendor-specific)",
+    "tags": ["Android", "System", "Android", "Vendor", "Gentle", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.2, "frequency": 0.9 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemSegmentFrequentTickPreset",
+    "description": "HapticFeedbackConstants.SEGMENT_FREQUENT_TICK (Vendor-specific)",
+    "tags": ["Android", "System", "Android", "Vendor", "Gentle", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.12, "frequency": 0.9 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemSegmentTickPreset",
+    "description": "HapticFeedbackConstants.SEGMENT_TICK (Vendor-specific)",
+    "tags": ["Android", "System", "Android", "Vendor", "Gentle", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.2, "frequency": 0.9 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemSelection",
+    "description": "Fallback implementation of iOS UISelectionFeedbackGenerator.selection preset.",
+    "tags": ["Android", "iOS Fallback", "Gentle", "Flexible", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.4, "frequency": 0.7 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemTextHandleMovePreset",
+    "description": "HapticFeedbackConstants.TEXT_HANDLE_MOVE (Vendor-specific)",
+    "tags": ["Android", "System", "Android", "Vendor", "Gentle", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.12, "frequency": 0.9 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemToggleOffPreset",
+    "description": "HapticFeedbackConstants.TOGGLE_OFF (Vendor-specific)",
+    "tags": ["Android", "System", "Android", "Vendor", "Gentle", "Flexible", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.2, "frequency": 0.4 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemToggleOnPreset",
+    "description": "HapticFeedbackConstants.TOGGLE_ON (Vendor-specific)",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Vendor",
+      "Substantial",
+      "Rigid",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.5, "frequency": 0.9 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemVirtualKeyPreset",
+    "description": "HapticFeedbackConstants.VIRTUAL_KEY (Vendor-specific)",
+    "tags": [
+      "Android",
+      "System",
+      "Android",
+      "Vendor",
+      "Substantial",
+      "Rigid",
+      "Impulses",
+      "Impulse"
+    ],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.65, "frequency": 0.85 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  },
+  {
+    "name": "SystemVirtualKeyReleasePreset",
+    "description": "HapticFeedbackConstants.VIRTUAL_KEY_RELEASE (Vendor-specific)",
+    "tags": ["Android", "System", "Android", "Vendor", "Gentle", "Rigid", "Impulses", "Impulse"],
+    "pattern": {
+      "discretePattern": [{ "time": 0, "amplitude": 0.2, "frequency": 0.9 }],
+      "continuousPattern": { "amplitude": [], "frequency": [] }
+    }
+  }
+]
