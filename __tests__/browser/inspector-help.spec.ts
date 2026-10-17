@@ -115,9 +115,12 @@ for (const theme of ["light", "dark"])
 
     await help.click();
     const beforeScroll = await help.boundingBox();
-    await page.getByRole("complementary", { name: "Inspector", exact: true }).evaluate((node) => {
-      node.scrollTop += 32;
-    });
+    await page
+      .getByRole("complementary", { name: "Inspector", exact: true })
+      .getByRole("tabpanel")
+      .evaluate((node) => {
+        node.scrollTop += 32;
+      });
     await expect.poll(async () => (await help.boundingBox())?.y).not.toBe(beforeScroll?.y);
     await expectPosition(help);
     await page.setViewportSize({ width: 220, height: 720 });
