@@ -11,6 +11,8 @@ import { DEX_RIVE_CONFIG } from "../../apps/studio/src/features/project/starter/
 test("only the Rive owner previews, uploads and plays source cues, including legacy starters", async ({
   page,
 }) => {
+  const clockStart = new Date("2030-01-01T00:00:00Z");
+  await page.clock.install({ time: clockStart });
   const messages: Msg[] = [];
   const impacts: string[] = [];
   const entries: string[] = [];
@@ -92,10 +94,16 @@ test("only the Rive owner previews, uploads and plays source cues, including leg
   });
   await page.reload();
   await expect(panel).toHaveCount(0);
+  await page.clock.pauseAt(new Date(clockStart.getTime() + 60_000));
   await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
   const controls = await openRiveInspector(page);
   await expect(controls.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible();
-  await expect.poll(() => entries.filter((name) => name === "hapticEntry").length).toBe(1);
+  await expect
+    .poll(async () => {
+      await page.clock.runFor(16);
+      return entries.filter((name) => name === "hapticEntry").length;
+    })
+    .toBe(1);
   await expect.poll(() => uploads).toBe(1);
   await expect
     .poll(() => messages.find((message) => message.type === "load"))
@@ -107,7 +115,12 @@ test("only the Rive owner previews, uploads and plays source cues, including leg
     "Play “DexTourLoader” - Rive animation and haptics · P",
   );
   await editorPlay(page).click();
-  await expect.poll(() => entries.filter((name) => name === "hapticEntry").length).toBe(2);
+  await expect
+    .poll(async () => {
+      await page.clock.runFor(16);
+      return entries.filter((name) => name === "hapticEntry").length;
+    })
+    .toBe(2);
   await page.getByRole("button", { name: "JustHaptics", exact: true }).click();
   await expect(panel).toHaveCount(0);
   const count = impacts.length;
@@ -122,7 +135,7 @@ test("only the Rive owner previews, uploads and plays source cues, including leg
       throw new Error("Late VM callback missing");
     runtime.__lateRiveTrigger("hapticExit");
   });
-  await page.waitForTimeout(900);
+  await page.clock.fastForward(900);
   expect(impacts).toHaveLength(count);
   expect(messages.filter((message) => message.type === "load")).toHaveLength(1);
   expect(messages.filter((message) => message.type === "pause").at(-1)).toEqual({

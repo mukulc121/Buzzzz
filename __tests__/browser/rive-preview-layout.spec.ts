@@ -183,25 +183,77 @@ test("the actual Rive drawing survives preview hide and layout changes", async (
   page,
 }, testInfo) => {
   const { preview, inspector, mounts, errors } = await openRive(page);
-  const painted = () =>
-    preview.locator("canvas").evaluate((element) => {
-      if (!(element instanceof HTMLCanvasElement)) throw new Error("Missing real Rive canvas");
-      const blank = document.createElement("canvas");
-      blank.width = element.width;
-      blank.height = element.height;
-      return element.toDataURL() !== blank.toDataURL();
+  const canvas = preview.locator("canvas");
+  const rasters: { stage: string; width: number; height: number; paintedPixels: number }[] = [];
+  const painted = async (stage: string) => {
+    const background = await canvas.evaluate((element) => {
+      if (!element.parentElement) throw new Error("Missing Rive preview stage");
+      return getComputedStyle(element.parentElement).backgroundColor;
     });
+    const image = await canvas.screenshot({ path: testInfo.outputPath(`${stage}.png`) });
+    const raster = await page.evaluate(
+      async ({ image, background }) => {
+        const bitmap = await createImageBitmap(await (await fetch(image)).blob());
+        const surface = document.createElement("canvas");
+        const context = surface.getContext("2d");
+        if (!context) throw new Error("Missing screenshot decoder");
+        context.fillStyle = background;
+        context.fillRect(0, 0, 1, 1);
+        const backdrop = context.getImageData(0, 0, 1, 1).data;
+        surface.width = bitmap.width;
+        surface.height = bitmap.height;
+        context.drawImage(bitmap, 0, 0);
+        bitmap.close();
+        const pixels = context.getImageData(0, 0, surface.width, surface.height).data;
+        let paintedPixels = 0;
+        for (let index = 0; index < pixels.length; index += 4)
+          if (
+            pixels[index + 3] !== 0 &&
+            (pixels[index] !== backdrop[0] ||
+              pixels[index + 1] !== backdrop[1] ||
+              pixels[index + 2] !== backdrop[2])
+          )
+            paintedPixels++;
+        return { width: surface.width, height: surface.height, paintedPixels };
+      },
+      { image: `data:image/png;base64,${image.toString("base64")}`, background },
+    );
+    rasters.push({ stage, ...raster });
+    return raster.paintedPixels > 0;
+  };
   await inspector.getByRole("button", { name: "Play with haptics", exact: true }).click();
-  await expect.poll(painted).toBe(true);
-  await preview.getByRole("button", { name: "Pause animation", exact: true }).click();
-  await preview.getByRole("button", { name: "Stacked", exact: true }).click();
-  await expect.poll(painted).toBe(true);
-  await preview.getByRole("button", { name: "Side by side", exact: true }).click();
-  await expect.poll(painted).toBe(true);
-  await preview.getByRole("button", { name: "Hide animation preview", exact: true }).click();
-  await inspector.getByRole("button", { name: "Show preview", exact: true }).click();
-  await expect.poll(painted).toBe(true);
-  expect(mounts()).toBe(2);
-  expect(errors).toEqual([]);
+  await expect
+    .poll(() =>
+      canvas.evaluate((element) => {
+        if (!(element instanceof HTMLCanvasElement)) throw new Error("Missing real Rive canvas");
+        const blank = document.createElement("canvas");
+        blank.width = element.width;
+        blank.height = element.height;
+        if (element.toDataURL() === blank.toDataURL()) return false;
+        const pause = document.querySelector(".rive-panel button[aria-label='Pause animation']");
+        if (!(pause instanceof HTMLButtonElement)) return false;
+        pause.click();
+        return true;
+      }),
+    )
+    .toBe(true);
+  await expect(preview.getByRole("button", { name: "Play animation", exact: true })).toBeVisible();
+  try {
+    await expect.poll(() => painted("paused-before-layout")).toBe(true);
+    await preview.getByRole("button", { name: "Stacked", exact: true }).click();
+    await expect.poll(() => painted("stacked")).toBe(true);
+    await preview.getByRole("button", { name: "Side by side", exact: true }).click();
+    await expect.poll(() => painted("side-by-side")).toBe(true);
+    await preview.getByRole("button", { name: "Hide animation preview", exact: true }).click();
+    await inspector.getByRole("button", { name: "Show preview", exact: true }).click();
+    await expect.poll(() => painted("shown")).toBe(true);
+    expect(mounts()).toBe(2);
+    expect(errors).toEqual([]);
+  } finally {
+    await testInfo.attach("paused-rive-raster", {
+      body: JSON.stringify({ rasters, mounts: mounts(), errors }),
+      contentType: "application/json",
+    });
+  }
   await page.screenshot({ path: testInfo.outputPath("actual-rive-drawing.png") });
 });

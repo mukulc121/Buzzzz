@@ -92,20 +92,44 @@ test("playback range, markers and layer switches use real editor state", async (
 test("multilayer selection controls which layers are edited together", async ({ page }) => {
   const chart = page.getByRole("group", { name: "Haptic pattern timeline", exact: true });
   const intensity = chart.getByRole("button", { name: /^Intensity point/ });
+  const frequency = chart.getByRole("button", { name: /^Frequency point/ });
   const taps = chart.getByRole("button", { name: /^Tap at/ });
-  const count = await intensity.count();
-  await intensity.nth(1).click();
-  await taps.first().click({ modifiers: ["Shift"] });
+  const counts = {
+    intensity: await intensity.count(),
+    frequency: await frequency.count(),
+    taps: await taps.count(),
+  };
+  for (const count of Object.values(counts)) expect(count).toBeGreaterThan(0);
+  const marquee = async () => {
+    const bounds = await chart.boundingBox();
+    if (!bounds) throw new Error("Missing chart bounds");
+    await page.mouse.move(bounds.x + bounds.width - 19, bounds.y + 18);
+    await page.mouse.down();
+    await page.mouse.move(bounds.x + 47, bounds.y + bounds.height - 30, {
+      steps: 8,
+    });
+    await page.mouse.up();
+  };
+  await marquee();
+  await expect(chart.locator('[aria-pressed="true"]')).toHaveCount(
+    counts.intensity + counts.frequency + counts.taps,
+  );
   await page.keyboard.press("Delete");
-  await expect(intensity).toHaveCount(count - 1);
+  await expect(intensity).toHaveCount(0);
+  await expect(frequency).toHaveCount(0);
   await expect(taps).toHaveCount(0);
   await page.getByRole("button", { name: "Undo", exact: true }).click();
+  await expect(intensity).toHaveCount(counts.intensity);
+  await expect(frequency).toHaveCount(counts.frequency);
+  await expect(taps).toHaveCount(counts.taps);
   await page.getByRole("switch", { name: "Multilayer selection", exact: true }).uncheck();
-  await taps.first().click();
-  await intensity.nth(1).click({ modifiers: ["Shift"] });
+  await page.getByRole("radio", { name: "Edit intensity", exact: true }).check();
+  await marquee();
+  await expect(chart.locator('[aria-pressed="true"]')).toHaveCount(counts.intensity);
   await page.keyboard.press("Delete");
-  await expect(intensity).toHaveCount(count - 1);
-  await expect(taps).toHaveCount(1);
+  await expect(intensity).toHaveCount(0);
+  await expect(frequency).toHaveCount(counts.frequency);
+  await expect(taps).toHaveCount(counts.taps);
 });
 
 test("selected-event controls are accessible in both themes", async ({ page }) => {
