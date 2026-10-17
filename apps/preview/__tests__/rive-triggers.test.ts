@@ -258,3 +258,38 @@ test("hidden and background scenes cannot rearm completion through queued VM cal
   player.stop();
   expect(pending).toBe(0);
 });
+
+test("pausing blocks queued native callbacks and manual fires before the rendered state commits", async () => {
+  const data = scene();
+  const controller = new NativeAbortController();
+  let renderedPause = false;
+  const requestedPause = { current: renderedPause };
+  const binding = await bindRiveTriggers({
+    source: data.source,
+    canDispatch: () => !requestedPause.current,
+    signal: controller.signal,
+    onTrigger: (name) => data.fired.push(name),
+  });
+  const queued = data.callbacks.get("hapticEntry");
+  queued?.();
+  expect(data.fired).toEqual(["hapticEntry"]);
+  requestedPause.current = true;
+  expect(renderedPause).toBe(false);
+  queued?.();
+  binding.fire("hapticEntry");
+  binding.fire("isLoaded");
+  expect(data.fired).toEqual(["hapticEntry"]);
+  expect(data.triggered).toEqual([]);
+  renderedPause = true;
+  requestedPause.current = renderedPause;
+  queued?.();
+  expect(data.fired).toEqual(["hapticEntry"]);
+  requestedPause.current = false;
+  expect(renderedPause).toBe(true);
+  expect(data.fired).toEqual(["hapticEntry"]);
+  binding.fire("isLoaded");
+  data.callbacks.get("isLoaded")?.();
+  expect(data.triggered).toEqual(["isLoaded"]);
+  expect(data.fired).toEqual(["hapticEntry", "isLoaded"]);
+  controller.abort();
+});

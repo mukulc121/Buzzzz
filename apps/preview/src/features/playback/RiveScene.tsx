@@ -1,4 +1,11 @@
-import { useEffect, useEffectEvent, useLayoutEffect, useState, type RefObject } from "react";
+import {
+  useEffect,
+  useEffectEvent,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 import { ActivityIndicator, AppState, Text } from "react-native";
 import {
   Fit,
@@ -60,13 +67,20 @@ function BoundRiveScene(props: IBoundRiveScene) {
     active = true,
   } = props;
   const { riveViewRef, setHybridRef } = useRive();
-  const canDispatch = useEffectEvent(() => active && AppState.currentState === "active");
+  const requestedPause = useRef(paused);
+  const canDispatch = useEffectEvent(
+    () => !requestedPause.current && active && AppState.currentState === "active",
+  );
   const onFired = useEffectEvent(onTrigger);
   const stopHaptics = useEffectEvent(props.onStopHaptics);
   const enableHaptics = useEffectEvent(props.onHapticsEnabled);
   const [binding, setBinding] = useState<Awaited<ReturnType<typeof bindRiveTriggers>> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const ready = !instance || binding !== null;
+
+  useLayoutEffect(() => {
+    requestedPause.current = paused;
+  }, [paused]);
 
   useLayoutEffect(() => {
     const controller = new AbortController();
@@ -98,6 +112,7 @@ function BoundRiveScene(props: IBoundRiveScene) {
 
   useEffect(() => {
     pauseRef.current = (next) => {
+      requestedPause.current = next;
       enableHaptics(!next && active && ready);
       void riveViewRef?.[playbackCommand({ paused: next, active })]();
     };
