@@ -1,6 +1,6 @@
 import { PreviewContext } from "./usePreview";
-import { useEffect, useMemo, useRef, type ReactNode } from "react";
-import { useGlobalSearchParams, usePathname, useRouter } from "expo-router";
+import { useEffect, useEffectEvent, useMemo, useRef, type ReactNode } from "react";
+import { useGlobalSearchParams, usePathname, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { light } from "../../theme/colors";
@@ -11,6 +11,7 @@ import { useFilters } from "../presets/useFilters";
 import { useFullscreen } from "../preview/useFullscreen";
 import { MiniPlayer } from "../sessionLibrary/MiniPlayer";
 import { mediaStatusText } from "../sessionLibrary/mediaStatus";
+import { showPreview } from "./showPreview";
 
 interface IPreviewProvider {
   children: ReactNode;
@@ -22,6 +23,7 @@ export function PreviewProvider(props: IPreviewProvider) {
   const { fullscreen, setFullscreen } = useFullscreen();
   const router = useRouter();
   const pathname = usePathname();
+  const segments = useSegments();
   const { soundEnabled } = useFilters();
   const scene = session.riv;
   useNativeSound({
@@ -47,12 +49,13 @@ export function PreviewProvider(props: IPreviewProvider) {
     if (pathname === "/mediaLibraryModal") router.replace(route);
     else router.push(route);
   }, [incoming, pathname, openConnectionId, router]);
+  const openScene = useEffectEvent(() => {
+    setFullscreen(false);
+    showPreview(router, segments);
+  });
   useEffect(() => {
-    if (scene) {
-      setFullscreen(false);
-      router.replace("/preview");
-    }
-  }, [scene, router, setFullscreen]);
+    if (scene) openScene();
+  }, [scene]);
   useEffect(() => {
     if (pathname !== "/preview") setFullscreen(false);
   }, [pathname, setFullscreen]);

@@ -32,7 +32,6 @@ export const previewStyles = (t: Theme) =>
       borderWidth: StyleSheet.hairlineWidth,
       borderRadius: 4,
     },
-    expandText: { color: t.fg, ...font.medium, fontSize: 14 },
     section: { color: t.fg2, fontSize: 14, ...font.medium },
     chips: { gap: 8, paddingRight: 16, alignItems: "center" },
     chipScroll: { flexGrow: 0 },

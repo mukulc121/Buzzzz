@@ -19,6 +19,9 @@ import type { IRiveConfig } from "@buzzzz/core";
 import type { Theme } from "../../theme/colors";
 import { playbackCommand } from "./playbackCommand";
 import { bindRiveTriggers } from "./riveTriggers";
+import { claimSceneRef } from "./sceneOwnership";
+
+const idle = () => {};
 
 interface IRiveScene {
   file: RiveFile;
@@ -32,6 +35,7 @@ interface IRiveScene {
   onStopHaptics: () => void;
   onHapticsEnabled: (enabled: boolean) => void;
   onSceneBound: (paused: boolean) => void;
+  owns: () => boolean;
   fireRef: RefObject<(name: string) => void>;
   pauseRef: RefObject<(paused: boolean) => void>;
 }
@@ -61,7 +65,6 @@ function BoundRiveScene(props: IBoundRiveScene) {
     instance,
     t,
     onTrigger,
-    onTriggers,
     fireRef,
     pauseRef,
     paused = false,
@@ -73,9 +76,20 @@ function BoundRiveScene(props: IBoundRiveScene) {
     () => !requestedPause.current && active && AppState.currentState === "active",
   );
   const onFired = useEffectEvent(onTrigger);
-  const stopHaptics = useEffectEvent(props.onStopHaptics);
-  const enableHaptics = useEffectEvent(props.onHapticsEnabled);
-  const bindHaptics = useEffectEvent(() => props.onSceneBound(requestedPause.current || !active));
+  // A retained duplicate scene must not drive the session's shared haptics.
+  const { owns } = props;
+  const reportTriggers = useEffectEvent((names: string[]) => {
+    if (owns()) props.onTriggers(names);
+  });
+  const stopHaptics = useEffectEvent(() => {
+    if (owns()) props.onStopHaptics();
+  });
+  const enableHaptics = useEffectEvent((enabled: boolean) => {
+    if (owns()) props.onHapticsEnabled(enabled);
+  });
+  const bindHaptics = useEffectEvent(() => {
+    if (owns()) props.onSceneBound(requestedPause.current || !active);
+  });
   const sceneBound = useRef(false);
   const [binding, setBinding] = useState<Awaited<ReturnType<typeof bindRiveTriggers>> | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -96,34 +110,40 @@ function BoundRiveScene(props: IBoundRiveScene) {
       }).then(
         (next) => {
           if (controller.signal.aborted) return;
-          fireRef.current = next.fire;
-          onTriggers(next.names);
+          reportTriggers(next.names);
           setBinding(next);
         },
         (cause: unknown) => {
           if (controller.signal.aborted) return;
-          onTriggers([]);
+          reportTriggers([]);
           setError(cause instanceof Error ? cause.message : "Could not bind Rive triggers.");
         },
       );
     return () => {
       controller.abort();
-      fireRef.current = () => {};
       stopHaptics();
     };
-  }, [instance, fireRef, onTriggers]);
+  }, [instance]);
+
+  // Only the focused scene owns the session's fire and pause handles.
+  useLayoutEffect(() => {
+    if (!active || !binding) return;
+    return claimSceneRef(fireRef, binding.fire, idle);
+  }, [active, binding, fireRef]);
 
   useEffect(() => {
-    pauseRef.current = (next) => {
-      requestedPause.current = next;
-      enableHaptics(!next && active && ready);
-      void riveViewRef?.[
-        playbackCommand({ paused: next, active, foreground: AppState.currentState === "active" })
-      ]();
-    };
-    return () => {
-      pauseRef.current = () => {};
-    };
+    if (!active) return;
+    return claimSceneRef(
+      pauseRef,
+      (next: boolean) => {
+        requestedPause.current = next;
+        enableHaptics(!next && active && ready);
+        void riveViewRef?.[
+          playbackCommand({ paused: next, active, foreground: AppState.currentState === "active" })
+        ]();
+      },
+      idle,
+    );
   }, [riveViewRef, pauseRef, active, ready]);
 
   // The play clock starts with the view's first play command, not the async trigger subscription.

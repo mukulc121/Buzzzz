@@ -1,6 +1,7 @@
 import { useIsFocused } from "expo-router";
 import { useMemo } from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
+import { Maximize, Minimize } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PressableScale } from "../../components/PressableScale";
 import type { Theme } from "../../theme/colors";
@@ -40,6 +41,7 @@ export function PreviewStage(props: IPreviewStage) {
           onSceneBound={session.bindRiveScene}
           fireRef={session.fireRef}
           pauseRef={session.pauseRef}
+          ownerRef={session.sceneOwner}
         />
         <PressableScale
           style={[
@@ -49,7 +51,7 @@ export function PreviewStage(props: IPreviewStage) {
           onPress={onToggleFullscreen}
           accessibilityLabel={fullscreen ? "Exit fullscreen preview" : "Enter fullscreen preview"}
         >
-          <Text style={s.expandText}>{fullscreen ? "Exit fullscreen" : "Fullscreen"}</Text>
+          {fullscreen ? <Minimize size={20} color={t.fg} /> : <Maximize size={20} color={t.fg} />}
         </PressableScale>
         {fullscreen && (
           <View

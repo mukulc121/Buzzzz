@@ -10,6 +10,7 @@ import {
   stopLegacyFromBrowser,
 } from "../sessionLibrary/browserCommands";
 import { deriveTriggerRole } from "./triggerRole";
+import type { ISceneOwner } from "../playback/sceneOwnership";
 
 export function usePreviewSession() {
   const [riv, setRiv] = useState<{
@@ -27,6 +28,7 @@ export function usePreviewSession() {
   const riveConfig = useRef<IRiveConfig | undefined>(undefined);
   const fireRef = useRef<(name: string) => void>(() => {});
   const pauseRef = useRef<(paused: boolean) => void>(() => {});
+  const sceneOwner = useRef<ISceneOwner | null>(null);
   const sceneCompleted = useRef(false);
   const sceneInterrupted = useRef(false);
   const onRiveComplete = useCallback(() => {
@@ -216,6 +218,7 @@ export function usePreviewSession() {
     lastFired,
     fireRef,
     pauseRef,
+    sceneOwner,
     setTriggers,
     onTrigger,
     stopRiveHaptics: riveHaptics.stop,
