@@ -1,11 +1,11 @@
-import { randomUUID } from "../../crypto";
-import { useState } from "react";
-import { patternEnd, type Pattern } from "@buzzzz/core";
-import { snippetRange } from "./patternMath";
+import { useEffect, useState } from "react";
+import type { Pattern } from "@buzzzz/core";
 import { loadSnippets, saveSnippets, type ISnippet } from "./snippetsStore";
 import { SnippetRow } from "./SnippetRow";
 import { LibraryDetail } from "../presets/LibraryDetail";
 import type { StudioPreset } from "../presets/catalog";
+import type { IToolSession } from "./model";
+import { ToolIcon } from "../../components/ToolIcon";
 
 interface ISnippets {
   pattern: Pattern;
@@ -16,14 +16,55 @@ interface ISnippets {
   durationMs: number;
   canEdit: boolean;
   onError: (message: string) => void;
+  snippets?: IToolSession["snippets"];
+}
+
+interface ISnippetActionIcon {
+  kind: "save" | "range";
+}
+
+function SnippetActionIcon(props: ISnippetActionIcon) {
+  return (
+    <svg
+      width={16}
+      height={16}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {props.kind === "range" ? (
+        <>
+          <rect width={18} height={18} x={3} y={3} rx={2} />
+          <path d="M12 3v18" />
+        </>
+      ) : (
+        <>
+          <path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
+          <path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7" />
+          <path d="M7 3v4a1 1 0 0 0 1 1h7" />
+        </>
+      )}
+    </svg>
+  );
 }
 
 export function Snippets(props: ISnippets) {
   const [snippets, setSnippets] = useState(loadSnippets);
   const [detail, setDetail] = useState<StudioPreset | null>(null);
-  const [name, setName] = useState("New snippet");
-  const [start, setStart] = useState(0);
-  const [end, setEnd] = useState(Math.max(1, patternEnd(props.pattern)));
+  const [search, setSearch] = useState("");
+  useEffect(() => {
+    const refresh = () => setSnippets(loadSnippets());
+    window.addEventListener("buzzzz:snippets-changed", refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      window.removeEventListener("buzzzz:snippets-changed", refresh);
+      window.removeEventListener("storage", refresh);
+    };
+  }, []);
   const persist = (next: ISnippet[]) => {
     try {
       saveSnippets(next);
@@ -32,92 +73,88 @@ export function Snippets(props: ISnippets) {
       props.onError(error instanceof Error ? error.message : "Could not save local snippets");
     }
   };
-  const save = () => {
-    try {
-      const label = name.trim();
-      if (!label) throw new Error("Name the snippet first");
-      persist([
-        ...snippets,
-        {
-          id: randomUUID(),
-          name: label.slice(0, 80),
-          durationMs: end - start,
-          pattern: snippetRange(props.pattern, start, end),
-        },
-      ]);
-    } catch (error) {
-      props.onError(error instanceof Error ? error.message : "Could not create snippet");
-    }
-  };
+  const query = search.trim().toLowerCase();
+  const matches = query
+    ? snippets.filter((snippet) => snippet.name.toLowerCase().includes(query))
+    : snippets;
   return (
-    <div className="panel-content preset-library">
-      <p>Save a range on this browser. Leading and trailing silence stay in the snippet.</p>
-      <label>
-        Snippet name
-        <input
-          aria-label="Snippet name"
-          maxLength={80}
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-        />
-      </label>
-      <div className="row">
-        <label>
-          Start ms
-          <input
-            aria-label="Snippet start"
-            type="number"
-            min="0"
-            max="60000"
-            step="1"
-            value={start}
-            onChange={(event) => setStart(Number(event.target.value))}
-          />
-        </label>
-        <label>
-          End ms
-          <input
-            aria-label="Snippet end"
-            type="number"
-            min="1"
-            max="60000"
-            step="1"
-            value={end}
-            onChange={(event) => setEnd(Number(event.target.value))}
-          />
-        </label>
-      </div>
-      <div className="row">
-        <button onClick={save} disabled={snippets.length >= 20}>
-          Save range as snippet
+    <div className="snippet-tool preset-library">
+      <div className="snippet-save-bar">
+        <button
+          type="button"
+          className="button primary"
+          disabled={!props.canEdit || !props.snippets}
+          onClick={props.snippets?.savePattern}
+          title="Save the whole open pattern as a snippet"
+        >
+          <SnippetActionIcon kind="save" />
+          Save pattern
         </button>
         <button
-          onClick={() => {
-            setStart(0);
-            setEnd(Math.max(1, patternEnd(props.pattern)));
-          }}
+          type="button"
+          className="button secondary"
+          disabled={!props.canEdit || !props.snippets}
+          onClick={props.snippets?.toggle}
+          title="Frame part of the pattern between two rails on the chart"
         >
-          Use full pattern
+          {props.snippets?.range ? (
+            <ToolIcon name="close" size={16} />
+          ) : (
+            <SnippetActionIcon kind="range" />
+          )}
+          {props.snippets?.range ? "Cancel range" : "Select range"}
         </button>
       </div>
-      <ul className="library-list">
-        {snippets.map((snippet) => (
-          <SnippetRow
-            key={snippet.id}
-            snippet={snippet}
-            canEdit={props.canEdit}
-            onAppend={props.onAppend}
-            onInspect={(entry) =>
-              setDetail({ ...entry, duration: entry.durationMs, description: "", tags: [] })
-            }
-            onRename={(id, name) =>
-              persist(snippets.map((item) => (item.id === id ? { ...item, name } : item)))
-            }
-            onRemove={(id) => persist(snippets.filter((item) => item.id !== id))}
-          />
-        ))}
-      </ul>
-      {!snippets.length && <p>No saved snippets.</p>}
+      {props.snippets?.range && (
+        <p className="snippet-range-hint">
+          Drag the rails on the chart to frame the part you want, then press Save snippet.
+        </p>
+      )}
+      {snippets.length > 3 && (
+        <input
+          type="search"
+          aria-label="Search snippets"
+          placeholder="Search snippets…"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+      )}
+      {matches.length > 0 && (
+        <ul className="library-list">
+          {matches.map((snippet) => (
+            <SnippetRow
+              key={snippet.id}
+              snippet={snippet}
+              renaming={props.snippets?.pendingRenameId === snippet.id}
+              onRenamingEnd={props.snippets?.clearPendingRename}
+              canEdit={props.canEdit}
+              onAppend={props.onAppend}
+              onInspect={(entry) =>
+                setDetail({ ...entry, duration: entry.durationMs, description: "", tags: [] })
+              }
+              onRename={(id, name) =>
+                persist(snippets.map((item) => (item.id === id ? { ...item, name } : item)))
+              }
+              onRemove={(id) => persist(snippets.filter((item) => item.id !== id))}
+            />
+          ))}
+        </ul>
+      )}
+      {!snippets.length && (
+        <div className="snippet-empty">
+          <span className="snippet-empty-icon">
+            <ToolIcon name="bookmark" size={26} />
+          </span>
+          <h3>No snippets yet</h3>
+          <p>
+            Save the whole pattern, or frame part of it between two rails, to reuse across all your
+            projects.
+          </p>
+        </div>
+      )}
+      {snippets.length > 0 && !matches.length && (
+        <p className="snippet-no-match">No snippet matches “{search.trim()}”.</p>
+      )}
       {snippets.length > 0 && (
         <p className="library-footnote">
           Drag a snippet onto the chart to place it at a specific time, or press + to append it at

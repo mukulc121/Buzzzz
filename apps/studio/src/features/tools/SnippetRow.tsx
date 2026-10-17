@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { Pattern } from "@buzzzz/core";
 import { ContextMenu } from "../../components/ContextMenu";
 import { ToolIcon } from "../../components/ToolIcon";
@@ -13,22 +13,28 @@ interface ISnippetRow {
   onInspect: (snippet: ISnippet) => void;
   onRename: (id: string, name: string) => void;
   onRemove: (id: string) => void;
+  renaming?: boolean;
+  onRenamingEnd?: () => void;
 }
 export function SnippetRow(props: ISnippetRow) {
   const { snippet, canEdit, onAppend, onInspect, onRename, onRemove } = props;
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(snippet.name);
+  const finished = useRef(false);
   const focusName = useCallback((element: HTMLInputElement | null) => {
     element?.focus();
     element?.select();
   }, []);
   const rename = () => {
+    if (finished.current) return;
+    finished.current = true;
     const label = name.trim();
     if (label && label !== snippet.name) onRename(snippet.id, label);
     setRenaming(false);
+    props.onRenamingEnd?.();
   };
-  if (renaming)
+  if (renaming || props.renaming)
     return (
       <li className="library-row">
         <input
@@ -39,7 +45,11 @@ export function SnippetRow(props: ISnippetRow) {
           onBlur={rename}
           onKeyDown={(event) => {
             if (event.key === "Enter") rename();
-            if (event.key === "Escape") setRenaming(false);
+            if (event.key === "Escape") {
+              finished.current = true;
+              setRenaming(false);
+              props.onRenamingEnd?.();
+            }
           }}
           ref={focusName}
         />
@@ -107,6 +117,7 @@ export function SnippetRow(props: ISnippetRow) {
               label: "Rename",
               icon: null,
               onSelect: () => {
+                finished.current = false;
                 setName(snippet.name);
                 setRenaming(true);
               },

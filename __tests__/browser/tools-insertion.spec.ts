@@ -135,9 +135,9 @@ test("snippet append and detail insert update the same pattern at its end and su
   await loadTarget(page);
   const before = await project(page);
   const snippets = await openTool(page, "Snippets");
+  await snippets.getByRole("button", { name: "Save pattern", exact: true }).click();
   await snippets.getByRole("textbox", { name: "Snippet name", exact: true }).fill("Pulse");
-  await snippets.getByRole("spinbutton", { name: "Snippet end", exact: true }).fill("200");
-  await snippets.getByRole("button", { name: "Save range as snippet", exact: true }).click();
+  await snippets.getByRole("textbox", { name: "Snippet name", exact: true }).press("Enter");
   expect(await project(page)).toEqual(before);
   const row = snippets.locator(".library-row");
   await row.click({ button: "right" });

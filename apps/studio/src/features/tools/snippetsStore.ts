@@ -15,7 +15,7 @@ export function loadSnippets(): ISnippet[] {
     const data: unknown = JSON.parse(text);
     if (!Array.isArray(data)) return [];
     const snippets: ISnippet[] = [];
-    for (const item of data.slice(0, 20)) {
+    for (const item of data) {
       if (
         isRecord(item) &&
         typeof item.id === "string" &&
@@ -23,7 +23,7 @@ export function loadSnippets(): ISnippet[] {
         item.name.length <= 80 &&
         typeof item.durationMs === "number" &&
         Number.isFinite(item.durationMs) &&
-        item.durationMs > 0 &&
+        item.durationMs >= 0 &&
         item.durationMs <= 60000 &&
         isPattern(item.pattern)
       )
@@ -41,9 +41,9 @@ export function loadSnippets(): ISnippet[] {
 }
 
 export function saveSnippets(snippets: ISnippet[]): void {
-  if (snippets.length > 20) throw new Error("Keep at most 20 local snippets");
   const text = JSON.stringify(snippets);
   if (new TextEncoder().encode(text).byteLength > 1024 * 1024)
     throw new Error("Local snippets exceed 1 MiB");
   localStorage.setItem(KEY, text);
+  window.dispatchEvent(new Event("buzzzz:snippets-changed"));
 }

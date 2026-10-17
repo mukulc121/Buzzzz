@@ -1,6 +1,7 @@
 import type { Pattern } from "@buzzzz/core";
 import type { useAudioTrack } from "../audio/useAudioTrack";
 import type { TPhonePreset } from "../connection/phoneLibrary";
+import type { useSnippetCapture } from "./useSnippetCapture";
 
 export type ToolId =
   | "pulsar-library"
@@ -24,4 +25,5 @@ export interface IToolSession {
   onPreview: (pattern: Pattern, preset?: TPhonePreset) => void;
   onStopPreview: () => void;
   previewing: boolean;
+  snippets?: ReturnType<typeof useSnippetCapture>;
 }

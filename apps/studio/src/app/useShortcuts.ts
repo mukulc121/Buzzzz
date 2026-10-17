@@ -6,6 +6,7 @@ export function useShortcuts(studio: Studio) {
   useEffect(() => {
     const { document, composer, playback } = studio;
     const handle = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return;
       const command = event.metaKey || event.ctrlKey;
       if (command && !event.shiftKey && !event.altKey && event.key.toLowerCase() === "s") {
         event.preventDefault();
@@ -44,8 +45,9 @@ export function useShortcuts(studio: Studio) {
       else if (event.key === "3") composer.setLayer("discrete");
       else if (event.key === "+" || event.key === "=") composer.zoom(1 / 1.5);
       else if (event.key === "-") composer.zoom(1.5);
-      else if (event.key === "Escape") composer.setSelected(null);
-      else if (event.key.toLowerCase() === "m") composer.addMarker(playback.playhead ?? 0);
+      else if (event.key === "Escape") {
+        if (!studio.snippetCapture.cancel()) composer.setSelected(null);
+      } else if (event.key.toLowerCase() === "m") composer.addMarker(playback.playhead ?? 0);
     };
     window.addEventListener("keydown", handle);
     return () => window.removeEventListener("keydown", handle);

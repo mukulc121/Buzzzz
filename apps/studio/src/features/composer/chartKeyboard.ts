@@ -1,12 +1,6 @@
 import type { KeyboardEvent } from "react";
-import { isPattern, MAX_PATTERN_MS, patternEnd, type Pattern } from "@buzzzz/core";
-import {
-  copySelection,
-  deleteSelection,
-  duplicateSelection,
-  moveSelection,
-  selectInBounds,
-} from "./editing";
+import { MAX_PATTERN_MS, patternEnd, type Pattern } from "@buzzzz/core";
+import { deleteSelection, duplicateSelection, moveSelection, selectInBounds } from "./editing";
 import { LAYERS, selectionKey, type IChart, type PointSelection } from "./model";
 import { clampViewport, zoomViewport } from "./viewport";
 import { chartDuration } from "./chartNavigation";
@@ -14,20 +8,27 @@ import { chartDuration } from "./chartNavigation";
 interface IChartKeyboard {
   getProps: () => IChart;
   selection: readonly PointSelection[];
-  clipboard: { current: Pattern | null };
+  copy: (selection: readonly PointSelection[]) => void;
+  canPaste: boolean;
+  startPaste: () => void;
+  cancelOverlay: () => boolean;
   commit: (result: { pattern: Pattern; selection: PointSelection[] }) => void;
   select: (selection: PointSelection[]) => void;
   reset: () => void;
   report: (error: unknown) => void;
-  paste: (pattern: Pattern) => void;
 }
 
+type TChartKeyEvent = Pick<
+  KeyboardEvent<SVGElement>,
+  "key" | "metaKey" | "ctrlKey" | "shiftKey" | "altKey" | "preventDefault" | "stopPropagation"
+>;
+
 export function handleChartKey(
-  event: KeyboardEvent<SVGElement>,
+  event: TChartKeyEvent,
   options: IChartKeyboard,
   point?: PointSelection,
 ) {
-  const { getProps, selection, clipboard, commit, select, reset, report, paste } = options;
+  const { getProps, selection, commit, select, reset, report } = options;
   const current = getProps();
   const active =
     point && !selection.some((item) => selectionKey(item) === selectionKey(point))
@@ -46,6 +47,7 @@ export function handleChartKey(
   };
   if (key === "escape") {
     handled();
+    if (options.cancelOverlay()) return;
     reset();
     select([]);
   } else if (point && (key === "enter" || key === " ")) {
@@ -56,35 +58,21 @@ export function handleChartKey(
     select(
       selectInBounds({
         pattern: current.pattern,
-        layers: (current.visibleLayers ?? LAYERS).filter((layer) => layer === current.layer),
+        layers: LAYERS.filter((layer) => layer === current.layer),
         bounds: { startMs: 0, endMs: MAX_PATTERN_MS, minValue: 0, maxValue: 1 },
       }),
     );
   } else if (modifier && (key === "c" || key === "x") && active.length) {
     handled();
-    clipboard.current = copySelection({ pattern: current.pattern, selection: active });
-    void navigator.clipboard?.writeText(JSON.stringify(clipboard.current)).catch(() => {});
+    options.copy(active);
     if (key === "x")
       commit({
         pattern: deleteSelection({ pattern: current.pattern, selection: active }),
         selection: [],
       });
-  } else if (modifier && key === "v") {
+  } else if (modifier && key === "v" && options.canPaste) {
     handled();
-    if (clipboard.current) paste(clipboard.current);
-    else if (navigator.clipboard) {
-      const initialPattern = current.pattern;
-      void navigator.clipboard
-        .readText()
-        .then((text) => {
-          const value: unknown = JSON.parse(text);
-          if (!isPattern(value)) throw new Error("Copy a valid Pulsar pattern before pasting.");
-          if (getProps().pattern !== initialPattern) return;
-          clipboard.current = value;
-          paste(value);
-        })
-        .catch(report);
-    }
+    options.startPaste();
   } else if (modifier && key === "d" && active.length) {
     handled();
     try {

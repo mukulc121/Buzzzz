@@ -84,19 +84,25 @@ test("multi-selection keyboard edits preserve history boundaries and tap payload
   expect(current.begins).toBe(1);
   await page.keyboard.press("Control+c");
   await page.keyboard.press("Control+v");
+  expect((await state(page)).begins).toBe(1);
+  await expect(page.getByRole("group", { name: "Paste layers", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Apply paste", exact: true }).click();
   current = await state(page);
-  expect(current.pattern.continuousPattern.amplitude.at(-1).time).toBe(1100);
-  expect(current.pattern.discretePattern.at(-1)).toEqual({
-    time: 1400,
-    amplitude: 0.8,
-    frequency: 0.35,
-  });
+  expect(
+    current.pattern.continuousPattern.amplitude.map((point: { time: number }) => point.time),
+  ).toEqual([225, 250, 450, 750]);
+  expect(current.pattern.discretePattern.at(-1).time).toBe(750);
+  expect(
+    current.pattern.continuousPattern.frequency.map((point: { time: number }) => point.time),
+  ).toEqual([250, 650, 750]);
   expect(current.begins).toBe(2);
+  expect(current.selection).toEqual([]);
+  await chart.getByRole("button", { name: /^Tap at 750/ }).click();
   await chart.focus();
   await page.keyboard.press("Delete");
   current = await state(page);
-  expect(current.pattern.discretePattern).toHaveLength(1);
-  expect(current.pattern.continuousPattern.amplitude).toHaveLength(2);
+  expect(current.pattern.discretePattern).toHaveLength(0);
+  expect(current.pattern.continuousPattern.amplitude).toHaveLength(4);
   expect(current.selection).toEqual([]);
   expect(current.begins).toBe(3);
   expect(errors).toEqual([]);

@@ -25,6 +25,7 @@ import { useCanonicalProject } from "../features/mcp/useCanonicalProject";
 import { useMcpBridge } from "../features/mcp/useMcpBridge";
 import { useStudioFiles } from "./useStudioFiles";
 import { useToolWorkspace } from "../features/tools/useToolWorkspace";
+import { useSnippetCapture } from "../features/tools/useSnippetCapture";
 import type { Panel } from "./ToolRail";
 
 export function useStudio() {
@@ -67,6 +68,27 @@ export function useStudio() {
     scopeKey: instanceKey,
     currentPattern: document.pattern,
     onGenerated: (pattern) => applyGenerated(pattern),
+  });
+  const snippetCapture = useSnippetCapture({
+    instanceKey,
+    pattern: document.pattern,
+    name: document.preset.name,
+    selection: composer.selection,
+    viewport: composer.viewport,
+    durationMs: Math.max(
+      100,
+      patternEnd(document.pattern),
+      document.preset.editor?.durationMs ?? 0,
+      audio.source ? audio.trim.endMs - audio.trim.startMs : 0,
+      animation.source?.durationMs ?? 0,
+    ),
+    valueDecimals: composer.settings.values.valueDecimals,
+    canEdit: document.isWriter && !riveTimeline,
+    onSaved: () => {
+      tools.setActive("snippets");
+      setPanel("tools");
+    },
+    onError: setError,
   });
   const riveOwner = resolveRivePresetId(document.project);
   const riveConfig = useMemo(
@@ -362,6 +384,7 @@ export function useStudio() {
   };
   const studio = {
     tools,
+    snippetCapture,
     document,
     composer,
     appearance,

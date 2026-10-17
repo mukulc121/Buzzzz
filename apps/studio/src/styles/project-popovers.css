@@ -1,4 +1,6 @@
 .context-menu {
+  --menu-danger: rgba(214, 69, 69, 1);
+  --menu-danger-bg: rgba(253, 236, 236, 1);
   position: fixed;
   z-index: 1000;
   min-width: 172px;
@@ -9,8 +11,13 @@
   box-shadow: -2px 2px 0 var(--dash-shadow);
   animation: dashboard-pop 0.12s ease;
 }
+:root[data-theme="dark"] .context-menu {
+  --menu-danger: rgba(242, 128, 127, 1);
+  --menu-danger-bg: rgba(58, 28, 28, 1);
+}
 .context-menu-item {
   display: flex;
+  align-items: center;
   justify-content: flex-start;
   gap: 8px;
   width: 100%;
@@ -21,23 +28,50 @@
   color: var(--fg);
   font-size: 16px;
   text-align: left;
+  cursor: pointer;
   outline: none;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 .context-menu-item:hover:not(:disabled),
 .context-menu-item:focus:not(:disabled) {
   border: 0;
   background: var(--plot);
+  color: var(--fg);
+}
+.context-menu-item:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 .context-menu-icon {
+  display: inline-flex;
+  flex-shrink: 0;
   color: var(--muted);
+}
+.context-menu-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.context-menu-shortcut {
+  flex-shrink: 0;
+  margin-left: 16px;
+  color: var(--muted);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 .context-menu-item.danger,
 .context-menu-item.danger .context-menu-icon {
-  color: var(--dash-danger);
+  color: var(--menu-danger);
 }
 .context-menu-item.danger:hover:not(:disabled),
 .context-menu-item.danger:focus:not(:disabled) {
-  background: var(--dash-danger-bg);
+  background: var(--menu-danger-bg);
+  color: var(--menu-danger);
 }
 .context-menu-separator {
   height: 1px;

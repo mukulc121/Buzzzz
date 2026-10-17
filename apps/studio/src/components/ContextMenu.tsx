@@ -13,7 +13,8 @@ const EDGE = 8;
 type TMenuItem =
   | {
       label: string;
-      icon: ReactNode;
+      icon?: ReactNode;
+      shortcut?: string;
       disabled?: boolean;
       danger?: boolean;
       onSelect: () => void;
@@ -103,8 +104,13 @@ export function ContextMenu(props: IContextMenu) {
               item.onSelect();
             }}
           >
-            <span className="context-menu-icon">{item.icon}</span>
-            <span>{item.label}</span>
+            {item.icon && (
+              <span className="context-menu-icon" aria-hidden="true">
+                {item.icon}
+              </span>
+            )}
+            <span className="context-menu-label">{item.label}</span>
+            {item.shortcut && <span className="context-menu-shortcut">{item.shortcut}</span>}
           </button>
         ),
       )}

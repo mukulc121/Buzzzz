@@ -6,6 +6,7 @@ import { MIN_VIEW_MS } from "./timelineGeometry";
 import { useEditorSettings } from "./useEditorSettings";
 import { nextMarkerLabel } from "./markers";
 import { useComposerView } from "./useComposerView";
+import type { IChartClipboard } from "./pasteModel";
 
 export function useComposer(
   pattern: Pattern,
@@ -17,6 +18,7 @@ export function useComposer(
   const [layer, setLayer] = useState<Layer>("amplitude");
   const [selected, setSelected] = useState<Selection>(null);
   const [selection, setSelection] = useState<PointSelection[]>([]);
+  const [clipboard, setClipboard] = useState<IChartClipboard | null>(null);
   const settings = useEditorSettings();
   const multilayerSelection = settings.values.multilayerSelection;
   const setMultilayerSelection = (value: boolean) => settings.update("multilayerSelection", value);
@@ -101,6 +103,8 @@ export function useComposer(
     setSelected: select,
     setPrimarySelection: setSelected,
     selection,
+    clipboard,
+    setClipboard,
     setSelection,
     multilayerSelection,
     setMultilayerSelection,

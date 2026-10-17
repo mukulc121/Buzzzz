@@ -31,5 +31,6 @@ export function toolBindings(studio: Studio): IToolSession {
     onPreview: studio.audition,
     onStopPreview: studio.previewPlayback.stop,
     previewing: studio.previewPlayback.playing,
+    snippets: studio.snippetCapture,
   };
 }

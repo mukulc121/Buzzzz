@@ -13,6 +13,8 @@ import { toolBindings } from "./toolBindings";
 import { patternEnd } from "@buzzzz/core";
 import { PatternTitle } from "../components/PatternTitle";
 import { MEDIA_DRAG_TYPE, readMediaDrag } from "../features/media/mediaDrag";
+import { useRef } from "react";
+import { SnippetRange } from "../features/composer/SnippetRange";
 
 interface IEditorCanvas {
   studio: Studio;
@@ -20,6 +22,7 @@ interface IEditorCanvas {
 export function EditorCanvas(props: IEditorCanvas) {
   const { studio } = props;
   const { document, composer, playback, session, audio } = studio;
+  const fileInput = useRef<HTMLInputElement>(null);
   const hasPattern =
     document.pattern.discretePattern.length +
       document.pattern.continuousPattern.amplitude.length +
@@ -122,10 +125,59 @@ export function EditorCanvas(props: IEditorCanvas) {
             toolBindings(studio).onAppend(pattern, Math.round(Math.max(0, time)));
           }}
         >
+          <input
+            ref={fileInput}
+            type="file"
+            accept=".ahap,.haptic,.hapt,.vib,.json,.pulsar,.riv,application/json"
+            multiple
+            hidden
+            onChange={async (event) => {
+              const files = Array.from(event.currentTarget.files ?? []);
+              event.currentTarget.value = "";
+              if (!document.isWriter) return;
+              for (const file of files) await studio.importFile(file);
+            }}
+          />
           <Chart
+            key={`${document.projectId}\u0000${document.preset.id}`}
             pattern={riveCues?.pattern ?? document.pattern}
             patternSegments={riveCues?.segments}
-            readOnly={Boolean(riveCues)}
+            readOnly={Boolean(riveCues) || !document.isWriter}
+            actions={{
+              canUndo: document.canUndo,
+              canRedo: document.canRedo,
+              onUndo: () => {
+                document.undo();
+                composer.setSelected(null);
+              },
+              onRedo: () => {
+                document.redo();
+                composer.setSelected(null);
+              },
+              onLayerChange: composer.setLayer,
+              onAddMarker: (timeMs) => {
+                if (document.isWriter) composer.addMarker(timeMs);
+              },
+              onOpenFile: () => {
+                if (document.isWriter) fileInput.current?.click();
+              },
+              onSaveRange: studio.snippetCapture.open,
+              onCancelOverlay: studio.snippetCapture.cancel,
+              clipboard: composer.clipboard,
+              onCopy: composer.setClipboard,
+            }}
+            overlay={(geometry) =>
+              studio.snippetCapture.range && (
+                <SnippetRange
+                  geometry={geometry}
+                  range={studio.snippetCapture.range}
+                  durationMs={Math.max(100, markerDurationMs)}
+                  onChange={studio.snippetCapture.change}
+                  onSave={studio.snippetCapture.save}
+                  onCancel={studio.snippetCapture.cancel}
+                />
+              )
+            }
             getPlayhead={riveCues ? session.elapsedMs : undefined}
             layer={composer.layer}
             viewMs={composer.viewport.durationMs}

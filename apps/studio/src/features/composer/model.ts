@@ -1,5 +1,8 @@
 import type { Pattern } from "@buzzzz/core";
+import type { ReactNode } from "react";
 import type { IEditorSettings } from "./editorSettings";
+import type { IChartGeometry } from "./geometry";
+import type { IChartClipboard } from "./pasteModel";
 
 export type Layer = "amplitude" | "frequency" | "discrete";
 export type Selection = { layer: Layer; index: number } | null;
@@ -41,6 +44,20 @@ export interface IMarkerActions {
 }
 
 export interface IChart extends IMarkerActions {
+  actions?: {
+    canUndo: boolean;
+    canRedo: boolean;
+    onUndo: () => void;
+    onRedo: () => void;
+    onLayerChange: (layer: Layer) => void;
+    onAddMarker: (timeMs: number) => void;
+    onOpenFile: () => void;
+    onSaveRange: () => void;
+    onCancelOverlay?: () => boolean;
+    clipboard?: IChartClipboard | null;
+    onCopy?: (clipboard: IChartClipboard) => void;
+  };
+  overlay?: (geometry: IChartGeometry) => ReactNode;
   pattern: Pattern;
   patternSegments?: readonly Pattern[];
   readOnly?: boolean;
