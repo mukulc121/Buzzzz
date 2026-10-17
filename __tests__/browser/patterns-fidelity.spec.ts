@@ -1,3 +1,4 @@
+import { patternTitle } from "./fixtures/pattern-title";
 import { createHash } from "node:crypto";
 import { expect, test } from "@playwright/test";
 
@@ -190,9 +191,7 @@ for (const theme of ["light", "dark"]) {
     await expect(thud).toHaveCSS("border-color", "rgba(0, 0, 0, 0)");
     await thud.click();
     await expect(thud).toHaveCSS("border-color", color.border);
-    await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-      "Thud",
-    );
+    await expect(patternTitle(page)).toHaveText("Thud");
     await brand.click();
     await expect(page.getByRole("heading", { name: "Projects", exact: true })).toBeVisible();
   });
@@ -230,15 +229,11 @@ test("renaming an inactive pattern updates only its target and keeps the editor 
     "aria-current",
     "false",
   );
-  await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-    "Untitled pattern",
-  );
+  await expect(patternTitle(page)).toHaveText("Untitled pattern");
   await page.reload();
   await expect(panel.getByRole("button", { name: "Renamed", exact: true })).toBeVisible();
   await panel.getByRole("button", { name: "Renamed", exact: true }).click();
-  await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-    "Renamed",
-  );
+  await expect(patternTitle(page)).toHaveText("Renamed");
 });
 
 test("long pattern metadata wraps inside the minimum-width side panel", async ({ page }) => {

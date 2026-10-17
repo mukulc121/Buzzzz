@@ -1,3 +1,4 @@
+import { renamePattern } from "./fixtures/pattern-title";
 import { createHash } from "node:crypto";
 import { expect, test, type Page, type WebSocketRoute } from "@playwright/test";
 import { parseMessage, patternEnd, rangePattern, toDevice, type Msg } from "@buzzzz/core";
@@ -49,10 +50,10 @@ test("phone manifests debounce names, answer requests, and resend after phone or
   expect(phone.manifests().at(-1)).toEqual(manifest());
   await page.clock.pauseAt(await page.evaluate(() => Date.now() + 5000));
   phone.messages.length = 0;
-  await page.getByRole("textbox", { name: "Pattern name", exact: true }).fill("Phone preview");
+  await renamePattern(page, "Phone preview");
   await page.clock.runFor(299);
   expect(phone.manifests()).toHaveLength(0);
-  await page.getByRole("textbox", { name: "Pattern name", exact: true }).fill("Renamed preview");
+  await renamePattern(page, "Renamed preview");
   await page.clock.runFor(299);
   expect(phone.manifests()).toHaveLength(0);
   await page.clock.runFor(1);

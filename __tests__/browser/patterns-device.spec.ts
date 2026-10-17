@@ -1,3 +1,4 @@
+import { patternTitle } from "./fixtures/pattern-title";
 import { readFile } from "node:fs/promises";
 import { expect, test, type WebSocketRoute } from "@playwright/test";
 
@@ -17,16 +18,14 @@ test("patterns show duration and events, duplicate/delete through row actions, a
   );
   await patterns.getByRole("button", { name: "Thud", exact: true }).click({ button: "right" });
   await page.getByRole("menuitem", { name: "Duplicate", exact: true }).click();
-  await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-    "Thud copy",
-  );
+  await expect(patternTitle(page)).toHaveText("Thud copy");
   await patterns.getByRole("button", { name: "Thud copy", exact: true }).click({ button: "right" });
   await page.getByRole("menuitem", { name: "Remove", exact: true }).click();
   await expect(patterns.getByRole("button", { name: "Thud copy", exact: true })).toHaveCount(0);
   await patterns.getByRole("button", { name: "New pattern", exact: true }).click();
-  await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-    "Untitled pattern",
-  );
+  const rename = page.getByRole("textbox", { name: "Pattern name", exact: true });
+  await expect(rename).toHaveValue("Untitled pattern");
+  await rename.press("Enter");
   const exports = page.locator('[data-tour="inspector-export"]');
   await exports.locator("summary").click();
   await exports.getByRole("button", { name: "Clear all", exact: true }).click();
@@ -44,9 +43,7 @@ test("patterns show duration and events, duplicate/delete through row actions, a
     mimeType: "application/octet-stream",
     buffer,
   });
-  await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-    "Untitled pattern",
-  );
+  await expect(patternTitle(page)).toHaveText("Untitled pattern");
   await expect(patterns.locator(".pattern-select")).toHaveCount(1);
 });
 

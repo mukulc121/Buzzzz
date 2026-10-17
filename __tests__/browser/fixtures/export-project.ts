@@ -1,3 +1,4 @@
+import { patternTitle } from "./pattern-title";
 import { expect, type Page } from "@playwright/test";
 
 export async function openExportProject(page: Page) {
@@ -30,9 +31,7 @@ export async function openExportProject(page: Page) {
     socket.send(JSON.stringify({ type: "peers", phones: 0 })),
   );
   await page.goto("/studio/projects/export-project");
-  await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-    "First",
-  );
+  await expect(patternTitle(page)).toHaveText("First");
   if ((page.viewportSize()?.width ?? 1440) <= 768)
     await page
       .locator(".mobile-notice")

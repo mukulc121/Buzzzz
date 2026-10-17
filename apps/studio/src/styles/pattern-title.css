@@ -1,0 +1,56 @@
+.pattern-current {
+  --pattern-title-hover: rgba(225, 243, 250, 0.6);
+  --pattern-title-focus: rgba(56, 172, 221, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  padding: 0 8px;
+}
+:root[data-theme="dark"] .pattern-current {
+  --pattern-title-hover: rgba(255, 255, 255, 0.04);
+  --pattern-title-focus: rgba(63, 177, 230, 0.35);
+}
+.pattern-current-icon {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.pattern-title {
+  margin: 0 0 -4px;
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--fg);
+  cursor: text;
+  transition: background-color 0.15s ease;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.pattern-title:hover {
+  background-color: var(--pattern-title-hover);
+}
+.pattern-title-input {
+  flex: 1;
+  min-width: 0;
+  max-width: 320px;
+  padding: 2px 4px;
+  margin-left: -4px;
+  border: 2px solid var(--line-strong);
+  border-radius: 2px;
+  background-color: var(--panel);
+  color: var(--fg);
+  font-size: 16px;
+  font-weight: 500;
+  font-family: inherit;
+  outline: none;
+}
+.pattern-title-input:focus {
+  box-shadow: 0 0 0 3px var(--pattern-title-focus);
+}
+.pattern-current-empty {
+  font-size: 14px;
+  color: var(--muted);
+}

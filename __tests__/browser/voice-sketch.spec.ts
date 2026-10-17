@@ -1,3 +1,4 @@
+import { patternTitle } from "./fixtures/pattern-title";
 import { expect, test, type Page } from "@playwright/test";
 import { isProjectRecord } from "../../apps/studio/src/features/project/model";
 
@@ -36,7 +37,7 @@ test.beforeEach(async ({ page }) => {
   });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/");
-  await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toBeEnabled();
+  await expect(patternTitle(page)).toBeVisible();
   await page.getByRole("button", { name: "Tools", exact: true }).click();
   await page.getByRole("button", { name: "Voice Sketch", exact: true }).click();
 });

@@ -1,3 +1,4 @@
+import { patternTitle } from "./fixtures/pattern-title";
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { readFileSync } from "node:fs";
@@ -108,7 +109,7 @@ test("read-only media rows cannot rename, delete or attach", async ({ page, cont
   await uploadAnimation(page);
   const viewer = await context.newPage();
   await viewer.goto(page.url());
-  await expect(viewer.getByRole("textbox", { name: "Pattern name", exact: true })).toBeDisabled();
+  await expect(patternTitle(viewer)).toHaveAttribute("aria-disabled", "true");
   await viewer.getByRole("button", { name: "Media", exact: true }).click();
   const row = viewer.locator(".media-item").filter({ hasText: "bounce.json" });
   await expect(row).toHaveAttribute("draggable", "false");

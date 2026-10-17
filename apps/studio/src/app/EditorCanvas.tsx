@@ -10,7 +10,7 @@ import { PRESET_DRAG_TYPE, readPresetDrag } from "../features/presets/drag";
 import { chartGeometry } from "../features/composer/geometry";
 import { toolBindings } from "./toolBindings";
 import { patternEnd } from "@buzzzz/core";
-import { PatternSymbol } from "../features/project/PatternSymbol";
+import { PatternTitle } from "../components/PatternTitle";
 import { MEDIA_DRAG_TYPE, readMediaDrag } from "../features/media/mediaDrag";
 
 interface IEditorCanvas {
@@ -29,16 +29,17 @@ export function EditorCanvas(props: IEditorCanvas) {
   return (
     <main className="editor-canvas">
       <header className="pattern-header">
-        <span className="pattern-symbol">
-          <PatternSymbol />
-        </span>
-        <input
-          className="name"
-          aria-label="Pattern name"
-          value={document.preset.name}
-          disabled={!document.isWriter}
-          onFocus={document.begin}
-          onChange={(event) => document.rename(event.target.value)}
+        <PatternTitle
+          key={document.preset.id}
+          name={document.preset.name}
+          renaming={document.renamingId === document.preset.id}
+          writable={document.isWriter}
+          onStartRename={() => document.startRenaming(document.preset.id)}
+          onCommit={(name) => {
+            document.begin();
+            document.renamePreset(document.preset.id, name);
+          }}
+          onCancel={document.cancelRenaming}
         />
         <ProjectStatus
           status={document.status}

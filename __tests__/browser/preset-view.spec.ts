@@ -1,7 +1,6 @@
+import { patternTitle, renamePattern } from "./fixtures/pattern-title";
 import { expect, test, type Page } from "@playwright/test";
 
-const patternName = (page: Page) =>
-  page.getByRole("textbox", { name: "Pattern name", exact: true });
 const slider = (page: Page, name: string) => page.getByRole("slider", { name, exact: true });
 
 async function view(page: Page) {
@@ -37,7 +36,7 @@ async function importSecondPattern(page: Page) {
     ),
   });
   await expect(dialog).not.toBeVisible();
-  await expect(patternName(page)).toHaveValue("View B");
+  await expect(patternTitle(page)).toHaveText("View B");
   await expect(slider(page, "Timeline view end")).toHaveAttribute("aria-valuenow", "600");
 }
 
@@ -45,7 +44,7 @@ async function selectPattern(page: Page, name: string) {
   const patterns = page.getByRole("button", { name: "Patterns", exact: true });
   if ((await patterns.getAttribute("aria-pressed")) !== "true") await patterns.click();
   await page.getByRole("button", { name, exact: true }).click();
-  await expect(patternName(page)).toHaveValue(name);
+  await expect(patternTitle(page)).toHaveText(name);
 }
 
 function audioFixture() {
@@ -82,9 +81,8 @@ test("the actual editor restores each preset view and cursor, then resets sessio
   page,
 }) => {
   await page.goto("/");
-  await expect(patternName(page)).toBeEditable();
-  await patternName(page).fill("View A");
-  await patternName(page).blur();
+  await expect(patternTitle(page)).toBeVisible();
+  await renamePattern(page, "View A");
   await expect(slider(page, "Timeline view end")).toHaveAttribute("aria-valuenow", "300");
   await slider(page, "Scrub position").press("Shift+ArrowRight");
   await page.getByRole("button", { name: "Zoom in", exact: true }).click();
@@ -107,7 +105,7 @@ test("the actual editor restores each preset view and cursor, then resets sessio
   await selectPattern(page, "View A");
   expect(await view(page)).toEqual(first);
   await page.reload();
-  await expect(patternName(page)).toHaveValue("View A");
+  await expect(patternTitle(page)).toHaveText("View A");
   await expect(slider(page, "Timeline view end")).toHaveAttribute("aria-valuenow", "300");
   expect(await view(page)).toEqual({ start: 0, end: 300, cursor: 0 });
 });
@@ -126,9 +124,8 @@ test("returning audio hydration creates a fresh URL without refitting the saved 
     };
   });
   await page.goto("/");
-  await expect(patternName(page)).toBeEditable();
-  await patternName(page).fill("Audio A");
-  await patternName(page).blur();
+  await expect(patternTitle(page)).toBeVisible();
+  await renamePattern(page, "Audio A");
   await page.getByRole("tab", { name: "sound", exact: true }).click();
   await page.getByLabel("Audio file", { exact: true }).setInputFiles(audioFixture());
   await expect(page.getByRole("img", { name: "Audio waveform", exact: true })).toBeVisible({

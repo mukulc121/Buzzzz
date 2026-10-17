@@ -1,3 +1,4 @@
+import { patternTitle } from "./fixtures/pattern-title";
 import { expect, test, type Page } from "@playwright/test";
 
 const pattern = (taps: number[]) => ({
@@ -131,8 +132,8 @@ test("create opens the new project in the editor", async ({ page }) => {
   await dialog.getByRole("textbox", { name: "Project name" }).fill("Onboarding tour");
   await dialog.getByRole("button", { name: "Create" }).click();
   await expect(page).toHaveURL(/\/studio\/projects\/[\w-]+(?:[?#]|$)/);
-  await expect(page.getByRole("textbox", { name: "Pattern name" })).toBeEnabled();
-  await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue("Untitled pattern");
+  await expect(patternTitle(page)).toBeVisible();
+  await expect(patternTitle(page)).toHaveText("Untitled pattern");
   await expect(
     page.getByRole("group", { name: "Haptic pattern timeline" }).getByRole("button"),
   ).toHaveCount(0);
@@ -143,7 +144,7 @@ test("create opens the new project in the editor", async ({ page }) => {
   await card(page, "Checkout Flow")
     .getByRole("button", { name: "Checkout Flow", exact: true })
     .click();
-  await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue("Tap");
+  await expect(patternTitle(page)).toHaveText("Tap");
 });
 
 test("import rejects files that are not .pulsar", async ({ page }) => {

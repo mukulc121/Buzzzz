@@ -92,7 +92,6 @@ export function useProjectDocument(props: IProjectDocument) {
     setProject,
     setPattern: (pattern: Pattern) => editPreset((item) => ({ ...item, pattern })),
     setEditor: (editor: IPresetEditor) => editPreset((item) => ({ ...item, editor })),
-    rename: (name: string) => editPreset((item) => ({ ...item, name })),
     renamePreset: (id: string, name: string) => {
       const trimmed = name.trim();
       setRenamingId((current) => (current === id ? null : current));

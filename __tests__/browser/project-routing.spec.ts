@@ -1,7 +1,7 @@
+import { patternTitle, renamePattern } from "./fixtures/pattern-title";
 import { expect, test, type Page } from "@playwright/test";
 
 const dashboard = (page: Page) => page.getByRole("region", { name: "Projects", exact: true });
-const patternName = (page: Page) => page.getByRole("textbox", { name: "Pattern name" });
 
 async function showProjects(page: Page) {
   await page.getByRole("button", { name: "Projects", exact: true }).click();
@@ -16,12 +16,12 @@ async function createProject(page: Page, name: string, pattern: string) {
   await dialog.getByRole("button", { name: "Create", exact: true }).click();
   await expect(page).toHaveURL(/\/studio\/projects\/[\w-]+(?:[?#]|$)/);
   await expect(page.locator(".save-status")).toHaveAttribute("data-status", /editing|unlocked/);
-  await expect(patternName(page)).toHaveValue("Untitled pattern");
+  await expect(patternTitle(page)).toHaveText("Untitled pattern");
   await expect(
     page.getByRole("group", { name: "Haptic pattern timeline" }).getByRole("button"),
   ).toHaveCount(0);
-  await patternName(page).fill(pattern);
-  await expect(patternName(page)).toHaveValue(pattern);
+  await renamePattern(page, pattern);
+  await expect(patternTitle(page)).toHaveText(pattern);
   return page.url();
 }
 
@@ -44,25 +44,25 @@ test("project URLs select saved A/B through reload and browser history", async (
   await showProjects(page);
   await dashboard(page).getByRole("button", { name: "Route A", exact: true }).click();
   await expect(page).toHaveURL(a);
-  await expect(patternName(page)).toHaveValue("A pattern");
+  await expect(patternTitle(page)).toHaveText("A pattern");
   await page.reload();
   await expect(page).toHaveURL(a);
-  await expect(patternName(page)).toHaveValue("A pattern");
+  await expect(patternTitle(page)).toHaveText("A pattern");
   await page.goBack();
   await expect(dashboard(page)).toBeVisible();
   await page.goBack();
   await expect(page).toHaveURL(b);
-  await expect(patternName(page)).toHaveValue("B pattern");
+  await expect(patternTitle(page)).toHaveText("B pattern");
   await page.goForward();
   await expect(dashboard(page)).toBeVisible();
   await page.goForward();
   await expect(page).toHaveURL(a);
-  await expect(patternName(page)).toHaveValue("A pattern");
+  await expect(patternTitle(page)).toHaveText("A pattern");
   await page.goBack();
   await page.goBack();
-  await expect(patternName(page)).toHaveValue("B pattern");
+  await expect(patternTitle(page)).toHaveText("B pattern");
   await page.goto(a);
-  await expect(patternName(page)).toHaveValue("A pattern");
+  await expect(patternTitle(page)).toHaveText("A pattern");
   await page.screenshot({ path: "/tmp/buzzzz-routing-results/project-a.png" });
 });
 
@@ -82,7 +82,7 @@ test("missing and malformed local IDs visibly show the dashboard without inventi
     await fresh.goto(a);
     await expect(fresh.getByRole("alert")).toContainText("Project not found in this browser");
     await expect(dashboard(fresh)).toBeVisible();
-    await expect(patternName(fresh)).toHaveCount(0);
+    await expect(patternTitle(fresh)).toHaveCount(0);
   } finally {
     await other.close();
   }
@@ -90,7 +90,7 @@ test("missing and malformed local IDs visibly show the dashboard without inventi
     await page.goto(path);
     await expect(page.getByRole("alert")).toContainText("Project not found in this browser");
     await expect(dashboard(page)).toBeVisible();
-    await expect(patternName(page)).toHaveCount(0);
+    await expect(patternTitle(page)).toHaveCount(0);
   }
   expect(
     await page.evaluate(() => localStorage.getItem("buzzzz.project.missing-local-id")),
@@ -120,9 +120,9 @@ test("removing the current project keeps the dashboard and history cannot reopen
   await page.goBack();
   await expect(page).toHaveURL(a);
   await expect(page.getByRole("alert")).toContainText("Project not found in this browser");
-  await expect(patternName(page)).toHaveCount(0);
+  await expect(patternTitle(page)).toHaveCount(0);
   await dashboard(page).getByRole("button", { name: "Keep B", exact: true }).click();
-  await expect(patternName(page)).toHaveValue("B pattern");
+  await expect(patternTitle(page)).toHaveText("B pattern");
 });
 
 test("incoming hosted share URLs keep their query/hash and relay bootstraps at the origin", async ({
@@ -138,14 +138,14 @@ test("incoming hosted share URLs keep their query/hash and relay bootstraps at t
   const token = "t".repeat(43);
   const path = `/studio/projects/a-local-id?shareRoom=${room}&shareId=${id}&shareToken=${token}#relay-bootstrap`;
   await page.goto(path);
-  await expect(patternName(page)).toBeVisible();
+  await expect(patternTitle(page)).toBeVisible();
   await expect(page).toHaveURL(`http://127.0.0.1:5173${path}`);
   await expect(page.getByText("Project not found in this browser", { exact: false })).toHaveCount(
     0,
   );
   await expect.poll(() => sockets.some((url) => new URL(url).pathname === "/relay")).toBe(true);
   await page.reload();
-  await expect(patternName(page)).toBeVisible();
+  await expect(patternTitle(page)).toBeVisible();
   await expect(page).toHaveURL(`http://127.0.0.1:5173${path}`);
   expect(await page.evaluate(() => localStorage.getItem("buzzzz.project.a-local-id"))).toBeNull();
 });

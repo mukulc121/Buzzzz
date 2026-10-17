@@ -1,3 +1,4 @@
+import { patternTitle } from "./fixtures/pattern-title";
 import { expect, test, type Page } from "@playwright/test";
 import { isProjectRecord } from "../../apps/studio/src/features/project/model";
 import { insertLibraryPattern } from "../../apps/studio/src/features/presets/insertPattern";
@@ -114,7 +115,7 @@ test("library audition leaves an attached animation paused on its current frame"
 
 test("starting a library audition stops an existing editor playback clock", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("textbox", { name: "Pattern name" })).toBeEnabled();
+  await expect(patternTitle(page)).toBeVisible();
   await page.evaluate(() => {
     const transfer = new DataTransfer();
     transfer.items.add(
@@ -144,7 +145,7 @@ test("starting a library audition stops an existing editor playback clock", asyn
         new DragEvent("drop", { dataTransfer: transfer, bubbles: true, cancelable: true }),
       );
   });
-  await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue("long-pattern");
+  await expect(patternTitle(page)).toHaveText("long-pattern");
   const editor = page.locator(".pattern-header");
   await editor.getByRole("button", { name: "Play", exact: true }).click();
   await expect(editor.getByRole("button", { name: "Stop", exact: true })).toBeVisible();
@@ -173,9 +174,8 @@ test("append and detail insertion update the active pattern, persist and undo", 
   await library.getByRole("button", { name: "Append Alarm to the pattern", exact: true }).click();
   const expected = insertLibraryPattern(active.pattern, alarm.pattern, patternEnd(active.pattern));
   await expect.poll(async () => (await project(page)).presets[0]?.pattern).toEqual(expected);
-  await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue("Thud");
+  await expect(patternTitle(page)).toHaveText("Thud");
   expect((await project(page)).presets).toHaveLength(1);
-  await page.getByRole("textbox", { name: "Pattern name" }).blur();
   await page.keyboard.press("Control+z");
   await expect.poll(async () => (await project(page)).presets[0]?.pattern).toEqual(active.pattern);
   await library.getByRole("button", { name: "About Alarm", exact: true }).click();
@@ -186,7 +186,7 @@ test("append and detail insertion update the active pattern, persist and undo", 
   await expect.poll(async () => (await project(page)).presets[0]?.pattern).toEqual(expected);
   await page.reload();
   expect((await project(page)).presets[0]?.pattern).toEqual(expected);
-  await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue("Thud");
+  await expect(patternTitle(page)).toHaveText("Thud");
 });
 
 test("the floating library persists across panels, moves, resizes and docks", async ({ page }) => {

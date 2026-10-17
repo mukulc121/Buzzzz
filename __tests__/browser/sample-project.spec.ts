@@ -1,3 +1,4 @@
+import { patternTitle } from "./fixtures/pattern-title";
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
@@ -23,9 +24,7 @@ test("the separate sample action creates the original three patterns and their r
     ["JustHaptics", "4366 ms · 11 discrete"],
   ])
     await expect(patterns.getByRole("button", { name, exact: true })).toContainText(metadata);
-  await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-    "ExplosionAnimation",
-  );
+  await expect(patternTitle(page)).toHaveText("ExplosionAnimation");
   await page.getByRole("tab", { name: "animation", exact: true }).click();
   await expect(
     page.getByRole("region", { name: "Animation canvas preview", exact: true }).locator("canvas"),

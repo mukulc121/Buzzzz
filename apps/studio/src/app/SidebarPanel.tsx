@@ -22,14 +22,11 @@ function SidebarContents(props: ISidebarPanel) {
           project={document.project}
           preset={document.preset}
           writable={document.isWriter}
-          renamingId={document.renamingId}
           onAdd={studio.addPreset}
           onDuplicate={studio.duplicatePreset}
           onSelect={studio.selectPreset}
           onRemove={document.removePreset}
           onRename={document.renamePreset}
-          onStartRename={document.startRenaming}
-          onCancelRename={document.cancelRenaming}
           onHide={() => studio.setPanel(null)}
         />
       );

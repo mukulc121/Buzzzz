@@ -1,3 +1,4 @@
+import { patternTitle, renamePattern } from "./fixtures/pattern-title";
 import { expect, type APIRequestContext, type Page } from "@playwright/test";
 import { isProject, isRecord } from "@buzzzz/core";
 import { test } from "./hosted.fixture";
@@ -92,7 +93,7 @@ async function renameProject(page: Page, name: string) {
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).toHaveCount(0);
   await current.getByRole("button", { name, exact: true }).click();
-  await expect(page.getByRole("textbox", { name: "Pattern name" })).toBeEnabled();
+  await expect(patternTitle(page)).toBeVisible();
 }
 async function createProject(page: Page) {
   await page
@@ -109,7 +110,7 @@ async function createProject(page: Page) {
     .click();
   await expect(page).toHaveURL(/\/studio\/projects\/[\w-]+(?:[?#]|$)/);
   await expect(page.locator('.save-status[data-status="editing"]')).toBeVisible();
-  await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue("Untitled pattern");
+  await expect(patternTitle(page)).toHaveText("Untitled pattern");
   await expect(
     page.getByRole("group", { name: "Haptic pattern timeline" }).getByRole("button"),
   ).toHaveCount(0);
@@ -128,7 +129,7 @@ test("hosted reload retains room and link, and a fresh tab can revoke earlier li
   try {
     await page.goto(STUDIO);
     const original = await mountedRoom(page, rooms);
-    await page.getByRole("textbox", { name: "Pattern name" }).fill("Persistent private pattern");
+    await renamePattern(page, "Persistent private pattern");
     await expect
       .poll(async () =>
         JSON.stringify((await catalog(page)).records).includes("Persistent private pattern"),
@@ -166,9 +167,7 @@ test("hosted reload retains room and link, and a fresh tab can revoke earlier li
     await fresh.goto(STUDIO);
     const next = await mountedRoom(fresh, rooms);
     expect(next.roomId !== original.roomId).toBe(true);
-    await expect(fresh.getByRole("textbox", { name: "Pattern name" })).toHaveValue(
-      "Persistent private pattern",
-    );
+    await expect(patternTitle(fresh)).toHaveText("Persistent private pattern");
     expect(await catalog(fresh)).toEqual(privateCatalog);
     await fresh.getByRole("button", { name: "Share", exact: true }).click();
     const earlier = fresh.getByRole("region", { name: "Earlier share links", exact: true });
@@ -220,7 +219,7 @@ test("duplicated session storage cannot make two project writers share a relay r
     await page.goto(STUDIO);
     const first = await mountedRoom(page, rooms);
     await renameProject(page, "Owned project P");
-    await page.getByRole("textbox", { name: "Pattern name" }).fill("Owned P pattern");
+    await renamePattern(page, "Owned P pattern");
     await expect.poll(async () => (await canonical(request, first)).name).toBe("Owned P pattern");
     const projectP = (await canonical(request, first)).projectId;
     const copied = await page.evaluate(() =>
@@ -244,7 +243,7 @@ test("duplicated session storage cannot make two project writers share a relay r
     await createProject(duplicate);
     await expect(duplicate.locator('.save-status[data-status="editing"]')).toBeVisible();
     await renameProject(duplicate, "Owned project Q");
-    await duplicate.getByRole("textbox", { name: "Pattern name" }).fill("Owned Q pattern");
+    await renamePattern(duplicate, "Owned Q pattern");
     const second = await mountedRoom(duplicate, rooms);
     expect(first.roomId !== second.roomId && first.hostToken !== second.hostToken).toBe(true);
     await expect.poll(async () => (await canonical(request, second)).name).toBe("Owned Q pattern");
@@ -292,12 +291,8 @@ test("duplicated session storage cannot make two project writers share a relay r
     expect(restored.roomId === first.roomId && restored.hostToken === first.hostToken).toBe(true);
     expect(rooms.length).toBe(createdBeforeReload);
     await expectStableProjects();
-    await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue(
-      "Owned P pattern",
-    );
-    await expect(duplicate.getByRole("textbox", { name: "Pattern name" })).toHaveValue(
-      "Owned Q pattern",
-    );
+    await expect(patternTitle(page)).toHaveText("Owned P pattern");
+    await expect(patternTitle(duplicate)).toHaveText("Owned Q pattern");
     expect(throttled).toBe(0);
   } finally {
     await duplicate?.close();

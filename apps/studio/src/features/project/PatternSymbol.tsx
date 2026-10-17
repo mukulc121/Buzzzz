@@ -1,11 +1,13 @@
 interface IPatternSymbol {
   size?: number;
+  className?: string;
 }
 
 export function PatternSymbol(props: IPatternSymbol) {
-  const { size = 18 } = props;
+  const { size = 18, className } = props;
   return (
     <svg
+      className={className}
       width={size}
       height={size}
       viewBox="0 0 24 24"

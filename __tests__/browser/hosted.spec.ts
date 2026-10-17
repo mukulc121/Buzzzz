@@ -1,3 +1,4 @@
+import { patternTitle, renamePattern } from "./fixtures/pattern-title";
 import { expect, type APIRequestContext, type Page } from "@playwright/test";
 import { isProject, isRecord, type Project } from "@buzzzz/core";
 import { test } from "./hosted.fixture";
@@ -111,7 +112,7 @@ async function renameProject(page: Page, name: string) {
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).toHaveCount(0);
   await current.getByRole("button", { name, exact: true }).click();
-  await expect(page.getByRole("textbox", { name: "Pattern name" })).toBeEnabled();
+  await expect(patternTitle(page)).toBeVisible();
 }
 async function createProject(page: Page) {
   await page
@@ -247,9 +248,7 @@ test("hosted pairing and MCP commands reach the mounted editor and its saved pro
       pattern: preset.pattern,
       baseRevision: state.revision,
     });
-    await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue(
-      "Hosted MCP pattern",
-    );
+    await expect(patternTitle(page)).toHaveText("Hosted MCP pattern");
     await expect
       .poll(async () =>
         Object.values(await privateCatalog(page)).some((value) =>
@@ -276,7 +275,7 @@ test("public shares stay bound to their project and recipients preserve private 
   try {
     const room = await openHost(page, rooms);
     await renameProject(page, "Public A");
-    await page.getByRole("textbox", { name: "Pattern name" }).fill("Public A pattern");
+    await renamePattern(page, "Public A pattern");
     const initial = await canonical(request, room);
     await expect
       .poll(async () => (await canonical(request, room)).project.presets[0]?.name, {
@@ -292,7 +291,7 @@ test("public shares stay bound to their project and recipients preserve private 
     await page.getByRole("button", { name: "Projects", exact: true }).click();
     await createProject(page);
     await renameProject(page, "Private B");
-    await page.getByRole("textbox", { name: "Pattern name" }).fill("Private B pattern");
+    await renamePattern(page, "Private B pattern");
     await expect
       .poll(
         async () => {
@@ -311,9 +310,7 @@ test("public shares stay bound to their project and recipients preserve private 
       name: "Private B from MCP",
       baseRevision: privateB.revision,
     });
-    await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue(
-      "Private B from MCP",
-    );
+    await expect(patternTitle(page)).toHaveText("Private B from MCP");
     expect(await sharedProject(request, link)).toEqual(publicA);
     await page.getByRole("button", { name: "Projects", exact: true }).click();
     await page
@@ -321,9 +318,7 @@ test("public shares stay bound to their project and recipients preserve private 
       .locator(".project-card-open")
       .filter({ hasText: "Public A" })
       .click();
-    await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue(
-      "Public A pattern",
-    );
+    await expect(patternTitle(page)).toHaveText("Public A pattern");
     await page.getByRole("button", { name: "Share", exact: true }).click();
     await expect(page.getByRole("button", { name: "Revoke link", exact: true })).toBeVisible();
     expect((await shareField.inputValue()) === link).toBe(true);
@@ -348,9 +343,7 @@ test("public shares stay bound to their project and recipients preserve private 
     );
     const first = await recipient.newPage();
     await first.goto(link);
-    await expect(first.getByRole("textbox", { name: "Pattern name" })).toHaveValue(
-      "Public A pattern",
-    );
+    await expect(patternTitle(first)).toHaveText("Public A pattern");
     const follower = await recipient.newPage();
     let publicReads = 0;
     follower.on("request", (request) => {
@@ -362,9 +355,7 @@ test("public shares stay bound to their project and recipients preserve private 
     await first.close();
     await expect(follower.locator('.save-status[data-status="editing"]')).toBeVisible();
     await expect.poll(() => publicReads).toBeGreaterThan(0);
-    await expect(follower.getByRole("textbox", { name: "Pattern name" })).toHaveValue(
-      "Public A pattern",
-    );
+    await expect(patternTitle(follower)).toHaveText("Public A pattern");
     expect(await privateCatalog(follower)).toEqual({ [privateKey]: privateRecord });
     expect(await follower.evaluate(() => localStorage.getItem("buzzzz.lastProject"))).toBe(
       privateId,
@@ -376,9 +367,7 @@ test("public shares stay bound to their project and recipients preserve private 
       .locator(".project-card-open")
       .filter({ hasText: "Recipient private" })
       .click();
-    await expect(follower.getByRole("textbox", { name: "Pattern name" })).toHaveValue(
-      privateB.project.presets[0]!.name,
-    );
+    await expect(patternTitle(follower)).toHaveText(privateB.project.presets[0]!.name);
     await follower.getByRole("button", { name: "MCP", exact: true }).click();
     await expect(follower.getByText("In sync with the room", { exact: true })).toBeVisible();
     await expect(follower.getByRole("status").filter({ hasText: /^ready$/ })).toBeVisible();
@@ -390,9 +379,7 @@ test("public shares stay bound to their project and recipients preserve private 
       .toBe(privateId);
     expect(publicReads).toBe(readsBeforePrivate);
     expect(await privateCatalog(follower)).toEqual({ [privateKey]: privateRecord });
-    await expect(follower.getByRole("textbox", { name: "Pattern name" })).toHaveValue(
-      privateB.project.presets[0]!.name,
-    );
+    await expect(patternTitle(follower)).toHaveText(privateB.project.presets[0]!.name);
     await page.getByRole("button", { name: "Revoke link", exact: true }).click();
     await expect(
       page.getByRole("button", { name: "Create public link", exact: true }),

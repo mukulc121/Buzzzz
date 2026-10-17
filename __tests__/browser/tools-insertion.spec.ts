@@ -1,3 +1,4 @@
+import { patternTitle } from "./fixtures/pattern-title";
 import { expect, test, type Page } from "@playwright/test";
 import { isProjectRecord } from "../../apps/studio/src/features/project/model";
 import type { Project } from "@buzzzz/core";
@@ -65,9 +66,7 @@ async function loadTarget(page: Page, data = target) {
     localStorage.setItem("buzzzz.lastProject", "tools-insertion");
   }, data);
   await page.goto("/studio/projects/tools-insertion");
-  await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-    "Tool target",
-  );
+  await expect(patternTitle(page)).toHaveText("Tool target");
 }
 
 async function openTool(page: Page, name: string) {

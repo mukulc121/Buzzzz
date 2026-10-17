@@ -1,3 +1,4 @@
+import { patternTitle } from "./fixtures/pattern-title";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { expect, test, type Page, type WebSocketRoute } from "@playwright/test";
@@ -25,7 +26,7 @@ async function storedPreset(page: Page) {
     return JSON.parse(localStorage.getItem(`buzzzz.project.${id}`) ?? "null");
   });
   if (!isProjectRecord(value)) throw new Error("Missing saved sample project");
-  const name = await page.getByRole("textbox", { name: "Pattern name", exact: true }).inputValue();
+  const name = await patternTitle(page).innerText();
   const preset = value.project.presets.find((item) => item.name === name);
   if (!preset) throw new Error("Missing active sample pattern");
   return preset;

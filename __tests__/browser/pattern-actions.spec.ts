@@ -1,3 +1,4 @@
+import { patternTitle } from "./fixtures/pattern-title";
 import { expect, test, type Page } from "@playwright/test";
 import type { Project } from "@buzzzz/core";
 import type { IMediaAttachment, IMediaItem } from "../../apps/studio/src/features/media/model";
@@ -30,7 +31,7 @@ test.beforeEach(async ({ page }) => {
   );
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/");
-  await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toBeEditable();
+  await expect(patternTitle(page)).toBeVisible();
 });
 
 test("New creates the source 100 ms preset and immediately selects its inline name for editing", async ({
@@ -38,7 +39,7 @@ test("New creates the source 100 ms preset and immediately selects its inline na
 }) => {
   const panel = page.getByRole("complementary", { name: "Project patterns", exact: true });
   await panel.getByRole("button", { name: "New pattern", exact: true }).click();
-  const rename = panel.getByRole("textbox", { name: "Rename Untitled pattern", exact: true });
+  const rename = page.getByRole("textbox", { name: "Pattern name", exact: true });
   await expect(rename).toBeFocused();
   expect(
     await rename.evaluate((node: HTMLInputElement) => [node.selectionStart, node.selectionEnd]),
@@ -90,9 +91,7 @@ test("Duplicate resets the cursor and keeps the range, original audio trim and a
     .getByRole("button", { name: "FanfareSound", exact: true })
     .click({ button: "right" });
   await page.getByRole("menuitem", { name: "Duplicate", exact: true }).click();
-  await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-    "FanfareSound copy",
-  );
+  await expect(patternTitle(page)).toHaveText("FanfareSound copy");
   await expect(cursor).toHaveAttribute("aria-valuenow", "0");
   await expect(
     page.getByRole("slider", { name: "Timeline view start", exact: true }),
@@ -136,9 +135,7 @@ test("Duplicate resets the cursor and keeps the range, original audio trim and a
     .getByRole("button", { name: "ExplosionAnimation", exact: true })
     .click({ button: "right" });
   await page.getByRole("menuitem", { name: "Duplicate", exact: true }).click();
-  await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-    "ExplosionAnimation copy",
-  );
+  await expect(patternTitle(page)).toHaveText("ExplosionAnimation copy");
   await page.getByRole("tab", { name: "animation", exact: true }).click();
   await expect(
     page.getByRole("region", { name: "Animation canvas preview", exact: true }).locator("canvas"),

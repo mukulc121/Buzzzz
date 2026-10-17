@@ -1,3 +1,4 @@
+import { patternTitle } from "./fixtures/pattern-title";
 import { expect, test, type Page } from "@playwright/test";
 import { parseMessage, type Msg } from "@buzzzz/core";
 
@@ -69,9 +70,7 @@ async function openEditor(page: Page, phones = 0, durationMs = 4000) {
     socket.send(JSON.stringify({ type: "peers", phones }));
   });
   await page.goto("/studio/projects/device-routing");
-  await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
-    "Routing",
-  );
+  await expect(patternTitle(page)).toHaveText("Routing");
   return messages;
 }
 

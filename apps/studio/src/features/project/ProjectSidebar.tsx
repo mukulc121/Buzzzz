@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Project } from "@buzzzz/core";
 import { PatternListItem } from "./PatternListItem";
 import { PatternActionIcon } from "./PatternActionIcon";
@@ -6,31 +7,17 @@ interface IProjectSidebar {
   project: Project;
   preset: Project["presets"][number];
   writable: boolean;
-  renamingId: string | null;
   onAdd: () => void;
   onDuplicate: (id: string) => void;
   onSelect: (id: string) => void;
   onRemove: (id: string) => void;
   onRename: (id: string, name: string) => void;
-  onStartRename: (id: string) => void;
-  onCancelRename: () => void;
   onHide: () => void;
 }
 export function ProjectSidebar(props: IProjectSidebar) {
-  const {
-    project,
-    preset,
-    writable,
-    renamingId,
-    onAdd,
-    onDuplicate,
-    onSelect,
-    onRemove,
-    onRename,
-    onStartRename,
-    onCancelRename,
-    onHide,
-  } = props;
+  const { project, preset, writable, onAdd, onDuplicate, onSelect, onRemove, onRename, onHide } =
+    props;
+  const [renamingId, setRenamingId] = useState<string | null>(null);
   return (
     <aside className="patterns-panel" aria-label="Project patterns">
       <header className="panel-heading patterns-heading">
@@ -72,9 +59,14 @@ export function ProjectSidebar(props: IProjectSidebar) {
             onSelect={onSelect}
             onDuplicate={onDuplicate}
             onRemove={onRemove}
-            onRename={onRename}
-            onStartRename={onStartRename}
-            onCancelRename={onCancelRename}
+            onRename={(id, name) => {
+              onRename(id, name);
+              setRenamingId(null);
+            }}
+            onStartRename={(id) => {
+              if (writable) setRenamingId(id);
+            }}
+            onCancelRename={() => setRenamingId(null)}
           />
         ))}
       </ul>
