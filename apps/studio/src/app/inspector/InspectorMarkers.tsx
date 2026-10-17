@@ -21,7 +21,7 @@ export function InspectorMarkers(props: IInspectorMarkers) {
   return (
     <InspectorSection
       title="Markers"
-      description="Markers annotate the timeline without changing playback."
+      description="Named instants in the pattern - where a hit lands, where a door closes. They are drawn on the chart and on every timeline, and dragging one on any of them moves it everywhere. Add one at the cursor with M, or right-click the canvas."
     >
       {composer.markers.length ? (
         <div className="inspector-marker-list">
@@ -67,7 +67,7 @@ export function InspectorMarkers(props: IInspectorMarkers) {
         </div>
       ) : (
         <p className="hint">
-          No markers yet. They annotate the timeline. They don't change what plays.
+          No markers yet. They annotate the timeline - they don't change what plays.
         </p>
       )}
       <button

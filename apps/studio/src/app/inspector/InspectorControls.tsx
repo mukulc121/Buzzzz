@@ -2,6 +2,10 @@ import type { Studio } from "../useStudio";
 import { InspectorIcon } from "../../components/InspectorIcon";
 import { InspectorSection } from "../../components/InspectorSection";
 
+const mac = typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+const undoShortcut = mac ? "⌘Z" : "Ctrl+Z";
+const redoShortcut = mac ? "⇧⌘Z" : "Ctrl+Shift+Z";
+
 interface IInspectorControls {
   studio: Studio;
 }
@@ -18,7 +22,7 @@ export function InspectorControls(props: IInspectorControls) {
   return (
     <InspectorSection
       title="Controls"
-      description="Undo edits, move the visible time window, or zoom the chart."
+      description={`Undo/redo the last edit (${undoShortcut} / ${redoShortcut}), scroll the chart along the pattern (← / →), and stretch how much time it shows, about the middle of the visible window. Cmd/Ctrl+wheel over the chart zooms at the pointer instead.`}
     >
       <div className="inspector-controls">
         {[controls.slice(0, 2), controls.slice(2, 4), controls.slice(4, 6)].map((group, index) => (

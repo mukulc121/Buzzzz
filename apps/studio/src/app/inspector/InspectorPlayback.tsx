@@ -32,7 +32,7 @@ export function InspectorPlayback(props: IInspectorPlayback) {
   return (
     <InspectorSection
       title="Playback range"
-      description="Only this part of the preset plays. Clear the range to play the whole preset."
+      description="Everything plays between these two markers - the haptics, an attached audio track and an attached animation. Drag them on any timeline, or type the exact times. Play starts at the violet time cursor when it sits inside the range, and at the start marker otherwise."
     >
       <div className="inspector-range-fields">
         {(["start", "end"] as const).map((field) => (
@@ -50,7 +50,12 @@ export function InspectorPlayback(props: IInspectorPlayback) {
           </div>
         ))}
       </div>
-      <InspectorSwitch label="Loop" checked={playback.loop} onChange={playback.setLoop} />
+      <InspectorSwitch
+        label="Loop"
+        info="At the end marker, start the range again - the haptics, the audio and the animation together - until you press stop."
+        checked={playback.loop}
+        onChange={playback.setLoop}
+      />
       <button
         className="inspector-text-action"
         type="button"

@@ -70,7 +70,7 @@ export function InspectorPanel(props: IInspectorPanel) {
             <InspectorControls studio={studio} />
             <InspectorSection
               title="Selection"
-              description="Edit the selected event or control point."
+              description="Click a point or event on the canvas to edit it here. Double-click empty canvas to add one to the active layer."
             >
               <SelectionInspector
                 pattern={document.pattern}

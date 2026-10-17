@@ -1,3 +1,9 @@
+.workspace-inspector {
+  --inspector-blue-30: rgba(135, 204, 232, 1);
+}
+:root[data-theme="dark"] .workspace-inspector {
+  --inspector-blue-30: rgba(44, 74, 99, 1);
+}
 .inspector-tab-bar {
   position: sticky;
   top: 0;
@@ -63,6 +69,9 @@
   font-size: 14px;
   border-bottom-width: 2px;
 }
+.workspace-inspector .inspector-section:last-child {
+  border-bottom: 0;
+}
 .inspector-section .hint {
   font-size: 14px;
   line-height: 1.5;
@@ -70,7 +79,7 @@
 .inspector-section h3 {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   font-size: 14px;
 }
 .inspector-info {
@@ -87,10 +96,9 @@
   gap: 2px;
 }
 .inspector-layer {
-  --layer-color: var(--amp);
+  --layer-color: rgba(43, 133, 171, 1);
   display: flex;
   align-items: center;
-  min-height: 40px;
   min-width: 0;
   gap: 8px;
   border: 2px solid transparent;
@@ -98,10 +106,10 @@
   padding: 6px 8px;
 }
 .inspector-layer[data-layer="frequency"] {
-  --layer-color: var(--freq);
+  --layer-color: rgba(0, 26, 114, 1);
 }
 .inspector-layer[data-layer="discrete"] {
-  --layer-color: var(--discrete);
+  --layer-color: rgba(56, 172, 221, 1);
 }
 .inspector-layer[data-active="true"] {
   border-color: var(--line-strong);
@@ -124,13 +132,13 @@
   width: 14px;
   height: 14px;
   flex: 0 0 14px;
-  border: 2px solid var(--line);
+  border: 2px solid var(--inspector-blue-30);
   border-radius: 50%;
   background: transparent;
 }
 .inspector-layer-choice input:checked {
   border-color: var(--line-strong);
-  background: radial-gradient(circle, var(--line-strong) 0 3px, transparent 3.5px);
+  background: radial-gradient(circle, var(--line-strong) 0 4px, transparent 4px);
 }
 .inspector-layer-swatch {
   width: 12px;
@@ -147,9 +155,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 28px;
-  gap: 12px;
+  gap: 16px;
   cursor: pointer;
+}
+.inspector-switch-row > span {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 :is(.inspector-switch-row, .inspector-layer) input[role="switch"] {
   appearance: none;
@@ -160,33 +172,40 @@
   min-height: 24px;
   flex: 0 0 40px;
   border: 2px solid var(--line);
-  border-radius: 20px;
-  background: var(--sunken);
+  border-radius: 999px;
+  background: var(--panel);
   margin: 0;
   padding: 0;
   cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 }
 :is(.inspector-switch-row, .inspector-layer) input[role="switch"]::after {
   content: "";
   position: absolute;
-  top: 2px;
+  top: 50%;
   left: 2px;
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--muted);
+  background: var(--inspector-blue-30);
+  transform: translateY(-50%);
+  transition:
+    left 0.15s ease,
+    background-color 0.15s ease;
 }
 :is(.inspector-switch-row, .inspector-layer) input[role="switch"]:checked {
   border-color: var(--line-strong);
   background: var(--line-strong);
 }
 :is(.inspector-switch-row, .inspector-layer) input[role="switch"]:checked::after {
-  left: 18px;
+  left: 20px;
   background: rgba(255, 255, 255, 1);
 }
 :is(.inspector-switch-row, .inspector-layer) input[role="switch"]:disabled {
   cursor: not-allowed;
-  opacity: 0.55;
+  opacity: 0.5;
 }
 .inspector-layer-options {
   border-top: 1px solid var(--line);
@@ -216,7 +235,7 @@
 .inspector-text-action:hover:not(:disabled),
 .inspector-collapse:hover {
   color: var(--fg);
-  background: var(--sunken);
+  background: var(--plot);
 }
 .inspector-selection {
   display: flex;
@@ -373,18 +392,21 @@
 }
 .inspector-text-action {
   align-self: stretch;
-  min-height: 34px;
-  padding: 6px 2px;
-  border: 0;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 2px solid transparent;
+  border-radius: 4px;
   background: transparent;
   color: var(--muted);
   white-space: normal;
+  font-size: 14px;
   font-weight: 500;
+  line-height: 1;
 }
 .inspector-preview-switches {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 .inspector-marker-list {
   display: flex;

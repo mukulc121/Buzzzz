@@ -1,24 +1,24 @@
+import { useId } from "react";
+import { HelpPopover } from "../../components/HelpPopover";
+
 interface IInspectorSwitch {
   label: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
   disabled?: boolean;
-  description?: string;
   info?: string;
 }
 export function InspectorSwitch(props: IInspectorSwitch) {
-  const { label, checked, onChange, disabled, description, info } = props;
+  const { label, checked, onChange, disabled, info } = props;
+  const id = useId();
   return (
-    <label className="inspector-switch-row" title={description}>
-      <span>
-        {label}
-        {info && (
-          <span className="inspector-info" role="img" aria-label={info} title={info}>
-            <InspectorIcon name="info" />
-          </span>
-        )}
+    <div className="inspector-switch-row">
+      <span className="inspector-switch-label-row">
+        <label htmlFor={id}>{label}</label>
+        {info && <HelpPopover text={info} label={label} />}
       </span>
       <input
+        id={id}
         type="checkbox"
         role="switch"
         aria-label={label}
@@ -26,7 +26,6 @@ export function InspectorSwitch(props: IInspectorSwitch) {
         disabled={disabled}
         onChange={(event) => onChange(event.target.checked)}
       />
-    </label>
+    </div>
   );
 }
-import { InspectorIcon } from "../../components/InspectorIcon";

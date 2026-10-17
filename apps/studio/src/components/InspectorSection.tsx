@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { InspectorIcon } from "./InspectorIcon";
+import { HelpPopover } from "./HelpPopover";
 
 interface IInspectorSection {
   title: string;
@@ -15,11 +15,7 @@ export function InspectorSection(props: IInspectorSection) {
     >
       <h3>
         {title}
-        {description && (
-          <span className="inspector-info" role="img" aria-label={description} title={description}>
-            <InspectorIcon name="info" />
-          </span>
-        )}
+        {description && <HelpPopover text={description} label={title} />}
       </h3>
       {children}
     </section>

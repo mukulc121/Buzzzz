@@ -1,0 +1,54 @@
+button.help-popover-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  outline: none;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+button.help-popover-button:hover,
+button.help-popover-button[aria-expanded="true"] {
+  background-color: var(--plot);
+  color: var(--button-focus);
+}
+button.help-popover-button:focus-visible {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 2px;
+}
+.help-popover-bubble {
+  position: fixed;
+  z-index: 1000;
+  padding: 8px;
+  border: 2px solid var(--line);
+  border-radius: 4px;
+  background-color: var(--panel);
+  box-shadow: -2px 2px 0 var(--button-shadow);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--fg);
+  text-transform: none;
+  letter-spacing: normal;
+}
+.inspector-switch-label-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+.inspector-switch-label-row > label {
+  font-size: 14px;
+  color: var(--fg);
+  cursor: pointer;
+}

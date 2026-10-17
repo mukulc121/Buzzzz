@@ -10,6 +10,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("inspector edits and deletes the selected event with undo", async ({ page }) => {
+  await expect(page.getByText("Nothing selected.", { exact: true })).toBeVisible();
   const chart = page.getByRole("group", { name: "Haptic pattern timeline", exact: true });
   const events = chart.getByRole("button", { name: /^Tap at/ });
   const before = await events.count();
@@ -35,6 +36,12 @@ test("inspector edits and deletes the selected event with undo", async ({ page }
 
 test("playback range, markers and layer switches use real editor state", async ({ page }) => {
   const inspector = page.getByRole("complementary", { name: "Inspector", exact: true });
+  await expect(
+    inspector.getByText(
+      "No markers yet. They annotate the timeline - they don't change what plays.",
+      { exact: true },
+    ),
+  ).toBeVisible();
   await inspector.getByRole("radio", { name: "Edit frequency", exact: true }).check();
   await expect(inspector.locator('.inspector-layer[data-layer="frequency"]')).toHaveAttribute(
     "data-active",

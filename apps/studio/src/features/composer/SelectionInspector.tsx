@@ -27,8 +27,7 @@ export function SelectionInspector(props: ISelectionInspector) {
     (selected.layer === "discrete"
       ? pattern.discretePattern[selected.index]
       : pattern.continuousPattern[selected.layer][selected.index]);
-  if (!point || !selected)
-    return <p className="hint">Select an event or control point on the canvas to edit it.</p>;
+  if (!point || !selected) return <p className="hint">Nothing selected.</p>;
   const field = (name: string, label: string, value: number, max: number) => {
     const scale = 10 ** valueDecimals;
     const rounded = name === "time" ? Math.round(value) : Math.round(value * scale) / scale;
