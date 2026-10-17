@@ -86,10 +86,11 @@ test("the old single document is copied once and left in place", () => {
   const legacy = starterProject();
   legacy.presets[0].name = "Mine";
   storage.setItem("rive-haptics-project", JSON.stringify(legacy));
-  const first = repository.initialRecord().record;
+  const first = repository.initialRecord({ createStarter: false }).record;
+  if (!first) throw new Error("The legacy project was not migrated");
   expect(first.project.presets[0].name).toBe("Mine");
   expect(storage.getItem("rive-haptics-project")).not.toBeNull();
-  expect(repository.initialRecord().record.id).toBe(first.id);
+  expect(repository.initialRecord().record?.id).toBe(first.id);
   expect(repository.listProjects()).toHaveLength(1);
 });
 
@@ -115,6 +116,39 @@ test("a deleted project surfaces as a conflict instead of being recreated", () =
     kind: "conflict",
     theirs: null,
   });
+});
+
+test("deleting an unsaved revision-zero project cannot be undone by a stale writer", () => {
+  const record = newRecord("Demo", starterProject());
+  repository.writeRecord(record);
+  repository.removeRecord(record.id);
+  expect(repository.saveRecord(record, record)).toEqual({ kind: "conflict", theirs: null });
+  expect(repository.listProjects()).toEqual([]);
+});
+
+test("an emptied catalog stays empty instead of reseeding or remigrating the legacy document", () => {
+  storage.setItem("rive-haptics-project", JSON.stringify(starterProject()));
+  const initial = repository.initialRecord().record;
+  if (!initial) throw new Error("The legacy project was not migrated");
+  repository.removeRecord(initial.id);
+  expect(repository.initialRecord()).toEqual({ record: null, error: null });
+  expect(repository.listProjects()).toEqual([]);
+});
+
+test("deleting a record without a remembered project still preserves the empty catalog", () => {
+  const record = newRecord("Demo", starterProject());
+  repository.writeRecord(record);
+  repository.removeRecord(record.id);
+  expect(repository.initialRecord()).toEqual({ record: null, error: null });
+  expect(repository.listProjects()).toEqual([]);
+});
+
+test("explicit dashboard initialization is empty while a first legacy entry keeps its starter", () => {
+  expect(repository.initialRecord({ createStarter: false })).toEqual({ record: null, error: null });
+  expect(repository.listProjects()).toEqual([]);
+  const initial = repository.initialRecord().record;
+  expect(initial?.project.presets[0].name).toBe("Thud");
+  expect(repository.listProjects()).toHaveLength(1);
 });
 
 test("storage failures are reported and leave the stored copy alone", () => {

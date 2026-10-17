@@ -54,7 +54,8 @@ export function saveRecord(
   force = false,
 ): TSaveResult {
   const stored = readRecord(base.id);
-  if (!force && (stored?.revision ?? 0) !== base.revision)
+  const sharedDraft = !stored && base.id.startsWith("shared-") && base.revision === 0;
+  if (!force && !sharedDraft && (!stored || stored.revision !== base.revision))
     return { kind: "conflict", theirs: stored };
   const record: IProjectRecord = {
     ...base,
@@ -69,6 +70,8 @@ export function saveRecord(
 export function removeRecord(id: string) {
   try {
     localStorage.removeItem(recordKey(id));
+    if (!id.startsWith("shared-") && localStorage.getItem(LAST) === null)
+      localStorage.setItem(LAST, id);
   } catch {
     /* nothing stored */
   }
@@ -115,8 +118,11 @@ function legacyProject(): Project | null {
   }
 }
 
-// Last opened, else the old single document (copied, never deleted), else a starter.
-export function initialRecord(): { record: IProjectRecord; error: string | null } {
+// Only the first legacy entry point seeds a starter; an emptied catalog stays empty.
+export function initialRecord(options: { createStarter?: boolean } = {}): {
+  record: IProjectRecord | null;
+  error: string | null;
+} {
   let last: string | null = null;
   try {
     last = localStorage.getItem(LAST);
@@ -125,7 +131,9 @@ export function initialRecord(): { record: IProjectRecord; error: string | null 
   }
   const existing = (last && readRecord(last)) || pickRecent();
   if (existing) return { record: existing, error: null };
+  if (last !== null) return { record: null, error: null };
   const legacy = legacyProject();
+  if (!legacy && options.createStarter === false) return { record: null, error: null };
   const record = newRecord(legacy ? "My project" : "Untitled project", legacy ?? starterProject());
   const error = writeRecord(record);
   if (!error) rememberLast(record.id);

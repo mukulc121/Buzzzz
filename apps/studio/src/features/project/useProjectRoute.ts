@@ -4,6 +4,7 @@ import { isRecordKey, readRecord } from "./repository";
 
 interface IProjectRoute {
   projectId: string;
+  projectAvailable: boolean;
   onOpen: (id: string) => boolean;
 }
 
@@ -13,7 +14,10 @@ const MISSING =
 export function useProjectRoute(props: IProjectRoute) {
   const [route, setRoute] = useState<TProjectRoute>(() => {
     const initial = parseProjectRoute(location);
-    if (initial.kind === "legacy") return { kind: "project", projectId: props.projectId };
+    if (initial.kind === "legacy")
+      return props.projectAvailable
+        ? { kind: "project", projectId: props.projectId }
+        : { kind: "dashboard" };
     return initial.kind === "project" && !readRecord(initial.projectId)
       ? { kind: "missing" }
       : initial;
@@ -48,6 +52,10 @@ export function useProjectRoute(props: IProjectRoute) {
   const readLocation = useEffectEvent(() => {
     const next = parseProjectRoute(location);
     if (next.kind === "legacy") {
+      if (!props.projectAvailable) {
+        navigate(projectRouteUrl(new URL(location.href)), { kind: "dashboard" }, true);
+        return;
+      }
       if (!props.projectId.startsWith("shared-"))
         navigate(
           projectRouteUrl(new URL(location.href), props.projectId),
@@ -70,7 +78,10 @@ export function useProjectRoute(props: IProjectRoute) {
       history.replaceState(
         history.state,
         "",
-        projectRouteUrl(new URL(location.href), props.projectId),
+        projectRouteUrl(
+          new URL(location.href),
+          props.projectAvailable ? props.projectId : undefined,
+        ),
       );
     const onStorage = (event: StorageEvent) => {
       if (isRecordKey(event.key)) readLocation();
@@ -81,7 +92,7 @@ export function useProjectRoute(props: IProjectRoute) {
       removeEventListener("popstate", readLocation);
       removeEventListener("storage", onStorage);
     };
-  }, [props.projectId]);
+  }, [props.projectId, props.projectAvailable]);
 
   const showDashboard = (removed = false) => {
     navigate(projectRouteUrl(new URL(location.href)), { kind: "dashboard" }, removed);
@@ -93,6 +104,6 @@ export function useProjectRoute(props: IProjectRoute) {
     notice,
     openProject,
     showDashboard,
-    showEditor: () => openProject(props.projectId),
+    showEditor: () => (props.projectAvailable ? openProject(props.projectId) : showDashboard()),
   };
 }

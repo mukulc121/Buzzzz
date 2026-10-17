@@ -10,7 +10,10 @@ async function showProjects(page: Page) {
 }
 
 async function createProject(page: Page, name: string, pattern: string) {
-  await dashboard(page).getByRole("button", { name: "Create new project" }).click();
+  await dashboard(page)
+    .locator("header")
+    .getByRole("button", { name: "Create new project" })
+    .click();
   const dialog = page.getByRole("dialog", { name: "Create project" });
   await dialog.getByRole("textbox", { name: "Project name" }).fill(name);
   await dialog.getByRole("button", { name: "Create", exact: true }).click();

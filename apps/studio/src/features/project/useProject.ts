@@ -3,6 +3,8 @@ import type { Project } from "@buzzzz/core";
 import {
   canWrite,
   deriveProjectStatus,
+  emptyProject,
+  newRecord,
   summarize,
   type IProjectRecord,
   type TConflictChoice,
@@ -17,27 +19,34 @@ import { useProjectRoute } from "./useProjectRoute";
 
 function initialState() {
   const shared = repository.sharedLink(location.search);
-  if (shared) return { record: repository.sharedRecord(shared), error: null };
+  if (shared) return { record: repository.sharedRecord(shared), error: null, selected: true };
   const route = parseProjectRoute(location);
   if (route.kind === "project") {
     const record = repository.readRecord(route.projectId);
     if (record) {
       repository.rememberLast(record.id);
-      return { record, error: null };
+      return { record, error: null, selected: true };
     }
   }
-  return repository.initialRecord();
+  const initial = repository.initialRecord({ createStarter: route.kind === "legacy" });
+  return {
+    record: initial.record ?? newRecord("Untitled project", emptyProject()),
+    error: initial.error,
+    selected: initial.record !== null,
+  };
 }
 
 export function useProject() {
   const [start] = useState(initialState);
   const [active, setActive] = useState<IProjectRecord>(start.record);
+  const [selected, setSelected] = useState(start.selected);
+  const selectedRef = useRef(start.selected);
   const base = useRef(start.record);
   const [storageError, setStorageError] = useState<string | null>(start.error);
   const [conflict, setConflict] = useState<{ theirs: IProjectRecord | null } | null>(null);
   const [lock, setLock] = useState<TLockState>("pending");
   const writer = useRef<IWriterLock | null>(null);
-  const isWriter = canWrite(lock) && !conflict;
+  const isWriter = selected && canWrite(lock) && !conflict;
   const isShared = active.id.startsWith("shared-");
 
   const adopt = (record: IProjectRecord) => {
@@ -47,6 +56,7 @@ export function useProject() {
 
   // Only writes when nobody else saved since our last revision.
   const persist = (project: Project, name = base.current.name) => {
+    if (!selectedRef.current) return false;
     const result = repository.saveRecord(base.current, { name, project });
     if (result.kind === "conflict") setConflict({ theirs: result.theirs });
     if (result.kind === "error") setStorageError(result.message);
@@ -64,13 +74,15 @@ export function useProject() {
   });
 
   const load = (record: IProjectRecord) => {
+    selectedRef.current = true;
+    setSelected(true);
     adopt(record);
     setConflict(null);
     document.reset(record.project);
   };
 
   const switchTo = (record: IProjectRecord) => {
-    const removed = !isShared && !repository.readRecord(base.current.id);
+    const removed = selectedRef.current && !isShared && !repository.readRecord(base.current.id);
     load(record);
     setStorageError(null);
     if (!record.id.startsWith("shared-")) repository.rememberLast(record.id);
@@ -85,10 +97,23 @@ export function useProject() {
     switchTo,
     persist,
     setStorageError,
+    onEmpty: () => {
+      selectedRef.current = false;
+      setSelected(false);
+      writer.current?.release();
+      writer.current = null;
+      const placeholder = newRecord("Untitled project", emptyProject());
+      adopt(placeholder);
+      document.reset(placeholder.project);
+      setConflict(null);
+      setStorageError(null);
+      route.showDashboard(true);
+    },
   });
   const { refresh } = catalog;
   const route = useProjectRoute({
     projectId: active.id,
+    projectAvailable: selected,
     onOpen: (id) => {
       const record = id.startsWith("shared-")
         ? repository.sharedRecord(id)
@@ -106,6 +131,7 @@ export function useProject() {
 
   // Writers only see a newer revision when someone saved without the lock; followers reload.
   const followStorage = useEffectEvent((acquired: boolean) => {
+    if (!selectedRef.current) return;
     const theirs = repository.readRecord(base.current.id);
     if (theirs?.revision === base.current.revision) return;
     if (isWriter && !acquired) setConflict({ theirs });
@@ -113,13 +139,14 @@ export function useProject() {
   });
 
   useEffect(() => {
+    if (!selected) return;
     const claim = claimWriter(lockName(active.id), (state) => {
       setLock(state);
       if (state === "held") followStorage(true);
     });
     writer.current = claim;
     return () => claim.release();
-  }, [active.id]);
+  }, [active.id, selected]);
 
   useEffect(() => {
     const onStorage = (event: StorageEvent) => {

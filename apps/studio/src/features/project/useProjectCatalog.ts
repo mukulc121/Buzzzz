@@ -24,10 +24,11 @@ interface IProjectCatalog {
   switchTo: (record: IProjectRecord) => void;
   persist: (project: Project, name?: string) => boolean;
   setStorageError: (message: string | null) => void;
+  onEmpty: () => void;
 }
 
 export function useProjectCatalog(props: IProjectCatalog) {
-  const { activeId, document, ownsActive, switchTo, persist, setStorageError } = props;
+  const { activeId, document, ownsActive, switchTo, persist, setStorageError, onEmpty } = props;
   const latest = useRef({ activeId, ownsActive, document, generation: 0 });
   useLayoutEffect(() => {
     const before = latest.current;
@@ -79,7 +80,7 @@ export function useProjectCatalog(props: IProjectCatalog) {
       .toSorted((a, b) => b.updatedAt - a.updatedAt)[0];
     const record = recent && repository.readRecord(recent.id);
     if (record) switchTo(record);
-    else create();
+    else onEmpty();
   };
 
   const saveCopy = async (
