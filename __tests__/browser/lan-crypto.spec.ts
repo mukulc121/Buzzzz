@@ -151,7 +151,8 @@ test("HTTP visitors can create, edit, attach, export and send media to a phone w
       }),
     )
     .toEqual(DEX_RIVE_CONFIG);
-  await expect(rive.getByText("Rive-driven system cue", { exact: true })).toHaveCount(4);
+  for (const phase of ["Entry · EngineRev", "Loop · Drone", "Exit · Lock", "Phase marker"])
+    await expect(rive.getByText(phase, { exact: true })).toBeVisible();
   await expect
     .poll(() => messages.filter((message) => message.type === "load").at(-1)?.riveConfig)
     .toEqual(DEX_RIVE_CONFIG);
