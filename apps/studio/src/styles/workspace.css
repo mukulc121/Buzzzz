@@ -56,7 +56,7 @@
   padding: 0;
   color: var(--line-strong);
 }
-.tool-rail .rail-brand svg {
+.tool-rail .rail-brand img {
   width: 30px;
   height: 30px;
 }

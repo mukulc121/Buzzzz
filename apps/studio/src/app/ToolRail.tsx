@@ -1,4 +1,5 @@
-import { Bolt, NavigationIcon } from "../components/icons";
+import { NavigationIcon } from "../components/icons";
+import pulsarLogo from "../assets/pulsar-logo.svg";
 
 export type Panel =
   | "projects"
@@ -32,10 +33,10 @@ export function ToolRail(props: IToolRail) {
       <button
         className="rail-brand"
         aria-label="Projects"
-        title="Buzzzz projects"
+        title="Back to projects"
         onClick={() => onSelect("projects")}
       >
-        <Bolt />
+        <img src={pulsarLogo} width={30} height={30} alt="Pulsar" />
       </button>
       {ITEMS.map((item) => (
         <button

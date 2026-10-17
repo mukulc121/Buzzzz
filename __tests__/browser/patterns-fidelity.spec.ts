@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { expect, test } from "@playwright/test";
 
 // Pulsar ._item_14614_25, ._header_grb70_8 and lucide waypoints FI from the captured Studio bundle.
@@ -6,7 +7,7 @@ const SOURCE_WAYPOINTS = ["m10.586 5.414-5.172 5.172", "m18.586 13.414-5.172 5.1
 for (const theme of ["light", "dark"]) {
   test(`${theme} Patterns rows retain the source icon, geometry and selection states`, async ({
     page,
-  }) => {
+  }, testInfo) => {
     await page.addInitScript((value) => {
       localStorage.setItem("buzzzz.onboarding.seen", "true");
       localStorage.setItem("buzzzz.theme", value);
@@ -20,6 +21,68 @@ for (const theme of ["light", "dark"]) {
       theme,
     );
     const panel = page.getByRole("complementary", { name: "Project patterns", exact: true });
+    const brand = page.getByRole("button", { name: "Projects", exact: true });
+    const logo = brand.getByRole("img", { name: "Pulsar", exact: true });
+    await expect(brand).toHaveAttribute("title", "Back to projects");
+    await logo.evaluate((image: HTMLImageElement) => image.decode());
+    await expect(logo).toHaveCSS("width", "30px");
+    await expect(logo).toHaveCSS("height", "30px");
+    const asset = await logo.evaluate(async (image: HTMLImageElement) => {
+      const svg = new DOMParser().parseFromString(
+        await (await fetch(image.src)).text(),
+        "image/svg+xml",
+      );
+      return {
+        geometry: {
+          viewBox: svg.documentElement.getAttribute("viewBox"),
+          transforms: [...svg.querySelectorAll("g")].map((group) =>
+            group.getAttribute("transform"),
+          ),
+          paths: [...svg.querySelectorAll("path")].map((path) => path.getAttribute("d")),
+        },
+        colors: svg.documentElement.outerHTML.match(/rgba\([^)]+\)/g),
+        naturalSize: [image.naturalWidth, image.naturalHeight],
+      };
+    });
+    expect(createHash("sha256").update(JSON.stringify(asset.geometry)).digest("hex")).toBe(
+      "079d4c444eb60118b31f48a6635792e2cded7d110d4c583439fe3727a1a9498c",
+    );
+    expect(asset.naturalSize).toEqual([40, 40]);
+    expect(asset.colors).toEqual([
+      "rgba(56, 172, 221, 1)",
+      "rgba(225, 243, 250, 1)",
+      "rgba(56, 172, 221, 1)",
+      "rgba(225, 243, 250, 1)",
+      "rgba(56, 172, 221, 1)",
+    ]);
+    const logoBounds = await brand.evaluate((node) => {
+      const brand = node.getBoundingClientRect();
+      const logo = node.querySelector("img")!.getBoundingClientRect();
+      const next = node.nextElementSibling!.getBoundingClientRect();
+      return {
+        height: brand.height,
+        logoInset: [logo.x - brand.x, logo.y - brand.y],
+        nextGap: next.y - brand.bottom,
+      };
+    });
+    expect(logoBounds).toEqual({ height: 48, logoInset: [14, 9], nextGap: 8 });
+    await brand.screenshot({ path: testInfo.outputPath(`${theme}-brand-idle.png`) });
+    await brand.hover();
+    await expect(brand).toHaveCSS(
+      "background-color",
+      theme === "light" ? "rgb(225, 243, 250)" : "rgb(15, 34, 49)",
+    );
+    await brand.screenshot({ path: testInfo.outputPath(`${theme}-brand-hover.png`) });
+    await page.mouse.move(0, 0);
+    await brand.focus();
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    await expect(brand).toBeFocused();
+    await expect(brand).toHaveCSS("outline-style", "solid");
+    await expect(brand).toHaveCSS("outline-width", "2px");
+    await expect(brand).toHaveCSS("outline-offset", "2px");
+    await brand.screenshot({ path: testInfo.outputPath(`${theme}-brand-focus.png`) });
+    await brand.evaluate((node: HTMLButtonElement) => node.blur());
     const thud = panel.getByRole("button", { name: "Thud", exact: true });
     const list = panel.locator(".pattern-list");
     const heading = panel.locator(".patterns-heading");
@@ -130,6 +193,8 @@ for (const theme of ["light", "dark"]) {
     await expect(page.getByRole("textbox", { name: "Pattern name", exact: true })).toHaveValue(
       "Thud",
     );
+    await brand.click();
+    await expect(page.getByRole("heading", { name: "Projects", exact: true })).toBeVisible();
   });
 }
 
