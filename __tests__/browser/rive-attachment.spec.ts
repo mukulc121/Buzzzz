@@ -212,7 +212,7 @@ for (const boundary of ["file-parse", "library-read"] as const) {
     }
     await sample(page);
     await expect(page.getByRole("button", { name: "DexTourLoader", exact: true })).toContainText(
-      "Rive · system haptics",
+      "Rive · Pulsar presets",
     );
     const original = await snapshot(page);
     if (boundary === "file-parse") await dropRive(page);
@@ -261,6 +261,6 @@ test("removing the attached Rive file clears only its ownership and source confi
   await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
   await expect(page.locator(".rive-panel")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "DexTourLoader", exact: true })).not.toContainText(
-    "Rive · system haptics",
+    "Rive · Pulsar presets",
   );
 });

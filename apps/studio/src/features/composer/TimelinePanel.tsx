@@ -20,6 +20,7 @@ import { TimelineHeader } from "./TimelineHeader";
 import { TimelineRuler } from "./TimelineRuler";
 import { TimelineScrollbar } from "./TimelineScrollbar";
 import { ResizeHandle } from "../../components/ResizeHandle";
+import type { IRiveCueTimeline } from "../rive/riveCueTimeline";
 
 interface ITimelinePanel {
   instanceKey?: string;
@@ -37,6 +38,8 @@ interface ITimelinePanel {
   animationDocument?: IAnimationDocument | null;
   onBegin?: () => void;
   onMarkerMove?: (id: string, time: number) => void;
+  riveCues?: IRiveCueTimeline | null;
+  getPlayhead?: () => number | null;
 }
 
 export function TimelinePanel(props: ITimelinePanel) {
@@ -47,7 +50,7 @@ export function TimelinePanel(props: ITimelinePanel) {
   const resizeOrigin = useRef(120);
   const track = useRef<HTMLDivElement>(null);
   const patternMs = patternEnd(pattern);
-  const mediaMs = Math.max(durationMs, animation?.durationMs ?? 0);
+  const mediaMs = Math.max(durationMs, animation?.durationMs ?? 0, props.riveCues?.durationMs ?? 0);
   const liveEnd = timelineEnd({ patternMs, mediaMs, viewport, range });
   const scale = useTimelineScale(track, liveEnd, collapsed, props.instanceKey);
   const playbackRange = range ?? { start: 0, end: Math.max(MIN_RANGE_MS, patternMs, mediaMs) };
@@ -118,15 +121,17 @@ export function TimelinePanel(props: ITimelinePanel) {
             <div className="timeline-clips">
               <div
                 className="timeline-lanes"
-                role="slider"
-                tabIndex={0}
+                role={props.riveCues ? "group" : "slider"}
+                tabIndex={props.riveCues ? undefined : 0}
                 aria-label="Playback position"
-                aria-valuemin={0}
-                aria-valuemax={Math.round(end)}
-                aria-valuenow={Math.round(playhead ?? 0)}
-                aria-valuetext={`${Math.round(playhead ?? 0)} milliseconds`}
-                onKeyDown={scrubKey}
-                {...drag.bind({ kind: "scrub" })}
+                aria-valuemin={props.riveCues ? undefined : 0}
+                aria-valuemax={props.riveCues ? undefined : Math.round(end)}
+                aria-valuenow={props.riveCues ? undefined : Math.round(playhead ?? 0)}
+                aria-valuetext={
+                  props.riveCues ? undefined : `${Math.round(playhead ?? 0)} milliseconds`
+                }
+                onKeyDown={props.riveCues ? undefined : scrubKey}
+                {...(props.riveCues ? {} : drag.bind({ kind: "scrub" }))}
               >
                 <TimelineLanes
                   end={scale.view.durationMs}
@@ -135,6 +140,8 @@ export function TimelinePanel(props: ITimelinePanel) {
                   audio={audio}
                   animation={animation}
                   animationDocument={props.animationDocument}
+                  riveCues={props.riveCues}
+                  getPlayhead={props.getPlayhead}
                 />
               </div>
               <div className="timeline-overlays">
@@ -161,6 +168,7 @@ export function TimelinePanel(props: ITimelinePanel) {
                       }
                       onRangeStep={stepRange}
                       onSeek={onScrub}
+                      readonlyPlayback={Boolean(props.riveCues)}
                     />
                   </div>
                 ))}

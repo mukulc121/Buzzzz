@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import { useLayoutEffect, useEffectEvent, type ComponentProps } from "react";
 import { ActivityIndicator, Text } from "react-native";
 import { useRiveFile } from "@rive-app/react-native";
 import { RiveScene } from "./RiveScene";
@@ -6,9 +6,12 @@ import { RiveScene } from "./RiveScene";
 interface IRivePlayer extends Omit<ComponentProps<typeof RiveScene>, "file"> {
   url: string;
   run: number;
+  onSceneMount: () => void;
 }
 export function RivePlayer(props: IRivePlayer) {
-  const { url, run, ...scene } = props;
+  const { url, run, onSceneMount, ...scene } = props;
+  const mountHaptics = useEffectEvent(onSceneMount);
+  useLayoutEffect(() => mountHaptics(), [url, run]);
   const { riveFile, error } = useRiveFile(url);
   const { t } = scene;
   if (error)

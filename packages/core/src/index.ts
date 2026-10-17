@@ -10,7 +10,13 @@ export type { Pattern } from "./patterns/pattern.ts";
 export { isProject } from "./patterns/project.ts";
 export type { Project, Preset, IPresetEditor } from "./patterns/project.ts";
 export { isRiveConfig } from "./rive/config.ts";
-export type { IRiveConfig, TRiveHapticAction, TSystemImpact } from "./rive/config.ts";
+export type {
+  IRiveConfig,
+  IRivePulsarTuning,
+  TRiveCue,
+  TRiveHapticAction,
+  TSystemImpact,
+} from "./rive/config.ts";
 export { createRiveHaptics } from "./rive/playback.ts";
 export { resolveRivePresetId } from "./rive/ownership.ts";
 export { fromDeepLink, parseMessage, relayUrl } from "./relay/protocol.ts";

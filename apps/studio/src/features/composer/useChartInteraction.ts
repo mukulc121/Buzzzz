@@ -25,6 +25,7 @@ export function useChartInteraction(options: IChartInteraction) {
   }, [props]);
 
   const select = (next: PointSelection[]) => {
+    if (latest.current.readOnly) return;
     selectionRef.current = next;
     latest.current.onSelectionChange?.(next);
     latest.current.onSelect(next.at(-1) ?? null);
@@ -39,6 +40,7 @@ export function useChartInteraction(options: IChartInteraction) {
   });
   const { reset } = pointer;
   const commit = (result: { pattern: Pattern; selection: PointSelection[] }) => {
+    if (latest.current.readOnly) return;
     reset();
     latest.current.onBegin();
     latest.current.onChange(result.pattern);

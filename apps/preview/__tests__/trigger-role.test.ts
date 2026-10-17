@@ -21,3 +21,15 @@ test("classifies haptic, ready control and unmapped triggers", () => {
   expect(deriveTriggerRole("hapticExit", ["hapticEntry"], config)).toBe("unmapped");
   expect(deriveTriggerRole("isLoaded", [], undefined)).toBe("unmapped");
 });
+
+test("clock-owned phases and source markers are haptic, other triggers stay unmapped", () => {
+  const owned: IRiveConfig = {
+    ...config,
+    completion: {
+      ...config.completion!,
+      phases: { entry: "a", loop: "b", exit: "c", exitLeadMs: 0, markers: ["hapticLoopStop"] },
+    },
+  };
+  expect(deriveTriggerRole("hapticLoopStop", [], owned)).toBe("haptic");
+  expect(deriveTriggerRole("custom", [], owned)).toBe("unmapped");
+});

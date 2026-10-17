@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { emptyPattern, isProject, resolveRivePresetId, type Project } from "../src/index.ts";
-import { DEX_RIVE_CONFIG } from "../../../apps/studio/src/features/project/starter/rive/dex-rive-config.ts";
+import { DEX_RIVE_CONFIG_1063 as DEX_RIVE_CONFIG } from "../../../apps/studio/src/features/project/starter/rive/dex-rive-config-1063.ts";
 
 const project: Project = {
   presets: [

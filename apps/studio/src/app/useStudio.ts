@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { MAX_PATTERN_MS, patternEnd, resolveRivePresetId, type Pattern } from "@buzzzz/core";
 import { useProject } from "../features/project/useProject";
 import { useComposer } from "../features/composer/useComposer";
@@ -7,6 +7,8 @@ import { usePlayback } from "../features/composer/usePlayback";
 import { playSound } from "../features/composer/audio";
 import { useRiveSession } from "../features/rive/useRiveSession";
 import { useRiveSound } from "../features/rive/useRiveSound";
+import { deriveRiveCueTimeline } from "../features/rive/riveCueTimeline";
+import { normalizeDexConfig } from "../features/project/starter/rive/normalizeDexConfig";
 import { useAudioTrack } from "../features/audio/useAudioTrack";
 import { useAnimationTrack } from "../features/animation/useAnimationTrack";
 import { useSharedProject } from "../features/connection/useSharedProject";
@@ -29,11 +31,22 @@ export function useStudio() {
   const tools = useToolWorkspace();
   const document = useProject();
   const instanceKey = `${document.projectId}\u0000${document.preset.id}`;
+  const riveTimeline = useMemo(
+    () =>
+      resolveRivePresetId(document.project) === document.preset.id &&
+      document.pattern.discretePattern.length === 0 &&
+      document.pattern.continuousPattern.amplitude.length === 0 &&
+      document.pattern.continuousPattern.frequency.length === 0
+        ? deriveRiveCueTimeline(normalizeDexConfig(document.project.riveConfig, document.preset.id))
+        : null,
+    [document.project, document.preset.id, document.pattern],
+  );
   const composer = useComposer(
     document.pattern,
     document.preset.editor,
     document.setEditor,
     instanceKey,
+    riveTimeline?.durationMs,
   );
   const appearance = useTheme();
   const activity = useActivityLog();
@@ -296,6 +309,7 @@ export function useStudio() {
     const signature = JSON.stringify([
       media.library.attachment.audio?.assetId,
       media.library.attachment.animation?.assetId,
+      riveTimeline?.durationMs,
     ]);
     if (attachedViews.current.get(instanceKey) === signature) return;
     attachedViews.current.set(instanceKey, signature);
@@ -305,6 +319,7 @@ export function useStudio() {
         document.preset.editor?.durationMs ?? 0,
         audio.source ? audio.trim.endMs - audio.trim.startMs : 0,
         animation.source?.durationMs ?? 0,
+        riveTimeline?.durationMs ?? 0,
       ),
     );
   });
@@ -320,6 +335,7 @@ export function useStudio() {
     audio.source?.url,
     animation.source?.url,
     animation.source?.animationId,
+    riveTimeline?.durationMs,
   ]);
   const editSelection = (field: string, value: number) => {
     if (!composer.selected || !Number.isFinite(value)) return;
@@ -355,6 +371,7 @@ export function useStudio() {
     audio,
     animation,
     session,
+    riveTimeline,
     playback,
     applyPattern,
     applyGenerated,

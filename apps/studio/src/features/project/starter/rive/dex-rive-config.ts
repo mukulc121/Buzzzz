@@ -1,11 +1,12 @@
 import type { IRiveConfig } from "@buzzzz/core";
 
+// Dex PR 1069 (ed09e5dc) useDexTourLoaderHaptics: the play clock owns the phases; VM haptic triggers are breadcrumbs.
 export const DEX_RIVE_CONFIG = {
   artboard: "artboard",
   viewModel: "ViewModel1",
   nativeSound: false,
   completion: {
-    clock: "mount",
+    clock: "play",
     startTrigger: "hapticEntry",
     readyTrigger: "isLoaded",
     readyAfterMs: 2500,
@@ -13,32 +14,27 @@ export const DEX_RIVE_CONFIG = {
     loopPeriodMs: 1600,
     exitMs: 560,
     marginMs: 80,
+    phases: {
+      entry: "hapticEntry",
+      loop: "hapticLoop",
+      exit: "hapticExit",
+      exitLeadMs: 60,
+      markers: ["hapticLoopStop"],
+    },
   },
   haptics: {
-    hapticEntry: {
-      kind: "sequence",
-      cues: [
-        { delayMs: 600, preset: "impactSoft" },
-        { delayMs: 1800, preset: "impactLight" },
-      ],
-    },
+    hapticEntry: { kind: "sequence", cues: [{ delayMs: 400, pulsar: "EngineRev" }] },
     hapticLoop: {
       kind: "sequence",
       cues: [
-        { delayMs: 0, preset: "impactSoft" },
-        { delayMs: 160, preset: "impactSoft" },
-        { delayMs: 360, preset: "impactSoft" },
+        {
+          delayMs: 0,
+          pulsar: "Drone",
+          tuning: { timeScale: 0.89, gain: 2.5, sharpnessBoost: 0.15 },
+        },
       ],
       repeatMs: 1600,
     },
-    hapticLoopStop: { kind: "stop", trigger: "hapticLoop" },
-    hapticExit: {
-      kind: "sequence",
-      immediate: "impactSoft",
-      cues: [
-        { delayMs: 290, preset: "impactMedium" },
-        { delayMs: 430, preset: "impactLight" },
-      ],
-    },
+    hapticExit: { kind: "sequence", cues: [{ delayMs: 200, pulsar: "Lock" }] },
   },
 } satisfies IRiveConfig;

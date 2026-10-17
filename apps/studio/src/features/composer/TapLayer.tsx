@@ -9,6 +9,7 @@ interface ITapLayer {
   selectedKeys: ReadonlySet<string>;
   interaction: ReturnType<typeof useChartInteraction>;
   valueDecimals?: number;
+  readOnly?: boolean;
 }
 
 export function TapLayer(props: ITapLayer) {
@@ -23,9 +24,10 @@ export function TapLayer(props: ITapLayer) {
         return (
           <g
             key={index}
-            role="button"
-            tabIndex={0}
-            aria-pressed={selected}
+            role={props.readOnly ? "img" : "button"}
+            tabIndex={props.readOnly ? undefined : 0}
+            aria-disabled={props.readOnly || undefined}
+            aria-pressed={props.readOnly ? undefined : selected}
             className="handle tap-event"
             aria-label={`Tap at ${Math.round(tap.time)} milliseconds, ${Number((tap.amplitude * 100).toFixed(props.valueDecimals ?? 1))} percent intensity`}
             onFocus={() => interaction.focusPoint(selection)}

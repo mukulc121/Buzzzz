@@ -28,6 +28,7 @@ export function usePreviewSession() {
   const fireRef = useRef<(name: string) => void>(() => {});
   const pauseRef = useRef<(paused: boolean) => void>(() => {});
   const sceneCompleted = useRef(false);
+  const sceneInterrupted = useRef(false);
   const onRiveComplete = useCallback(() => {
     sceneCompleted.current = true;
     pauseRef.current(true);
@@ -36,6 +37,7 @@ export function usePreviewSession() {
   const fireRiveTrigger = useCallback((name: string) => fireRef.current(name), []);
   const riveHaptics = useRiveHaptics({
     completion: riv?.riveConfig?.completion,
+    haptics: riv?.riveConfig?.haptics,
     onComplete: onRiveComplete,
     fireTrigger: fireRiveTrigger,
   });
@@ -43,9 +45,15 @@ export function usePreviewSession() {
   const legacyConnection = useRef<string | null>(null);
   const playback = useNativePlayback();
   const [incomingLibrary, setIncomingLibrary] = useState<{ connectionId: string } | null>(null);
+  const stopRiveScene = () => {
+    sceneInterrupted.current = true;
+    riveHaptics.stop();
+    pauseRef.current(true);
+    setPaused(true);
+  };
   const library = useReceivedLibrary({
     onPlay: () => {
-      riveHaptics.stop();
+      stopRiveScene();
       legacyConnection.current = null;
       playback.stopPattern();
     },
@@ -54,7 +62,6 @@ export function usePreviewSession() {
   const [manifestRevision, setManifestRevision] = useState<Record<string, number>>({});
   const announce = (text: string) => setEvent({ id: Date.now(), text });
   const setMap = (value: Record<string, Pattern>) => {
-    riveHaptics.stop();
     map.current = value;
     setMappedNames([
       ...new Set([...Object.keys(value), ...Object.keys(riveConfig.current?.haptics ?? {})]),
@@ -62,8 +69,10 @@ export function usePreviewSession() {
   };
   const clearScene = () => {
     sceneCompleted.current = false;
+    sceneInterrupted.current = false;
     playback.stopPattern();
     riveHaptics.setEnabled(false);
+    riveHaptics.stop();
     riveConfig.current = undefined;
     sceneConnection.current = null;
     legacyConnection.current = null;
@@ -103,7 +112,9 @@ export function usePreviewSession() {
         }
         sceneConnection.current = connectionId;
         sceneCompleted.current = false;
+        sceneInterrupted.current = false;
         riveHaptics.setEnabled(false);
+        riveHaptics.stop();
         riveConfig.current = message.riveConfig;
         setMap(message.map);
         setPaused(false);
@@ -113,18 +124,19 @@ export function usePreviewSession() {
       } else if (message.type === "map" && sceneConnection.current === connectionId)
         setMap(message.map);
       else if (message.type === "play") {
-        riveHaptics.stop();
+        stopRiveScene();
         library.stop();
         legacyConnection.current = connectionId;
         playback.playPattern(message.pattern, "Pattern from Studio");
         announce("Pattern from Studio");
       } else if (message.type === "stop") {
-        if (sceneConnection.current === connectionId) riveHaptics.stop();
+        if (sceneConnection.current === connectionId) stopRiveScene();
         stopLegacyFromBrowser(legacyConnection.current, connectionId, playback.stopPattern);
       } else if (message.type === "fire" && sceneConnection.current === connectionId)
         fireRef.current(message.name);
       else if (message.type === "restart" && sceneConnection.current === connectionId) {
         sceneCompleted.current = false;
+        sceneInterrupted.current = false;
         riveHaptics.stop();
         setPaused(false);
         setRun((value) => value + 1);
@@ -148,20 +160,23 @@ export function usePreviewSession() {
     if (sceneCompleted.current) return;
     const actions = riveConfig.current?.haptics;
     const action = actions && Object.hasOwn(actions, name) ? actions[name] : undefined;
-    const pattern = Object.hasOwn(map.current, name) ? map.current[name] : undefined;
-    if (action) {
+    const phase = riveHaptics.ownsPhase(name);
+    const pattern = !phase && Object.hasOwn(map.current, name) ? map.current[name] : undefined;
+    // A clock-owned phase trigger only marks the phase.
+    if (action && !phase) {
       if (action.kind === "sequence") {
         library.stop();
         playback.stopPattern();
       }
     } else if (pattern) {
-      riveHaptics.stop();
+      riveHaptics.stopImpacts();
       library.stop();
       playback.playPattern(pattern, name, false);
     }
     riveHaptics.trigger(name, action);
     setLastFired({ name, id: Date.now() });
-    const role = action || pattern ? "haptic" : deriveTriggerRole(name, [], riveConfig.current);
+    const role =
+      action || pattern || phase ? "haptic" : deriveTriggerRole(name, [], riveConfig.current);
     announce(
       role === "haptic"
         ? `▸ ${name}`
@@ -171,13 +186,14 @@ export function usePreviewSession() {
   };
   const replay = () => {
     sceneCompleted.current = false;
+    sceneInterrupted.current = false;
     riveHaptics.stop();
     Presets.System.selection();
     setPaused(false);
     setRun((value) => value + 1);
   };
   const togglePause = () => {
-    if (paused && sceneCompleted.current) {
+    if (paused && (sceneCompleted.current || sceneInterrupted.current)) {
       replay();
       return;
     }
@@ -204,6 +220,8 @@ export function usePreviewSession() {
     onTrigger,
     stopRiveHaptics: riveHaptics.stop,
     setRiveHapticsEnabled: riveHaptics.setEnabled,
+    mountRiveScene: riveHaptics.mount,
+    bindRiveScene: riveHaptics.bind,
     replay,
     togglePause,
     disconnect,

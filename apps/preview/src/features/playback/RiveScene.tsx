@@ -31,6 +31,7 @@ interface IRiveScene {
   onTriggers: (names: string[]) => void;
   onStopHaptics: () => void;
   onHapticsEnabled: (enabled: boolean) => void;
+  onSceneBound: (paused: boolean) => void;
   fireRef: RefObject<(name: string) => void>;
   pauseRef: RefObject<(paused: boolean) => void>;
 }
@@ -74,6 +75,8 @@ function BoundRiveScene(props: IBoundRiveScene) {
   const onFired = useEffectEvent(onTrigger);
   const stopHaptics = useEffectEvent(props.onStopHaptics);
   const enableHaptics = useEffectEvent(props.onHapticsEnabled);
+  const bindHaptics = useEffectEvent(() => props.onSceneBound(requestedPause.current || !active));
+  const sceneBound = useRef(false);
   const [binding, setBinding] = useState<Awaited<ReturnType<typeof bindRiveTriggers>> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const ready = !instance || binding !== null;
@@ -114,18 +117,38 @@ function BoundRiveScene(props: IBoundRiveScene) {
     pauseRef.current = (next) => {
       requestedPause.current = next;
       enableHaptics(!next && active && ready);
-      void riveViewRef?.[playbackCommand({ paused: next, active })]();
+      void riveViewRef?.[
+        playbackCommand({ paused: next, active, foreground: AppState.currentState === "active" })
+      ]();
     };
     return () => {
       pauseRef.current = () => {};
     };
   }, [riveViewRef, pauseRef, active, ready]);
 
+  // The play clock starts with the view's first play command, not the async trigger subscription.
+  useEffect(() => {
+    if (!ready || !riveViewRef || sceneBound.current) return;
+    sceneBound.current = true;
+    bindHaptics();
+  }, [ready, riveViewRef]);
+
   useEffect(() => {
     enableHaptics(!paused && active && ready);
-    if (!active) stopHaptics();
-    if (ready) void riveViewRef?.[playbackCommand({ paused, active })]();
+    if (ready)
+      void riveViewRef?.[
+        playbackCommand({ paused, active, foreground: AppState.currentState === "active" })
+      ]();
     return () => enableHaptics(false);
+  }, [paused, active, ready, riveViewRef]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (state) => {
+      const foreground = state === "active";
+      enableHaptics(foreground && !paused && active && ready);
+      if (ready) void riveViewRef?.[playbackCommand({ paused, active, foreground })]();
+    });
+    return () => subscription.remove();
   }, [paused, active, ready, riveViewRef]);
 
   if (error) return <Text style={{ color: t.err, padding: 20 }}>{error}</Text>;

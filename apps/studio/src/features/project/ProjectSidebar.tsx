@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { normalizeDexConfig } from "./starter/rive/normalizeDexConfig";
 import { resolveRivePresetId, type Project } from "@buzzzz/core";
 import { PatternListItem } from "./PatternListItem";
 import { PatternActionIcon } from "./PatternActionIcon";
@@ -68,7 +69,9 @@ export function ProjectSidebar(props: IProjectSidebar) {
               riveAvailable &&
               resolveRivePresetId(project) === item.id &&
               project.riveConfig?.haptics
-                ? "Rive · system haptics"
+                ? normalizeDexConfig(project.riveConfig, item.id)?.completion?.phases
+                  ? "Rive · Pulsar presets"
+                  : "Rive · system haptics"
                 : undefined
             }
             triggers={Object.entries(project.map)

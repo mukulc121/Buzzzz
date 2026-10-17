@@ -36,6 +36,9 @@
 .chart .handle {
   cursor: grab;
 }
+.chart[data-readonly] .handle {
+  cursor: default;
+}
 .chart circle {
   stroke-width: 2;
 }

@@ -1,20 +1,24 @@
-import type { IRiveConfig, TRiveHapticAction } from "@buzzzz/core";
+import { isRecord, type IRiveConfig } from "@buzzzz/core";
 import { DEX_RIVE_CONFIG } from "./dex-rive-config";
+import { DEX_RIVE_CONFIG_1063 } from "./dex-rive-config-1063";
 
-function actionKey(action: TRiveHapticAction | undefined) {
-  if (!action) return undefined;
-  return JSON.stringify(
-    action.kind === "stop"
-      ? [action.kind, action.trigger]
-      : [
-          action.kind,
-          action.immediate,
-          action.repeatMs,
-          action.cues.map((cue) => [cue.delayMs, cue.preset]),
-        ],
+function sameConfigValue(actual: unknown, expected: unknown): boolean {
+  if (actual === expected) return true;
+  if (Array.isArray(actual) && Array.isArray(expected))
+    return (
+      actual.length === expected.length &&
+      actual.every((value, i) => sameConfigValue(value, expected[i]))
+    );
+  if (!isRecord(actual) || !isRecord(expected)) return false;
+  return (
+    Object.keys(actual).length === Object.keys(expected).length &&
+    Object.entries(actual).every(
+      ([key, value]) => Object.hasOwn(expected, key) && sameConfigValue(value, expected[key]),
+    )
   );
 }
 
+/** Upgrades an unedited copy of the Dex 1063 starter script to the Dex 1069 profile; edited configs pass through. */
 export function normalizeDexConfig(config: IRiveConfig | undefined, owner: string | null) {
   if (
     !config ||
@@ -22,24 +26,11 @@ export function normalizeDexConfig(config: IRiveConfig | undefined, owner: strin
     (config.nativeSound === undefined && owner !== "dex-tour-loader")
   )
     return config;
-  const source = DEX_RIVE_CONFIG;
-  const completion = config.completion;
-  if (
-    config.artboard !== source.artboard ||
-    config.viewModel !== source.viewModel ||
-    !config.haptics ||
-    Object.keys(config.haptics).length !== 4 ||
-    !Object.entries(source.haptics).every(
-      ([name, action]) => actionKey(config.haptics?.[name]) === actionKey(action),
-    ) ||
-    !completion ||
-    !Object.entries(source.completion)
-      .filter(([name]) => name !== "clock")
-      .every(([name, value]) =>
-        Object.entries(completion).some(([key, current]) => key === name && current === value),
-      )
-  )
-    return config;
-  if (config.nativeSound === false && completion.clock === "mount") return config;
-  return { ...config, nativeSound: false, completion: { ...completion, clock: "mount" as const } };
+  const candidate = config.nativeSound === undefined ? { ...config, nativeSound: false } : config;
+  if (sameConfigValue(candidate, DEX_RIVE_CONFIG)) return candidate;
+  const legacy = {
+    ...candidate,
+    completion: { ...candidate.completion, clock: candidate.completion?.clock ?? "mount" },
+  };
+  return sameConfigValue(legacy, DEX_RIVE_CONFIG_1063) ? structuredClone(DEX_RIVE_CONFIG) : config;
 }

@@ -5,6 +5,8 @@ import { AnimationFilmstrip } from "./AnimationFilmstrip";
 import type { IAnimationDocument } from "../animation/model";
 import type { IAnimationAnalysis } from "../animation/model";
 import { curvePoints, normalize } from "./timelineGeometry";
+import type { IRiveCueTimeline } from "../rive/riveCueTimeline";
+import { PlaybackCursor } from "./PlaybackCursor";
 
 type TimelineLaneId = "pattern" | "audio" | "motion";
 
@@ -15,6 +17,8 @@ interface ITimelineLanes {
   end: number;
   start: number;
   animationDocument?: IAnimationDocument | null;
+  riveCues?: IRiveCueTimeline | null;
+  getPlayhead?: () => number | null;
 }
 
 interface ILane {
@@ -27,6 +31,8 @@ interface ILaneData<T> {
   data: T;
   end: number;
   start: number;
+  getPlayhead?: () => number | null;
+  segments?: readonly Pattern[];
 }
 
 const HEIGHT = 56;
@@ -70,13 +76,38 @@ function PatternLane(props: ILaneData<Pattern>) {
   );
   return (
     <Lane id="pattern" label="Pattern overview">
-      {amplitude && (
-        <polygon
-          points={`${first},${HEIGHT} ${amplitude} ${last},${HEIGHT}`}
-          className="timeline-amp-fill"
-        />
+      {props.segments ? (
+        props.segments.map((segment, index) => {
+          const points = segment.continuousPattern.amplitude;
+          const curve = curvePoints(points, end, HEIGHT, start);
+          const first = points[0]?.time ?? 0;
+          const last = points.at(-1)?.time ?? 0;
+          return (
+            <g key={index} data-pattern-segment={index}>
+              {curve && (
+                <polygon
+                  points={`${x(first, end, start)},${HEIGHT} ${curve} ${x(last, end, start)},${HEIGHT}`}
+                  className="timeline-amp-fill"
+                />
+              )}
+              <polyline
+                points={curvePoints(segment.continuousPattern.frequency, end, HEIGHT, start)}
+                className="timeline-freq"
+              />
+            </g>
+          );
+        })
+      ) : (
+        <>
+          {amplitude && (
+            <polygon
+              points={`${first},${HEIGHT} ${amplitude} ${last},${HEIGHT}`}
+              className="timeline-amp-fill"
+            />
+          )}
+          <polyline points={frequency} className="timeline-freq" />
+        </>
       )}
-      <polyline points={frequency} className="timeline-freq" />
       {pattern.discretePattern.map((tap, index) => (
         <line
           key={index}
@@ -87,6 +118,22 @@ function PatternLane(props: ILaneData<Pattern>) {
           className="timeline-tap"
         />
       ))}
+      {props.getPlayhead && (
+        <PlaybackCursor
+          time={null}
+          snapMs={0}
+          getTime={props.getPlayhead}
+          label={false}
+          geometry={{
+            width: 1000,
+            top: 0,
+            bottom: HEIGHT,
+            plotHeight: HEIGHT,
+            x: (time) => x(time, end, start),
+            inView: (time) => time >= start && time <= start + end,
+          }}
+        />
+      )}
     </Lane>
   );
 }
@@ -154,7 +201,13 @@ export function TimelineLanes(props: ITimelineLanes) {
       ) : (
         animation && <MotionLane data={animation} end={end} start={start} />
       )}
-      <PatternLane data={pattern} end={end} start={start} />
+      <PatternLane
+        data={props.riveCues?.pattern ?? pattern}
+        end={end}
+        start={start}
+        segments={props.riveCues?.segments}
+        getPlayhead={props.getPlayhead}
+      />
     </>
   );
 }

@@ -9,6 +9,7 @@ import {
 } from "./editing";
 import { LAYERS, selectionKey, type IChart, type PointSelection } from "./model";
 import { clampViewport, zoomViewport } from "./viewport";
+import { chartDuration } from "./chartNavigation";
 
 interface IChartKeyboard {
   getProps: () => IChart;
@@ -33,6 +34,7 @@ export function handleChartKey(
       ? [point]
       : [...selection];
   const key = event.key.toLowerCase();
+  if (current.readOnly && !["+", "=", "-", "0"].includes(key)) return;
   const modifier = event.metaKey || event.ctrlKey;
   const step =
     (current.snapMs && current.snapMs > 0 ? current.snapMs : 10) * (event.shiftKey ? 10 : 1);
@@ -118,7 +120,9 @@ export function handleChartKey(
       key === "0"
         ? clampViewport({
             startMs: 0,
-            durationMs: Math.max(1000, patternEnd(current.pattern) + 250),
+            durationMs: current.readOnly
+              ? chartDuration(current)
+              : Math.max(1000, patternEnd(current.pattern) + 250),
           })
         : zoomViewport({ ...viewport, factor: key === "-" ? 1.5 : 1 / 1.5, anchor: 0.5 }),
     );

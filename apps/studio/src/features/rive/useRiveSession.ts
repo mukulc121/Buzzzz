@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { resolveRivePresetId } from "@buzzzz/core";
-import type { IRiveConfig, Msg, Project, TSystemImpact } from "@buzzzz/core";
+import type { IRiveConfig, Msg, Project, TRiveCue, TSystemImpact } from "@buzzzz/core";
 import { useRelay } from "../connection/useRelay";
 import { usePhoneLibrary } from "../connection/usePhoneLibrary";
 import { useUploadedRive } from "./useUploadedRive";
@@ -24,7 +24,7 @@ interface IRiveSession {
   writable: boolean;
   mapped: Record<string, Project["presets"][number]["pattern"]>;
   onTrigger: (pattern: Project["presets"][number]["pattern"]) => void;
-  onSystemImpact: (preset: TSystemImpact) => void;
+  onSystemImpact: (cue: TSystemImpact | TRiveCue) => void;
   onSystemStop: () => void;
   systemPreviewEnabled: () => boolean;
   addLog: (message: string) => void;
@@ -75,6 +75,7 @@ export function useRiveSession(props: IRiveSession) {
   const haptics = useRiveHaptics({
     config,
     onImpact: onSystemImpact,
+    onStopPattern: onSystemStop,
     enabled: systemPreviewEnabled,
     fireTrigger: (name) => rive.fire(name),
     onComplete: () => rive.finish(),

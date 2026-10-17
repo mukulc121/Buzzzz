@@ -103,15 +103,17 @@ test("the real Rive starter completes locally before a delayed phone load and ca
       ),
     });
   });
-  await page.route(/\/src\/features\/rive\/systemImpactPattern\.ts(?:\?.*)?$/, async (route) => {
+  await page.route(/\/src\/features\/rive\/useRiveSound\.ts(?:\?.*)?$/, async (route) => {
     const response = await route.fetch();
     const source = await response.text();
-    if (!source.includes("return pulsarPresets.find(")) throw new Error("Missing system lookup");
+    const marker = "const token = ++generation.current;";
+    if (!source.includes(marker)) throw new Error("Missing actual Rive sound dispatch");
     await route.fulfill({
       response,
       body: source.replace(
-        "return pulsarPresets.find(",
-        "globalThis.__recordRiveImpact(impact,performance.now()); return pulsarPresets.find(",
+        marker,
+        'globalThis.__recordRiveImpact(typeof cue === "string" ? cue : "pulsar" in cue ? cue.pulsar : cue.preset, performance.now()); ' +
+          marker,
       ),
     });
   });
@@ -126,7 +128,8 @@ test("the real Rive starter completes locally before a delayed phone load and ca
   await expect(panel.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible({
     timeout: 20_000,
   });
-  await expect(panel.getByText("Rive-driven system cue", { exact: true })).toHaveCount(4);
+  for (const label of ["Entry · EngineRev", "Loop · Drone", "Exit · Lock", "Phase marker"])
+    await expect(panel.getByText(label, { exact: true })).toBeVisible();
   await expect.poll(() => uploads.length).toBe(1);
   const bytes = uploads[0]?.request().postDataBuffer();
   if (!bytes) throw new Error("The Rive upload has no bytes");
@@ -145,6 +148,7 @@ test("the real Rive starter completes locally before a delayed phone load and ca
   const mountedAt = mounts.findLast((time) => time <= entry.time);
   if (mountedAt === undefined) throw new Error("The actual scene mount was not observed");
   expect(ready.time - mountedAt).toBeGreaterThanOrEqual(2400);
+  expect(impacts.map((impact) => impact.preset)).toEqual(["EngineRev", "Drone", "Lock"]);
   const completedCount = impacts.length;
   await page.waitForTimeout(1800);
   expect(impacts).toHaveLength(completedCount);

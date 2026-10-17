@@ -19,15 +19,17 @@ async function openRive(page: Page) {
       ),
     });
   });
-  await page.route(/\/src\/features\/rive\/systemImpactPattern\.ts(?:\?.*)?$/, async (route) => {
+  await page.route(/\/src\/features\/rive\/useRiveSound\.ts(?:\?.*)?$/, async (route) => {
     const response = await route.fetch();
     const source = await response.text();
-    if (!source.includes("return pulsarPresets.find(")) throw new Error("System lookup missing");
+    const marker = "const token = ++generation.current;";
+    if (!source.includes(marker)) throw new Error("Actual Rive sound dispatch missing");
     await route.fulfill({
       response,
       body: source.replace(
-        "return pulsarPresets.find(",
-        "globalThis.__fullscreenRiveImpact(impact); return pulsarPresets.find(",
+        marker,
+        'globalThis.__fullscreenRiveImpact(typeof cue === "string" ? cue : "pulsar" in cue ? cue.pulsar : cue.preset); ' +
+          marker,
       ),
     });
   });

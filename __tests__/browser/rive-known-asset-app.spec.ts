@@ -5,7 +5,7 @@ import { unzipSync } from "fflate";
 import { DEX_RIVE_CONFIG } from "../../apps/studio/src/features/project/starter/rive/dex-rive-config";
 
 const DEX = "apps/studio/src/features/project/starter/rive/dexHeadoutIntegration.riv";
-const TRIGGERS = ["hapticEntry", "hapticLoop", "hapticLoopStop", "hapticExit"];
+const TRIGGERS = ["hapticEntry", "hapticLoop", "hapticExit"];
 
 async function open(page: Page) {
   const messages: Msg[] = [];
@@ -60,6 +60,7 @@ test("the exact Dex file attached as a generic upload restores source haptics ev
   for (const load of loads(messages)) {
     if (load.type !== "load") continue;
     expect(Object.keys(load.riveConfig?.haptics ?? {})).toEqual(TRIGGERS);
+    expect(load.riveConfig?.completion?.phases?.markers).toEqual(["hapticLoopStop"]);
     expect(load.riveConfig?.nativeSound).toBe(false);
   }
   await page.reload();

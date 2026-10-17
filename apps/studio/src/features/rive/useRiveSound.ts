@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
-import type { TSystemImpact } from "@buzzzz/core";
+import type { TRiveCue, TSystemImpact } from "@buzzzz/core";
+import { riveCuePattern } from "@buzzzz/core/presets";
 import { playBuffer, prepareSound, stopSound } from "../composer/audio";
-import { systemImpactPattern } from "./systemImpactPattern";
 
 export function useRiveSound() {
   const enabled = useRef(false);
@@ -11,9 +11,9 @@ export function useRiveSound() {
     generation.current++;
     stopSound(owner.current);
   }, []);
-  const impact = useCallback((preset: TSystemImpact) => {
+  const impact = useCallback((cue: TSystemImpact | TRiveCue) => {
     if (!enabled.current) return;
-    const pattern = systemImpactPattern(preset);
+    const pattern = riveCuePattern(typeof cue === "string" ? { delayMs: 0, preset: cue } : cue);
     if (!pattern) return;
     const token = ++generation.current;
     void prepareSound(pattern)

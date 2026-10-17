@@ -42,6 +42,9 @@ export interface IMarkerActions {
 
 export interface IChart extends IMarkerActions {
   pattern: Pattern;
+  patternSegments?: readonly Pattern[];
+  readOnly?: boolean;
+  getPlayhead?: () => number | null;
   layer: Layer;
   viewMs: number;
   selected: Selection;

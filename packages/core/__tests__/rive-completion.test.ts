@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { DEX_RIVE_CONFIG } from "../../../apps/studio/src/features/project/starter/rive/dex-rive-config.ts";
+import { DEX_RIVE_CONFIG_1063 as DEX_RIVE_CONFIG } from "../../../apps/studio/src/features/project/starter/rive/dex-rive-config-1063.ts";
 import { riveClock } from "./fixtures/rive-clock.ts";
 
 const completion = { ...DEX_RIVE_CONFIG.completion, readyAfterMs: undefined };

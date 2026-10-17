@@ -34,7 +34,7 @@ export function Chart(props: IChart) {
   const [{ width, height }, setSize] = useState({ width: 800, height: 320 });
   const [hover, setHover] = useState<{ x: number; y: number } | null>(null);
   const interaction = useChartInteraction({ props, svg, width, height });
-  const selectedKeys = new Set(interaction.selection.map(selectionKey));
+  const selectedKeys = new Set(props.readOnly ? [] : interaction.selection.map(selectionKey));
 
   useEffect(() => {
     const element = svg.current;
@@ -47,13 +47,9 @@ export function Chart(props: IChart) {
   }, []);
 
   const geometry = chartGeometry({ width, height, startMs: viewStartMs, durationMs: viewMs });
-  const continuousEnd = Math.max(
-    0,
-    ...pattern.continuousPattern.amplitude.map((point) => point.time),
-    ...pattern.continuousPattern.frequency.map((point) => point.time),
-  );
   const add = (event: MouseEvent<SVGSVGElement>) => {
     if (
+      props.readOnly ||
       !visibleLayers.includes(layer) ||
       (event.target instanceof Element && event.target.closest(".handle"))
     )
@@ -107,6 +103,7 @@ export function Chart(props: IChart) {
     <svg
       ref={svg}
       className="chart"
+      data-readonly={props.readOnly || undefined}
       viewBox={`0 0 ${width} ${height}`}
       style={{ touchAction: "none" }}
       tabIndex={0}
@@ -120,7 +117,11 @@ export function Chart(props: IChart) {
       onKeyDown={(event) => interaction.keyDown(event)}
       role="group"
       aria-label="Haptic pattern timeline"
-      aria-description="Double-click to add a point. Shift-click or drag a rectangle to select points. Arrow keys move selected points. Scroll to pan; Cmd/Ctrl+wheel zooms at the pointer; middle-drag pans."
+      aria-description={
+        props.readOnly
+          ? "Source Rive haptic timeline. Editing is disabled. Scroll to pan; Cmd/Ctrl+wheel zooms at the pointer; middle-drag pans."
+          : "Double-click to add a point. Shift-click or drag a rectangle to select points. Arrow keys move selected points. Scroll to pan; Cmd/Ctrl+wheel zooms at the pointer; middle-drag pans."
+      }
     >
       <defs>
         <clipPath id={clipId}>
@@ -142,32 +143,51 @@ export function Chart(props: IChart) {
       />
       <ChartAxes geometry={geometry} density={editorSettings.gridDensity} />
       {editorSettings.timeCursor && (
-        <PlaybackCursor time={playhead} geometry={geometry} snapMs={snapMs} onScrub={onScrub} />
+        <PlaybackCursor
+          time={playhead}
+          geometry={geometry}
+          snapMs={snapMs}
+          onScrub={props.readOnly ? undefined : onScrub}
+          getTime={props.getPlayhead}
+        />
       )}
       <g clipPath={`url(#${clipId})`}>
         <ChartOverlays geometry={geometry} range={playbackRange} curves={props.analysisCurves} />
-        {visibleLayers.includes("amplitude") && (
-          <EnvelopeLayer
-            layer="amplitude"
-            points={pattern.continuousPattern.amplitude}
-            geometry={geometry}
-            selectedKeys={selectedKeys}
-            interaction={interaction}
-            valueDecimals={editorSettings.valueDecimals}
-            endMs={continuousEnd}
-          />
-        )}
-        {visibleLayers.includes("frequency") && (
-          <EnvelopeLayer
-            layer="frequency"
-            points={pattern.continuousPattern.frequency}
-            geometry={geometry}
-            selectedKeys={selectedKeys}
-            interaction={interaction}
-            valueDecimals={editorSettings.valueDecimals}
-            endMs={continuousEnd}
-          />
-        )}
+        {(props.patternSegments ?? [pattern]).map((segment, index) => {
+          const continuousEnd = Math.max(
+            0,
+            ...segment.continuousPattern.amplitude.map((point) => point.time),
+            ...segment.continuousPattern.frequency.map((point) => point.time),
+          );
+          return (
+            <g key={index} data-pattern-segment={index}>
+              {visibleLayers.includes("amplitude") && (
+                <EnvelopeLayer
+                  layer="amplitude"
+                  points={segment.continuousPattern.amplitude}
+                  geometry={geometry}
+                  selectedKeys={selectedKeys}
+                  interaction={interaction}
+                  valueDecimals={editorSettings.valueDecimals}
+                  endMs={continuousEnd}
+                  readOnly={props.readOnly}
+                />
+              )}
+              {visibleLayers.includes("frequency") && (
+                <EnvelopeLayer
+                  layer="frequency"
+                  points={segment.continuousPattern.frequency}
+                  geometry={geometry}
+                  selectedKeys={selectedKeys}
+                  interaction={interaction}
+                  valueDecimals={editorSettings.valueDecimals}
+                  endMs={continuousEnd}
+                  readOnly={props.readOnly}
+                />
+              )}
+            </g>
+          );
+        })}
         {visibleLayers.includes("discrete") && (
           <TapLayer
             points={pattern.discretePattern}
@@ -175,6 +195,7 @@ export function Chart(props: IChart) {
             selectedKeys={selectedKeys}
             interaction={interaction}
             valueDecimals={editorSettings.valueDecimals}
+            readOnly={props.readOnly}
           />
         )}
         <ChartOverlays geometry={geometry} rectangle={interaction.rectangle} />

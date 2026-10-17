@@ -12,6 +12,7 @@ export function useComposer(
   editor: IPresetEditor | undefined,
   onEditorChange: (value: IPresetEditor) => void,
   instanceKey = "editor",
+  displayDurationMs = 0,
 ) {
   const [layer, setLayer] = useState<Layer>("amplitude");
   const [selected, setSelected] = useState<Selection>(null);
@@ -26,7 +27,7 @@ export function useComposer(
   ]);
   const { viewport, setViewport, cursor, setCursor } = useComposerView(
     instanceKey,
-    Math.max(patternEnd(pattern), editor?.durationMs ?? 0),
+    Math.max(patternEnd(pattern), editor?.durationMs ?? 0, displayDurationMs),
   );
   const range = editor?.range ?? null;
   const markers = editor?.markers ?? [];
@@ -53,7 +54,7 @@ export function useComposer(
     setSelected(point);
     setSelection(point ? [point] : []);
   };
-  const fit = (duration = patternEnd(pattern)) =>
+  const fit = (duration = Math.max(patternEnd(pattern), displayDurationMs)) =>
     setViewport({
       startMs: 0,
       durationMs: Math.min(MAX_PATTERN_MS, Math.max(MIN_VIEW_MS, Math.round(duration))),
@@ -85,7 +86,10 @@ export function useComposer(
         id: randomUUID(),
         time: Math.max(
           0,
-          Math.min(Math.max(patternEnd(pattern), editor?.durationMs ?? 0), Math.round(time)),
+          Math.min(
+            Math.max(patternEnd(pattern), editor?.durationMs ?? 0, displayDurationMs),
+            Math.round(time),
+          ),
         ),
         label: nextMarkerLabel(items),
       },

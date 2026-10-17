@@ -20,8 +20,15 @@ interface IEditorCanvas {
 export function EditorCanvas(props: IEditorCanvas) {
   const { studio } = props;
   const { document, composer, playback, session, audio } = studio;
+  const hasPattern =
+    document.pattern.discretePattern.length +
+      document.pattern.continuousPattern.amplitude.length +
+      document.pattern.continuousPattern.frequency.length >
+    0;
+  const riveCues = session.riv && !hasPattern ? studio.riveTimeline : null;
   const curves = useAnalysisCurves(audio);
   const markerDurationMs = Math.max(
+    riveCues?.durationMs ?? 0,
     patternEnd(document.pattern),
     audio.analysis?.durationMs ?? 0,
     studio.animation.source?.durationMs ?? 0,
@@ -116,7 +123,10 @@ export function EditorCanvas(props: IEditorCanvas) {
           }}
         >
           <Chart
-            pattern={document.pattern}
+            pattern={riveCues?.pattern ?? document.pattern}
+            patternSegments={riveCues?.segments}
+            readOnly={Boolean(riveCues)}
+            getPlayhead={riveCues ? session.elapsedMs : undefined}
             layer={composer.layer}
             viewMs={composer.viewport.durationMs}
             viewStartMs={composer.viewport.startMs}
@@ -125,14 +135,14 @@ export function EditorCanvas(props: IEditorCanvas) {
             onSelect={composer.setPrimarySelection}
             onSelectionChange={composer.setSelection}
             playhead={playback.playhead}
-            onScrub={playback.setPlayhead}
+            onScrub={riveCues ? undefined : playback.setPlayhead}
             onBegin={document.begin}
             onChange={document.setPattern}
             visibleLayers={composer.visibleLayers}
             snapMs={composer.snapMs}
             multilayerSelection={composer.multilayerSelection}
             editorSettings={composer.settings.values}
-            playbackRange={composer.range ?? undefined}
+            playbackRange={riveCues ? undefined : (composer.range ?? undefined)}
             markers={composer.markers}
             markerDurationMs={markerDurationMs}
             onMarkerMove={composer.moveMarker}
@@ -184,6 +194,8 @@ export function EditorCanvas(props: IEditorCanvas) {
         audio={audio.analysis}
         animation={studio.animation.analysis}
         animationDocument={studio.animation.source?.document}
+        riveCues={riveCues}
+        getPlayhead={riveCues ? session.elapsedMs : undefined}
         onBegin={document.begin}
         durationMs={Math.max(
           audio.analysis?.durationMs ?? 0,

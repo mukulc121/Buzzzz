@@ -8,8 +8,9 @@ import {
 } from "react";
 import { Bolt, Play, Stop } from "../../components/icons";
 import { FilePicker } from "../../components/FilePicker";
-import type { Msg, Project } from "@buzzzz/core";
-import { riveHapticAction } from "./hapticAction";
+import { resolveRivePresetId, type Msg, type Project } from "@buzzzz/core";
+import { riveHapticLabel } from "./hapticAction";
+import { normalizeDexConfig } from "../project/starter/rive/normalizeDexConfig";
 import { RiveFullscreenControls } from "./RiveFullscreenControls";
 interface IRivePanel {
   riv: { name: string; buffer: ArrayBuffer } | null;
@@ -53,6 +54,7 @@ export function RivePanel(props: IRivePanel) {
     triggerRows,
     fire,
   } = props;
+  const riveConfig = normalizeDexConfig(project.riveConfig, resolveRivePresetId(project));
   const replay = () => {
     restart();
     send({ type: "restart" });
@@ -172,10 +174,11 @@ export function RivePanel(props: IRivePanel) {
           and fire it from the state machine.
         </p>
       )}
-      {riv && project.riveConfig?.haptics && (
+      {riv && riveConfig?.haptics && (
         <p className="hint">
-          Rive-driven system cues run on the phone. Haptics as sound previews the matching system
-          presets through the speaker.
+          {riveConfig.completion?.phases
+            ? "The loader clock plays these Pulsar presets on the phone; the Rive triggers only mark the phases. Haptics as sound previews the same patterns."
+            : "Rive-driven system cues run on the phone. Haptics as sound previews the matching system presets through the speaker."}
         </p>
       )}
       {info.triggers.length > 0 && (
@@ -193,8 +196,8 @@ export function RivePanel(props: IRivePanel) {
               <span className="tname" title={t}>
                 {t}
               </span>
-              {riveHapticAction(project.riveConfig?.haptics, t) ? (
-                <span className="muted">Rive-driven system cue</span>
+              {riveHapticLabel(riveConfig, t) ? (
+                <span className="muted">{riveHapticLabel(riveConfig, t)}</span>
               ) : (
                 <select
                   value={project.map[t] ?? ""}

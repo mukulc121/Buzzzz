@@ -72,7 +72,7 @@ export function useChartPointer(options: IChartPointer) {
   const grab =
     (point: PointSelection, time: number, mode: PointDragMode = "both") =>
     (event: PointerEvent<SVGElement>) => {
-      if (event.button !== 0) return;
+      if (event.button !== 0 || getProps().readOnly) return;
       event.preventDefault();
       event.stopPropagation();
       const previous = getSelection().filter(
@@ -109,6 +109,7 @@ export function useChartPointer(options: IChartPointer) {
     if (event.button !== 0 && event.button !== 1) return;
     event.preventDefault();
     svg.current?.focus();
+    if (getProps().readOnly && event.button !== 1) return;
     const point = position(event);
     if (!point) return;
     if (event.button === 1) {
@@ -151,6 +152,10 @@ export function useChartPointer(options: IChartPointer) {
     const action = drag.current;
     const point = position(event);
     if (!action || !point) return;
+    if (getProps().readOnly && action.kind !== "pan") {
+      reset();
+      return;
+    }
     if (action.kind === "pan") {
       const durationMs = getProps().viewMs;
       getProps().onViewChange?.(

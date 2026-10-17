@@ -40,15 +40,17 @@ test("only the Rive owner previews, uploads and plays source cues, including leg
         ),
     });
   });
-  await page.route(/\/src\/features\/rive\/systemImpactPattern\.ts(?:\?.*)?$/, async (route) => {
+  await page.route(/\/src\/features\/rive\/useRiveSound\.ts(?:\?.*)?$/, async (route) => {
     const response = await route.fetch();
     const source = await response.text();
-    if (!source.includes("return pulsarPresets.find(")) throw new Error("System lookup missing");
+    const marker = "const token = ++generation.current;";
+    if (!source.includes(marker)) throw new Error("Actual Rive sound dispatch missing");
     await route.fulfill({
       response,
       body: source.replace(
-        "return pulsarPresets.find(",
-        "globalThis.__ownershipImpact(impact); return pulsarPresets.find(",
+        marker,
+        'globalThis.__ownershipImpact(typeof cue === "string" ? cue : "pulsar" in cue ? cue.pulsar : cue.preset); ' +
+          marker,
       ),
     });
   });
@@ -60,7 +62,7 @@ test("only the Rive owner previews, uploads and plays source cues, including leg
   await page.getByRole("button", { name: "Projects", exact: true }).click();
   await page.getByRole("button", { name: "Create sample project", exact: true }).click();
   await expect(page.getByRole("button", { name: "DexTourLoader", exact: true })).toContainText(
-    "Rive · system haptics",
+    "Rive · Pulsar presets",
   );
   const panel = page.locator(".rive-panel");
   for (const name of ["ExplosionAnimation", "FanfareSound", "JustHaptics"]) {
@@ -152,9 +154,9 @@ test("exporting from another pattern preserves the Rive owner, script and exact 
   expect(Object.keys(manifest.buzzzz.riveConfig.haptics)).toEqual([
     "hapticEntry",
     "hapticLoop",
-    "hapticLoopStop",
     "hapticExit",
   ]);
+  expect(manifest.buzzzz.riveConfig.completion.phases.markers).toEqual(["hapticLoopStop"]);
   expect(createHash("sha256").update(files["rive/animation.riv"]).digest("hex")).toBe(
     "a1e7943e8b53816bdeff29cdf91441da5dd2c7fa5fe5f5c150100c12204a0da6",
   );

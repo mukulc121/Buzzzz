@@ -2,6 +2,7 @@ import { createRiveHaptics, type IRiveConfig, type TSystemImpact } from "../../s
 
 interface IRiveClock {
   completion?: IRiveConfig["completion"];
+  haptics?: IRiveConfig["haptics"];
   ignoreCancellation?: boolean;
 }
 
@@ -18,8 +19,13 @@ export function riveClock(options: IRiveClock = {}) {
   const impacts: { at: number; preset: TSystemImpact }[] = [];
   const fired: { at: number; name: string }[] = [];
   const completions: number[] = [];
+  const pulsar: { at: number; name: string; tuned: boolean }[] = [];
+  const patternStops: number[] = [];
   const playback = createRiveHaptics({
     completion: options.completion,
+    haptics: options.haptics,
+    playPulsar: (cue) => pulsar.push({ at: now, name: cue.pulsar, tuned: !!cue.tuning }),
+    stopPulsar: () => patternStops.push(now),
     now: () => now,
     play: (preset) => impacts.push({ at: now, preset }),
     canPlay: () => enabled,
@@ -53,6 +59,8 @@ export function riveClock(options: IRiveClock = {}) {
     impacts,
     fired,
     completions,
+    pulsar,
+    patternStops,
     advance,
     pending: () => timers.size,
     setEnabled: (value: boolean) => {

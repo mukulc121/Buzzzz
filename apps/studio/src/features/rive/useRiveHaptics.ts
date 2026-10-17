@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
-import { createRiveHaptics, type IRiveConfig, type TSystemImpact } from "@buzzzz/core";
+import {
+  createRiveHaptics,
+  type IRiveConfig,
+  type TRiveCue,
+  type TSystemImpact,
+} from "@buzzzz/core";
 import { riveHapticAction } from "./hapticAction";
 
 interface IRiveHaptics {
   config: IRiveConfig | undefined;
-  onImpact: (preset: TSystemImpact) => void;
+  onImpact: (cue: TSystemImpact | TRiveCue) => void;
+  onStopPattern: () => void;
   onComplete: () => void;
   onSuspend: () => void;
   fireTrigger: (name: string) => void;
@@ -22,6 +28,9 @@ export function useRiveHaptics(props: IRiveHaptics) {
   useLayoutEffect(() => {
     const script = createRiveHaptics({
       play: (preset) => callbacks.current.onImpact(preset),
+      playPulsar: (cue) => callbacks.current.onImpact(cue),
+      stopPulsar: () => callbacks.current.onStopPattern(),
+      haptics: config?.haptics,
       canPlay: () => document.visibilityState === "visible" && callbacks.current.enabled(),
       schedule: (action, delayMs) => setTimeout(action, delayMs),
       cancel: (timer) => clearTimeout(timer),
@@ -71,7 +80,7 @@ export function useRiveHaptics(props: IRiveHaptics) {
       const action = riveHapticAction(config?.haptics, name);
       const script = controller.current;
       script?.trigger(name, action);
-      return action !== undefined || script?.completed() === true;
+      return action !== undefined || script?.completed() === true || !!script?.ownsPhase(name);
     },
     [config],
   );

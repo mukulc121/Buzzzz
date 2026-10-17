@@ -7,6 +7,11 @@ export function deriveTriggerRole(
   mappedNames: readonly string[],
   config: IRiveConfig | undefined,
 ): TTriggerRole {
-  if (mappedNames.includes(name)) return "haptic";
+  const phases = config?.completion?.phases;
+  if (
+    mappedNames.includes(name) ||
+    (phases && [phases.entry, phases.loop, phases.exit, ...(phases.markers ?? [])].includes(name))
+  )
+    return "haptic";
   return config?.completion?.readyTrigger === name ? "control" : "unmapped";
 }

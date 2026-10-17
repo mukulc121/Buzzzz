@@ -1,5 +1,2 @@
-import data from "./pulsar-presets.json";
-import { isPattern } from "../patterns/pattern.ts";
-export const pulsarPresets = data
-  .filter((preset) => isPattern(preset.pattern))
-  .map((preset) => ({ ...preset, tags: [...new Set(preset.tags)] }));
+export { pulsarPresets } from "./catalog.ts";
+export { riveCuePattern, riveProfileOccurrences } from "./rive.ts";

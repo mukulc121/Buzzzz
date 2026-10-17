@@ -7,6 +7,7 @@ interface IInspectorNumber {
   unit: string;
   onBegin?: () => void;
   onChange: (value: number) => void;
+  readOnly?: boolean;
 }
 export function InspectorNumber(props: IInspectorNumber) {
   const { label, value, min, max, step = 1, unit, onBegin, onChange } = props;
@@ -26,7 +27,8 @@ export function InspectorNumber(props: IInspectorNumber) {
           max={max}
           step={step}
           value={precision ? value.toFixed(precision) : value}
-          onFocus={onBegin}
+          readOnly={props.readOnly}
+          onFocus={props.readOnly ? undefined : onBegin}
           onChange={(event) => onChange(event.target.valueAsNumber)}
         />
         {unit && <span className="unit">{unit}</span>}
@@ -37,7 +39,7 @@ export function InspectorNumber(props: IInspectorNumber) {
             type="button"
             key={direction}
             aria-label={`${direction === 1 ? "Increase" : "Decrease"} ${label.toLowerCase()}`}
-            disabled={direction === 1 ? value >= max : value <= min}
+            disabled={props.readOnly || (direction === 1 ? value >= max : value <= min)}
             onClick={() => increment(direction)}
           >
             <svg

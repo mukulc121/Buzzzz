@@ -5,9 +5,10 @@ import { strToU8, unzipSync, zipSync } from "fflate";
 import { exportPulsarBundle } from "../src/features/imports/exportPulsarBundle";
 import { readImport } from "../src/features/imports/readImport";
 import { DEX_RIVE_CONFIG } from "../src/features/project/starter/rive/dex-rive-config";
+import { DEX_RIVE_CONFIG_1063 } from "../src/features/project/starter/rive/dex-rive-config-1063";
 import { systemImpactPattern } from "../src/features/rive/systemImpactPattern";
 import { selectExportProject } from "../src/features/export/model";
-import { riveHapticAction } from "../src/features/rive/hapticAction";
+import { riveHapticAction, riveHapticLabel } from "../src/features/rive/hapticAction";
 import { normalizeDexConfig } from "../src/features/project/starter/rive/normalizeDexConfig";
 
 const project = {
@@ -18,7 +19,7 @@ const project = {
 };
 
 test("only the unchanged legacy Dex starter inherits the source native-sound policy", () => {
-  const { nativeSound: _sound, completion, ...rest } = DEX_RIVE_CONFIG;
+  const { nativeSound: _sound, completion, ...rest } = DEX_RIVE_CONFIG_1063;
   const { clock: _clock, ...legacyCompletion } = completion;
   const legacy = { ...rest, completion: legacyCompletion };
   expect(normalizeDexConfig(legacy, "dex-tour-loader")).toEqual(DEX_RIVE_CONFIG);
@@ -33,14 +34,27 @@ test("only the unchanged legacy Dex starter inherits the source native-sound pol
 });
 
 test("unchanged saved Dex uploads inherit the source mount clock without changing custom scripts", () => {
-  const { clock: _clock, ...completion } = DEX_RIVE_CONFIG.completion;
-  const previous = { ...DEX_RIVE_CONFIG, completion };
+  const { clock: _clock, ...completion } = DEX_RIVE_CONFIG_1063.completion;
+  const previous = { ...DEX_RIVE_CONFIG_1063, completion };
   expect(normalizeDexConfig(previous, "demo-fanfare-sound")).toEqual(DEX_RIVE_CONFIG);
   expect(normalizeDexConfig(DEX_RIVE_CONFIG, "demo-fanfare-sound")).toBe(DEX_RIVE_CONFIG);
   const custom = { ...previous, completion: { ...completion, readyAfterMs: 9000 } };
   expect(normalizeDexConfig(custom, "demo-fanfare-sound")).toBe(custom);
   const audible = { ...previous, nativeSound: true };
   expect(normalizeDexConfig(audible, "demo-fanfare-sound")).toBe(audible);
+});
+
+test("the current starter restores its missing sound policy without changing edited profiles", () => {
+  const { nativeSound: _sound, ...legacy } = DEX_RIVE_CONFIG;
+  expect(normalizeDexConfig(legacy, "dex-tour-loader")).toEqual(DEX_RIVE_CONFIG);
+  expect(normalizeDexConfig(legacy, "custom")).toBe(legacy);
+  const custom = { ...legacy, completion: { ...legacy.completion, readyAfterMs: 9000 } };
+  expect(normalizeDexConfig(custom, "dex-tour-loader")).toBe(custom);
+  const reordered = {
+    ...legacy,
+    haptics: Object.fromEntries(Object.entries(legacy.haptics).reverse()),
+  };
+  expect(normalizeDexConfig(reordered, "dex-tour-loader")).toEqual(DEX_RIVE_CONFIG);
 });
 
 test("VM trigger names cannot resolve inherited actions but explicit prototype-name cues work", () => {
@@ -133,4 +147,12 @@ test("speaker system impacts use the published iOS catalog patterns", () => {
     expect(original).toBeDefined();
     expect(systemImpactPattern(impact)).toBe(original?.pattern);
   }
+});
+
+test("Dex 1069 rows name each phase preset and the loop-stop marker", () => {
+  expect(
+    ["hapticEntry", "hapticLoop", "hapticExit", "hapticLoopStop", "isLoaded"].map((name) =>
+      riveHapticLabel(DEX_RIVE_CONFIG, name),
+    ),
+  ).toEqual(["Entry · EngineRev", "Loop · Drone", "Exit · Lock", "Phase marker", undefined]);
 });

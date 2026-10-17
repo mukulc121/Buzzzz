@@ -26,6 +26,7 @@ interface ITimelineClipControls {
   onMarkerMove?: (id: string, time: number) => void;
   onBegin?: () => void;
   markerDurationMs: number;
+  readonlyPlayback?: boolean;
 }
 
 export function TimelineClipControls(props: ITimelineClipControls) {
@@ -47,11 +48,18 @@ export function TimelineClipControls(props: ITimelineClipControls) {
   const prefix = label === "Haptics" ? "" : `${label} `;
   return (
     <>
-      <div className="timeline-excluded" style={{ left: 0, width: `${position(range.start)}%` }} />
-      <div
-        className="timeline-excluded"
-        style={{ right: 0, width: `${100 - position(range.end)}%` }}
-      />
+      {!props.readonlyPlayback && (
+        <>
+          <div
+            className="timeline-excluded"
+            style={{ left: 0, width: `${position(range.start)}%` }}
+          />
+          <div
+            className="timeline-excluded"
+            style={{ right: 0, width: `${100 - position(range.end)}%` }}
+          />
+        </>
+      )}
       <TimelineSpan
         kind="view"
         label={`${prefix}Timeline view`}
@@ -63,17 +71,19 @@ export function TimelineClipControls(props: ITimelineClipControls) {
         bind={(part) => bind({ kind: "view", part })}
         onStep={onViewStep}
       />
-      <TimelineSpan
-        kind="range"
-        label={`${prefix}Playback range`}
-        start={range.start}
-        end={range.end}
-        total={total}
-        view={axis}
-        minLength={MIN_RANGE_MS}
-        bind={(part) => bind({ kind: "range", part })}
-        onStep={onRangeStep}
-      />
+      {!props.readonlyPlayback && (
+        <TimelineSpan
+          kind="range"
+          label={`${prefix}Playback range`}
+          start={range.start}
+          end={range.end}
+          total={total}
+          view={axis}
+          minLength={MIN_RANGE_MS}
+          bind={(part) => bind({ kind: "range", part })}
+          onStep={onRangeStep}
+        />
+      )}
       {markers
         .filter((marker) => visible(marker.time))
         .map((marker) => (
@@ -88,7 +98,7 @@ export function TimelineClipControls(props: ITimelineClipControls) {
             onBegin={props.onBegin}
           />
         ))}
-      {visible(playhead ?? 0) && (
+      {!props.readonlyPlayback && visible(playhead ?? 0) && (
         <div
           className="timeline-playhead"
           style={{ left: `${position(playhead ?? 0)}%` }}

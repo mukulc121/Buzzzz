@@ -11,6 +11,7 @@ interface IEnvelopeLayer {
   interaction: ReturnType<typeof useChartInteraction>;
   endMs?: number;
   valueDecimals?: number;
+  readOnly?: boolean;
 }
 
 export function EnvelopeLayer(props: IEnvelopeLayer) {
@@ -59,9 +60,10 @@ export function EnvelopeLayer(props: IEnvelopeLayer) {
             <circle
               key={point.index}
               className="handle envelope-point"
-              role="button"
-              tabIndex={0}
-              aria-pressed={selected}
+              role={props.readOnly ? "img" : "button"}
+              tabIndex={props.readOnly ? undefined : 0}
+              aria-disabled={props.readOnly || undefined}
+              aria-pressed={props.readOnly ? undefined : selected}
               aria-label={`${layer === "amplitude" ? "Intensity" : "Frequency"} point at ${Math.round(point.time)} milliseconds, ${Number((point.value * 100).toFixed(props.valueDecimals ?? 1))} percent`}
               onFocus={() => interaction.focusPoint(selection)}
               onKeyDown={(event) => interaction.keyDown(event, selection)}
