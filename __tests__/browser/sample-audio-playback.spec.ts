@@ -187,13 +187,21 @@ test("the editor cursor follows actual media time relative to the source trim st
   await trim.getByRole("spinbutton", { name: "Start", exact: true }).fill("500");
   await trim.getByRole("button", { name: "Apply trim", exact: true }).click();
   await editorPlay(page).click();
-  await expect
-    .poll(async () => (await mediaState(page)).elements.at(-1)?.currentTime)
-    .toBeGreaterThan(0.8);
-  const playing = await mediaState(page);
-  expect(Math.abs(playing.playhead - (playing.elements[0]!.currentTime * 1000 - 500))).toBeLessThan(
-    75,
-  );
+  let synchronized: { currentTime: number; playhead: number } | undefined;
+  await expect(async () => {
+    const playing = await mediaState(page);
+    const audio = playing.elements[0];
+    if (!audio) throw new Error("The sample audio has not started");
+    expect(playing.calls).toBe(1);
+    expect(playing.rejections).toEqual([]);
+    expect(audio).toMatchObject({ paused: false, ended: false, error: null });
+    expect(audio.currentTime).toBeGreaterThan(0.8);
+    expect(playing.playhead).toBeGreaterThan(300);
+    expect(Math.abs(playing.playhead - (audio.currentTime * 1000 - 500))).toBeLessThan(75);
+    synchronized ??= { currentTime: audio.currentTime, playhead: playing.playhead };
+    expect(audio.currentTime - synchronized.currentTime).toBeGreaterThan(0.1);
+    expect(playing.playhead - synchronized.playhead).toBeGreaterThan(75);
+  }).toPass({ timeout: 5000 });
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
 
