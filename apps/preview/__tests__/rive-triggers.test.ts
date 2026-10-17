@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import { createRiveHaptics } from "@buzzzz/core";
+import { AbortController as NativeAbortController } from "abort-controller/dist/abort-controller";
 import { bindRiveTriggers } from "../src/features/playback/riveTriggers";
 
 function scene() {
@@ -26,6 +27,25 @@ function scene() {
   };
   return { source, fired, callbacks, triggered, subscribed, disposed };
 }
+
+test("Rive binding subscribes and cancels with React Native's actual abort-controller", async () => {
+  const data = scene();
+  const controller = new NativeAbortController();
+  const options = {
+    source: data.source,
+    signal: controller.signal,
+    canDispatch: () => true,
+    onTrigger: (name: string) => data.fired.push(name),
+  };
+  const binding = await bindRiveTriggers(options);
+  data.callbacks.get("hapticEntry")?.();
+  expect(data.fired).toEqual(["hapticEntry"]);
+  expect(binding.names).toEqual(["hapticEntry", "isLoaded"]);
+  controller.abort();
+  expect(data.callbacks.size).toBe(0);
+  expect(data.disposed).toEqual(["hapticEntry", "isLoaded"]);
+  await expect(bindRiveTriggers(options)).rejects.toMatchObject({ name: "AbortError" });
+});
 
 test("Rive binding is ready only after every trigger listener is installed on its source instance", async () => {
   const data = scene();

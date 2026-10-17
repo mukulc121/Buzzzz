@@ -4,6 +4,12 @@ interface ITriggerProperty {
   dispose: () => void;
 }
 
+interface ITriggerSignal {
+  readonly aborted: boolean;
+  addEventListener(type: "abort", callback: () => void, options?: { once?: boolean }): void;
+  removeEventListener(type: "abort", callback: () => void): void;
+}
+
 interface IRiveTriggers {
   source: {
     getPropertiesAsync: () => Promise<readonly { name: string; type: string }[]>;
@@ -11,7 +17,7 @@ interface IRiveTriggers {
   };
   canDispatch: () => boolean;
   onTrigger: (name: string) => void;
-  signal: AbortSignal;
+  signal: ITriggerSignal;
 }
 
 export async function bindRiveTriggers(options: IRiveTriggers) {
@@ -24,7 +30,11 @@ export async function bindRiveTriggers(options: IRiveTriggers) {
     properties.clear();
   };
   const list = await source.getPropertiesAsync();
-  signal.throwIfAborted();
+  if (signal.aborted) {
+    const error = new Error("Rive trigger binding aborted");
+    error.name = "AbortError";
+    throw error;
+  }
   signal.addEventListener("abort", dispose, { once: true });
   try {
     for (const { name, type } of list) {
