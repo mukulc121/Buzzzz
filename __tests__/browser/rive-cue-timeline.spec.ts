@@ -1,3 +1,4 @@
+import { openRiveInspector } from "./fixtures/rive-controls";
 import { expect, test, type Page } from "@playwright/test";
 import { patternTitle } from "./fixtures/pattern-title";
 
@@ -51,6 +52,7 @@ test("the real Rive owner uses the normal Pulsar waveform chart without persisti
     timeline.getByRole("slider", { name: "Timeline view position", exact: true }),
   ).toBeVisible();
   await expect(timeline.locator(".timeline-ruler span").last()).toHaveText("4440 ms");
+  await page.getByRole("tab", { name: "inspector", exact: true }).click();
   const inspector = page.getByRole("complementary", { name: "Inspector", exact: true });
   const rangeStart = inspector.getByRole("spinbutton", {
     name: "Playback range start",
@@ -103,7 +105,7 @@ test("the source clock drives both waveform cursors and pauses without turning t
 }) => {
   test.setTimeout(30_000);
   const chart = await openSample(page);
-  const panel = page.locator(".rive-panel");
+  const panel = await openRiveInspector(page);
   await expect(panel.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible();
   await panel.getByRole("button", { name: "Play with haptics", exact: true }).click();
   const readonlyChart = page.locator('.chart[data-readonly="true"]');
@@ -142,6 +144,7 @@ test("the source clock drives both waveform cursors and pauses without turning t
     page.getByRole("group", { name: "Haptic pattern timeline", exact: true }),
   ).toBeVisible();
   await expect(page.locator(".timeline-lanes [data-playhead][data-live]")).toHaveCount(0);
+  await page.getByRole("tab", { name: "inspector", exact: true }).click();
   const inspector = page.getByRole("complementary", { name: "Inspector", exact: true });
   await expect(
     inspector.getByRole("spinbutton", { name: "Playback range end", exact: true }),

@@ -85,7 +85,7 @@ export function EditorCanvas(props: IEditorCanvas) {
         />
       </header>
       <div
-        className={`canvas-scroll ${studio.animation.source && studio.animation.previewVisible ? `preview-${studio.animation.previewMode}` : ""}`}
+        className={`canvas-scroll ${(session.riv || studio.animation.source) && studio.animation.previewVisible ? `preview-${studio.animation.previewMode}` : ""}`}
       >
         <section
           className="chart-card"
@@ -152,7 +152,7 @@ export function EditorCanvas(props: IEditorCanvas) {
             analysisCurves={curves}
           />
         </section>
-        {studio.animation.previewVisible && (
+        {!session.riv && studio.animation.previewVisible && (
           <AnimationPreview
             animation={studio.animation}
             seekMs={playback.playhead ?? studio.animation.seekMs}
@@ -162,21 +162,13 @@ export function EditorCanvas(props: IEditorCanvas) {
           <RivePanel
             riv={session.riv}
             canvas={session.canvas}
-            info={session.info}
-            stateMachine={session.stateMachine}
-            setStateMachine={session.setStateMachine}
-            importFile={studio.importFile}
+            animation={studio.animation}
             restart={session.restart}
             send={session.send}
             addLog={studio.activity.addLog}
             paused={session.paused}
             completed={session.completed}
             setPause={session.setPause}
-            project={document.project}
-            begin={document.begin}
-            setProject={document.setProject}
-            triggerRows={session.triggerRows}
-            fire={session.fire}
           />
         )}
       </div>

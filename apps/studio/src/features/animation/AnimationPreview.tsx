@@ -1,8 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { AnimationItem } from "lottie-web";
 import type { useAnimationTrack } from "./useAnimationTrack";
-import { AnimationPreviewToolbar } from "./AnimationPreviewToolbar";
-import { useFloatingPreview } from "./useFloatingPreview";
+import { AnimationPreviewFrame } from "./AnimationPreviewFrame";
 
 interface IAnimationPreview {
   animation: ReturnType<typeof useAnimationTrack>;
@@ -13,7 +12,6 @@ export function AnimationPreview(props: IAnimationPreview) {
   const { animation, seekMs = animation.seekMs } = props;
   const container = useRef<HTMLDivElement>(null);
   const shell = useRef<HTMLElement>(null);
-  const floating = useFloatingPreview({ shell, enabled: animation.previewMode === "floating" });
   const player = useRef<AnimationItem | null>(null);
   const controls = useRef({ animation, seekMs });
   const data = animation.previewVisible ? animation.source?.data : undefined;
@@ -94,25 +92,19 @@ export function AnimationPreview(props: IAnimationPreview) {
   }, [seekMs, animation.seekRevision]);
   if (!animation.source || !animation.previewVisible) return null;
   return (
-    <section
-      ref={shell}
-      className={`animation-preview ${animation.previewMode}`}
-      style={floating.position}
-      aria-label="Animation canvas preview"
-      onKeyDown={(event) => {
-        if (event.key === "Escape" && ["floating", "fullscreen"].includes(animation.previewMode)) {
-          event.stopPropagation();
-          animation.setPreviewMode("side-by-side");
-        }
-      }}
+    <AnimationPreviewFrame
+      shell={shell}
+      name={animation.source.file.name}
+      playing={animation.playing}
+      onPlay={() => animation.setPlaying((playing) => !playing)}
+      animation={animation}
     >
-      <AnimationPreviewToolbar animation={animation} floating={floating} />
       <div
         ref={container}
         className="animation-canvas"
         role="img"
         aria-label={`Lottie preview of ${animation.source.file.name}`}
       />
-    </section>
+    </AnimationPreviewFrame>
   );
 }

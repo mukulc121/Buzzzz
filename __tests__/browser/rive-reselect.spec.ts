@@ -1,3 +1,4 @@
+import { openRiveInspector } from "./fixtures/rive-controls";
 import { expect, test, type Route, type WebSocketRoute } from "@playwright/test";
 import { isProject, isRecord, parseMessage, type Msg, type Project } from "@buzzzz/core";
 
@@ -81,11 +82,12 @@ test("reselecting the Rive owner waits for its replacement upload before publish
     socket.send(JSON.stringify({ type: "peers", phones: 1 }));
   });
   const loads = () => messages.filter((message) => message.type === "load");
-  const panel = page.locator(".rive-panel");
+  const panel = page.locator(".rive-inspector");
   await page.goto("/");
   await page.getByRole("button", { name: "Projects", exact: true }).click();
   await page.getByRole("button", { name: "Create sample project", exact: true }).click();
   await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
+  await openRiveInspector(page);
   await expect(panel.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible({
     timeout: 15_000,
   });
@@ -99,6 +101,7 @@ test("reselecting the Rive owner waits for its replacement upload before publish
   expect(uploads).toHaveLength(1);
   expect(loads()).toHaveLength(1);
   await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
+  await openRiveInspector(page);
   await expect.poll(() => uploads.length).toBe(2);
   await expect(panel.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible();
   await expect(panel.getByRole("button", { name: "Resume", exact: true })).toBeVisible({

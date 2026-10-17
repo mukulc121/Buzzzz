@@ -1,10 +1,18 @@
 import type { useAnimationTrack } from "./useAnimationTrack";
+import type { ReactNode } from "react";
 import type { useFloatingPreview } from "./useFloatingPreview";
 import { AnimationPreviewIcon } from "./AnimationPreviewIcon";
 
 interface IAnimationPreviewToolbar {
-  animation: ReturnType<typeof useAnimationTrack>;
+  name: string;
+  playing: boolean;
+  onPlay: () => void;
+  animation: Pick<
+    ReturnType<typeof useAnimationTrack>,
+    "previewMode" | "setPreviewMode" | "previewVisible" | "setPreviewVisible"
+  >;
   floating: ReturnType<typeof useFloatingPreview>;
+  actions?: ReactNode;
 }
 const layouts = [
   { mode: "side-by-side", label: "Side by side" },
@@ -12,31 +20,27 @@ const layouts = [
   { mode: "floating", label: "Floating preview" },
 ] as const;
 export function AnimationPreviewToolbar(props: IAnimationPreviewToolbar) {
-  const { animation, floating } = props;
+  const { name, playing, onPlay, animation, floating, actions } = props;
   const { position: _position, ...drag } = floating;
   return (
     <header className="animation-preview-header">
       <span
         className="animation-preview-title"
-        title={animation.source?.file.name}
+        title={name}
         {...drag}
         role={animation.previewMode === "floating" ? "button" : undefined}
         tabIndex={animation.previewMode === "floating" ? 0 : undefined}
-        aria-label={
-          animation.previewMode === "floating"
-            ? `Move ${animation.source?.file.name} preview`
-            : undefined
-        }
+        aria-label={animation.previewMode === "floating" ? `Move ${name} preview` : undefined}
       >
-        {animation.source?.file.name}
+        {name}
       </span>
       <button
         type="button"
-        aria-label={animation.playing ? "Pause animation" : "Play animation"}
-        title={animation.playing ? "Pause animation" : "Play animation"}
-        onClick={() => animation.setPlaying((playing) => !playing)}
+        aria-label={playing ? "Pause animation" : "Play animation"}
+        title={playing ? "Pause animation" : "Play animation"}
+        onClick={onPlay}
       >
-        <AnimationPreviewIcon name={animation.playing ? "pause" : "play"} />
+        <AnimationPreviewIcon name={playing ? "pause" : "play"} />
       </button>
       <div className="animation-preview-layouts" role="group" aria-label="Animation preview layout">
         {layouts.map((layout) => (
@@ -52,6 +56,7 @@ export function AnimationPreviewToolbar(props: IAnimationPreviewToolbar) {
           </button>
         ))}
       </div>
+      {actions}
       <button
         type="button"
         aria-label="Hide animation preview"

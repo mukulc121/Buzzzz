@@ -1,3 +1,4 @@
+import { openRiveInspector } from "./fixtures/rive-controls";
 import { expect, test } from "@playwright/test";
 
 for (const delayMs of [500, 3000])
@@ -75,7 +76,7 @@ for (const delayMs of [500, 3000])
     await page.getByRole("button", { name: "Projects", exact: true }).click();
     await page.getByRole("button", { name: "Create sample project", exact: true }).click();
     await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
-    const panel = page.locator(".rive-panel");
+    const panel = await openRiveInspector(page);
     await expect(panel.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible({
       timeout: 15000,
     });

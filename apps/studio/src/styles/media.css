@@ -1,6 +1,22 @@
-.rive-panel {
-  flex: none;
-  min-width: 0;
+.animation-preview[hidden] {
+  display: none;
+}
+.rive-panel .stage {
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--panel);
+}
+.rive-inspector .transport {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rive-inspector .trigger {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.rive-inspector .tname {
+  grid-column: 1 / -1;
 }
 .stage {
   position: relative;
@@ -83,6 +99,11 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  resize: none;
   margin: 0;
   padding: 0;
   border: 0;

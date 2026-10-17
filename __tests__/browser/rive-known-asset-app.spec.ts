@@ -1,3 +1,4 @@
+import { openRiveInspector } from "./fixtures/rive-controls";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import { parseMessage, type Msg } from "@buzzzz/core";
@@ -68,8 +69,10 @@ test("the exact Dex file attached as a generic upload restores source haptics ev
   }
   await page.reload();
   await page.getByRole("button", { name: "FanfareSound", exact: true }).click();
-  await expect(panel.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible();
+  const controls = await openRiveInspector(page);
+  await expect(controls.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible();
   expect((await stored(page)).riveConfig).toEqual(DEX_RIVE_CONFIG);
+  await page.getByRole("tab", { name: "inspector", exact: true }).click();
   const waiting = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export all 4 patterns", exact: true }).click();
   const path = await (await waiting).path();
@@ -98,8 +101,9 @@ test("a custom map on the exact Dex file is preserved instead of replaced", asyn
   const messages = await open(page);
   await drop(page, new Uint8Array(await readFile(DEX)), "mapped.riv");
   await expect.poll(async () => (await stored(page)).riveConfig).toEqual(DEX_RIVE_CONFIG);
+  await openRiveInspector(page);
   await expect(
-    page.locator(".rive-panel").getByRole("button", { name: "Fire hapticEntry", exact: true }),
+    page.locator(".rive-inspector").getByRole("button", { name: "Fire hapticEntry", exact: true }),
   ).toBeVisible();
   await expect.poll(() => loads(messages).length).toBeGreaterThan(0);
   const edited = await page.evaluate(() => {
@@ -117,14 +121,15 @@ test("a custom map on the exact Dex file is preserved instead of replaced", asyn
   }, edited);
   await page.reload();
   await page.getByRole("button", { name: "FanfareSound", exact: true }).click();
+  await openRiveInspector(page);
   await expect(
-    page.locator(".rive-panel").getByRole("button", { name: "Fire hapticEntry", exact: true }),
+    page.locator(".rive-inspector").getByRole("button", { name: "Fire hapticEntry", exact: true }),
   ).toBeVisible();
   await expect.poll(() => loads(messages).length).toBeGreaterThan(0);
   const load = loads(messages).at(-1);
   expect(load?.type === "load" && load.riveConfig).toBeFalsy();
   await expect(
-    page.locator(".rive-panel").getByRole("combobox", { name: "Pattern for hapticEntry" }),
+    page.locator(".rive-inspector").getByRole("combobox", { name: "Pattern for hapticEntry" }),
   ).toHaveValue("demo-fanfare-sound");
   await page.waitForTimeout(300);
   const project = await stored(page);

@@ -1,3 +1,4 @@
+import { openRiveInspector } from "./fixtures/rive-controls";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
@@ -151,8 +152,9 @@ test("HTTP visitors can create, edit, attach, export and send media to a phone w
       }),
     )
     .toEqual(DEX_RIVE_CONFIG);
+  const controls = await openRiveInspector(page);
   for (const phase of ["Entry · EngineRev", "Loop · Drone", "Exit · Lock", "Phase marker"])
-    await expect(rive.getByText(phase, { exact: true })).toBeVisible();
+    await expect(controls.getByText(phase, { exact: true })).toBeVisible();
   await expect
     .poll(() => messages.filter((message) => message.type === "load").at(-1)?.riveConfig)
     .toEqual(DEX_RIVE_CONFIG);

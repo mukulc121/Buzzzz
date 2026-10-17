@@ -1,3 +1,4 @@
+import { openRiveInspector } from "./fixtures/rive-controls";
 import { expect, test, type Page } from "@playwright/test";
 import { parseMessage, type Msg } from "@buzzzz/core";
 
@@ -48,9 +49,10 @@ async function openRive(page: Page) {
   await page.getByRole("button", { name: "Create sample project", exact: true }).click();
   await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
   const panel = page.locator(".rive-panel");
-  await expect(panel.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible();
+  const inspector = await openRiveInspector(page);
+  await expect(inspector.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible();
   await expect.poll(() => signals.includes("hapticEntry")).toBe(true);
-  return { panel, signals, impacts, messages };
+  return { panel, inspector, signals, impacts, messages };
 }
 
 async function expectFullCanvas(page: Page) {
@@ -167,7 +169,7 @@ test("fullscreen replays the real finite Rive scene repeatedly and pauses the sa
   await controls.getByRole("button", { name: "Exit fullscreen Rive preview", exact: true }).click();
   await expect.poll(() => page.evaluate(() => document.fullscreenElement === null)).toBe(true);
   await expect(
-    runtime.panel.getByRole("button", { name: "Fire isLoaded", exact: true }),
+    runtime.inspector.getByRole("button", { name: "Fire isLoaded", exact: true }),
   ).toBeVisible();
   expect(
     await canvas.evaluate((node) => node === document.querySelector(".rive-panel canvas")),
@@ -187,6 +189,6 @@ test("fullscreen canvas reaches every edge on a narrow viewport and Escape resto
     runtime.panel.getByRole("button", { name: "Fullscreen Rive preview", exact: true }),
   ).toBeVisible();
   await expect(
-    runtime.panel.getByRole("button", { name: "Fire isLoaded", exact: true }),
+    runtime.inspector.getByRole("button", { name: "Fire isLoaded", exact: true }),
   ).toBeVisible();
 });

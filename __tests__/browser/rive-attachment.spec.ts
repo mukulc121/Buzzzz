@@ -1,3 +1,4 @@
+import { openRiveInspector } from "./fixtures/rive-controls";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 
@@ -141,8 +142,9 @@ for (const mode of [
     expect(await snapshot(page)).toEqual(original);
     await expect(page.locator(".rive-panel")).toHaveCount(0);
     await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
+    const controls = await openRiveInspector(page);
     await expect(
-      page.locator(".rive-panel").getByRole("button", { name: "Fire hapticEntry", exact: true }),
+      controls.getByRole("button", { name: "Fire hapticEntry", exact: true }),
     ).toBeVisible();
   });
 }

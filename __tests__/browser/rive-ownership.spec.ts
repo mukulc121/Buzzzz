@@ -1,3 +1,4 @@
+import { openRiveInspector } from "./fixtures/rive-controls";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
@@ -92,7 +93,8 @@ test("only the Rive owner previews, uploads and plays source cues, including leg
   await page.reload();
   await expect(panel).toHaveCount(0);
   await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
-  await expect(panel.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible();
+  const controls = await openRiveInspector(page);
+  await expect(controls.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible();
   await expect.poll(() => entries.filter((name) => name === "hapticEntry").length).toBe(1);
   await expect.poll(() => uploads).toBe(1);
   await expect
@@ -175,9 +177,8 @@ test("exporting from another pattern preserves the Rive owner, script and exact 
   await expect(patternTitle(page)).toHaveText("ExplosionAnimation");
   await expect(page.locator(".rive-panel")).toHaveCount(0);
   await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
-  await expect(
-    page.locator(".rive-panel").getByRole("button", { name: "Fire isLoaded", exact: true }),
-  ).toBeVisible();
+  const controls = await openRiveInspector(page);
+  await expect(controls.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible();
 });
 
 test("a validated Rive import moves ownership to the selected pattern and owner deletion detaches it", async ({

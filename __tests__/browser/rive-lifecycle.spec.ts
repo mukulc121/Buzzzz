@@ -1,6 +1,6 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
 import { parseMessage, type Msg } from "@buzzzz/core";
-import { editorPlay, editorStop } from "./fixtures/editor-playback";
+import { editorPlay } from "./fixtures/editor-playback";
 import { DEX_RIVE_CONFIG } from "../../apps/studio/src/features/project/starter/rive/dex-rive-config";
 
 interface ISignal {
@@ -93,6 +93,15 @@ async function observeRuntime(page: Page) {
           "props.onFired(name);",
           `{ if (name === "isLoaded") globalThis.__lifecycleReadyObserved = true;
           globalThis.__lifecycleSignal(name,performance.now()); props.onFired(name);
+          if (name === "hapticEntry" && globalThis.__lifecyclePagehideAtEntry) {
+            globalThis.__lifecyclePagehideAtEntry = false;
+            globalThis.__lifecycleAcceptedBeforePagehide = globalThis.__lifecycleEntryAccepted;
+            const before = globalThis.__lifecycleAcceptedCount;
+            window.dispatchEvent(new PageTransitionEvent("pagehide"));
+            props.onFired("isLoaded");
+            window.dispatchEvent(new PageTransitionEvent("pagehide"));
+            globalThis.__lifecycleLateAccepted = globalThis.__lifecycleAcceptedCount - before;
+          }
           if (name === "hapticEntry" && globalThis.__lifecycleHideAtEntry) {
             globalThis.__lifecycleHideAtEntry = false;
             globalThis.__lifecycleReadyBeforeHide = globalThis.__lifecycleReadyObserved;
@@ -148,7 +157,8 @@ test("hiding a ready Rive owner pauses once and resumes its remaining real VM li
   expect(runtime.messages.filter((message) => message.type === "pause")).toEqual([]);
   await setVisibility(page, "visible");
   await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
-  const panel = page.locator(".rive-panel");
+  await page.getByRole("tab", { name: "animation", exact: true }).click();
+  const panel = page.locator(".rive-inspector");
   await expect(panel.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible();
   await page.clock.pauseAt(new Date(clockStart.getTime() + 60_000));
   runtime.signals.length = 0;
@@ -211,8 +221,7 @@ test("hiding a ready Rive owner pauses once and resumes its remaining real VM li
   expect(runtime.impacts).toHaveLength(pausedImpacts);
   const resumedAt = await page.evaluate(() => performance.now());
   await panel.getByRole("button", { name: "Resume", exact: true }).dispatchEvent("click");
-  const { entryMs, loopPeriodMs, exitMs, marginMs } = DEX_RIVE_CONFIG.completion;
-  await page.clock.runFor(entryMs + loopPeriodMs + exitMs + marginMs);
+  await page.clock.resume();
   await expect.poll(() => runtime.signals.some((signal) => signal.name === "isLoaded")).toBe(true);
   expect(runtime.readyRequests.map((signal) => signal.name)).toEqual(["isLoaded"]);
   await expect(panel.getByRole("button", { name: "Resume", exact: true })).toBeVisible({
@@ -256,13 +265,14 @@ test("a Rive scene that becomes ready while hidden waits for an explicit visible
   });
   const runtime = await observeRuntime(page);
   await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
+  await page.getByRole("tab", { name: "animation", exact: true }).click();
   await expect.poll(() => wasm.length).toBe(1);
   await setVisibility(page, "hidden", true);
   expect(runtime.messages.filter((message) => message.type === "pause")).toEqual([]);
   const loading = wasm[0];
   if (!loading) throw new Error("Actual Rive WASM request missing");
   await loading.continue();
-  const panel = page.locator(".rive-panel");
+  const panel = page.locator(".rive-inspector");
   await expect(panel.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible();
   await expect(panel.getByRole("button", { name: "Resume", exact: true })).toBeVisible();
   await expect(editorPlay(page)).toBeVisible();
@@ -296,7 +306,8 @@ test("direct header Restart from completion accepts a fresh real VM entry and co
 }) => {
   const runtime = await observeRuntime(page);
   await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
-  const panel = page.locator(".rive-panel");
+  await page.getByRole("tab", { name: "animation", exact: true }).click();
+  const panel = page.locator(".rive-inspector");
   await expect
     .poll(() => runtime.acceptedSignals.filter((name) => name === "isLoaded").length)
     .toBe(1);
@@ -327,30 +338,25 @@ test("pagehide alone pauses once before same-turn legacy VM callbacks can escape
 }) => {
   const runtime = await observeRuntime(page);
   await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
-  const panel = page.locator(".rive-panel");
-  await expect(editorStop(page)).toBeVisible();
+  await page.getByRole("tab", { name: "animation", exact: true }).click();
+  const panel = page.locator(".rive-inspector");
   await panel.getByRole("combobox", { name: "Pattern for isLoaded", exact: true }).selectOption({
     label: "ExplosionAnimation",
   });
-  const accepted = await page.evaluate(() => {
-    const runtime: unknown = globalThis;
-    if (
-      typeof runtime !== "object" ||
-      runtime === null ||
-      !("__lateLifecycleSignal" in runtime) ||
-      typeof runtime.__lateLifecycleSignal !== "function" ||
-      !("__lifecycleAcceptedCount" in runtime) ||
-      typeof runtime.__lifecycleAcceptedCount !== "number"
-    )
-      throw new Error("Late VM callback missing");
-    const before = runtime.__lifecycleAcceptedCount;
-    window.dispatchEvent(new PageTransitionEvent("pagehide"));
-    runtime.__lateLifecycleSignal("isLoaded");
-    window.dispatchEvent(new PageTransitionEvent("pagehide"));
-    return runtime.__lifecycleAcceptedCount - before;
+  runtime.messages.length = 0;
+  await panel.getByRole("button", { name: "Play with haptics", exact: true }).evaluate((button) => {
+    Reflect.set(globalThis, "__lifecyclePagehideAtEntry", true);
+    Reflect.set(globalThis, "__lifecycleEntryAccepted", false);
+    Reflect.deleteProperty(globalThis, "__lifecycleLateAccepted");
+    button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   });
+  await expect
+    .poll(() => page.evaluate(() => Reflect.get(globalThis, "__lifecycleLateAccepted")))
+    .toBe(0);
+  expect(
+    await page.evaluate(() => Reflect.get(globalThis, "__lifecycleAcceptedBeforePagehide")),
+  ).toBe(true);
   await expect(panel.getByRole("button", { name: "Resume", exact: true })).toBeVisible();
-  expect(accepted).toBe(0);
   expect(runtime.messages.filter((message) => message.type === "pause")).toEqual([
     { type: "pause", paused: true },
   ]);

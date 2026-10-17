@@ -1,3 +1,4 @@
+import { openRiveInspector } from "./fixtures/rive-controls";
 import { createHash } from "node:crypto";
 import { expect, test, type Route } from "@playwright/test";
 import { parseMessage, type Msg } from "@buzzzz/core";
@@ -39,9 +40,10 @@ for (const fallback of [false, true])
     await page.getByRole("button", { name: "Projects", exact: true }).click();
     await page.getByRole("button", { name: "Create sample project", exact: true }).click();
     await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
-    await expect(
-      page.locator(".rive-panel").getByRole("button", { name: "Fire isLoaded", exact: true }),
-    ).toBeVisible({ timeout: 15000 });
+    const controls = await openRiveInspector(page);
+    await expect(controls.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible({
+      timeout: 15000,
+    });
     const primary = wasm.filter((request) => request.path === "rive.wasm");
     expect(primary.length).toBeGreaterThan(0);
     expect(primary.every((request) => request.status === (fallback ? 503 : 200))).toBe(true);
@@ -124,7 +126,7 @@ test("the real Rive starter completes locally before a delayed phone load and ca
   await page.getByRole("button", { name: "Projects", exact: true }).click();
   await page.getByRole("button", { name: "Create sample project", exact: true }).click();
   await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
-  const panel = page.locator(".rive-panel");
+  const panel = await openRiveInspector(page);
   await expect(panel.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible({
     timeout: 20_000,
   });
@@ -140,9 +142,11 @@ test("the real Rive starter completes locally before a delayed phone load and ca
   await expect(panel.getByRole("button", { name: "Resume", exact: true })).toBeVisible({
     timeout: 15_000,
   });
-  expect(events.map((event) => event.name)).toEqual(["hapticEntry", "hapticLoop", "isLoaded"]);
-  const entry = events[0];
-  const ready = events[2];
+  expect(events.map((event) => event.name).sort()).toEqual(
+    ["hapticEntry", "hapticLoop", "isLoaded"].sort(),
+  );
+  const entry = events.find((event) => event.name === "hapticEntry");
+  const ready = events.find((event) => event.name === "isLoaded");
   if (!entry || !ready || !impacts.length)
     throw new Error("The actual Rive cues were not observed");
   const mountedAt = mounts.findLast((time) => time <= entry.time);

@@ -2,6 +2,7 @@ import { patternEnd } from "@buzzzz/core";
 import { SelectionInspector } from "../features/composer/SelectionInspector";
 import { deleteSelection } from "../features/composer/editing";
 import { SoundPanel } from "../features/audio/SoundPanel";
+import { RiveInspector } from "../features/rive/RiveInspector";
 import { AnimationPanel } from "../features/animation/AnimationPanel";
 import { InspectorTabs } from "./inspector/InspectorTabs";
 import { InspectorLayers } from "./inspector/InspectorLayers";
@@ -52,6 +53,8 @@ export function InspectorPanel(props: IInspectorPanel) {
             onRemove={() => void studio.media.detach("audio")}
             onOpenMedia={() => studio.setPanel("media")}
           />
+        ) : studio.inspector === "animation" && studio.session.riv ? (
+          <RiveInspector studio={studio} />
         ) : studio.inspector === "animation" ? (
           <AnimationPanel
             key={`${document.projectId}/${document.preset.id}/${studio.animation.source?.url ?? ""}/${studio.animation.source?.animationId ?? ""}`}

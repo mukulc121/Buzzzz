@@ -1,17 +1,11 @@
 import { InspectorSection } from "../../components/InspectorSection";
-import { AnimationInspectorIcon } from "./AnimationInspectorIcon";
+import { AnimationPreviewLayout } from "./AnimationPreviewLayout";
 import { AnimationSetting } from "./AnimationSetting";
 import type { useAnimationTrack } from "./useAnimationTrack";
 
 interface IAnimationPlaybackLayout {
   animation: ReturnType<typeof useAnimationTrack>;
 }
-
-const layouts = [
-  { mode: "side-by-side", label: "Side by side" },
-  { mode: "stacked", label: "Stacked" },
-  { mode: "floating", label: "Floating window" },
-] as const;
 
 export function AnimationPlaybackLayout(props: IAnimationPlaybackLayout) {
   const { animation } = props;
@@ -31,30 +25,7 @@ export function AnimationPlaybackLayout(props: IAnimationPlaybackLayout) {
           onChange={animation.setSpeed}
         />
       </InspectorSection>
-      <InspectorSection title="Layout" description="Where the preview sits relative to the chart.">
-        <div className="animation-inspector-layout" role="group" aria-label="Animation layout">
-          {layouts.map((layout) => (
-            <button
-              type="button"
-              key={layout.mode}
-              aria-label={layout.label}
-              title={layout.label}
-              aria-pressed={animation.previewMode === layout.mode}
-              onClick={() => animation.setPreviewMode(layout.mode)}
-            >
-              <AnimationInspectorIcon name={layout.mode} />
-            </button>
-          ))}
-        </div>
-        <button
-          type="button"
-          className="inspector-text-action"
-          onClick={() => animation.setPreviewVisible(!animation.previewVisible)}
-        >
-          <AnimationInspectorIcon name={animation.previewVisible ? "hide" : "show"} />
-          {animation.previewVisible ? "Hide preview" : "Show preview"}
-        </button>
-      </InspectorSection>
+      <AnimationPreviewLayout animation={animation} />
     </>
   );
 }
