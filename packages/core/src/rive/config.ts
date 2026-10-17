@@ -17,6 +17,7 @@ export interface IRiveConfig {
   nativeSound?: boolean;
   haptics?: Record<string, TRiveHapticAction>;
   completion?: {
+    clock?: "mount";
     startTrigger: string;
     readyTrigger: string;
     readyAfterMs?: number;
@@ -43,6 +44,7 @@ function isCompletion(value: unknown) {
   return (
     isRecord(value) &&
     onlyKeys(value, [
+      "clock",
       "startTrigger",
       "readyTrigger",
       "readyAfterMs",
@@ -51,6 +53,7 @@ function isCompletion(value: unknown) {
       "exitMs",
       "marginMs",
     ]) &&
+    (value.clock === undefined || value.clock === "mount") &&
     name(value.startTrigger) &&
     name(value.readyTrigger) &&
     (value.readyAfterMs === undefined || delay(value.readyAfterMs)) &&

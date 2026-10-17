@@ -33,6 +33,8 @@ interface IRive {
   onStop: () => void;
   onFinish: () => void;
   onPause: (paused: boolean) => void;
+  onSceneMount: () => void;
+  onSceneBound: () => void;
 }
 export function useRive(props: IRive) {
   const {
@@ -53,6 +55,8 @@ export function useRive(props: IRive) {
   const reportError = useEffectEvent(onError);
   const stopHaptics = useEffectEvent(onStop);
   const pauseHaptics = useEffectEvent(onPause);
+  const mountHaptics = useEffectEvent(props.onSceneMount);
+  const bindHaptics = useEffectEvent(props.onSceneBound);
   // Bumping the run id rebuilds the instance: animation from frame 0, fresh view model, listeners re-attached.
   const [run, setRun] = useState(0);
   const [playback, setPlayback] = useState<TRivePlayback>("loading");
@@ -71,6 +75,7 @@ export function useRive(props: IRive) {
     phase.current = "loading";
     const { buffer, requestedStateMachine, config, active } = scene;
     if (!active || !buffer || !canvas.current) return;
+    mountHaptics();
     let alive = true;
     let instance: Rive | null = null;
     const observer = new ResizeObserver(() => instance?.resizeDrawingSurfaceToCanvas());
@@ -87,6 +92,7 @@ export function useRive(props: IRive) {
         const autoplay = document.visibilityState === "visible";
         updatePlayback(autoplay ? "playing" : "suspended");
         if (!autoplay) pauseHaptics(true);
+        bindHaptics();
         setLoaded({ scene, stateMachine, info, started: autoplay });
         return autoplay;
       },

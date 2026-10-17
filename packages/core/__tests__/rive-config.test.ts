@@ -36,6 +36,7 @@ describe("declarative Rive haptics", () => {
       viewModel: "ViewModel1",
       nativeSound: false,
       completion: {
+        clock: "mount",
         startTrigger: "hapticEntry",
         readyTrigger: "isLoaded",
         readyAfterMs: 2500,
@@ -173,6 +174,7 @@ describe("declarative Rive haptics", () => {
       { completion: null },
       { completion: [] },
       { completion: {} },
+      { completion: { ...DEX_RIVE_CONFIG.completion, clock: "unknown" } },
       { completion: { ...DEX_RIVE_CONFIG.completion, startTrigger: "" } },
       { completion: { ...DEX_RIVE_CONFIG.completion, readyTrigger: "r".repeat(513) } },
       { completion: { ...DEX_RIVE_CONFIG.completion, readyAfterMs: -1 } },

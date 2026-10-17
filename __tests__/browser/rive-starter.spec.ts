@@ -60,6 +60,7 @@ test("the real Rive starter completes locally before a delayed phone load and ca
   const uploads: Route[] = [];
   const events: { name: string; time: number }[] = [];
   const impacts: { preset: string; time: number }[] = [];
+  const mounts: number[] = [];
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.exposeFunction("__recordRiveTrigger", (name: string, time: number) =>
@@ -68,6 +69,7 @@ test("the real Rive starter completes locally before a delayed phone load and ca
   await page.exposeFunction("__recordRiveImpact", (preset: string, time: number) =>
     impacts.push({ preset, time }),
   );
+  await page.exposeFunction("__recordRiveMount", (time: number) => mounts.push(time));
   await page.addInitScript(() => localStorage.setItem("buzzzz.onboarding.seen", "true"));
   await page.routeWebSocket("**/relay?role=studio", (socket) => {
     socket.onMessage((data) => {
@@ -86,6 +88,18 @@ test("the real Rive starter completes locally before a delayed phone load and ca
       body: source.replace(
         "props.onFired(name);",
         "globalThis.__recordRiveTrigger(name,performance.now()); props.onFired(name);",
+      ),
+    });
+  });
+  await page.route(/\/src\/features\/rive\/useRive\.ts(?:\?.*)?$/, async (route) => {
+    const response = await route.fetch();
+    const source = await response.text();
+    if (!source.includes("mountHaptics();")) throw new Error("Missing actual scene mount");
+    await route.fulfill({
+      response,
+      body: source.replace(
+        "mountHaptics();",
+        "globalThis.__recordRiveMount(performance.now()); mountHaptics();",
       ),
     });
   });
@@ -128,7 +142,9 @@ test("the real Rive starter completes locally before a delayed phone load and ca
   const ready = events[2];
   if (!entry || !ready || !impacts.length)
     throw new Error("The actual Rive cues were not observed");
-  expect(ready.time - entry.time).toBeGreaterThanOrEqual(2400);
+  const mountedAt = mounts.findLast((time) => time <= entry.time);
+  if (mountedAt === undefined) throw new Error("The actual scene mount was not observed");
+  expect(ready.time - mountedAt).toBeGreaterThanOrEqual(2400);
   const completedCount = impacts.length;
   await page.waitForTimeout(1800);
   expect(impacts).toHaveLength(completedCount);

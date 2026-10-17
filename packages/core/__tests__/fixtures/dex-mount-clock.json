@@ -1,0 +1,68 @@
+{
+  "head": "04153623238828effc233792626e629cd7c0ec01",
+  "source": "packages/dex/src/components/DexTourLoader.tsx",
+  "sha256": "347dc80f32b09033e48a857d7475b75442ba80bd3b45d55617736764835d17a5",
+  "debugSha256": "3f32b2d62772c21c65c47e931f13d405904bcc48c4fea24c674bac44feb9aa09",
+  "vectors": [
+    {
+      "boundAt": 0,
+      "entryAt": 20,
+      "readyAt": 2500,
+      "completeAt": 4440
+    },
+    {
+      "boundAt": 1,
+      "entryAt": 21,
+      "readyAt": 2500,
+      "completeAt": 4440
+    },
+    {
+      "boundAt": 120,
+      "entryAt": 140,
+      "readyAt": 2500,
+      "completeAt": 4440
+    },
+    {
+      "boundAt": 500,
+      "entryAt": 520,
+      "readyAt": 2500,
+      "completeAt": 4440
+    },
+    {
+      "boundAt": 2190,
+      "entryAt": 2210,
+      "readyAt": 2500,
+      "completeAt": 4440
+    },
+    {
+      "boundAt": 2499,
+      "entryAt": 2519,
+      "readyAt": 2500,
+      "completeAt": 4440
+    },
+    {
+      "boundAt": 2500,
+      "entryAt": 2520,
+      "readyAt": 2500,
+      "completeAt": 4440
+    },
+    {
+      "boundAt": 2501,
+      "entryAt": 2521,
+      "readyAt": 2501,
+      "completeAt": 4440
+    },
+    {
+      "boundAt": 3800,
+      "entryAt": 3820,
+      "readyAt": 3800,
+      "completeAt": 4440
+    },
+    {
+      "boundAt": 6000,
+      "entryAt": 6020,
+      "readyAt": 6000,
+      "completeAt": 7640
+    }
+  ]
+}

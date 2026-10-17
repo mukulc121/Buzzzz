@@ -5,6 +5,7 @@ export const DEX_RIVE_CONFIG = {
   viewModel: "ViewModel1",
   nativeSound: false,
   completion: {
+    clock: "mount",
     startTrigger: "hapticEntry",
     readyTrigger: "isLoaded",
     readyAfterMs: 2500,

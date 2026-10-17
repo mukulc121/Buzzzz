@@ -106,6 +106,8 @@ export function useRiveSession(props: IRiveSession) {
     requestedStateMachine,
     config,
     active,
+    onSceneMount: haptics.mount,
+    onSceneBound: haptics.bind,
     onStop: () => {
       stopHaptics();
       onSystemStop();
@@ -182,5 +184,15 @@ export function useRiveSession(props: IRiveSession) {
   useEffect(() => {
     if (active) send({ type: "map", map: mapped });
   }, [active, mapped, send]);
-  return { ...rive, ...relay, canvas, triggerRows, riv, projectRiv, setRiv, setStateMachine };
+  return {
+    ...rive,
+    ...relay,
+    canvas,
+    triggerRows,
+    riv,
+    projectRiv,
+    setRiv,
+    setStateMachine,
+    elapsedMs: haptics.elapsedMs,
+  };
 }

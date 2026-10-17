@@ -40,6 +40,9 @@ export function useRiveHaptics(props: IRiveHaptics) {
     paused.current = false;
     controller.current?.stop();
   }, []);
+  const mount = useCallback(() => controller.current?.mount(), []);
+  const bind = useCallback(() => controller.current?.bind(), []);
+  const elapsedMs = useCallback(() => controller.current?.elapsedMs() ?? null, []);
   const pause = useCallback(() => {
     paused.current = true;
     controller.current?.pause();
@@ -72,5 +75,5 @@ export function useRiveHaptics(props: IRiveHaptics) {
     },
     [config],
   );
-  return { fire, stop, pause, resume };
+  return { fire, stop, pause, resume, mount, bind, elapsedMs };
 }

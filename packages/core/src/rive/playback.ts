@@ -69,8 +69,15 @@ export function createRiveHaptics<TTimer>(options: IRiveHaptics<TTimer>) {
   return {
     trigger,
     stop,
+    stopImpacts: stopPhase,
+    mount: () => {
+      stop();
+      completion.mount();
+    },
+    bind: completion.bind,
     pause: clock.pause,
     resume: clock.resume,
     completed: completion.completed,
+    elapsedMs: completion.elapsedMs,
   };
 }

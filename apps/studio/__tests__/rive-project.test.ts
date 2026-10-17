@@ -18,7 +18,9 @@ const project = {
 };
 
 test("only the unchanged legacy Dex starter inherits the source native-sound policy", () => {
-  const { nativeSound: _sound, ...legacy } = DEX_RIVE_CONFIG;
+  const { nativeSound: _sound, completion, ...rest } = DEX_RIVE_CONFIG;
+  const { clock: _clock, ...legacyCompletion } = completion;
+  const legacy = { ...rest, completion: legacyCompletion };
   expect(normalizeDexConfig(legacy, "dex-tour-loader")).toEqual(DEX_RIVE_CONFIG);
   expect(normalizeDexConfig(legacy, "custom")).toBe(legacy);
   const custom = {
@@ -28,6 +30,17 @@ test("only the unchanged legacy Dex starter inherits the source native-sound pol
   expect(normalizeDexConfig(custom, "dex-tour-loader")).toBe(custom);
   const explicit = { ...legacy, nativeSound: true };
   expect(normalizeDexConfig(explicit, "dex-tour-loader")).toBe(explicit);
+});
+
+test("unchanged saved Dex uploads inherit the source mount clock without changing custom scripts", () => {
+  const { clock: _clock, ...completion } = DEX_RIVE_CONFIG.completion;
+  const previous = { ...DEX_RIVE_CONFIG, completion };
+  expect(normalizeDexConfig(previous, "demo-fanfare-sound")).toEqual(DEX_RIVE_CONFIG);
+  expect(normalizeDexConfig(DEX_RIVE_CONFIG, "demo-fanfare-sound")).toBe(DEX_RIVE_CONFIG);
+  const custom = { ...previous, completion: { ...completion, readyAfterMs: 9000 } };
+  expect(normalizeDexConfig(custom, "demo-fanfare-sound")).toBe(custom);
+  const audible = { ...previous, nativeSound: true };
+  expect(normalizeDexConfig(audible, "demo-fanfare-sound")).toBe(audible);
 });
 
 test("VM trigger names cannot resolve inherited actions but explicit prototype-name cues work", () => {

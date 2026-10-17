@@ -16,7 +16,12 @@ function actionKey(action: TRiveHapticAction | undefined) {
 }
 
 export function normalizeDexConfig(config: IRiveConfig | undefined, owner: string | null) {
-  if (!config || config.nativeSound !== undefined || owner !== "dex-tour-loader") return config;
+  if (
+    !config ||
+    config.nativeSound === true ||
+    (config.nativeSound === undefined && owner !== "dex-tour-loader")
+  )
+    return config;
   const source = DEX_RIVE_CONFIG;
   const completion = config.completion;
   if (
@@ -28,10 +33,13 @@ export function normalizeDexConfig(config: IRiveConfig | undefined, owner: strin
       ([name, action]) => actionKey(config.haptics?.[name]) === actionKey(action),
     ) ||
     !completion ||
-    !Object.entries(source.completion).every(([name, value]) =>
-      Object.entries(completion).some(([key, current]) => key === name && current === value),
-    )
+    !Object.entries(source.completion)
+      .filter(([name]) => name !== "clock")
+      .every(([name, value]) =>
+        Object.entries(completion).some(([key, current]) => key === name && current === value),
+      )
   )
     return config;
-  return { ...config, nativeSound: false };
+  if (config.nativeSound === false && completion.clock === "mount") return config;
+  return { ...config, nativeSound: false, completion: { ...completion, clock: "mount" as const } };
 }
