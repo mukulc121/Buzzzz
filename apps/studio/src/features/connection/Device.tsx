@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { InspectorIcon } from "../../components/InspectorIcon";
+import { PanelCollapseIcon } from "../../components/PanelCollapseIcon";
 import type { IRoom } from "./cloud";
 import { PairingDialog } from "./PairingDialog";
 import { DeviceAppGuide } from "./DeviceAppGuide";
@@ -50,7 +50,7 @@ export function Device(props: IDevice) {
           title="Hide panel"
           onClick={onHide}
         >
-          <InspectorIcon name="collapse" />
+          <PanelCollapseIcon />
         </button>
       </header>
       {phones ? (

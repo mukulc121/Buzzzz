@@ -6,12 +6,17 @@ export function useShortcuts(studio: Studio) {
   useEffect(() => {
     const { document, composer, playback } = studio;
     const handle = (event: KeyboardEvent) => {
+      const command = event.metaKey || event.ctrlKey;
+      if (command && !event.shiftKey && !event.altKey && event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        document.saveNow();
+        return;
+      }
       if (
         event.target instanceof HTMLElement &&
         event.target.closest("input,select,textarea,[contenteditable]")
       )
         return;
-      const command = event.metaKey || event.ctrlKey;
       if (command && event.key.toLowerCase() === "z") {
         event.preventDefault();
         if (event.shiftKey) document.redo();

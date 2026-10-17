@@ -69,7 +69,7 @@ export default function App() {
           <>
             {studio.panel && (
               <>
-                <SidebarPanel studio={studio} />
+                <SidebarPanel studio={studio} onShowOnboarding={() => setLearningOpen(true)} />
                 <ResizeHandle
                   label="Resize side panel"
                   position={76 + workspace.sidebar}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Plus } from "../../components/icons";
-import { InspectorIcon } from "../../components/InspectorIcon";
+import { PanelCollapseIcon } from "../../components/PanelCollapseIcon";
 import { mediaUsage } from "./attachments";
 import { formatMediaSize } from "./formatMediaSize";
 import { MediaRow } from "./MediaRow";
@@ -44,9 +44,7 @@ export function MediaLibraryPanel(props: IMediaLibraryPanel) {
             <Plus />
           </button>
           <button className="icon" aria-label="Hide panel" onClick={onHide}>
-            <span className="sidebar-collapse">
-              <InspectorIcon name="collapse" />
-            </span>
+            <PanelCollapseIcon />
           </button>
         </div>
       </header>

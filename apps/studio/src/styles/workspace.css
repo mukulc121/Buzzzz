@@ -90,9 +90,16 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  min-height: 48px;
-  padding: 8px 16px;
+  height: 48px;
+  flex-shrink: 0;
+  padding: 0 8px 0 16px;
   border-bottom: 2px solid var(--line);
+}
+.panel-heading > .icon,
+.panel-heading > div > .icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
 }
 .panel-heading h2 {
   text-transform: uppercase;

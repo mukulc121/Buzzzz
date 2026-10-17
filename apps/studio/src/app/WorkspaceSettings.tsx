@@ -1,14 +1,18 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { ThemeChooser } from "./ThemeChooser";
 import { InspectorSwitch } from "./inspector/InspectorSwitch";
 import { HelpPopover } from "../components/HelpPopover";
 import type { GridDensity } from "../features/composer/editorSettings";
 import { Select } from "../components/Select";
 import { SettingsShortcuts } from "./settings/SettingsShortcuts";
+import { SettingsHelpIcon } from "./settings/SettingsHelpIcon";
+import { completedWalkthroughs } from "../features/learn/storage";
+import { WALKTHROUGHS } from "../features/learn/tours";
 import type { Studio } from "./useStudio";
 
 interface IWorkspaceSettings {
   studio: Studio;
+  onShowOnboarding: () => void;
 }
 interface ISettingsSection {
   title: string;
@@ -60,6 +64,7 @@ const PRECISIONS = [
 ] as const;
 export function WorkspaceSettings(props: IWorkspaceSettings) {
   const { studio } = props;
+  const [completed] = useState(completedWalkthroughs);
   const { composer } = studio;
   const { values, update } = composer.settings;
   return (
@@ -134,18 +139,26 @@ export function WorkspaceSettings(props: IWorkspaceSettings) {
         <SettingsShortcuts />
       </SettingsSection>
       <SettingsSection title="Help">
-        <a
-          className="settings-docs-link"
-          href="https://docs.swmansion.com/pulsar/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Documentation ↗
-        </a>
         <p className="settings-note">
-          Projects and media save in this browser. Pairing rooms and shared links expire after 24
-          hours.
+          Four walkthroughs cover drawing a pattern, pairing a phone, and generating one from audio
+          or animation - {completed.length} of {WALKTHROUGHS.length} done.
         </p>
+        <div className="settings-help-actions">
+          <button type="button" className="primary" onClick={props.onShowOnboarding}>
+            <SettingsHelpIcon name="learn" />
+            <span>Show onboarding</span>
+          </button>
+          <a
+            className="settings-docs-link"
+            href="https://docs.swmansion.com/pulsar/studio/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <SettingsHelpIcon name="book" />
+            Documentation
+            <SettingsHelpIcon name="arrow" size={14} />
+          </a>
+        </div>
       </SettingsSection>
     </div>
   );

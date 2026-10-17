@@ -269,6 +269,33 @@
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
+  outline: none;
+}
+.settings-docs-link:focus-visible {
+  outline: 2px solid var(--settings-accent-strong);
+  outline-offset: 2px;
+}
+.settings-docs-link:hover {
+  color: var(--fg);
+  text-decoration: underline;
+}
+.settings-help-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.settings-help-actions > button {
+  --button-padding: 8px 14px;
+  --button-font-size: 14px;
+}
+.settings-help-actions > button > span {
+  display: inline-block;
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  padding: 2px 0;
+  margin: -2px 0;
 }
 .settings-note {
   margin: 0 0 8px;

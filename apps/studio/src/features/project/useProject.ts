@@ -202,6 +202,11 @@ export function useProject() {
 
   return {
     ...document,
+    saveNow: () => {
+      if (!isWriter || base.current.id !== active.id) return false;
+      const project = document.getProject();
+      return project === base.current.project || persist(project);
+    },
     selectPreset: (id: string) => {
       if (!document.getProject().presets.some((preset) => preset.id === id)) return;
       document.selectPreset(id);

@@ -6,9 +6,11 @@ import { ToolsPanel } from "../features/tools/ToolsPanel";
 import { toolBindings } from "./toolBindings";
 import { McpPanel } from "../features/mcp/McpPanel";
 import { WorkspaceSettings } from "./WorkspaceSettings";
+import { PanelCollapseIcon } from "../components/PanelCollapseIcon";
 import type { Studio } from "./useStudio";
 interface ISidebarPanel {
   studio: Studio;
+  onShowOnboarding: () => void;
 }
 function SidebarContents(props: ISidebarPanel) {
   const { studio } = props;
@@ -67,7 +69,7 @@ function SidebarContents(props: ISidebarPanel) {
         />
       );
     case "settings":
-      return <WorkspaceSettings studio={studio} />;
+      return <WorkspaceSettings studio={studio} onShowOnboarding={props.onShowOnboarding} />;
     case "learn":
       return null;
     case null:
@@ -84,12 +86,18 @@ export function SidebarPanel(props: ISidebarPanel) {
         studio.panel !== "device" && (
           <header className="panel-heading">
             <h2>{studio.panel}</h2>
-            <button className="icon" aria-label="Hide panel" onClick={() => studio.setPanel(null)}>
-              ‹
+            <button
+              type="button"
+              className="icon"
+              aria-label="Hide panel"
+              title="Hide panel"
+              onClick={() => studio.setPanel(null)}
+            >
+              <PanelCollapseIcon />
             </button>
           </header>
         )}
-      <SidebarContents studio={studio} />
+      <SidebarContents studio={studio} onShowOnboarding={props.onShowOnboarding} />
     </div>
   );
 }

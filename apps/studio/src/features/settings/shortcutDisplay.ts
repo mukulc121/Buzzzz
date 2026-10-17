@@ -6,6 +6,7 @@ interface IShortcut {
 }
 
 const SHORTCUTS: readonly IShortcut[] = [
+  { label: "Save now", key: "S", mod: true },
   { label: "Undo", key: "Z", mod: true },
   { label: "Redo", key: "Z", mod: true, shift: true },
   { label: "Copy", key: "C", mod: true },

@@ -1,4 +1,4 @@
-import { InspectorIcon } from "../../components/InspectorIcon";
+import { PanelCollapseIcon } from "../../components/PanelCollapseIcon";
 import { ToolIcon } from "../../components/ToolIcon";
 import { ToolBody } from "./ToolBody";
 import { ToolPicker } from "./ToolPicker";
@@ -42,9 +42,7 @@ export function ToolsPanel(props: IToolsPanel) {
             </button>
           )}
           <button className="icon" aria-label="Hide panel" onClick={onHide}>
-            <span className="sidebar-collapse">
-              <InspectorIcon name="collapse" />
-            </span>
+            <PanelCollapseIcon />
           </button>
         </div>
       </header>
