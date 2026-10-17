@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   min-width: 0;
-  gap: 6px;
+  gap: 2px;
 }
 .tool-heading h2 {
   overflow: hidden;

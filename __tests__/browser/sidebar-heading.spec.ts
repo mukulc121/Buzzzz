@@ -32,6 +32,19 @@ for (const theme of ["light", "dark"]) {
       expect(
         await icon.locator("path").evaluateAll((paths) => paths.map((p) => p.getAttribute("d"))),
       ).toEqual(["M9 3v18", "m16 15-3-3 3-3"]);
+      if (panel === "Media") {
+        await expect(header.locator(".media-heading-actions")).toHaveCSS("gap", "2px");
+        const upload = await header.getByRole("button", { name: "Upload media" }).boundingBox();
+        const hide = await collapse.boundingBox();
+        expect(hide!.x - upload!.x - upload!.width).toBe(2);
+      }
+      if (panel === "Tools") {
+        await page.getByRole("button", { name: "Tap Rhythm", exact: true }).click();
+        await expect(header.locator(":scope > div").first()).toHaveCSS("gap", "2px");
+        const popOut = await header.getByRole("button", { name: "Open in window" }).boundingBox();
+        const hide = await collapse.boundingBox();
+        expect(hide!.x - popOut!.x - popOut!.width).toBe(2);
+      }
       if (panel === "Settings")
         expect((await header.locator("+ .settings-panel h3").first().boundingBox())?.y).toBe(64);
     }
