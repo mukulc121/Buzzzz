@@ -5,14 +5,15 @@ import { Icon } from "../../components/Icon";
 import { ThemedText } from "../../components/ThemedText";
 import { colors } from "../../theme/colors";
 import { libraryStyles as styles } from "./libraryStyles";
-import type { ICachedPattern } from "./model";
+import type { ICachedResource } from "./mediaModel";
 
 interface IMiniPlayer {
-  record: ICachedPattern | null;
+  record: ICachedResource | null;
   visible: boolean;
   playing: boolean;
   disabled: boolean;
   error?: boolean;
+  downloading?: boolean;
   statusText: string;
   progress: number;
   bottomInset: number;
@@ -28,6 +29,7 @@ export function MiniPlayer(props: IMiniPlayer) {
     playing,
     disabled,
     error = false,
+    downloading = false,
     statusText,
     progress,
     bottomInset,
@@ -50,7 +52,7 @@ export function MiniPlayer(props: IMiniPlayer) {
       >
         <View style={styles.miniMain}>
           <View style={styles.miniHeader}>
-            <Icon name="play" size={16} color={colors.navy} />
+            <Icon name={downloading ? "download" : "play"} size={16} color={colors.navy} />
             <ThemedText type="defaultSemiBold" numberOfLines={1} style={styles.miniTitle}>
               {record.name}
             </ThemedText>

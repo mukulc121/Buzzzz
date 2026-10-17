@@ -39,6 +39,8 @@ The native app needs a development build. Expo Go does not include its native de
 
 Preview has Home, Presets, Playground, Demos, and Rive Preview tabs. Presets support search and saved favorites; Playground records and exports touch patterns. Rive can expand fullscreen while keeping the same scene and view model.
 
+Tap a connection on Home to open its Haptics library. Studio Play saves received patterns and attached audio or Lottie on the phone for local replay and seeking. The received-session player stays hidden in Presets.
+
 Native projects under `apps/preview/ios` and `apps/preview/android` are generated and ignored. Rebuild after native dependency or configuration changes. See [development](docs/development.md) for setup and troubleshooting.
 
 ## Make a pattern

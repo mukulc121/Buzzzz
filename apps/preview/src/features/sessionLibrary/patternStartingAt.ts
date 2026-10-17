@@ -1,4 +1,5 @@
-import { patternEnd, type Pattern } from "@buzzzz/core";
+import { patternEnd } from "@buzzzz/core";
+import type { Pattern } from "react-native-pulsar";
 
 type Point = Pattern["continuousPattern"]["amplitude"][number];
 
@@ -27,6 +28,7 @@ function envelopeStartingAt(points: readonly Point[], time: number, remainingMs:
 export function patternStartingAt(pattern: Pattern, time: number): Pattern {
   if (time <= 0) return pattern;
   const remainingMs = patternEnd(pattern) - time;
+  const sound = pattern.sound;
   return {
     discretePattern: pattern.discretePattern
       .filter((point) => point.time >= time)
@@ -35,5 +37,14 @@ export function patternStartingAt(pattern: Pattern, time: number): Pattern {
       amplitude: envelopeStartingAt(pattern.continuousPattern.amplitude, time, remainingMs),
       frequency: envelopeStartingAt(pattern.continuousPattern.frequency, time, remainingMs),
     },
+    ...(sound
+      ? {
+          sound: {
+            ...sound,
+            start: (sound.start ?? 0) + time,
+            duration: sound.duration ? Math.max(0, sound.duration - time) : 0,
+          },
+        }
+      : {}),
   };
 }

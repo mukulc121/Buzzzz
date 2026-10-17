@@ -34,9 +34,11 @@ diff --git a/android/src/main/java/com/swmansion/pulsar/reactnative/PulsarModule
  import com.swmansion.pulsar.composers.PatternComposer
  import com.swmansion.pulsar.composers.RealtimeComposer
  import com.swmansion.pulsar.types.CompatibilityMode
-@@ -12,6 +15,9 @@
+@@ -11,7 +14,11 @@
+ import com.swmansion.pulsar.types.ConfigPoint
  import com.swmansion.pulsar.types.ContinuousPattern
  import com.swmansion.pulsar.types.PatternData
++import com.swmansion.pulsar.types.SoundData
  import com.swmansion.pulsar.types.ValuePoint
 +import java.io.File
 +import java.net.URL
@@ -44,7 +46,7 @@ diff --git a/android/src/main/java/com/swmansion/pulsar/reactnative/PulsarModule
  
  @ReactModule(name = PulsarModule.NAME)
  class PulsarModule(reactContext: ReactApplicationContext) :
-@@ -21,6 +27,8 @@
+@@ -21,6 +28,8 @@
    private var realtimeComposer: RealtimeComposer = pulsar.getRealtimeComposer()
    private var nextId: Int = 1
    private val patternComposersRegistry: MutableMap<Int, PatternComposer> = mutableMapOf()
@@ -53,7 +55,7 @@ diff --git a/android/src/main/java/com/swmansion/pulsar/reactnative/PulsarModule
  
    // Pulsar -----------------------------------------------------------------
  
-@@ -166,12 +174,12 @@
+@@ -166,12 +175,12 @@
      )
    }
  
@@ -68,7 +70,48 @@ diff --git a/android/src/main/java/com/swmansion/pulsar/reactnative/PulsarModule
      }
  
      val currentId = nextId
-@@ -189,7 +197,7 @@
+@@ -180,6 +189,40 @@
+     return currentId.toDouble()
+   }
+ 
++  override fun PatternComposer_parsePatternWithSound(
++    data: ReadableMap?,
++    uri: String?,
++    volume: Double,
++    offset: Double,
++    start: Double,
++    duration: Double
++  ): Double {
++    val patternComposer = pulsar.getPatternComposer()
++
++    data?.let {
++      val patternData = patternDataFromJSPattern(it)
++      if (uri != null) {
++        patternComposer.parsePatternWithSound(
++          patternData,
++          SoundData(
++            uri = uri,
++            volume = volume.toFloat(),
++            offset = offset.toLong(),
++            startMs = start.toLong(),
++            durationMs = duration.toLong()
++          )
++        )
++      } else {
++        patternComposer.parsePattern(patternData)
++      }
++    }
++
++    val currentId = nextId
++    nextId++
++    patternComposersRegistry[currentId] = patternComposer
++    return currentId.toDouble()
++  }
++
+   override fun PatternComposer_play(patternId: Double) {
+     patternComposersRegistry[patternId.toInt()]?.play()
+   }
+@@ -189,7 +232,7 @@
    }
  
    override fun PatternComposer_release(patternId: Double) {
@@ -77,7 +120,7 @@ diff --git a/android/src/main/java/com/swmansion/pulsar/reactnative/PulsarModule
    }
  
    // RealtimeComposer -----------------------------------------------------------------
-@@ -208,6 +216,100 @@
+@@ -208,6 +251,100 @@
  
    override fun RealtimeComposer_isActive(): Boolean {
      return realtimeComposer.isActive()
@@ -352,6 +395,36 @@ diff --git a/ios/Haptics.mm b/ios/Haptics.mm
  
    int currentId = nextId;
    nextId++;
+@@ -168,6 +304,29 @@
+   return @(currentId);
+ }
+ 
++- (nonnull NSNumber *)PatternComposer_parsePatternWithSound:(JS::NativeRNPulsar::Pattern &)data
++                                                       uri:(nonnull NSString *)uri
++                                                    volume:(double)volume
++                                                    offset:(double)offset
++                                                     start:(double)start
++                                                  duration:(double)duration {
++  auto patternComposer = [pulsar_ getPatternComposer];
++
++  PatternData *patternData = PatternDataFromJSPattern(data);
++  [patternComposer parsePatternWithSoundWithHapticsData:patternData
++                                                    uri:uri
++                                                 volume:(float)volume
++                                                 offset:offset
++                                                  start:start
++                                               duration:duration
++                                                 fromMs:0];
++
++  int currentId = nextId;
++  nextId++;
++  patternComposersRegistry_[@(currentId)] = patternComposer;
++  return @(currentId);
++}
++
+ - (void)PatternComposer_play:(double)patternId {
+   if (!RNPulsarIsAppActive()) {
+     return;
 diff --git a/lib/module/createBundle.js b/lib/module/createBundle.js
 new file mode 100644
 --- /dev/null
@@ -498,7 +571,26 @@ diff --git a/lib/module/index.js b/lib/module/index.js
 diff --git a/lib/module/usePatternComposer.js b/lib/module/usePatternComposer.js
 --- a/lib/module/usePatternComposer.js
 +++ b/lib/module/usePatternComposer.js
-@@ -24,10 +24,18 @@
+@@ -1,11 +1,18 @@
+ "use strict";
+ 
+ import { useCallback, useEffect } from 'react';
++import { Image } from 'react-native';
+ import Pulsar from "./NativeRNPulsar.js";
+ import { useSharableState } from "./useSharableState.js";
+ 
+ // workaround for RN prototype caching issue 
+ Pulsar.PatternComposer_play;
++function resolveSoundUri(uri) {
++  if (typeof uri === 'number') {
++    return Image.resolveAssetSource(uri)?.uri;
++  }
++  return uri;
++}
+ export default function usePatternComposer(pattern) {
+   const patternId = useSharableState(-1);
+   const play = useCallback(() => {
+@@ -24,10 +31,25 @@
        Pulsar.PatternComposer_stop(id);
      }
    }, []);
@@ -512,14 +604,21 @@ diff --git a/lib/module/usePatternComposer.js b/lib/module/usePatternComposer.js
    const parse = useCallback(pattern => {
 -    const newPatternId = Pulsar.PatternComposer_parsePattern(pattern);
 +    release();
-+    const newPatternId = Pulsar.PatternComposer_parsePattern(pattern, 0);
++    const resolvedUri = pattern.sound ? resolveSoundUri(pattern.sound.uri) : undefined;
++    let newPatternId;
++    if (pattern.sound && resolvedUri) {
++      const { volume = 1, offset = 0, start = 0, duration = 0 } = pattern.sound;
++      newPatternId = Pulsar.PatternComposer_parsePatternWithSound(pattern, resolvedUri, volume, offset, start, duration);
++    } else {
++      newPatternId = Pulsar.PatternComposer_parsePattern(pattern, 0);
++    }
      patternId.set(newPatternId);
 -  }, [pattern]);
 +  }, [release]);
    const isParsed = () => {
      return patternId.get() !== -1;
    };
-@@ -35,13 +43,8 @@
+@@ -35,13 +57,8 @@
      if (pattern) {
        parse(pattern);
      }
@@ -538,12 +637,20 @@ diff --git a/lib/module/usePatternComposer.js b/lib/module/usePatternComposer.js
 diff --git a/lib/typescript/src/NativeRNPulsar.d.ts b/lib/typescript/src/NativeRNPulsar.d.ts
 --- a/lib/typescript/src/NativeRNPulsar.d.ts
 +++ b/lib/typescript/src/NativeRNPulsar.d.ts
-@@ -45,10 +45,15 @@
+@@ -45,10 +45,23 @@
      RealtimeComposer_stop(): void;
      RealtimeComposer_isActive(): boolean;
      RealtimeComposer_playDiscrete(amplitude: number, frequency: number): void;
 -    PatternComposer_parsePattern(data: Pattern): number;
 +    PatternComposer_parsePattern(data: Pattern, fromMs: number): number;
++    PatternComposer_parsePatternWithSound(
++      data: Pattern,
++      uri: string,
++      volume: number,
++      offset: number,
++      start: number,
++      duration: number
++    ): number;
      PatternComposer_play(patternId: number): void;
      PatternComposer_stop(patternId: number): void;
      PatternComposer_release(patternId: number): void;
@@ -635,15 +742,45 @@ diff --git a/lib/typescript/src/index.d.ts b/lib/typescript/src/index.d.ts
 +//# sourceMappingURL=index.d.ts.map
 +export { defineBundle };
 +export type { Bundle, BundleDefinition, BundleLoaders, BundleMeta, PresetHandle, PresetAnimation } from './createBundle';
+diff --git a/lib/typescript/src/types.d.ts b/lib/typescript/src/types.d.ts
+--- a/lib/typescript/src/types.d.ts
++++ b/lib/typescript/src/types.d.ts
+@@ -1,3 +1,10 @@
++export type Sound = {
++    uri: number | string;
++    volume?: number;
++    offset?: number;
++    start?: number;
++    duration?: number;
++};
+ export type Pattern = {
+     discretePattern: {
+         time: number;
+@@ -14,6 +21,7 @@
+             value: number;
+         }[];
+     };
++    sound?: Sound;
+ };
+ export type PatternComposer = {
+     play: () => void;
 diff --git a/src/NativeRNPulsar.ts b/src/NativeRNPulsar.ts
 --- a/src/NativeRNPulsar.ts
 +++ b/src/NativeRNPulsar.ts
-@@ -41,10 +41,15 @@
+@@ -41,10 +41,23 @@
    RealtimeComposer_isActive(): boolean;
    RealtimeComposer_playDiscrete(amplitude: number, frequency: number): void;
  
 -  PatternComposer_parsePattern(data: Pattern): number;
 +  PatternComposer_parsePattern(data: Pattern, fromMs: number): number;
++  PatternComposer_parsePatternWithSound(
++    data: Pattern,
++    uri: string,
++    volume: number,
++    offset: number,
++    start: number,
++    duration: number
++  ): number;
    PatternComposer_play(patternId: number): void;
    PatternComposer_stop(patternId: number): void;
    PatternComposer_release(patternId: number): void;
@@ -884,10 +1021,53 @@ diff --git a/src/index.tsx b/src/index.tsx
 +
 +export { defineBundle };
 +export type { Bundle, BundleDefinition, BundleLoaders, BundleMeta, PresetHandle, PresetAnimation } from './createBundle';
+diff --git a/src/types.ts b/src/types.ts
+--- a/src/types.ts
++++ b/src/types.ts
+@@ -1,9 +1,18 @@
++export type Sound = {
++  uri: number | string,
++  volume?: number,
++  offset?: number,
++  start?: number,
++  duration?: number,
++}
++
+ export type Pattern = {
+   discretePattern: { time: number, amplitude: number, frequency: number }[],
+   continuousPattern: {
+     amplitude: { time: number, value: number }[],
+     frequency: { time: number, value: number }[],
+-  }
++  },
++  sound?: Sound,
+ }
+ 
+ export type PatternComposer = {
 diff --git a/src/usePatternComposer.ts b/src/usePatternComposer.ts
 --- a/src/usePatternComposer.ts
 +++ b/src/usePatternComposer.ts
-@@ -25,10 +25,18 @@
+@@ -1,10 +1,18 @@
+ import { useCallback, useEffect } from 'react';
++import { Image } from 'react-native';
+ import Pulsar from './NativeRNPulsar';
+-import type { Pattern, PatternComposer } from './types';
++import type { Pattern, PatternComposer, Sound } from './types';
+ import { useSharableState } from './useSharableState';
+ 
+ // workaround for RN prototype caching issue 
+ Pulsar.PatternComposer_play;
++
++function resolveSoundUri(uri: Sound['uri']): string | undefined {
++  if (typeof uri === 'number') {
++    return Image.resolveAssetSource(uri)?.uri;
++  }
++  return uri;
++}
+ 
+ export default function usePatternComposer(pattern?: Pattern): PatternComposer {
+   const patternId = useSharableState(-1);
+@@ -25,10 +33,25 @@
      }
    }, []);
  
@@ -901,14 +1081,21 @@ diff --git a/src/usePatternComposer.ts b/src/usePatternComposer.ts
    const parse = useCallback((pattern: Pattern) => {
 -    const newPatternId = Pulsar.PatternComposer_parsePattern(pattern);
 +    release();
-+    const newPatternId = Pulsar.PatternComposer_parsePattern(pattern, 0);
++    const resolvedUri = pattern.sound ? resolveSoundUri(pattern.sound.uri) : undefined;
++    let newPatternId: number;
++    if (pattern.sound && resolvedUri) {
++      const { volume = 1, offset = 0, start = 0, duration = 0 } = pattern.sound;
++      newPatternId = Pulsar.PatternComposer_parsePatternWithSound(pattern, resolvedUri, volume, offset, start, duration);
++    } else {
++      newPatternId = Pulsar.PatternComposer_parsePattern(pattern, 0);
++    }
      patternId.set(newPatternId);
 -  }, [pattern]);
 +  }, [release]);
  
    const isParsed = () => {
      return patternId.get() !== -1;
-@@ -39,13 +47,8 @@
+@@ -39,13 +62,8 @@
        parse(pattern);
      }
  

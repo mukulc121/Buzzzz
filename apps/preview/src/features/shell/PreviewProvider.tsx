@@ -8,7 +8,7 @@ import { EventToast } from "../../components/EventToast";
 import { usePreviewSession } from "../preview/usePreviewSession";
 import { useFullscreen } from "../preview/useFullscreen";
 import { MiniPlayer } from "../sessionLibrary/MiniPlayer";
-import { formatLibraryTime } from "../sessionLibrary/canvasGeometry";
+import { mediaStatusText } from "../sessionLibrary/mediaStatus";
 
 interface IPreviewProvider {
   children: ReactNode;
@@ -60,16 +60,22 @@ export function PreviewProvider(props: IPreviewProvider) {
         record={received?.record ?? null}
         visible={!expanded && pathname !== "/mediaLibraryModal" && pathname !== "/presets"}
         playing={library.playing}
-        disabled={!library.hydrated && !received}
+        disabled={library.downloading || (!library.hydrated && !received)}
+        downloading={library.downloading}
         error={!!library.error}
-        statusText={
-          library.error ??
-          `${formatLibraryTime(library.positionMs)} / ${formatLibraryTime(received?.record.durationMs ?? 0)}`
-        }
+        statusText={mediaStatusText(
+          received?.record ?? null,
+          library.positionMs,
+          library.downloading,
+          library.downloadProgress,
+          library.error,
+        )}
         progress={
-          received && received.record.durationMs > 0
-            ? library.positionMs / received.record.durationMs
-            : 0
+          library.downloading
+            ? library.downloadProgress
+            : received && received.record.durationMs > 0
+              ? library.positionMs / received.record.durationMs
+              : 0
         }
         bottomInset={insets.bottom}
         onOpen={() => {

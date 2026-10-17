@@ -6,10 +6,11 @@ import { ThemedText } from "../../components/ThemedText";
 import { colors } from "../../theme/colors";
 import { formatLibraryTime } from "./canvasGeometry";
 import { libraryStyles as styles } from "./libraryStyles";
-import type { ICachedPattern } from "./model";
+import type { ICachedResource } from "./mediaModel";
+import { resourceKindIcon, resourceKindLabel } from "./mediaStatus";
 
 interface IResourceRow {
-  record: ICachedPattern;
+  record: ICachedResource;
   active: boolean;
   onPlay: () => void;
   onDelete: () => void;
@@ -27,13 +28,13 @@ export function ResourceRow(props: IResourceRow) {
           onPress={onPlay}
           style={({ pressed }) => [styles.pressArea, { opacity: pressed ? 0.6 : 1 }]}
         >
-          <Icon name="record" size={18} color={colors.navy} />
+          <Icon name={resourceKindIcon(record.kind)} size={18} color={colors.navy} />
           <View style={styles.resourceInfo}>
             <ThemedText type="defaultSemiBold" numberOfLines={1}>
               {record.name}
             </ThemedText>
             <ThemedText style={styles.meta} numberOfLines={1}>
-              Pattern · {formatLibraryTime(record.durationMs)}
+              {resourceKindLabel(record.kind)} · {formatLibraryTime(record.durationMs)}
             </ThemedText>
           </View>
         </Pressable>

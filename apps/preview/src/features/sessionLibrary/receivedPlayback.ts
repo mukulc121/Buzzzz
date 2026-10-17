@@ -1,6 +1,7 @@
 import type { PatternComposer } from "react-native-pulsar";
-import type { ICachedPattern } from "./model";
+import type { ICachedResource, IResolvedResource } from "./mediaModel";
 import { patternStartingAt } from "./patternStartingAt";
+import { resourcePlaybackPattern } from "./mediaPlayback";
 
 export interface IReceivedPlaybackOptions {
   composer: Pick<PatternComposer, "parse" | "play" | "stop">;
@@ -10,7 +11,7 @@ export interface IReceivedPlaybackOptions {
   cancelFrame?: (id: number) => void;
 }
 interface IReceivedPlaybackState {
-  active: { connectionId: string; record: ICachedPattern } | null;
+  active: (IResolvedResource & { connectionId: string }) | null;
   playing: boolean;
   positionMs: number;
   error: string | null;
@@ -59,17 +60,23 @@ export function createReceivedPlayback(options: IReceivedPlaybackOptions) {
       });
     }
   };
-  const start = (connectionId: string, record: ICachedPattern, fromMs = 0) => {
+  const start = (
+    connectionId: string,
+    record: ICachedResource,
+    fromMs = 0,
+    media: Pick<IResolvedResource, "localUri" | "clipMissing"> = { clipMissing: false },
+  ) => {
     if (!mounted) return;
     cancelClock();
     positionMs = Math.max(0, Math.min(record.durationMs, fromMs));
     scrubMs = null;
-    publish({ active: { connectionId, record }, playing: false, error: null });
+    const active = { connectionId, record, ...media };
+    publish({ active, playing: false, error: null });
     try {
       onPlay?.();
       composer.stop();
       ownsNative = false;
-      composer.parse(patternStartingAt(record.pattern, positionMs));
+      composer.parse(patternStartingAt(resourcePlaybackPattern(active), positionMs));
       ownsNative = true;
       composer.play();
       publish({ playing: true });
@@ -99,10 +106,10 @@ export function createReceivedPlayback(options: IReceivedPlaybackOptions) {
   };
   const seek = (timeMs: number) => {
     if (!mounted || !state.active || !Number.isFinite(timeMs)) return;
-    const { connectionId, record } = state.active;
+    const { connectionId, record, ...media } = state.active;
     positionMs = Math.max(0, Math.min(record.durationMs, timeMs));
     scrubMs = null;
-    if (state.playing) start(connectionId, record, positionMs);
+    if (state.playing) start(connectionId, record, positionMs, media);
     else publish();
   };
   const stop = () => {
@@ -125,6 +132,32 @@ export function createReceivedPlayback(options: IReceivedPlaybackOptions) {
       onPlay = callback;
     },
     start,
+    prepare: (connectionId: string, record: ICachedResource) => {
+      cancelClock();
+      positionMs = 0;
+      scrubMs = null;
+      publish({
+        active: { connectionId, record, clipMissing: false },
+        error: null,
+        playing: false,
+      });
+    },
+    resolve: (connectionId: string, resource: IResolvedResource) => {
+      if (
+        !mounted ||
+        state.active?.connectionId !== connectionId ||
+        state.active.record.resourceId !== resource.record.resourceId
+      )
+        return;
+      publish({ active: { connectionId, ...resource } });
+    },
+    fail: (error: unknown) => {
+      pause();
+      publish({
+        error: error instanceof Error ? error.message : "Could not load media",
+        playing: false,
+      });
+    },
     pause,
     stop,
     seek,
@@ -137,19 +170,19 @@ export function createReceivedPlayback(options: IReceivedPlaybackOptions) {
     togglePlay: () => {
       if (!mounted || !state.active) return;
       if (state.playing) return pause();
-      const { connectionId, record } = state.active;
-      start(connectionId, record, positionMs >= record.durationMs ? 0 : positionMs);
+      const { connectionId, record, ...media } = state.active;
+      start(connectionId, record, positionMs >= record.durationMs ? 0 : positionMs, media);
     },
     rename: (
       connectionId: string,
-      manifest: readonly Pick<ICachedPattern, "resourceId" | "name">[],
+      manifest: readonly Pick<ICachedResource, "resourceId" | "name">[],
     ) => {
       if (!mounted || state.active?.connectionId !== connectionId) return;
       const name = manifest.find(
         (item) => item.resourceId === state.active?.record.resourceId,
       )?.name;
       if (name && name !== state.active.record.name)
-        publish({ active: { connectionId, record: { ...state.active.record, name } } });
+        publish({ active: { ...state.active, record: { ...state.active.record, name } } });
     },
     dismiss: () => {
       if (!mounted) return;

@@ -4,6 +4,10 @@ import { resolveRiveUrl, type Pattern } from "@buzzzz/core";
 import { usePhoneRelay } from "../connection/usePhoneRelay";
 import { useNativePlayback } from "../playback/useNativePlayback";
 import { useReceivedLibrary } from "../sessionLibrary/useReceivedLibrary";
+import {
+  isReceivedResourceMessage,
+  stopLegacyFromBrowser,
+} from "../sessionLibrary/browserCommands";
 
 export function usePreviewSession() {
   const [riv, setRiv] = useState<{ url: string; stateMachine?: string } | null>(null);
@@ -19,9 +23,12 @@ export function usePreviewSession() {
   const sceneConnection = useRef<string | null>(null);
   const legacyConnection = useRef<string | null>(null);
   const playback = useNativePlayback();
-  const library = useReceivedLibrary({ onPlay: playback.stopPattern });
-  const [manifestRevision, setManifestRevision] = useState<Record<string, number>>({});
   const [incomingLibrary, setIncomingLibrary] = useState<{ connectionId: string } | null>(null);
+  const library = useReceivedLibrary({
+    onPlay: playback.stopPattern,
+    onReceive: (connectionId) => setIncomingLibrary({ connectionId }),
+  });
+  const [manifestRevision, setManifestRevision] = useState<Record<string, number>>({});
   const announce = (text: string) => setEvent({ id: Date.now(), text });
   const setMap = (value: Record<string, Pattern>) => {
     map.current = value;
@@ -39,11 +46,16 @@ export function usePreviewSession() {
   };
   const relay = usePhoneRelay(
     (message, connection, connectionId) => {
-      if (message.type === "haptic-preset") {
-        setIncomingLibrary({ connectionId });
+      if (isReceivedResourceMessage(message)) {
         void library
-          .receive(connectionId, message)
-          .catch(() => announce("Could not save this pattern on the device."));
+          .receive(connectionId, message, connection)
+          .catch(() =>
+            announce(
+              message.type === "haptic-preset"
+                ? "Could not save this pattern on the device."
+                : "Could not load media on the device.",
+            ),
+          );
       } else if (message.type === "library-manifest") {
         void library
           .manifest(connectionId, message.presets)
@@ -76,7 +88,7 @@ export function usePreviewSession() {
         playback.playPattern(message.pattern, "Pattern from Studio");
         announce("Pattern from Studio");
       } else if (message.type === "stop") {
-        if (legacyConnection.current === connectionId) playback.stopPattern();
+        stopLegacyFromBrowser(legacyConnection.current, connectionId, playback.stopPattern);
       } else if (message.type === "fire" && sceneConnection.current === connectionId)
         fireRef.current(message.name);
       else if (message.type === "restart" && sceneConnection.current === connectionId) {

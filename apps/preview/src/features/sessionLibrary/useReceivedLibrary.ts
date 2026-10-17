@@ -1,23 +1,27 @@
 import { useEffect, useLayoutEffect, useState, useSyncExternalStore } from "react";
 import { usePatternComposer } from "react-native-pulsar";
 import { createReceivedLibrary } from "./receivedLibrary";
-import { createPatternLibraryStorage } from "./storage";
+import { createResourceStorage } from "./resourceStorage";
+import { createMediaFiles } from "./mediaFiles";
 
 interface IReceivedLibrary {
   onPlay?: () => void;
+  onReceive?: (connectionId: string) => void;
 }
 
 export function useReceivedLibrary(options: IReceivedLibrary = {}) {
   const { parse, play, stop } = usePatternComposer();
   const [controller] = useState(() =>
     createReceivedLibrary({
-      storage: createPatternLibraryStorage(),
+      storage: createResourceStorage(),
+      files: createMediaFiles(),
       composer: { parse, play, stop },
     }),
   );
   useLayoutEffect(() => {
     controller.setOnPlay(options.onPlay);
-  }, [controller, options.onPlay]);
+    controller.setOnReceive(options.onReceive);
+  }, [controller, options.onPlay, options.onReceive]);
   const state = useSyncExternalStore(
     controller.subscribe,
     controller.getSnapshot,

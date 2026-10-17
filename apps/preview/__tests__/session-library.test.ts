@@ -1,15 +1,25 @@
 import { expect, test } from "bun:test";
 import { emptyPattern, type Pattern } from "@buzzzz/core";
+import { receivedPatternRecord } from "../src/features/sessionLibrary/receivedPattern";
 import {
-  cachePattern,
-  listCachedPatterns,
-  purgeCachedConnection,
-  removeCachedPattern,
-  renameCachedPatterns,
-} from "../src/features/sessionLibrary/patterns";
+  listMediaResources as listCachedPatterns,
+  purgeMediaConnection as purgeCachedConnection,
+  removeMediaResource as removeCachedPattern,
+  renameMediaResources as renameCachedPatterns,
+  upsertMediaResource,
+} from "../src/features/sessionLibrary/mediaStorage";
 import { decodePatternLibrary } from "../src/features/sessionLibrary/patternStorage";
-import { createPatternLibraryStorage } from "../src/features/sessionLibrary/storage";
-import type { IPatternLibrary } from "../src/features/sessionLibrary/model";
+import { createResourceStorage } from "../src/features/sessionLibrary/resourceStorage";
+import type { IMediaLibrary } from "../src/features/sessionLibrary/mediaModel";
+
+function cachePattern(
+  library: IMediaLibrary,
+  connectionId: string,
+  packet: Parameters<typeof receivedPatternRecord>[0],
+  receivedAt: number,
+) {
+  return upsertMediaResource(library, connectionId, receivedPatternRecord(packet, receivedAt));
+}
 
 const pattern = (): Pattern => ({
   ...emptyPattern(),
@@ -106,8 +116,7 @@ test("deleting a resource or connection preserves other connections, including s
 });
 
 test("hydration preserves offline replay data, allows original empty versions and keeps newest duplicates", () => {
-  const original = cachePattern({}, "studio", { ...packet("hit"), version: "" }, 100);
-  const first = original.studio[0];
+  const first = receivedPatternRecord({ ...packet("hit"), version: "" }, 100);
   const decoded = decodePatternLibrary(
     JSON.stringify({
       studio: [
@@ -137,13 +146,13 @@ test("invalid persisted data is reported without silently replacing the library"
 
 test("the persistent repository hydrates once and retains records without a connection", async () => {
   const data = memory(JSON.stringify(cachePattern({}, "offline", packet("hit"), 100)));
-  const storage = createPatternLibraryStorage(data.adapter);
+  const storage = createResourceStorage(data.adapter);
   expect((await storage.load()).offline[0].pattern).toEqual(pattern());
   await storage.update((library) =>
     renameCachedPatterns(library, "offline", [{ resourceId: "hit", name: "Renamed" }]),
   );
   expect(data.writes[0].key).toBe("pulsar:media-library");
-  const reopened = createPatternLibraryStorage(data.adapter);
+  const reopened = createResourceStorage(data.adapter);
   expect((await reopened.load()).offline[0].name).toBe("Renamed");
   await reopened.update((library) => removeCachedPattern(library, "offline", "hit"));
   expect((await reopened.load()).offline).toEqual([]);
@@ -153,7 +162,7 @@ test("the persistent repository hydrates once and retains records without a conn
 
 test("concurrent receipts serialize read/modify/write and a manifest no-op does not write", async () => {
   const data = memory();
-  const storage = createPatternLibraryStorage(data.adapter);
+  const storage = createResourceStorage(data.adapter);
   await Promise.all([
     storage.update((library) => cachePattern(library, "studio", packet("first"), 100)),
     storage.update((library) => cachePattern(library, "studio", packet("second"), 200)),
@@ -174,7 +183,7 @@ test("failed hydration and writes reject, leave saved state intact and allow a l
   let failRead = true;
   let failWrite = true;
   const failure = new Error("Storage unavailable");
-  const storage = createPatternLibraryStorage({
+  const storage = createResourceStorage({
     getItem: async (key) => {
       if (failRead) {
         failRead = false;
@@ -196,7 +205,7 @@ test("failed hydration and writes reject, leave saved state intact and allow a l
   ).rejects.toBe(failure);
   expect(await storage.load()).toEqual({});
   expect(data.read()).toBeNull();
-  const saved: IPatternLibrary = await storage.update((library) =>
+  const saved: IMediaLibrary = await storage.update((library) =>
     cachePattern(library, "studio", packet("saved"), 200),
   );
   expect(saved.studio.map((record) => record.resourceId)).toEqual(["saved"]);

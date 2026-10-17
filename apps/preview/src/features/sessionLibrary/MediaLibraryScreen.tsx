@@ -10,14 +10,19 @@ import { colors } from "../../theme/colors";
 import { LibraryScrubber } from "./LibraryScrubber";
 import { PatternCanvas } from "./PatternCanvas";
 import { ResourceRow } from "./ResourceRow";
+import { LottieCanvas } from "./LottieCanvas";
 import { libraryStyles as styles } from "./libraryStyles";
-import type { ICachedPattern } from "./model";
+import type { ICachedResource } from "./mediaModel";
 
 interface IMediaLibraryScreen {
   connectionName: string;
   available: boolean;
-  records: readonly ICachedPattern[];
-  active: ICachedPattern | null;
+  records: readonly ICachedResource[];
+  active: ICachedResource | null;
+  localUri?: string;
+  clipMissing?: boolean;
+  downloading?: boolean;
+  downloadProgress?: number;
   positionMs: number;
   playing: boolean;
   statusText: string;
@@ -41,6 +46,10 @@ export function MediaLibraryScreen(props: IMediaLibraryScreen) {
     available,
     records,
     active,
+    localUri,
+    clipMissing = false,
+    downloading = false,
+    downloadProgress = 0,
     positionMs,
     playing,
     statusText,
@@ -61,6 +70,11 @@ export function MediaLibraryScreen(props: IMediaLibraryScreen) {
   const [scrubbedTo, setScrubbedTo] = useState<number | null>(null);
   const shownPosition = scrubbedTo ?? positionMs;
   const stopped = !playing && positionMs === 0;
+  const progress = downloading
+    ? downloadProgress
+    : active && active.durationMs > 0
+      ? shownPosition / active.durationMs
+      : 0;
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
@@ -100,11 +114,24 @@ export function MediaLibraryScreen(props: IMediaLibraryScreen) {
           <>
             {active && (
               <>
-                <PatternCanvas
-                  pattern={active.pattern}
-                  durationMs={active.durationMs}
-                  progress={active.durationMs > 0 ? shownPosition / active.durationMs : 0}
-                />
+                {clipMissing && (
+                  <View style={styles.notice}>
+                    <ThemedText style={styles.meta}>
+                      {active.kind === "audio" ? "The audio clip" : "The animation"} is no longer on
+                      this device — the haptics still play. Send it from Studio again to restore it.
+                    </ThemedText>
+                  </View>
+                )}
+                {active.kind === "animation" && localUri && !clipMissing && (
+                  <LottieCanvas uri={localUri} progress={progress} />
+                )}
+                {active.kind === "pattern" && (
+                  <PatternCanvas
+                    pattern={active.pattern}
+                    durationMs={active.durationMs}
+                    progress={progress}
+                  />
+                )}
                 <ThemedText type="defaultSemiBold" numberOfLines={1}>
                   {active.name}
                 </ThemedText>

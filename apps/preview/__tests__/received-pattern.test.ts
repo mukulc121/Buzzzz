@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { emptyPattern, type Pattern } from "@buzzzz/core";
-import { cachePattern } from "../src/features/sessionLibrary/patterns";
+import { receivedPatternRecord } from "../src/features/sessionLibrary/receivedPattern";
 import { patternStartingAt } from "../src/features/sessionLibrary/patternStartingAt";
 import { createReceivedPlayback } from "../src/features/sessionLibrary/receivedPlayback";
 
@@ -67,12 +67,10 @@ function runtime() {
   };
 }
 
-const record = cachePattern(
-  {},
-  "studio",
+const record = receivedPatternRecord(
   { resourceId: "hit", name: "Hit", version: "a".repeat(64), pattern },
   1,
-).studio[0];
+);
 
 test("published native seek semantics interpolate the boundary and hold an exhausted envelope", () => {
   expect(patternStartingAt(pattern, 0)).toBe(pattern);

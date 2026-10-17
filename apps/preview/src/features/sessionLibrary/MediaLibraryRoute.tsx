@@ -1,8 +1,8 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { usePreview } from "../shell/usePreview";
 import { MediaLibraryScreen } from "./MediaLibraryScreen";
-import { formatLibraryTime } from "./canvasGeometry";
-import { listCachedPatterns } from "./patterns";
+import { listMediaResources } from "./mediaStorage";
+import { mediaStatusText } from "./mediaStatus";
 import { useLibraryRefresh } from "./useLibraryRefresh";
 import { connectionDisplayName } from "../connection/model";
 
@@ -27,17 +27,24 @@ export function MediaLibraryRoute() {
     <MediaLibraryScreen
       connectionName={connection ? connectionDisplayName(connection) : "Connection"}
       available={!!connection}
-      records={listCachedPatterns(library.library, connectionId)}
+      records={listMediaResources(library.library, connectionId)}
       active={active}
+      localUri={library.active?.connectionId === connectionId ? library.active.localUri : undefined}
+      clipMissing={library.active?.connectionId === connectionId && library.active.clipMissing}
+      downloading={!!active && library.downloading}
+      downloadProgress={library.downloadProgress}
       positionMs={active ? library.positionMs : 0}
       playing={!!active && library.playing}
-      statusText={
-        library.error ??
-        `${formatLibraryTime(library.positionMs)} / ${formatLibraryTime(active?.durationMs ?? 0)}`
-      }
+      statusText={mediaStatusText(
+        active,
+        library.positionMs,
+        !!active && library.downloading,
+        library.downloadProgress,
+        library.error,
+      )}
       syncing={sync.syncing}
       syncError={sync.syncError ?? library.storageError ?? (!active ? library.error : null)}
-      disabled={!library.hydrated && !active}
+      disabled={(!!active && library.downloading) || (!library.hydrated && !active)}
       error={!!library.error}
       onRefresh={sync.refresh}
       onClose={() => router.back()}

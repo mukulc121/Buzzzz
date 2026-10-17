@@ -1,8 +1,8 @@
 import { expect, test } from "bun:test";
 import { emptyPattern, type Msg, type Pattern } from "@buzzzz/core";
 import { createReceivedLibrary } from "../src/features/sessionLibrary/receivedLibrary";
-import { createPatternLibraryStorage } from "../src/features/sessionLibrary/storage";
-import { cachePattern } from "../src/features/sessionLibrary/patterns";
+import { createResourceStorage } from "../src/features/sessionLibrary/resourceStorage";
+import { receivedPatternRecord } from "../src/features/sessionLibrary/receivedPattern";
 
 function packet(resourceId: string, name = resourceId): Extract<Msg, { type: "haptic-preset" }> {
   return {
@@ -34,7 +34,7 @@ function setup() {
     },
   };
   const options = {
-    storage: createPatternLibraryStorage(adapter),
+    storage: createResourceStorage(adapter),
     composer: {
       parse: (pattern: Pattern) => {
         native.parsed.push(pattern);
@@ -66,13 +66,11 @@ function delayedLibrary() {
   const read = new Promise<string | null>((resolve) => {
     release = resolve;
   });
-  const library = cachePattern(
-    cachePattern({}, "studio-a", packet("a"), 1),
-    "studio-b",
-    packet("b"),
-    2,
-  );
-  const storage = createPatternLibraryStorage({ ...data.adapter, getItem: async () => read });
+  const library = {
+    "studio-a": [receivedPatternRecord(packet("a"), 1)],
+    "studio-b": [receivedPatternRecord(packet("b"), 2)],
+  };
+  const storage = createResourceStorage({ ...data.adapter, getItem: async () => read });
   return {
     ...data,
     controller: createReceivedLibrary({ ...data.options, storage }),
@@ -96,7 +94,7 @@ test("receiving plays immediately, saves a stable snapshot and reopens for offli
   controller.dispose();
   const reopened = createReceivedLibrary({
     ...data.options,
-    storage: createPatternLibraryStorage(data.adapter),
+    storage: createResourceStorage(data.adapter),
   });
   await reopened.hydrate();
   expect(reopened.getSnapshot()).toMatchObject({ active: null, playing: false, hydrated: true });
@@ -180,7 +178,7 @@ test("unmounted hydration never publishes state or starts playback, and a later 
   const delayedRead = new Promise<string | null>((resolve) => {
     resolveRead = resolve;
   });
-  const storage = createPatternLibraryStorage({
+  const storage = createResourceStorage({
     ...data.adapter,
     getItem: async () => delayedRead,
   });
