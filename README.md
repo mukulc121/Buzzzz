@@ -54,6 +54,8 @@ Native projects under `apps/preview/ios` and `apps/preview/android` are generate
 
 Pattern time is in milliseconds; amplitude and frequency use values from 0 to 1. The shared model accepts patterns up to 60 seconds. The exported `discretePattern` and `continuousPattern` fields match Pulsar's device format.
 
+Choose **Create sample project** in Projects for Pulsar's three starter patterns and media, plus a DexTourLoader Rive example. Open its Rive panel to preview, pause, or restart it; pair the Buzzzz app for native system haptics. The example fires its ready trigger after 2.5 seconds and completes automatically. Project JSON and `.pulsar` exports retain its trigger configuration. See the [sample source](apps/studio/src/features/project/starter/rive/SOURCE.md).
+
 Settings controls theme, grid density, value precision, crosshairs, the time cursor, and multilayer selection. Learn has four walkthroughs with 27 steps covering editing, phone pairing, sound, and animation.
 
 Outside form controls, Space or `P` plays or stops, `1`/`2`/`3` selects a layer, Delete removes the selection, and Cmd/Ctrl+Z undoes an edit. Settings lists the remaining shortcuts.

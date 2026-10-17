@@ -2,8 +2,15 @@ import { isPattern, isRecord, type Pattern } from "../patterns/pattern.ts";
 import { isRiveAssetUrl } from "./assets.ts";
 import { parseEditorMessage, type EditorMsg } from "./editor.ts";
 import { parseLibraryMessage, type LibraryMsg } from "./library.ts";
+import { isRiveConfig, type IRiveConfig } from "../rive/config.ts";
 export type Msg =
-  | { type: "load"; riv: string; stateMachine?: string; map: Record<string, Pattern> }
+  | {
+      type: "load";
+      riv: string;
+      stateMachine?: string;
+      map: Record<string, Pattern>;
+      riveConfig?: IRiveConfig;
+    }
   | { type: "map"; map: Record<string, Pattern> }
   | { type: "play"; pattern: Pattern }
   | { type: "stop" }
@@ -23,7 +30,14 @@ const isMap = (v: unknown): v is Record<string, Pattern> =>
 function loadMessage(value: Record<string, unknown>): Msg | null {
   if (!isRiveAssetUrl(value.riv) || !isMap(value.map)) return null;
   if (value.stateMachine !== undefined && !text(value.stateMachine)) return null;
-  return { type: "load", riv: value.riv, stateMachine: value.stateMachine, map: value.map };
+  if (value.riveConfig !== undefined && !isRiveConfig(value.riveConfig)) return null;
+  return {
+    type: "load",
+    riv: value.riv,
+    stateMachine: value.stateMachine,
+    map: value.map,
+    ...(value.riveConfig === undefined ? {} : { riveConfig: value.riveConfig }),
+  };
 }
 function namedMessage(value: Record<string, unknown>): Msg | null {
   if (!text(value.name)) return null;

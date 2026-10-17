@@ -1,8 +1,9 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Presets } from "react-native-pulsar";
-import { resolveRiveUrl, type Pattern } from "@buzzzz/core";
+import { resolveRiveUrl, type IRiveConfig, type Pattern } from "@buzzzz/core";
 import { usePhoneRelay } from "../connection/usePhoneRelay";
 import { useNativePlayback } from "../playback/useNativePlayback";
+import { useRiveHaptics } from "../playback/useRiveHaptics";
 import { useReceivedLibrary } from "../sessionLibrary/useReceivedLibrary";
 import {
   isReceivedResourceMessage,
@@ -10,7 +11,11 @@ import {
 } from "../sessionLibrary/browserCommands";
 
 export function usePreviewSession() {
-  const [riv, setRiv] = useState<{ url: string; stateMachine?: string } | null>(null);
+  const [riv, setRiv] = useState<{
+    url: string;
+    stateMachine?: string;
+    riveConfig?: IRiveConfig;
+  } | null>(null);
   const [triggers, setTriggers] = useState<string[]>([]);
   const [mappedNames, setMappedNames] = useState<string[]>([]);
   const [run, setRun] = useState(0);
@@ -18,24 +23,44 @@ export function usePreviewSession() {
   const [event, setEvent] = useState<{ id: number; text: string } | null>(null);
   const [lastFired, setLastFired] = useState<{ name: string; id: number } | null>(null);
   const map = useRef<Record<string, Pattern>>({});
+  const riveConfig = useRef<IRiveConfig | undefined>(undefined);
   const fireRef = useRef<(name: string) => void>(() => {});
   const pauseRef = useRef<(paused: boolean) => void>(() => {});
+  const onRiveComplete = useCallback(() => {
+    pauseRef.current(true);
+    setPaused(true);
+  }, []);
+  const fireRiveTrigger = useCallback((name: string) => fireRef.current(name), []);
+  const riveHaptics = useRiveHaptics({
+    completion: riv?.riveConfig?.completion,
+    onComplete: onRiveComplete,
+    fireTrigger: fireRiveTrigger,
+  });
   const sceneConnection = useRef<string | null>(null);
   const legacyConnection = useRef<string | null>(null);
   const playback = useNativePlayback();
   const [incomingLibrary, setIncomingLibrary] = useState<{ connectionId: string } | null>(null);
   const library = useReceivedLibrary({
-    onPlay: playback.stopPattern,
+    onPlay: () => {
+      riveHaptics.stop();
+      legacyConnection.current = null;
+      playback.stopPattern();
+    },
     onReceive: (connectionId) => setIncomingLibrary({ connectionId }),
   });
   const [manifestRevision, setManifestRevision] = useState<Record<string, number>>({});
   const announce = (text: string) => setEvent({ id: Date.now(), text });
   const setMap = (value: Record<string, Pattern>) => {
+    riveHaptics.stop();
     map.current = value;
-    setMappedNames(Object.keys(value));
+    setMappedNames([
+      ...new Set([...Object.keys(value), ...Object.keys(riveConfig.current?.haptics ?? {})]),
+    ]);
   };
   const clearScene = () => {
     playback.stopPattern();
+    riveHaptics.setEnabled(false);
+    riveConfig.current = undefined;
     sceneConnection.current = null;
     legacyConnection.current = null;
     setRiv(null);
@@ -73,25 +98,28 @@ export function usePreviewSession() {
           return;
         }
         sceneConnection.current = connectionId;
+        riveHaptics.setEnabled(false);
+        riveConfig.current = message.riveConfig;
         setMap(message.map);
-        const next = { url, stateMachine: message.stateMachine };
-        if (riv?.url !== next.url || riv.stateMachine !== next.stateMachine) {
-          setPaused(false);
-          setTriggers([]);
-          setRiv(next);
-        }
+        setPaused(false);
+        setTriggers([]);
+        setRiv({ url, stateMachine: message.stateMachine, riveConfig: message.riveConfig });
+        setRun((value) => value + 1);
       } else if (message.type === "map" && sceneConnection.current === connectionId)
         setMap(message.map);
       else if (message.type === "play") {
+        riveHaptics.stop();
         library.stop();
         legacyConnection.current = connectionId;
         playback.playPattern(message.pattern, "Pattern from Studio");
         announce("Pattern from Studio");
       } else if (message.type === "stop") {
+        if (sceneConnection.current === connectionId) riveHaptics.stop();
         stopLegacyFromBrowser(legacyConnection.current, connectionId, playback.stopPattern);
       } else if (message.type === "fire" && sceneConnection.current === connectionId)
         fireRef.current(message.name);
       else if (message.type === "restart" && sceneConnection.current === connectionId) {
+        riveHaptics.stop();
         setPaused(false);
         setRun((value) => value + 1);
       } else if (message.type === "pause" && sceneConnection.current === connectionId) {
@@ -111,16 +139,27 @@ export function usePreviewSession() {
     void relay.disconnect(connectionId).catch(() => announce("Could not remove this connection."));
   };
   const onTrigger = (name: string) => {
+    if (riveHaptics.completed()) return;
+    const actions = riveConfig.current?.haptics;
+    const action = actions && Object.hasOwn(actions, name) ? actions[name] : undefined;
     const pattern = Object.hasOwn(map.current, name) ? map.current[name] : undefined;
-    if (pattern) {
+    if (action) {
+      if (action.kind === "sequence") {
+        library.stop();
+        playback.stopPattern();
+      }
+    } else if (pattern) {
+      riveHaptics.stop();
       library.stop();
       playback.playPattern(pattern, name, false);
     }
+    riveHaptics.trigger(name, action);
     setLastFired({ name, id: Date.now() });
-    announce(pattern ? `▸ ${name}` : `▸ ${name} · no haptic mapped`);
+    announce(action || pattern ? `▸ ${name}` : `▸ ${name} · no haptic mapped`);
     if (sceneConnection.current) relay.send({ type: "fired", name }, sceneConnection.current);
   };
   const replay = () => {
+    riveHaptics.stop();
     Presets.System.selection();
     setPaused(false);
     setRun((value) => value + 1);
@@ -147,6 +186,8 @@ export function usePreviewSession() {
     pauseRef,
     setTriggers,
     onTrigger,
+    stopRiveHaptics: riveHaptics.stop,
+    setRiveHapticsEnabled: riveHaptics.setEnabled,
     replay,
     togglePause,
     disconnect,

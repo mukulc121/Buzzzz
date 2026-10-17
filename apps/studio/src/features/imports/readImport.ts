@@ -13,7 +13,12 @@ function readProjectJson(value: unknown): Extract<Imported, { kind: "project" }>
   if (isProject(value))
     return {
       kind: "project",
-      project: { presets: value.presets, map: value.map, riveStateMachine: value.riveStateMachine },
+      project: {
+        presets: value.presets,
+        map: value.map,
+        riveStateMachine: value.riveStateMachine,
+        ...(value.riveConfig ? { riveConfig: value.riveConfig } : {}),
+      },
       durations: Object.fromEntries(
         value.presets.flatMap((preset): [string, number][] =>
           "duration" in preset
@@ -37,7 +42,11 @@ function readProjectJson(value: unknown): Extract<Imported, { kind: "project" }>
     if (!pattern) throw new Error("Invalid project haptic data");
     return { id: preset.id, name: preset.name, pattern };
   });
-  const project = { presets, map: value.map ?? {} };
+  const project = {
+    presets,
+    map: value.map ?? {},
+    ...(value.riveConfig !== undefined ? { riveConfig: value.riveConfig } : {}),
+  };
   if (!isProject(project)) throw new Error("Invalid project presets or mappings");
   const durations = rawPresets.flatMap((preset): [string, number][] =>
     isRecord(preset) && typeof preset.id === "string" && preset.duration !== undefined

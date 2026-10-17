@@ -34,6 +34,8 @@ export function PreviewStage(props: IPreviewStage) {
           t={t}
           onTrigger={session.onTrigger}
           onTriggers={session.setTriggers}
+          onStopHaptics={session.stopRiveHaptics}
+          onHapticsEnabled={session.setRiveHapticsEnabled}
           fireRef={session.fireRef}
           pauseRef={session.pauseRef}
         />

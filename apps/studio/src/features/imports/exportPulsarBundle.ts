@@ -129,6 +129,7 @@ export async function exportPulsarBundle(options: IPulsarExport): Promise<Blob> 
       ...(Object.keys(editors).length ? { editors } : {}),
       ...(windows.size ? { windows: Object.fromEntries(windows) } : {}),
       ...(rive ? { rive } : {}),
+      ...(project.riveConfig ? { riveConfig: project.riveConfig } : {}),
     },
   };
   files["manifest.json"] = strToU8(JSON.stringify(manifest, null, 2));

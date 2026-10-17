@@ -2,6 +2,7 @@ import { useRef, useState, type Dispatch, type RefObject, type SetStateAction } 
 import { Bolt, Play, Stop } from "../../components/icons";
 import { FilePicker } from "../../components/FilePicker";
 import type { Msg, Project } from "@buzzzz/core";
+import { riveHapticAction } from "./hapticAction";
 interface IRivePanel {
   riv: { name: string; buffer: ArrayBuffer } | null;
   canvas: RefObject<HTMLCanvasElement | null>;
@@ -128,6 +129,12 @@ export function RivePanel(props: IRivePanel) {
           and fire it from the state machine.
         </p>
       )}
+      {riv && project.riveConfig?.haptics && (
+        <p className="hint">
+          Rive-driven system cues run on the phone. Haptics as sound previews the matching system
+          presets through the speaker.
+        </p>
+      )}
       {info.triggers.length > 0 && (
         <div className="triggers">
           {info.triggers.map((t) => (
@@ -143,29 +150,34 @@ export function RivePanel(props: IRivePanel) {
               <span className="tname" title={t}>
                 {t}
               </span>
-              <select
-                value={project.map[t] ?? ""}
-                aria-label={`Pattern for ${t}`}
-                onChange={(e) => {
-                  begin();
-                  const v = e.target.value;
-                  setProject((pr) => {
-                    const map = v
-                      ? { ...pr.map, [t]: v }
-                      : Object.fromEntries(Object.entries(pr.map).filter(([name]) => name !== t));
-                    return { ...pr, map };
-                  });
-                }}
-              >
-                <option value="">No haptic</option>
-                {project.presets.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
+              {riveHapticAction(project.riveConfig?.haptics, t) ? (
+                <span className="muted">Rive-driven system cue</span>
+              ) : (
+                <select
+                  value={project.map[t] ?? ""}
+                  aria-label={`Pattern for ${t}`}
+                  onChange={(e) => {
+                    begin();
+                    const v = e.target.value;
+                    setProject((pr) => {
+                      const map = v
+                        ? { ...pr.map, [t]: v }
+                        : Object.fromEntries(Object.entries(pr.map).filter(([name]) => name !== t));
+                      return { ...pr, map };
+                    });
+                  }}
+                >
+                  <option value="">No haptic</option>
+                  {project.presets.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              )}
               <button
                 className="icon"
+                aria-label={`Fire ${t}`}
                 title="Fire here and on the phone"
                 onClick={() => {
                   fire(t);

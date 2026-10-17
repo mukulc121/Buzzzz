@@ -2,12 +2,13 @@ import { expect, test } from "bun:test";
 import { isProject } from "@buzzzz/core";
 import source from "./fixtures/starting-demo-source.json";
 import { loadSampleProject } from "../src/features/project/starter/loadSampleProject";
+import { DEX_RIVE_CONFIG } from "../src/features/project/starter/rive/dex-rive-config";
 
 test("sample project preserves every original point, duration and attached media byte", async () => {
   const sample = await loadSampleProject();
   expect(sample.name).toBe("Starting Demo Project");
   expect(isProject(sample.project)).toBe(true);
-  expect(sample.project.presets.map((preset) => preset.name)).toEqual(
+  expect(sample.project.presets.slice(0, 3).map((preset) => preset.name)).toEqual(
     source.presets.map((preset) => preset.name),
   );
   for (const original of source.presets) {
@@ -28,8 +29,22 @@ test("sample project preserves every original point, duration and attached media
     });
   }
   expect(sample.project.presets.map((preset) => preset.pattern.discretePattern.length)).toEqual([
-    15, 38, 11,
+    15, 38, 11, 0,
   ]);
+  expect(sample.project.presets[3]).toEqual({
+    id: "dex-tour-loader",
+    name: "DexTourLoader",
+    pattern: { discretePattern: [], continuousPattern: { amplitude: [], frequency: [] } },
+  });
+  expect(sample.project.riveConfig).toEqual(DEX_RIVE_CONFIG);
+  expect(sample.project.riveStateMachine).toBe("stateMachine");
+  expect(sample.riv?.name).toBe("dexHeadoutIntegration.riv");
+  const riv = sample.riv;
+  if (!riv) throw new Error("Missing Rive sample");
+  expect(riv.buffer.byteLength).toBe(231444);
+  expect(new Bun.CryptoHasher("sha256").update(riv.buffer).digest("hex")).toBe(
+    "a1e7943e8b53816bdeff29cdf91441da5dd2c7fa5fe5f5c150100c12204a0da6",
+  );
   expect(sample.media?.map((media) => [media.presetId, media.kind, media.file.name])).toEqual([
     ["demo-explosion-animation", "animation", "explosionanimation.json"],
     ["demo-fanfare-sound", "audio", "fanfaresound.mp3"],

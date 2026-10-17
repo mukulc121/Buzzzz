@@ -48,6 +48,32 @@ The preview app retains its Expo template license in [`apps/preview/LICENSE`](ap
 
 The local `@rive-app/react-native@0.5.5` patch changes Android surface resizing and redraw scheduling, and the shared hook's readiness handling. Rive's React Native runtime is distributed under its [MIT license](https://github.com/rive-app/rive-react-native/blob/main/LICENSE). The patch and its removal checks are documented in `docs/development.md`.
 
+Studio bundles `@rive-app/canvas@2.44.2` and its primary and fallback WebAssembly runtimes under the [MIT license](https://github.com/rive-app/rive-wasm/blob/master/LICENSE):
+
+```text
+MIT License
+
+Copyright (c) 2020-2021 Rive
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
 ## Lottie React Native
 
 The local `lottie-react-native@7.3.8` patch fixes Android loading of cached animation file URLs. The runtime retains its [Apache License 2.0](https://github.com/lottie-react-native/lottie-react-native/blob/master/LICENSE).

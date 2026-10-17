@@ -10,9 +10,7 @@ test.beforeEach(async ({ page }) => {
   await page.getByRole("button", { name: "Projects", exact: true }).click();
 });
 
-test("the separate sample action creates the original three patterns and their real attachments", async ({
-  page,
-}) => {
+test("the sample keeps the original three patterns and adds the Rive example", async ({ page }) => {
   await page
     .locator(".project-dashboard-header")
     .getByRole("button", { name: "Create sample project", exact: true })
@@ -24,6 +22,9 @@ test("the separate sample action creates the original three patterns and their r
     ["JustHaptics", "4366 ms · 11 discrete"],
   ])
     await expect(patterns.getByRole("button", { name, exact: true })).toContainText(metadata);
+  await expect(patterns.getByRole("button", { name: "DexTourLoader", exact: true })).toContainText(
+    "0 discrete",
+  );
   await expect(patternTitle(page)).toHaveText("ExplosionAnimation");
   await page.getByRole("tab", { name: "animation", exact: true }).click();
   await expect(
@@ -37,13 +38,16 @@ test("the separate sample action creates the original three patterns and their r
       .getByText("fanfaresound.mp3", { exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Media", exact: true }).click();
-  await expect(page.locator(".media-item")).toHaveCount(2);
+  await expect(page.locator(".media-item")).toHaveCount(3);
   await expect(
     page.locator(".media-item").filter({ hasText: "explosionanimation.json" }),
   ).toBeVisible();
   await expect(page.locator(".media-item").filter({ hasText: "fanfaresound.mp3" })).toBeVisible();
+  await expect(
+    page.locator(".media-item").filter({ hasText: "dexHeadoutIntegration.riv" }),
+  ).toBeVisible();
   await page.reload();
-  await expect(patterns.locator(".pattern-select")).toHaveCount(3);
+  await expect(patterns.locator(".pattern-select")).toHaveCount(4);
   await patterns.getByRole("button", { name: "FanfareSound", exact: true }).click();
   await page.getByRole("tab", { name: "sound", exact: true }).click();
   await expect(

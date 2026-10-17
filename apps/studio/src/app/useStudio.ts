@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
 import { MAX_PATTERN_MS, patternEnd, type Pattern } from "@buzzzz/core";
 import { useProject } from "../features/project/useProject";
 import { useComposer } from "../features/composer/useComposer";
@@ -6,6 +6,7 @@ import { quantizeValue } from "../features/composer/editorSettings";
 import { usePlayback } from "../features/composer/usePlayback";
 import { playSound } from "../features/composer/audio";
 import { useRiveSession } from "../features/rive/useRiveSession";
+import { useRiveSound } from "../features/rive/useRiveSound";
 import { useAudioTrack } from "../features/audio/useAudioTrack";
 import { useAnimationTrack } from "../features/animation/useAnimationTrack";
 import { useSharedProject } from "../features/connection/useSharedProject";
@@ -49,8 +50,12 @@ export function useStudio() {
   const originals = useRef(new Map<string, Pattern>());
   const audio = useAudioTrack({ onError: setError });
   const animation = useAnimationTrack({ onError: setError });
+  const riveSound = useRiveSound();
+  const { setEnabled: setRiveSoundEnabled } = riveSound;
   const session = useRiveSession({
     project: document.project,
+    projectId: document.projectId,
+    active: !document.route.dashboard,
     mapped: document.mapped,
     addLog: activity.addLog,
     onError: setError,
@@ -61,6 +66,9 @@ export function useStudio() {
     onTrigger: (pattern) => {
       if (playback.sound && !audio.source) playSound(pattern);
     },
+    onSystemImpact: riveSound.impact,
+    onSystemStop: riveSound.stop,
+    systemPreviewEnabled: riveSound.isEnabled,
   });
   const media = useAttachedTracks({
     writable: document.isWriter,
@@ -116,6 +124,9 @@ export function useStudio() {
       ? { url: audio.source.url, startMs: audio.trim.startMs, endMs: audio.trim.endMs }
       : null,
   });
+  useLayoutEffect(() => {
+    setRiveSoundEnabled(playback.sound && !audio.source);
+  }, [playback.sound, audio.source, setRiveSoundEnabled]);
   const applyPattern = (pattern: Pattern) => {
     if (!document.isWriter) return;
     document.begin();

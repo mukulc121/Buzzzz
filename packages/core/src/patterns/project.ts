@@ -1,11 +1,17 @@
 import { isPattern, isRecord, MAX_PATTERN_MS, type Pattern } from "./pattern.ts";
+import { isRiveConfig, type IRiveConfig } from "../rive/config.ts";
 export interface IPresetEditor {
   markers: { id: string; time: number; label: string }[];
   range: { start: number; end: number } | null;
   durationMs?: number;
 }
 export type Preset = { id: string; name: string; pattern: Pattern; editor?: IPresetEditor };
-export type Project = { presets: Preset[]; map: Record<string, string>; riveStateMachine?: string };
+export type Project = {
+  presets: Preset[];
+  map: Record<string, string>;
+  riveStateMachine?: string;
+  riveConfig?: IRiveConfig;
+};
 function validEditor(value: unknown) {
   if (!isRecord(value) || !Array.isArray(value.markers) || value.markers.length > 512) return false;
   const time = (value: unknown): value is number =>
@@ -50,6 +56,7 @@ export function isProject(value: unknown): value is Project {
     (typeof value.riveStateMachine !== "string" || value.riveStateMachine.length > 512)
   )
     return false;
+  if (value.riveConfig !== undefined && !isRiveConfig(value.riveConfig)) return false;
   const ids = new Set<string>();
   for (const preset of value.presets) {
     if (

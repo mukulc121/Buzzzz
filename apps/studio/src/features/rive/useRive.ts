@@ -1,33 +1,59 @@
-import { useEffect, useEffectEvent, useRef, useState, type RefObject } from "react";
+import { useLayoutEffect, useEffectEvent, useMemo, useRef, useState, type RefObject } from "react";
 import type { Rive } from "@rive-app/canvas";
+import type { IRiveConfig } from "@buzzzz/core";
 import { createRive } from "./createRive";
 
 type RiveInfo = { triggers: string[]; stateMachines: string[] };
 interface ILoadedRive {
-  buffer: ArrayBuffer;
-  requestedStateMachine: string | undefined;
+  scene: TRiveScene;
   stateMachine: string | undefined;
   info: RiveInfo;
 }
-
-export function useRive(
-  canvas: RefObject<HTMLCanvasElement | null>,
-  buffer: ArrayBuffer | null,
-  requestedStateMachine: string | undefined,
-  onFired: (name: string) => void,
-  onError: (message: string) => void,
-) {
+type TRiveScene = Pick<IRive, "buffer" | "requestedStateMachine" | "config" | "active"> & {
+  run: number;
+};
+interface IRive {
+  canvas: RefObject<HTMLCanvasElement | null>;
+  buffer: ArrayBuffer | null;
+  requestedStateMachine: string | undefined;
+  config: IRiveConfig | undefined;
+  active: boolean;
+  onFired: (name: string) => void;
+  onError: (message: string) => void;
+  onStop: () => void;
+  onFinish: () => void;
+  onPause: (paused: boolean) => void;
+}
+export function useRive(props: IRive) {
+  const {
+    canvas,
+    buffer,
+    requestedStateMachine,
+    config,
+    active,
+    onFired,
+    onError,
+    onStop,
+    onFinish,
+    onPause,
+  } = props;
   const [loaded, setLoaded] = useState<ILoadedRive | null>(null);
   const rive = useRef<Rive | null>(null);
   const fired = useEffectEvent(onFired);
   const reportError = useEffectEvent(onError);
+  const stopHaptics = useEffectEvent(onStop);
   // Bumping the run id rebuilds the instance: animation from frame 0, fresh view model, listeners re-attached.
   const [run, setRun] = useState(0);
   const [paused, setPaused] = useState(false);
+  const scene = useMemo(
+    () => ({ buffer, requestedStateMachine, config, active, run }),
+    [buffer, requestedStateMachine, config, active, run],
+  );
 
-  useEffect(() => {
-    if (!buffer || !canvas.current) return;
-    let active = true;
+  useLayoutEffect(() => {
+    const { buffer, requestedStateMachine, config, active } = scene;
+    if (!active || !buffer || !canvas.current) return;
+    let alive = true;
     let instance: Rive | null = null;
     const observer = new ResizeObserver(() => instance?.resizeDrawingSurfaceToCanvas());
     observer.observe(canvas.current);
@@ -35,16 +61,17 @@ export function useRive(
       canvas: canvas.current,
       buffer,
       requestedStateMachine,
-      active: () => active,
+      config,
+      active: () => alive,
       onFired: fired,
       onError: reportError,
       onReady: (stateMachine, info) => {
         setPaused(false);
-        setLoaded({ buffer, requestedStateMachine, stateMachine, info });
+        setLoaded({ scene, stateMachine, info });
       },
     })
       .then((r) => {
-        if (!active) {
+        if (!alive) {
           r?.cleanup();
           return;
         }
@@ -52,27 +79,35 @@ export function useRive(
         rive.current = r;
       })
       .catch(() => {
-        if (active) reportError("The Rive preview could not start");
+        if (alive) reportError("The Rive preview could not start");
       });
     return () => {
-      active = false;
+      alive = false;
+      stopHaptics();
       observer.disconnect();
       if (rive.current === instance) rive.current = null;
       instance?.cleanup();
     };
-  }, [buffer, requestedStateMachine, canvas, run]);
+  }, [scene, canvas]);
 
   const fire = (name: string) => rive.current?.viewModelInstance?.trigger(name)?.trigger();
-  const restart = () => setRun((n) => n + 1);
+  const restart = () => {
+    onStop();
+    setRun((n) => n + 1);
+  };
   const setPause = (p: boolean) => {
-    if (p) rive.current?.pause();
-    else rive.current?.play();
+    if (p) {
+      rive.current?.pause();
+    } else rive.current?.play();
+    onPause(p);
     setPaused(p);
   };
-  const current =
-    loaded?.buffer === buffer && loaded?.requestedStateMachine === requestedStateMachine
-      ? loaded
-      : null;
+  const finish = () => {
+    onFinish();
+    rive.current?.pause();
+    setPaused(true);
+  };
+  const current = active && loaded?.scene === scene ? loaded : null;
   return {
     info: current?.info ?? { triggers: [], stateMachines: [] },
     ready: current !== null,
@@ -81,5 +116,6 @@ export function useRive(
     restart,
     paused,
     setPause,
+    finish,
   };
 }

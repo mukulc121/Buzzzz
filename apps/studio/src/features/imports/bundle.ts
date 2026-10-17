@@ -150,7 +150,11 @@ export async function readPulsarBundle(
     }
   }
   const map = extension.map ?? {};
-  const project = { presets, map };
+  const project = {
+    presets,
+    map,
+    ...(extension.riveConfig !== undefined ? { riveConfig: extension.riveConfig } : {}),
+  };
   if (!isProject(project)) throw new Error("The bundle contains invalid preset mappings");
   let riv: IRiveAsset | null = null;
   let stateMachine: string | undefined;

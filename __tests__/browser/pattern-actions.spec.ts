@@ -83,10 +83,27 @@ test("Duplicate resets the cursor and keeps the range, original audio trim and a
   await page.getByRole("textbox", { name: "Marker label", exact: true }).fill("Hit");
   await page.getByRole("spinbutton", { name: "Marker time", exact: true }).fill("1000");
   await page.getByRole("button", { name: "Zoom in", exact: true }).click();
-  const source = (await storedProject(page)).presets.find(
-    (preset) => preset.name === "FanfareSound",
-  );
+  const before = await storedProject(page);
+  const source = before.presets.find((preset) => preset.name === "FanfareSound");
   if (!source?.editor) throw new Error("Missing source editor");
+  const mediaBefore = await storedMedia(page, source.id);
+  expect(mediaBefore.items).toHaveLength(3);
+  expect(mediaBefore.items).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        kind: "animation",
+        sha256: "edaab5e224d09ba3083397751095858d663dd6522c3ba7a6996f2f71c2ba1c40",
+      }),
+      expect.objectContaining({
+        kind: "audio",
+        sha256: "572f2ec44b43acca3f3a1a54a63e99b2d3dcddc33f8c36e3c9aa76994741efda",
+      }),
+      expect.objectContaining({
+        kind: "rive",
+        sha256: "a1e7943e8b53816bdeff29cdf91441da5dd2c7fa5fe5f5c150100c12204a0da6",
+      }),
+    ]),
+  );
   await patterns
     .getByRole("button", { name: "FanfareSound", exact: true })
     .click({ button: "right" });
@@ -118,7 +135,9 @@ test("Duplicate resets the cursor and keeps the range, original audio trim and a
   expect(project.presets.find((preset) => preset.id === source.id)).toEqual(source);
   const originalMedia = await storedMedia(page, source.id);
   const copiedMedia = await storedMedia(page, copy.id);
-  expect(copiedMedia.items).toHaveLength(2);
+  expect(copiedMedia.items).toEqual(mediaBefore.items);
+  expect(project.riveConfig).toEqual(before.riveConfig);
+  expect(project.riveStateMachine).toBe(before.riveStateMachine);
   expect(copiedMedia.attachments.map(({ assetId, trim }) => ({ assetId, trim }))).toEqual(
     originalMedia.attachments.map(({ assetId, trim }) => ({ assetId, trim })),
   );
@@ -145,7 +164,7 @@ test("Duplicate resets the cursor and keeps the range, original audio trim and a
   );
   const originalAnimation = await storedMedia(page, animations[0].id);
   const copiedAnimation = await storedMedia(page, animations[1].id);
-  expect(copiedAnimation.items).toHaveLength(2);
+  expect(copiedAnimation.items).toEqual(mediaBefore.items);
   expect(copiedAnimation.attachments[0].assetId).toBe(originalAnimation.attachments[0].assetId);
   await page.reload();
   await expect(
@@ -155,4 +174,5 @@ test("Duplicate resets the cursor and keeps the range, original audio trim and a
     startMs: 500,
     endMs: 4000,
   });
+  expect((await storedMedia(page, copy.id)).items).toEqual(mediaBefore.items);
 });
