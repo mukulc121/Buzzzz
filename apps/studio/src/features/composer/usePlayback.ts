@@ -73,6 +73,7 @@ export function usePlayback(props: IPlayback) {
   ]);
   const raf = useRef(0);
   const run = useRef(0);
+  const phoneIntent = useRef(0);
   const owner = useRef(() => {});
   const player = useRef<HTMLAudioElement | null>(null);
   const stopTrack = () => {
@@ -82,6 +83,7 @@ export function usePlayback(props: IPlayback) {
   };
   const stopLocal = () => {
     run.current++;
+    phoneIntent.current++;
     cancelAnimationFrame(raf.current);
     stopSound(owner);
     stopTrack();
@@ -111,6 +113,7 @@ export function usePlayback(props: IPlayback) {
   ) => {
     stopLocal();
     const id = run.current;
+    const phoneId = phoneIntent.current;
     const preset = mode === "document" ? props.preset : previewPreset;
     const phoneKey = props.phoneKey;
     setPlaying(true);
@@ -199,7 +202,7 @@ export function usePlayback(props: IPlayback) {
           (message) => {
             const current = preferences.current;
             if (
-              id === run.current &&
+              phoneId === phoneIntent.current &&
               currentDelivery === delivery &&
               current.phoneKey === phoneKey &&
               (mode === "pattern" || current.onPhone) &&
@@ -209,7 +212,7 @@ export function usePlayback(props: IPlayback) {
           },
           (error: unknown) => {
             if (
-              id === run.current &&
+              phoneId === phoneIntent.current &&
               currentDelivery === delivery &&
               !(error instanceof DOMException && error.name === "AbortError")
             )
@@ -296,6 +299,7 @@ export function usePlayback(props: IPlayback) {
   useEffect(
     () => () => {
       run.current++;
+      phoneIntent.current++;
       cancelAnimationFrame(raf.current);
       stopSound(owner);
       stopTrack();
