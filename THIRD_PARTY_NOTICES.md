@@ -6,8 +6,6 @@ Studio's preset library in `packages/core/src/presets/pulsar-presets.json` is co
 
 The native preset catalog, chart images, and `pulsar-icons.ttf` with its layer metadata are copied from the published Pulsar app. The icon font is identical in its iOS and Android distributions.
 
-The Studio rail logo in `apps/studio/src/assets/pulsar-logo.svg` is copied from Pulsar Studio's published SVG asset, with unchanged geometry and equivalent RGBA colors.
-
 The patched native cores use unreleased source at revision `abdee706282598ab0194ba739dce835dc828f164`, pinned in [`source.json`](apps/preview/native/pulsar/source.json), with their license retained in [`native/pulsar/LICENSE`](apps/preview/native/pulsar/LICENSE).
 
 These use Pulsar's [MIT license](https://github.com/software-mansion/pulsar/blob/main/LICENSE):

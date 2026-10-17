@@ -15,6 +15,18 @@ for (const theme of ["light", "dark"]) {
     await page.goto("/");
     await page.evaluate(() => document.fonts.ready);
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+    const brand = page.getByRole("img", { name: "Buzzzz", exact: true });
+    await expect(brand).toBeVisible();
+    expect(
+      await brand.evaluate(async (image: HTMLImageElement) => {
+        const svg = new DOMParser().parseFromString(
+          await (await fetch(image.src)).text(),
+          "image/svg+xml",
+        );
+        return svg.querySelector("title")?.textContent;
+      }),
+    ).toBe("Buzzzz");
+    await expect(page.getByRole("img", { name: "Pulsar", exact: true })).toHaveCount(0);
     for (const panel of ["Media", "Device", "Share", "MCP", "Tools", "Settings", "Patterns"]) {
       await page.getByRole("button", { name: panel, exact: true }).click();
       const header = page.locator(".workspace-sidebar .panel-heading");

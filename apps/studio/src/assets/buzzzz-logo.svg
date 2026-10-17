@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <title>Buzzzz</title>
+  <rect width="64" height="64" rx="12" fill="rgba(0, 26, 114, 1)"/>
+  <path d="M36 8 16 35h14l-3 21 21-29H34Z" fill="rgba(255, 255, 255, 1)"/>
+  <path d="M8 26v12m48-12v12" stroke="rgba(56, 172, 221, 1)" stroke-width="4" stroke-linecap="round"/>
+</svg>

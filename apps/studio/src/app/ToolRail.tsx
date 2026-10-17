@@ -1,5 +1,5 @@
 import { NavigationIcon } from "../components/icons";
-import pulsarLogo from "../assets/pulsar-logo.svg";
+import buzzzzLogo from "../assets/buzzzz-logo.svg";
 
 export type Panel =
   | "projects"
@@ -36,7 +36,7 @@ export function ToolRail(props: IToolRail) {
         title="Back to projects"
         onClick={() => onSelect("projects")}
       >
-        <img src={pulsarLogo} width={30} height={30} alt="Pulsar" />
+        <img src={buzzzzLogo} width={30} height={30} alt="Buzzzz" />
       </button>
       {ITEMS.map((item) => (
         <button

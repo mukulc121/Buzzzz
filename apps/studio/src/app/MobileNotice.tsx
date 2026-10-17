@@ -42,7 +42,7 @@ export function MobileNotice() {
     <div ref={notice} className="mobile-notice" role="status">
       <Monitor />
       <p>
-        Pulsar Studio is built for a big screen - open it on a desktop computer for the full editor.
+        Buzzzz Studio is built for a big screen - open it on a desktop computer for the full editor.
       </p>
       <button
         className="icon"

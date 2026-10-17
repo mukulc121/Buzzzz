@@ -1,5 +1,4 @@
 import { patternTitle } from "./fixtures/pattern-title";
-import { createHash } from "node:crypto";
 import { expect, test } from "@playwright/test";
 
 // Pulsar ._item_14614_25, ._header_grb70_8 and lucide waypoints FI from the captured Studio bundle.
@@ -11,19 +10,16 @@ for (const theme of ["light", "dark"]) {
   }, testInfo) => {
     await page.addInitScript((value) => {
       localStorage.setItem("buzzzz.onboarding.seen", "true");
-      localStorage.setItem("buzzzz.theme", value);
+      localStorage.setItem("rive-haptics-theme", value);
     }, theme);
     await page.routeWebSocket("**/relay?role=studio", (socket) =>
       socket.send(JSON.stringify({ type: "peers", phones: 0 })),
     );
     await page.goto("/");
-    await page.evaluate(
-      (value) => document.documentElement.setAttribute("data-theme", value),
-      theme,
-    );
+    await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
     const panel = page.getByRole("complementary", { name: "Project patterns", exact: true });
     const brand = page.getByRole("button", { name: "Projects", exact: true });
-    const logo = brand.getByRole("img", { name: "Pulsar", exact: true });
+    const logo = brand.getByRole("img", { name: "Buzzzz", exact: true });
     await expect(brand).toHaveAttribute("title", "Back to projects");
     await logo.evaluate((image: HTMLImageElement) => image.decode());
     await expect(logo).toHaveCSS("width", "30px");
@@ -45,15 +41,15 @@ for (const theme of ["light", "dark"]) {
         naturalSize: [image.naturalWidth, image.naturalHeight],
       };
     });
-    expect(createHash("sha256").update(JSON.stringify(asset.geometry)).digest("hex")).toBe(
-      "079d4c444eb60118b31f48a6635792e2cded7d110d4c583439fe3727a1a9498c",
-    );
-    expect(asset.naturalSize).toEqual([40, 40]);
+    expect(asset.geometry).toEqual({
+      viewBox: "0 0 64 64",
+      transforms: [],
+      paths: ["M36 8 16 35h14l-3 21 21-29H34Z", "M8 26v12m48-12v12"],
+    });
+    expect(asset.naturalSize).toEqual([64, 64]);
     expect(asset.colors).toEqual([
-      "rgba(56, 172, 221, 1)",
-      "rgba(225, 243, 250, 1)",
-      "rgba(56, 172, 221, 1)",
-      "rgba(225, 243, 250, 1)",
+      "rgba(0, 26, 114, 1)",
+      "rgba(255, 255, 255, 1)",
       "rgba(56, 172, 221, 1)",
     ]);
     const logoBounds = await brand.evaluate((node) => {
