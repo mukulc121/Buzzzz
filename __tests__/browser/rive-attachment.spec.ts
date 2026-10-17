@@ -234,6 +234,7 @@ for (const boundary of ["file-parse", "library-read"] as const) {
     release();
     await expect.poll(() => finished).toBe(true);
     await expect.poll(() => snapshot(page)).toEqual(original);
+    await page.unrouteAll({ behavior: "wait" });
     await page.reload();
     expect(await snapshot(page)).toEqual(original);
     await expect(page.locator(".rive-panel")).toHaveCount(0);

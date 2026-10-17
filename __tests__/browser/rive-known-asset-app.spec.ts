@@ -9,11 +9,14 @@ const TRIGGERS = ["hapticEntry", "hapticLoop", "hapticExit"];
 
 async function open(page: Page) {
   const messages: Msg[] = [];
+  let connection = 0;
   await page.routeWebSocket("**/relay?role=studio", (socket) => {
+    const current = ++connection;
+    messages.length = 0;
     socket.send(JSON.stringify({ type: "peers", phones: 1 }));
     socket.onMessage((data) => {
       const message = typeof data === "string" ? parseMessage(data) : null;
-      if (message) messages.push(message);
+      if (current === connection && message) messages.push(message);
     });
   });
   await page.route("**/riv", (route) =>
@@ -95,6 +98,10 @@ test("a custom map on the exact Dex file is preserved instead of replaced", asyn
   const messages = await open(page);
   await drop(page, new Uint8Array(await readFile(DEX)), "mapped.riv");
   await expect.poll(async () => (await stored(page)).riveConfig).toEqual(DEX_RIVE_CONFIG);
+  await expect(
+    page.locator(".rive-panel").getByRole("button", { name: "Fire hapticEntry", exact: true }),
+  ).toBeVisible();
+  await expect.poll(() => loads(messages).length).toBeGreaterThan(0);
   const edited = await page.evaluate(() => {
     const id = localStorage.getItem("buzzzz.lastProject");
     const record = JSON.parse(localStorage.getItem(`buzzzz.project.${id}`) ?? "null");
@@ -108,7 +115,6 @@ test("a custom map on the exact Dex file is preserved instead of replaced", asyn
       localStorage.setItem(edited.key, edited.value);
     }
   }, edited);
-  messages.length = 0;
   await page.reload();
   await page.getByRole("button", { name: "FanfareSound", exact: true }).click();
   await expect(
