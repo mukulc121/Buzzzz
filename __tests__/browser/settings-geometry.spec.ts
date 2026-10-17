@@ -40,7 +40,10 @@ test("settings retain the source section, font, icon and control metrics", async
   await expect(panel.getByRole("radio").first()).toHaveCSS("font-weight", "500");
   await expect(panel.getByRole("radio").first()).toHaveCSS("line-height", "14.4px");
   await expect(panel.locator(".theme-choice-label").first()).toBeVisible();
-  await expect(panel.locator(".settings-label .inspector-info").first()).toHaveCSS("width", "16px");
+  await expect(panel.getByRole("button", { name: "About Theme", exact: true })).toHaveCSS(
+    "width",
+    "16px",
+  );
   await expect(panel.getByRole("switch").first()).toHaveCSS("height", "24px");
   const density = page.getByRole("button", { name: "Grid density", exact: true });
   await expect(density).toHaveCSS("height", "46.3906px");
