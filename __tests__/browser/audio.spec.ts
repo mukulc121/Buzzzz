@@ -32,9 +32,10 @@ for (const width of [390, 1440])
     await page.setViewportSize({ width, height: 900 });
     await page.addInitScript(() => localStorage.setItem("buzzzz.mobile-notice-dismissed", "1"));
     await page.goto("/");
-    const handles = page
-      .getByRole("group", { name: "Haptic pattern timeline" })
-      .getByRole("button");
+    const chart = page.getByRole("group", { name: "Haptic pattern timeline", exact: true });
+    await expect(chart).toBeVisible();
+    await expect(chart).not.toHaveAttribute("data-readonly", "true");
+    const handles = chart.getByRole("button");
     const labels = () =>
       handles.evaluateAll((items) => items.map((item) => item.getAttribute("aria-label")));
     const before = await labels();

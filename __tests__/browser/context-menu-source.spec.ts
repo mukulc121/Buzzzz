@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 const names = [
   "undo",
@@ -69,7 +70,7 @@ async function mount(page: Page, theme: string) {
 }
 
 for (const theme of ["light", "dark"]) {
-  test(`${theme}: source menu spacing, shortcuts, icons and keyboard behavior`, async ({
+  test(`${theme}: source menu geometry, shortcuts and icons retain AA-safe danger text`, async ({
     page,
   }, testInfo) => {
     await page.setViewportSize({ width: 1100, height: 900 });
@@ -182,10 +183,14 @@ for (const theme of ["light", "dark"]) {
       theme === "light" ? "rgb(0, 26, 114)" : "rgb(219, 228, 255)",
     );
     const danger = menu.getByRole("menuitem", { name: "trash", exact: true });
+    await expect(danger).toHaveCSS(
+      "color",
+      theme === "light" ? "rgb(205, 60, 60)" : "rgb(242, 128, 127)",
+    );
     await danger.hover();
     await expect(danger).toHaveCSS(
       "color",
-      theme === "light" ? "rgb(214, 69, 69)" : "rgb(242, 128, 127)",
+      theme === "light" ? "rgb(200, 55, 55)" : "rgb(242, 128, 127)",
     );
     await expect(danger).toHaveCSS(
       "background-color",
@@ -193,8 +198,14 @@ for (const theme of ["light", "dark"]) {
     );
     await expect(danger.locator("svg")).toHaveCSS(
       "color",
-      theme === "light" ? "rgb(214, 69, 69)" : "rgb(242, 128, 127)",
+      theme === "light" ? "rgb(200, 55, 55)" : "rgb(242, 128, 127)",
     );
+    await expect(
+      new AxeBuilder({ page })
+        .include(".context-menu")
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+        .analyze(),
+    ).resolves.toHaveProperty("violations", []);
     await testInfo.attach("source-menu-metrics", {
       body: JSON.stringify(metrics, null, 2),
       contentType: "application/json",

@@ -1,5 +1,6 @@
 .context-menu {
-  --menu-danger: rgba(214, 69, 69, 1);
+  --menu-danger: rgba(205, 60, 60, 1);
+  --menu-danger-hover: rgba(200, 55, 55, 1);
   --menu-danger-bg: rgba(253, 236, 236, 1);
   position: fixed;
   z-index: 1000;
@@ -13,6 +14,7 @@
 }
 :root[data-theme="dark"] .context-menu {
   --menu-danger: rgba(242, 128, 127, 1);
+  --menu-danger-hover: var(--menu-danger);
   --menu-danger-bg: rgba(58, 28, 28, 1);
 }
 .context-menu-item {
@@ -71,7 +73,11 @@
 .context-menu-item.danger:hover:not(:disabled),
 .context-menu-item.danger:focus:not(:disabled) {
   background: var(--menu-danger-bg);
-  color: var(--menu-danger);
+  color: var(--menu-danger-hover);
+}
+.context-menu-item.danger:hover:not(:disabled) .context-menu-icon,
+.context-menu-item.danger:focus:not(:disabled) .context-menu-icon {
+  color: var(--menu-danger-hover);
 }
 .context-menu-separator {
   height: 1px;

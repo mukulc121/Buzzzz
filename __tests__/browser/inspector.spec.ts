@@ -7,6 +7,9 @@ test.beforeEach(async ({ page }) => {
   );
   await page.setViewportSize({ width: 1440, height: 1100 });
   await page.goto("/");
+  const chart = page.getByRole("group", { name: "Haptic pattern timeline", exact: true });
+  await expect(chart).toBeVisible();
+  await expect(chart).not.toHaveAttribute("data-readonly", "true");
 });
 
 test("inspector edits and deletes the selected event with undo", async ({ page }) => {
