@@ -1,3 +1,4 @@
+import { sha256 } from "../../crypto";
 import { isRecord } from "@buzzzz/core";
 import type { IRoom } from "./cloud";
 
@@ -63,11 +64,8 @@ export function createPhoneUpload(target: IPhoneUploadTarget) {
     signal.throwIfAborted();
     const buffer = await file.arrayBuffer();
     signal.throwIfAborted();
-    const digest = await crypto.subtle.digest("SHA-256", buffer);
+    const clipId = await sha256(buffer);
     signal.throwIfAborted();
-    const clipId = Array.from(new Uint8Array(digest), (byte) =>
-      byte.toString(16).padStart(2, "0"),
-    ).join("");
     const key = `${clipId}/${contentType}`;
     let request = uploads.get(key);
     if (!request || (request.signal.aborted && !request.complete)) {

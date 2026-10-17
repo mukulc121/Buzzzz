@@ -1,3 +1,4 @@
+import { sha256 } from "../../crypto";
 import { toDevice, type Msg, type Pattern, type Preset } from "@buzzzz/core";
 
 export type TPhonePreset = Pick<Extract<Msg, { type: "haptic-preset" }>, "resourceId" | "name">;
@@ -17,9 +18,5 @@ export async function phonePlayback(pattern: Pattern, preset?: TPhonePreset) {
 }
 
 export async function phoneVersion(value: unknown) {
-  const digest = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(JSON.stringify(value)),
-  );
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return sha256(new TextEncoder().encode(JSON.stringify(value)).buffer);
 }

@@ -1,3 +1,4 @@
+import { randomUUID } from "../../crypto";
 import { useState, type SetStateAction } from "react";
 import { MAX_PATTERN_MS, patternEnd, type Pattern, type IPresetEditor } from "@buzzzz/core";
 import type { Layer, Selection, PointSelection, IPlaybackRange, ITimelineMarker } from "./model";
@@ -81,7 +82,7 @@ export function useComposer(
     setMarkers((items) => [
       ...items,
       {
-        id: crypto.randomUUID(),
+        id: randomUUID(),
         time: Math.max(
           0,
           Math.min(Math.max(patternEnd(pattern), editor?.durationMs ?? 0), Math.round(time)),

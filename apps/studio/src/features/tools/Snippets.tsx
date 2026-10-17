@@ -1,3 +1,4 @@
+import { randomUUID } from "../../crypto";
 import { useState } from "react";
 import { patternEnd, type Pattern } from "@buzzzz/core";
 import { snippetRange } from "./patternMath";
@@ -38,7 +39,7 @@ export function Snippets(props: ISnippets) {
       persist([
         ...snippets,
         {
-          id: crypto.randomUUID(),
+          id: randomUUID(),
           name: label.slice(0, 80),
           durationMs: end - start,
           pattern: snippetRange(props.pattern, start, end),

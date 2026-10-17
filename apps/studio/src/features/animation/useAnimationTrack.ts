@@ -1,3 +1,4 @@
+import { sha256 } from "../../crypto";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { analyzeAnimationAsync } from "./analysisAsync";
 import { generateAnimationCandidates } from "./generation";
@@ -152,10 +153,7 @@ export function useAnimationTrack(props: IAnimationTrack) {
     try {
       const bundle = await readAnimationFile(file);
       assetUrls = bundle.assetUrls;
-      const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
-      const identity = Array.from(new Uint8Array(digest), (byte) =>
-        byte.toString(16).padStart(2, "0"),
-      ).join("");
+      const identity = await sha256(await file.arrayBuffer());
       if (request !== requestId.current) {
         for (const asset of bundle.assetUrls) URL.revokeObjectURL(asset);
         return false;

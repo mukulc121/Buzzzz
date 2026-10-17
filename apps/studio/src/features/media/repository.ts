@@ -1,3 +1,4 @@
+import { randomUUID, sha256 } from "../../crypto";
 import { transact, settle } from "./db";
 import {
   MediaStorageError,
@@ -34,11 +35,6 @@ async function readItem(tx: IDBTransaction, id: string) {
   const value = await settle(tx.objectStore("items").get(id));
   if (!isMediaItem(value)) throw missing();
   return value;
-}
-
-async function sha256(file: File) {
-  const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 export function listMedia(projectId: string) {
@@ -80,7 +76,7 @@ export async function addMediaCopy(props: IAddMedia) {
   const { projectId, file, kind } = props;
   const early = checkMediaLimits(file.size, []);
   if (early) throw early;
-  const hash = await sha256(file);
+  const hash = await sha256(await file.arrayBuffer());
   return transact(["items", "blobs"], "readwrite", async (tx) => {
     const items = tx.objectStore("items");
     const existing = many(await settle(items.index("projectId").getAll(projectId)), isMediaItem);
@@ -89,7 +85,7 @@ export async function addMediaCopy(props: IAddMedia) {
     const blocked = checkMediaLimits(file.size, existing);
     if (blocked) throw blocked;
     const item: IMediaItem = {
-      id: `media_${crypto.randomUUID()}`,
+      id: `media_${randomUUID()}`,
       projectId,
       kind,
       name: normalizeName(file.name || kind),
@@ -158,7 +154,7 @@ export async function attachRiveMedia(props: {
   current: () => boolean;
 }) {
   const { projectId, presetId, assetId, current } = props;
-  const revision = crypto.randomUUID();
+  const revision = randomUUID();
   const key = [projectId, scopeFor("rive", presetId), "rive"];
   const previous = await transact(["items", "attachments"], "readwrite", async (tx) => {
     const item = await readItem(tx, assetId);

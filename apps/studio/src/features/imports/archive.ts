@@ -1,3 +1,4 @@
+import { sha256 } from "../../crypto";
 import { isRecord } from "@buzzzz/core";
 import { strFromU8, strToU8, unzipSync } from "fflate";
 
@@ -58,8 +59,7 @@ function canonical(value: unknown): string {
   return result;
 }
 async function digest(bytes: Uint8Array) {
-  const result = await crypto.subtle.digest("SHA-256", bytes.slice().buffer);
-  return Array.from(new Uint8Array(result), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return sha256(bytes.slice().buffer);
 }
 export async function pulsarContentHash(files: Record<string, Uint8Array>) {
   const records: string[] = [];

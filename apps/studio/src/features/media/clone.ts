@@ -1,3 +1,4 @@
+import { randomUUID } from "../../crypto";
 import { settle, transact } from "./db";
 import { MediaStorageError } from "./model";
 import { isMediaAttachment, isMediaItem } from "./rules";
@@ -31,7 +32,7 @@ export async function cloneProjectMedia(
       const linked: unknown = await settle(attachments.index("assetId").getAll(item.id));
       if (!Array.isArray(linked) || !linked.every(isMediaAttachment))
         throw new MediaStorageError("invalid", "The source project attachments are invalid.");
-      const id = `media_${crypto.randomUUID()}`;
+      const id = `media_${randomUUID()}`;
       ids.push(id);
       await Promise.all([
         settle(items.add({ ...item, id, projectId: targetId })),

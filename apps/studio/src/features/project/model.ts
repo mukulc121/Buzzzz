@@ -1,3 +1,4 @@
+import { randomUUID } from "../../crypto";
 import { emptyPattern, isProject, isRecord, type Preset, type Project } from "@buzzzz/core";
 
 export interface IProjectRecord {
@@ -34,7 +35,7 @@ const MAX_NAME = 120;
 export const PREVIEWS = 5;
 
 export const uid = () => Math.random().toString(36).slice(2, 9);
-const projectId = () => crypto.randomUUID();
+const projectId = () => randomUUID();
 
 export const projectName = (name: string) => name.trim().slice(0, MAX_NAME) || "Untitled project";
 
