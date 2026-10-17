@@ -27,6 +27,7 @@ async function observeRuntime(page: Page) {
   const impacts: string[] = [];
   const messages: Msg[] = [];
   const mounts: number[] = [];
+  const readyRequests: ISignal[] = [];
   let uploads = 0;
   await page.exposeFunction("__lifecycleSignal", (name: string, time: number) =>
     signals.push({ name, time }),
@@ -34,6 +35,9 @@ async function observeRuntime(page: Page) {
   await page.exposeFunction("__lifecycleImpact", (impact: string) => impacts.push(impact));
   await page.exposeFunction("__lifecycleAccepted", (name: string) => acceptedSignals.push(name));
   await page.exposeFunction("__lifecycleMount", (time: number) => mounts.push(time));
+  await page.exposeFunction("__lifecycleReadyRequest", (name: string, time: number) =>
+    readyRequests.push({ name, time }),
+  );
   await page.route(/\/src\/features\/rive\/useRive\.ts(?:\?.*)?$/, async (route) => {
     const response = await route.fetch();
     const source = await response.text();
@@ -50,14 +54,21 @@ async function observeRuntime(page: Page) {
     const response = await route.fetch();
     const source = await response.text();
     const handler = "addLog(`Studio fired ${name}`);";
-    if (!source.includes(handler)) throw new Error("Actual accepted trigger callback missing");
+    const ready = "fireTrigger: (name) => rive.fire(name)";
+    if (!source.includes(handler) || !source.includes(ready))
+      throw new Error("Actual accepted trigger or readiness callback missing");
     await route.fulfill({
       response,
-      body: source.replace(
-        handler,
-        'if (name === "hapticEntry") globalThis.__lifecycleEntryAccepted = true; globalThis.__lifecycleAcceptedCount = (globalThis.__lifecycleAcceptedCount ?? 0) + 1; globalThis.__lifecycleAccepted(name); ' +
+      body: source
+        .replace(
           handler,
-      ),
+          'if (name === "hapticEntry") globalThis.__lifecycleEntryAccepted = true; globalThis.__lifecycleAcceptedCount = (globalThis.__lifecycleAcceptedCount ?? 0) + 1; globalThis.__lifecycleAccepted(name); ' +
+            handler,
+        )
+        .replace(
+          ready,
+          "fireTrigger: (name) => { globalThis.__lifecycleReadyRequested = true; globalThis.__lifecycleReadyRequest(name,performance.now()); rive.fire(name); }",
+        ),
     });
   });
   await page.routeWebSocket("**/relay?role=studio", (socket) => {
@@ -85,6 +96,7 @@ async function observeRuntime(page: Page) {
           if (name === "hapticEntry" && globalThis.__lifecycleHideAtEntry) {
             globalThis.__lifecycleHideAtEntry = false;
             globalThis.__lifecycleReadyBeforeHide = globalThis.__lifecycleReadyObserved;
+            globalThis.__lifecycleReadyRequestedBeforeHide = globalThis.__lifecycleReadyRequested;
             Object.defineProperty(document,"visibilityState",{configurable:true,value:"hidden"});
             document.dispatchEvent(new Event("visibilitychange"));
             document.dispatchEvent(new Event("visibilitychange"));
@@ -115,12 +127,22 @@ async function observeRuntime(page: Page) {
   await page.goto("/");
   await page.getByRole("button", { name: "Projects", exact: true }).click();
   await page.getByRole("button", { name: "Create sample project", exact: true }).click();
-  return { signals, acceptedSignals, impacts, messages, mounts, uploads: () => uploads };
+  return {
+    signals,
+    acceptedSignals,
+    impacts,
+    messages,
+    mounts,
+    readyRequests,
+    uploads: () => uploads,
+  };
 }
 
 test("hiding a ready Rive owner pauses once and resumes its remaining real VM lifecycle", async ({
   page,
 }, testInfo) => {
+  const clockStart = new Date("2030-01-01T00:00:00Z");
+  await page.clock.install({ time: clockStart });
   const runtime = await observeRuntime(page);
   await setVisibility(page, "hidden", true);
   expect(runtime.messages.filter((message) => message.type === "pause")).toEqual([]);
@@ -128,29 +150,40 @@ test("hiding a ready Rive owner pauses once and resumes its remaining real VM li
   await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
   const panel = page.locator(".rive-panel");
   await expect(panel.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible();
+  await page.clock.pauseAt(new Date(clockStart.getTime() + 60_000));
   runtime.signals.length = 0;
   runtime.acceptedSignals.length = 0;
   runtime.impacts.length = 0;
   runtime.messages.length = 0;
   runtime.mounts.length = 0;
+  runtime.readyRequests.length = 0;
   await panel.getByRole("button", { name: "Play with haptics", exact: true }).evaluate((button) => {
     Reflect.set(globalThis, "__lifecycleHideAtEntry", true);
     Reflect.set(globalThis, "__lifecycleEntryAccepted", false);
     Reflect.set(globalThis, "__lifecycleReadyObserved", false);
+    Reflect.set(globalThis, "__lifecycleReadyRequested", false);
     button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   });
   await expect
-    .poll(() => runtime.signals.some((signal) => signal.name === "hapticEntry"))
+    .poll(async () => {
+      await page.clock.runFor(16);
+      return runtime.signals.some((signal) => signal.name === "hapticEntry");
+    })
     .toBe(true);
   const atHide = await page.evaluate(() => ({
     time: Reflect.get(globalThis, "__lifecycleHiddenAt"),
     accepted: Reflect.get(globalThis, "__lifecycleEntryAccepted"),
     ready: Reflect.get(globalThis, "__lifecycleReadyBeforeHide"),
+    readyRequested: Reflect.get(globalThis, "__lifecycleReadyRequestedBeforeHide"),
   }));
   expect(atHide.accepted).toBe(true);
   expect(atHide.ready).toBe(false);
+  expect(atHide.readyRequested).toBe(false);
   expect(typeof atHide.time).toBe("number");
   const hiddenAt = atHide.time;
+  const mountedAt = runtime.mounts[0];
+  if (mountedAt === undefined) throw new Error("Actual scene mount missing");
+  expect(hiddenAt - mountedAt).toBeLessThan(DEX_RIVE_CONFIG.completion.readyAfterMs);
   await expect(panel.getByRole("button", { name: "Resume", exact: true })).toBeVisible();
   await expect(editorPlay(page)).toBeVisible();
   await expect
@@ -168,24 +201,26 @@ test("hiding a ready Rive owner pauses once and resumes its remaining real VM li
       throw new Error("Late VM callback missing");
     runtime.__lateLifecycleSignal("hapticExit");
   });
-  await page.waitForTimeout(3000);
+  await page.clock.fastForward(3000);
   expect(runtime.impacts).toHaveLength(pausedImpacts);
   expect(runtime.signals.some((signal) => signal.name === "isLoaded")).toBe(false);
+  expect(runtime.readyRequests).toEqual([]);
   await setVisibility(page, "visible");
   await expect(panel.getByRole("button", { name: "Resume", exact: true })).toBeVisible();
-  await page.waitForTimeout(300);
+  await page.clock.fastForward(300);
   expect(runtime.impacts).toHaveLength(pausedImpacts);
   const resumedAt = await page.evaluate(() => performance.now());
   await panel.getByRole("button", { name: "Resume", exact: true }).dispatchEvent("click");
+  const { entryMs, loopPeriodMs, exitMs, marginMs } = DEX_RIVE_CONFIG.completion;
+  await page.clock.runFor(entryMs + loopPeriodMs + exitMs + marginMs);
   await expect.poll(() => runtime.signals.some((signal) => signal.name === "isLoaded")).toBe(true);
+  expect(runtime.readyRequests.map((signal) => signal.name)).toEqual(["isLoaded"]);
   await expect(panel.getByRole("button", { name: "Resume", exact: true })).toBeVisible({
     timeout: 10000,
   });
   const entry = runtime.signals.find((signal) => signal.name === "hapticEntry");
   const ready = runtime.signals.find((signal) => signal.name === "isLoaded");
-  const mountedAt = runtime.mounts[0];
-  if (!entry || !ready || mountedAt === undefined)
-    throw new Error("Actual lifecycle signals missing");
+  if (!entry || !ready) throw new Error("Actual lifecycle signals missing");
   expect(ready.time - mountedAt).toBeGreaterThanOrEqual(
     DEX_RIVE_CONFIG.completion.readyAfterMs - 100 + resumedAt - hiddenAt,
   );
@@ -204,6 +239,8 @@ test("hiding a ready Rive owner pauses once and resumes its remaining real VM li
       readyAfterMs: DEX_RIVE_CONFIG.completion.readyAfterMs,
       acceptedAtHide: atHide.accepted,
       readyBeforeHide: atHide.ready,
+      readyRequestedBeforeHide: atHide.readyRequested,
+      readyRequestedAt: runtime.readyRequests[0]?.time,
     }),
     contentType: "application/json",
   });
