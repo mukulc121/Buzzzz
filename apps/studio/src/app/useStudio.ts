@@ -62,9 +62,27 @@ export function useStudio() {
     projectId: document.projectId,
     active:
       !document.route.dashboard && resolveRivePresetId(document.project) === document.preset.id,
+    writable: document.isWriter,
     mapped: document.mapped,
     addLog: activity.addLog,
     onError: setError,
+    onConfigResolved: (config, target) => {
+      if (
+        !document.isWriter ||
+        document.projectId !== target.projectId ||
+        document.preset.id !== target.ownerId ||
+        resolveRivePresetId(document.project) !== target.ownerId ||
+        document.project.riveConfig ||
+        Object.keys(document.project.map).length > 0
+      )
+        return false;
+      document.begin();
+      return document.commitProject((project) =>
+        project.riveConfig || Object.keys(project.map).length > 0
+          ? project
+          : { ...project, riveConfig: config },
+      );
+    },
     onStateMachineChange: (name) => {
       document.begin();
       document.setProject((project) => ({ ...project, riveStateMachine: name }));

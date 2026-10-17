@@ -24,7 +24,7 @@ export function PreviewStage(props: IPreviewStage) {
   if (!session.riv) return null;
   return (
     <View style={[s.wrap, fullscreen && s.fullscreen]}>
-      <View style={[s.stage, fullscreen && s.fullStage]}>
+      <View testID="rive-preview-stage" style={[s.stage, fullscreen && s.fullStage]}>
         <RivePlayer
           key={session.riv.url + session.riv.stateMachine}
           {...session.riv}
@@ -49,6 +49,26 @@ export function PreviewStage(props: IPreviewStage) {
         >
           <Text style={s.expandText}>{fullscreen ? "Exit fullscreen" : "Fullscreen"}</Text>
         </PressableScale>
+        {fullscreen && (
+          <View
+            style={[
+              s.fullscreenTransport,
+              {
+                left: Math.max(16, insets.left + 16),
+                right: Math.max(16, insets.right + 16),
+                bottom: Math.max(16, insets.bottom + 16),
+              },
+            ]}
+          >
+            <PreviewTransport
+              paused={session.paused}
+              onReplay={session.replay}
+              onTogglePause={session.togglePause}
+              fullscreen
+              t={t}
+            />
+          </View>
+        )}
       </View>
       {!fullscreen && (
         <>

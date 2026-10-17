@@ -1,8 +1,16 @@
-import { useRef, useState, type Dispatch, type RefObject, type SetStateAction } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type Dispatch,
+  type RefObject,
+  type SetStateAction,
+} from "react";
 import { Bolt, Play, Stop } from "../../components/icons";
 import { FilePicker } from "../../components/FilePicker";
 import type { Msg, Project } from "@buzzzz/core";
 import { riveHapticAction } from "./hapticAction";
+import { RiveFullscreenControls } from "./RiveFullscreenControls";
 interface IRivePanel {
   riv: { name: string; buffer: ArrayBuffer } | null;
   canvas: RefObject<HTMLCanvasElement | null>;
@@ -14,6 +22,7 @@ interface IRivePanel {
   send: (message: Msg) => void;
   addLog: (text: string) => void;
   paused: boolean;
+  completed: boolean;
   setPause: (paused: boolean) => void;
   project: Project;
   begin: () => void;
@@ -24,6 +33,7 @@ interface IRivePanel {
 export function RivePanel(props: IRivePanel) {
   const section = useRef<HTMLElement>(null);
   const [fullscreenError, setFullscreenError] = useState("");
+  const [fullscreen, setFullscreen] = useState(false);
   const {
     riv,
     canvas,
@@ -35,6 +45,7 @@ export function RivePanel(props: IRivePanel) {
     send,
     addLog,
     paused,
+    completed,
     setPause,
     project,
     begin,
@@ -42,6 +53,38 @@ export function RivePanel(props: IRivePanel) {
     triggerRows,
     fire,
   } = props;
+  const replay = () => {
+    restart();
+    send({ type: "restart" });
+    addLog("Restarted animation");
+  };
+  const togglePause = () => {
+    if (fullscreen && paused && completed) {
+      replay();
+      return;
+    }
+    setPause(!paused);
+    send({ type: "pause", paused: !paused });
+  };
+  const exitFullscreen = () => {
+    if (document.fullscreenElement === section.current)
+      void document.exitFullscreen().catch(() => setFullscreenError("Could not exit fullscreen"));
+  };
+  useEffect(() => {
+    const change = () => setFullscreen(document.fullscreenElement === section.current);
+    const keydown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || document.fullscreenElement !== section.current) return;
+      event.preventDefault();
+      event.stopPropagation();
+      void document.exitFullscreen().catch(() => setFullscreenError("Could not exit fullscreen"));
+    };
+    document.addEventListener("fullscreenchange", change);
+    document.addEventListener("keydown", keydown, true);
+    return () => {
+      document.removeEventListener("fullscreenchange", change);
+      document.removeEventListener("keydown", keydown, true);
+    };
+  }, []);
   return (
     <section ref={section} className="card rive-panel">
       <header className="card-head">
@@ -49,11 +92,12 @@ export function RivePanel(props: IRivePanel) {
         {riv && (
           <button
             aria-label="Fullscreen Rive preview"
-            onClick={() =>
+            onClick={() => {
+              setFullscreenError("");
               void section.current
                 ?.requestFullscreen()
-                .catch(() => setFullscreenError("Fullscreen is unavailable in this browser"))
-            }
+                .catch(() => setFullscreenError("Fullscreen is unavailable in this browser"));
+            }}
           >
             ⛶ Fullscreen
           </button>
@@ -86,20 +130,11 @@ export function RivePanel(props: IRivePanel) {
           <button
             className="primary grow"
             title="Restart the animation here and on the phone; mapped triggers play their haptics"
-            onClick={() => {
-              restart();
-              send({ type: "restart" });
-              addLog("Restarted animation");
-            }}
+            onClick={replay}
           >
             <Play /> Play with haptics
           </button>
-          <button
-            onClick={() => {
-              setPause(!paused);
-              send({ type: "pause", paused: !paused });
-            }}
-          >
+          <button onClick={togglePause}>
             {paused ? (
               <>
                 <Play /> Resume
@@ -111,6 +146,14 @@ export function RivePanel(props: IRivePanel) {
             )}
           </button>
         </div>
+      )}
+      {fullscreen && (
+        <RiveFullscreenControls
+          paused={paused}
+          onReplay={replay}
+          onPause={togglePause}
+          onExit={exitFullscreen}
+        />
       )}
       {info.stateMachines.length > 1 && (
         <select

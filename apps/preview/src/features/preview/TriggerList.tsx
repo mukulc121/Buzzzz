@@ -3,6 +3,7 @@ import { TriggerChip } from "../../components/TriggerChip";
 import type { Theme } from "../../theme/colors";
 import type { usePreviewSession } from "./usePreviewSession";
 import { previewStyles } from "./previewStyles";
+import { deriveTriggerRole } from "./triggerRole";
 
 interface ITriggerList {
   session: ReturnType<typeof usePreviewSession>;
@@ -25,7 +26,7 @@ export function TriggerList(props: ITriggerList) {
           <TriggerChip
             key={name}
             name={name}
-            mapped={session.mappedNames.includes(name)}
+            role={deriveTriggerRole(name, session.mappedNames, session.riv?.riveConfig)}
             t={t}
             firedAt={session.lastFired?.name === name ? session.lastFired.id : 0}
             onPress={() => session.fireRef.current(name)}

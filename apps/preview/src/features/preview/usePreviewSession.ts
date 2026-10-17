@@ -9,6 +9,7 @@ import {
   isReceivedResourceMessage,
   stopLegacyFromBrowser,
 } from "../sessionLibrary/browserCommands";
+import { deriveTriggerRole } from "./triggerRole";
 
 export function usePreviewSession() {
   const [riv, setRiv] = useState<{
@@ -26,7 +27,9 @@ export function usePreviewSession() {
   const riveConfig = useRef<IRiveConfig | undefined>(undefined);
   const fireRef = useRef<(name: string) => void>(() => {});
   const pauseRef = useRef<(paused: boolean) => void>(() => {});
+  const sceneCompleted = useRef(false);
   const onRiveComplete = useCallback(() => {
+    sceneCompleted.current = true;
     pauseRef.current(true);
     setPaused(true);
   }, []);
@@ -58,6 +61,7 @@ export function usePreviewSession() {
     ]);
   };
   const clearScene = () => {
+    sceneCompleted.current = false;
     playback.stopPattern();
     riveHaptics.setEnabled(false);
     riveConfig.current = undefined;
@@ -98,6 +102,7 @@ export function usePreviewSession() {
           return;
         }
         sceneConnection.current = connectionId;
+        sceneCompleted.current = false;
         riveHaptics.setEnabled(false);
         riveConfig.current = message.riveConfig;
         setMap(message.map);
@@ -119,6 +124,7 @@ export function usePreviewSession() {
       } else if (message.type === "fire" && sceneConnection.current === connectionId)
         fireRef.current(message.name);
       else if (message.type === "restart" && sceneConnection.current === connectionId) {
+        sceneCompleted.current = false;
         riveHaptics.stop();
         setPaused(false);
         setRun((value) => value + 1);
@@ -139,7 +145,7 @@ export function usePreviewSession() {
     void relay.disconnect(connectionId).catch(() => announce("Could not remove this connection."));
   };
   const onTrigger = (name: string) => {
-    if (riveHaptics.completed()) return;
+    if (sceneCompleted.current) return;
     const actions = riveConfig.current?.haptics;
     const action = actions && Object.hasOwn(actions, name) ? actions[name] : undefined;
     const pattern = Object.hasOwn(map.current, name) ? map.current[name] : undefined;
@@ -155,16 +161,26 @@ export function usePreviewSession() {
     }
     riveHaptics.trigger(name, action);
     setLastFired({ name, id: Date.now() });
-    announce(action || pattern ? `▸ ${name}` : `▸ ${name} · no haptic mapped`);
+    const role = action || pattern ? "haptic" : deriveTriggerRole(name, [], riveConfig.current);
+    announce(
+      role === "haptic"
+        ? `▸ ${name}`
+        : `▸ ${name} · ${role === "control" ? "animation control" : "no haptic mapped"}`,
+    );
     if (sceneConnection.current) relay.send({ type: "fired", name }, sceneConnection.current);
   };
   const replay = () => {
+    sceneCompleted.current = false;
     riveHaptics.stop();
     Presets.System.selection();
     setPaused(false);
     setRun((value) => value + 1);
   };
   const togglePause = () => {
+    if (paused && sceneCompleted.current) {
+      replay();
+      return;
+    }
     Presets.System.selection();
     pauseRef.current(!paused);
     setPaused(!paused);

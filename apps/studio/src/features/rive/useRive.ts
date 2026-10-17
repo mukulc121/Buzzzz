@@ -145,6 +145,7 @@ export function useRive(props: IRive) {
     fire,
     restart,
     paused: playback !== "playing",
+    completed: playback === "completed",
     publishable: playback === "playing" || playback === "completed",
     suspend: () => pause("suspended"),
     setPause,

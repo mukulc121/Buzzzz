@@ -5,6 +5,7 @@ import { parseMessage, type Msg } from "@buzzzz/core";
 import { unzipSync } from "fflate";
 import { editorPlay, editorStop } from "./fixtures/editor-playback";
 import { patternTitle } from "./fixtures/pattern-title";
+import { DEX_RIVE_CONFIG } from "../../apps/studio/src/features/project/starter/rive/dex-rive-config";
 
 test("only the Rive owner previews, uploads and plays source cues, including legacy starters", async ({
   page,
@@ -180,8 +181,16 @@ test("exporting from another pattern preserves the Rive owner, script and exact 
 test("a validated Rive import moves ownership to the selected pattern and owner deletion detaches it", async ({
   page,
 }) => {
-  await page.routeWebSocket("**/relay?role=studio", (socket) =>
-    socket.send(JSON.stringify({ type: "peers", phones: 0 })),
+  const messages: Msg[] = [];
+  await page.routeWebSocket("**/relay?role=studio", (socket) => {
+    socket.send(JSON.stringify({ type: "peers", phones: 1 }));
+    socket.onMessage((data) => {
+      const message = typeof data === "string" ? parseMessage(data) : null;
+      if (message) messages.push(message);
+    });
+  });
+  await page.route("**/riv", (route) =>
+    route.fulfill({ json: { path: `/riv/${"a".repeat(32)}.riv` } }),
   );
   await page.goto("/");
   await page.getByRole("button", { name: "Projects", exact: true }).click();
@@ -208,7 +217,11 @@ test("a validated Rive import moves ownership to the selected pattern and owner 
       return JSON.parse(localStorage.getItem(`buzzzz.project.${id}`) ?? "null").project;
     });
   await expect.poll(async () => (await stored()).rivePresetId).toBe("demo-fanfare-sound");
-  expect((await stored()).riveConfig).toBeUndefined();
+  await expect.poll(async () => (await stored()).riveConfig).toEqual(DEX_RIVE_CONFIG);
+  await expect.poll(() => messages.filter((message) => message.type === "load").length).toBe(1);
+  expect(messages.find((message) => message.type === "load")).toMatchObject({
+    riveConfig: DEX_RIVE_CONFIG,
+  });
   await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
   await expect(panel).toHaveCount(0);
   await page.getByRole("button", { name: "FanfareSound", exact: true }).click();

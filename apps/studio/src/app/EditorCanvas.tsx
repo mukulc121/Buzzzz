@@ -160,6 +160,7 @@ export function EditorCanvas(props: IEditorCanvas) {
             send={session.send}
             addLog={studio.activity.addLog}
             paused={session.paused}
+            completed={session.completed}
             setPause={session.setPause}
             project={document.project}
             begin={document.begin}

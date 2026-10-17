@@ -8,18 +8,20 @@ import {
   useState,
 } from "react";
 import { resolveRivePresetId } from "@buzzzz/core";
-import type { Msg, Project, TSystemImpact } from "@buzzzz/core";
+import type { IRiveConfig, Msg, Project, TSystemImpact } from "@buzzzz/core";
 import { useRelay } from "../connection/useRelay";
 import { usePhoneLibrary } from "../connection/usePhoneLibrary";
 import { useUploadedRive } from "./useUploadedRive";
 import { useRive } from "./useRive";
 import { useRiveHaptics } from "./useRiveHaptics";
 import { normalizeDexConfig } from "../project/starter/rive/normalizeDexConfig";
+import { useKnownRiveAsset } from "./useKnownRiveAsset";
 
 interface IRiveSession {
   project: Project;
   projectId: string;
   active: boolean;
+  writable: boolean;
   mapped: Record<string, Project["presets"][number]["pattern"]>;
   onTrigger: (pattern: Project["presets"][number]["pattern"]) => void;
   onSystemImpact: (preset: TSystemImpact) => void;
@@ -28,6 +30,10 @@ interface IRiveSession {
   addLog: (message: string) => void;
   onError: (message: string) => void;
   onStateMachineChange: (name: string | undefined) => void;
+  onConfigResolved: (
+    config: IRiveConfig,
+    target: { projectId: string; ownerId: string },
+  ) => boolean;
 }
 export function useRiveSession(props: IRiveSession) {
   const {
@@ -49,8 +55,19 @@ export function useRiveSession(props: IRiveSession) {
   const [asset, setAsset] = useState<{ projectId: string; riv: RiveAsset } | null>(null);
   const setRiv = useCallback((riv: RiveAsset) => setAsset({ projectId, riv }), [projectId]);
   const projectRiv = asset?.projectId === projectId ? asset.riv : null;
-  const riv = active ? projectRiv : null;
   const owner = resolveRivePresetId(project);
+  const recognized = useKnownRiveAsset({
+    buffer: projectRiv?.buffer ?? null,
+    projectId,
+    ownerId: owner,
+    config: project.riveConfig,
+    hasCustomMap: Object.keys(project.map).length > 0,
+    active,
+    writable: props.writable,
+    onConfigResolved: props.onConfigResolved,
+    onError,
+  });
+  const riv = active && recognized ? projectRiv : null;
   const config = useMemo(
     () => normalizeDexConfig(project.riveConfig, owner),
     [project.riveConfig, owner],

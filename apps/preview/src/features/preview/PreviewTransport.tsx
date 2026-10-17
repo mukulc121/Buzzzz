@@ -7,9 +7,10 @@ interface IPreviewTransport {
   onReplay: () => void;
   onTogglePause: () => void;
   t: Theme;
+  fullscreen?: boolean;
 }
 export function PreviewTransport(props: IPreviewTransport) {
-  const { paused, onReplay, onTogglePause, t } = props;
+  const { paused, onReplay, onTogglePause, t, fullscreen } = props;
   const Icon = paused ? Play : Pause;
   return (
     <View style={{ flexDirection: "row", gap: 12 }}>
@@ -22,8 +23,10 @@ export function PreviewTransport(props: IPreviewTransport) {
         style={{ flex: 1 }}
       />
       <OutlineButton
-        title={paused ? "Resume" : "Pause"}
-        accessibilityLabel={paused ? "Resume animation" : "Pause animation"}
+        title={paused ? (fullscreen ? "Play" : "Resume") : "Pause"}
+        accessibilityLabel={
+          paused ? (fullscreen ? "Play animation" : "Resume animation") : "Pause animation"
+        }
         onPress={onTogglePause}
         icon={<Icon size={20} color={t.fg} />}
         t={t}

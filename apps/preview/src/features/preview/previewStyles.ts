@@ -5,7 +5,7 @@ import type { Theme } from "../../theme/colors";
 export const previewStyles = (t: Theme) =>
   StyleSheet.create({
     wrap: { flex: 1, padding: 16, gap: 14 },
-    fullscreen: { padding: 0, gap: 0 },
+    fullscreen: { ...StyleSheet.absoluteFill, padding: 0, gap: 0 },
     stage: {
       flex: 1,
       borderRadius: 4,
@@ -15,6 +15,9 @@ export const previewStyles = (t: Theme) =>
       borderColor: t.highlight,
     },
     fullStage: { borderRadius: 0, borderWidth: 0 },
+    fullscreenTransport: {
+      position: "absolute",
+    },
     expand: {
       position: "absolute",
       right: 8,
