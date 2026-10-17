@@ -1,22 +1,6 @@
-const command = /Mac|iPhone|iPad/.test(navigator.userAgent) ? "⌘" : "Ctrl+";
-const shortcuts = [
-  ["Undo", `${command}Z`],
-  ["Redo", `⇧${command}Z`],
-  ["Copy", `${command}C`],
-  ["Paste", `${command}V`],
-  ["Delete selection", "⌫"],
-  ["Select active layer", `${command}A`],
-  ["Zoom in", "+"],
-  ["Zoom out", "−"],
-  ["Move left", "←"],
-  ["Move right", "→"],
-  ["Clear selection", "Esc"],
-  ["Play / stop", "P"],
-  ["Add marker at the cursor", "M"],
-  ["Intensity layer", "1"],
-  ["Frequency layer", "2"],
-  ["Discrete layer", "3"],
-] as const;
+import { settingsShortcuts } from "../../features/settings/shortcutDisplay";
+
+const shortcuts = settingsShortcuts(/Mac|iPhone|iPad|iPod/.test(navigator.userAgent));
 const gestures = [
   ["Add event or point", "Double-click"],
   ["Add to selection", "Shift-click"],

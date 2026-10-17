@@ -159,11 +159,13 @@
   --settings-blue-30: rgba(135, 204, 232, 1);
   --settings-accent-strong: rgba(43, 133, 171, 1);
   --settings-focus-ring: rgba(56, 172, 221, 0.25);
+  --settings-theme-bg: rgba(225, 243, 250, 1);
 }
 :root[data-theme="dark"] .settings-panel {
   --settings-blue-30: rgba(44, 74, 99, 1);
   --settings-accent-strong: rgba(108, 199, 239, 1);
   --settings-focus-ring: rgba(63, 177, 230, 0.35);
+  --settings-theme-bg: rgba(15, 34, 49, 1);
 }
 .theme-chooser {
   container-type: inline-size;
@@ -174,7 +176,7 @@
   max-width: 100%;
   padding: 3px;
   border-radius: 999px;
-  background: var(--bg);
+  background: var(--settings-theme-bg);
 }
 .theme-chooser button {
   transition:
