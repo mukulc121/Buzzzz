@@ -71,14 +71,6 @@ export function EditorCanvas(props: IEditorCanvas) {
           {...playButton}
           onClick={studio.togglePlayback}
         />
-        <button
-          className="icon inspector-toggle"
-          aria-label={studio.inspectorOpen ? "Hide inspector" : "Show inspector"}
-          aria-expanded={studio.inspectorOpen}
-          onClick={() => studio.setInspectorOpen(!studio.inspectorOpen)}
-        >
-          ☷
-        </button>
       </header>
       <div
         className={`canvas-scroll ${studio.animation.source && studio.animation.previewVisible ? `preview-${studio.animation.previewMode}` : ""}`}

@@ -18,11 +18,11 @@
 .workspace[data-sidebar="false"] {
   grid-template-columns: 76px minmax(0, 1fr) var(--inspector-width, 300px);
 }
-.workspace[data-inspector="false"] {
-  grid-template-columns: 76px var(--sidebar-width, 280px) minmax(0, 1fr);
+.workspace[data-inspector="false"]:not([data-page="projects"]) {
+  grid-template-columns: 76px var(--sidebar-width, 280px) minmax(0, 1fr) 44px;
 }
-.workspace[data-sidebar="false"][data-inspector="false"] {
-  grid-template-columns: 76px minmax(0, 1fr);
+.workspace[data-sidebar="false"][data-inspector="false"]:not([data-page="projects"]) {
+  grid-template-columns: 76px minmax(0, 1fr) 44px;
 }
 .tool-rail {
   display: flex;
@@ -113,6 +113,22 @@
   overflow: auto;
   border-left: 2px solid var(--line);
   background: var(--panel);
+}
+.inspector-rail {
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 100%;
+  padding-top: 8px;
+  border-left: 2px solid var(--line);
+  background-color: var(--panel);
+}
+.inspector-rail .inspector-rail-toggle {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  outline: none;
 }
 .inspector-tabs {
   position: sticky;
@@ -205,12 +221,6 @@
   font-size: 14px;
   white-space: nowrap;
   padding: 0 8px;
-}
-.pattern-header .inspector-toggle {
-  display: none;
-}
-.workspace[data-inspector="false"] .inspector-toggle {
-  display: inline-flex;
 }
 .canvas-scroll {
   flex: 1;

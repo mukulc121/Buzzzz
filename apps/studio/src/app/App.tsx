@@ -78,7 +78,7 @@ export default function App() {
               </>
             )}
             <EditorCanvas studio={studio} />
-            {studio.inspectorOpen && (
+            {studio.inspectorOpen ? (
               <>
                 <ResizeHandle
                   label="Resize inspector"
@@ -87,6 +87,32 @@ export default function App() {
                 />
                 <InspectorPanel studio={studio} />
               </>
+            ) : (
+              <div className="inspector-rail">
+                <button
+                  type="button"
+                  className="icon inspector-rail-toggle"
+                  aria-label="Show inspector"
+                  title="Show inspector"
+                  onClick={() => studio.setInspectorOpen(true)}
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect width="18" height="18" x="3" y="3" rx="2" />
+                    <path d="M15 3v18" />
+                    <path d="m10 15-3-3 3-3" />
+                  </svg>
+                </button>
+              </div>
             )}
           </>
         )}
