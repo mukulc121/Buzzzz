@@ -2,10 +2,11 @@ import { useRef, useState, type PointerEvent, type RefObject } from "react";
 import { MAX_PATTERN_MS, type Pattern } from "@buzzzz/core";
 import { selectInBounds } from "./editing";
 import { dragPoint, type PointDragMode } from "./pointDrag";
-import { LAYERS, selectionKey, type IChart, type PointSelection } from "./model";
+import { LAYERS, type IChart, type PointSelection } from "./model";
 import { chartGeometry } from "./geometry";
 import { snapTime } from "./viewport";
 import { chartDuration, clampChartViewport } from "./chartNavigation";
+import { constrainDragAxis } from "./dragAxis";
 
 interface IPosition {
   x: number;
@@ -18,6 +19,7 @@ type Drag =
   | {
       kind: "point";
       origin: IPosition;
+      pointerOrigin: { x: number; y: number };
       time: number;
       point: PointSelection;
       mode: PointDragMode;
@@ -25,7 +27,7 @@ type Drag =
       selection: PointSelection[];
       started: boolean;
     }
-  | { kind: "selection"; origin: IPosition; initial: PointSelection[] }
+  | { kind: "selection"; origin: IPosition }
   | { kind: "pan"; clientX: number; startMs: number }
   | { kind: "scrub" };
 
@@ -34,12 +36,11 @@ interface IChartPointer {
   width: number;
   height: number;
   getProps: () => IChart;
-  getSelection: () => readonly PointSelection[];
   select: (selection: PointSelection[]) => void;
 }
 
 export function useChartPointer(options: IChartPointer) {
-  const { svg, width, height, getProps, getSelection, select } = options;
+  const { svg, width, height, getProps, select } = options;
   const drag = useRef<Drag | null>(null);
   const [rectangle, setRectangle] = useState<{ from: IPosition; to: IPosition } | null>(null);
   const position = (event: { clientX: number; clientY: number }): IPosition | null => {
@@ -75,30 +76,37 @@ export function useChartPointer(options: IChartPointer) {
       if (event.button !== 0 || getProps().readOnly) return;
       event.preventDefault();
       event.stopPropagation();
-      const previous = getSelection().filter(
-        (item) => getProps().multilayerSelection !== false || item.layer === point.layer,
-      );
-      const found = previous.some((item) => selectionKey(item) === selectionKey(point));
-      const additive = event.shiftKey || event.metaKey || event.ctrlKey;
-      const next = additive
-        ? found
-          ? previous.filter((item) => selectionKey(item) !== selectionKey(point))
-          : [...previous, point]
-        : found
-          ? [...previous]
-          : [point];
+      const next = [point];
       select(next);
       event.currentTarget.focus();
-      if (additive && found) return;
-      const origin = position(event);
-      if (!origin) return;
+      const props = getProps();
+      const pattern = props.pattern;
+      const selectedPoint =
+        point.layer === "discrete"
+          ? pattern.discretePattern[point.index]
+          : pattern.continuousPattern[point.layer][point.index];
+      if (!selectedPoint) return;
+      const value =
+        "value" in selectedPoint
+          ? selectedPoint.value
+          : mode === "frequency"
+            ? selectedPoint.frequency
+            : selectedPoint.amplitude;
+      const geometry = chartGeometry({
+        width,
+        height,
+        startMs: props.viewStartMs ?? 0,
+        durationMs: props.viewMs,
+      });
+      const origin = { x: geometry.x(time), y: geometry.y(value), time, value };
       drag.current = {
         kind: "point",
         origin,
+        pointerOrigin: { x: event.clientX, y: event.clientY },
         time,
         point,
         mode,
-        pattern: getProps().pattern,
+        pattern,
         selection: next,
         started: false,
       };
@@ -133,15 +141,8 @@ export function useChartPointer(options: IChartPointer) {
         drag.current = { kind: "scrub" };
         getProps().onScrub?.(snapTime(point.time, getProps().snapMs ?? 0));
       } else {
-        const initial =
-          event.shiftKey || event.metaKey || event.ctrlKey
-            ? getSelection().filter(
-                (item) =>
-                  getProps().multilayerSelection !== false || item.layer === getProps().layer,
-              )
-            : [];
-        select(initial);
-        drag.current = { kind: "selection", origin: point, initial };
+        select([]);
+        drag.current = { kind: "selection", origin: point };
         setRectangle({ from: point, to: point });
       }
     }
@@ -150,7 +151,27 @@ export function useChartPointer(options: IChartPointer) {
 
   const move = (event: PointerEvent<SVGSVGElement>) => {
     const action = drag.current;
-    const point = position(event);
+    const bounds = svg.current?.getBoundingClientRect();
+    const origin =
+      action?.kind === "point" && bounds
+        ? { x: bounds.left + action.origin.x, y: bounds.top + action.origin.y }
+        : null;
+    const candidate =
+      action?.kind === "point" && origin
+        ? {
+            x: origin.x + event.clientX - action.pointerOrigin.x,
+            y: origin.y + event.clientY - action.pointerOrigin.y,
+          }
+        : { x: event.clientX, y: event.clientY };
+    const pointer =
+      action?.kind === "point" && action.mode === "both" && origin
+        ? constrainDragAxis({
+            origin,
+            position: candidate,
+            shift: event.shiftKey,
+          })
+        : { ...candidate, lockedAxis: null };
+    const point = position({ clientX: pointer.x, clientY: pointer.y });
     if (!action || !point) return;
     if (getProps().readOnly && action.kind !== "pan") {
       reset();
@@ -193,12 +214,15 @@ export function useChartPointer(options: IChartPointer) {
           maxValue: Math.max(action.origin.value, point.value),
         },
       });
-      const combined = new Map(
-        [...action.initial, ...found].map((item) => [selectionKey(item), item]),
-      );
-      select([...combined.values()]);
+      select(found);
     } else {
-      if (Math.hypot(point.x - action.origin.x, point.y - action.origin.y) < 2 && !action.started)
+      if (
+        Math.max(
+          Math.abs(event.clientX - action.pointerOrigin.x),
+          Math.abs(event.clientY - action.pointerOrigin.y),
+        ) < 3 &&
+        !action.started
+      )
         return;
       if (!action.started) {
         getProps().onBegin();
@@ -217,6 +241,7 @@ export function useChartPointer(options: IChartPointer) {
           valueDecimals: getProps().editorSettings?.valueDecimals ?? 1,
         }),
       );
+      if (action.mode === "both") return { ...point, lockedAxis: pointer.lockedAxis };
     }
   };
 

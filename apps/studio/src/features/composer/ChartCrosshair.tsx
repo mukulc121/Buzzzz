@@ -2,7 +2,7 @@ import type { IChartGeometry } from "./geometry";
 import { chartReadout } from "./chartReadout";
 
 interface IChartCrosshair {
-  position: { x: number; y: number } | null;
+  position: { x: number; y: number; lockedAxis: "x" | "y" | null } | null;
   geometry: IChartGeometry;
   valueDecimals?: number;
 }
@@ -10,7 +10,7 @@ interface IChartCrosshair {
 export function ChartCrosshair(props: IChartCrosshair) {
   const { position, geometry, valueDecimals = 1 } = props;
   if (!position) return null;
-  const { x, y } = position;
+  const { x, y, lockedAxis } = position;
   const hoverTime = geometry.timeAtX(x);
   const hoverValue = geometry.valueAtY(y);
   const time = `${Math.round(hoverTime)} ms`;
@@ -25,14 +25,32 @@ export function ChartCrosshair(props: IChartCrosshair) {
   return (
     <g className="chart-crosshair" aria-hidden pointerEvents="none">
       <path
-        d={`M${x},${geometry.top}V${geometry.bottom} M${geometry.left},${y}H${geometry.right}`}
+        data-crosshair-axis="x"
+        d={`M${x},${geometry.top}V${geometry.bottom}`}
         fill="none"
         stroke="var(--freq)"
         strokeWidth={1}
-        strokeOpacity={0.5}
+        strokeOpacity={lockedAxis === "x" ? 0.15 : 0.5}
         strokeDasharray="3 3"
       />
-      <rect x={valueLeft} y={valueTop} width={valueWidth} height={14} rx={3} fill="var(--freq)" />
+      <path
+        data-crosshair-axis="y"
+        d={`M${geometry.left},${y}H${geometry.right}`}
+        fill="none"
+        stroke="var(--freq)"
+        strokeWidth={1}
+        strokeOpacity={lockedAxis === "y" ? 0.15 : 0.5}
+        strokeDasharray="3 3"
+      />
+      <rect
+        x={valueLeft}
+        y={valueTop}
+        width={valueWidth}
+        height={14}
+        rx={3}
+        fill="var(--freq)"
+        opacity={lockedAxis === "y" ? 0.3 : 1}
+      />
       <text
         className="chart-hover-value"
         x={valueLeft + valueWidth / 2}
@@ -40,6 +58,7 @@ export function ChartCrosshair(props: IChartCrosshair) {
         textAnchor="middle"
         fontSize={10}
         fill="var(--cursor-text)"
+        opacity={lockedAxis === "y" ? 0.3 : 1}
       >
         {value}
       </text>
@@ -50,6 +69,7 @@ export function ChartCrosshair(props: IChartCrosshair) {
         height={14}
         rx={3}
         fill="var(--freq)"
+        opacity={lockedAxis === "x" ? 0.3 : 1}
       />
       <text
         className="chart-hover-time"
@@ -58,6 +78,7 @@ export function ChartCrosshair(props: IChartCrosshair) {
         textAnchor="middle"
         fontSize={10}
         fill="var(--cursor-text)"
+        opacity={lockedAxis === "x" ? 0.3 : 1}
       >
         {time}
       </text>

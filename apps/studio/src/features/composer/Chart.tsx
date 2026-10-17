@@ -32,7 +32,11 @@ export function Chart(props: IChart) {
   const svg = useRef<SVGSVGElement>(null);
   const clipId = useId();
   const [{ width, height }, setSize] = useState({ width: 800, height: 320 });
-  const [hover, setHover] = useState<{ x: number; y: number } | null>(null);
+  const [hover, setHover] = useState<{
+    x: number;
+    y: number;
+    lockedAxis: "x" | "y" | null;
+  } | null>(null);
   const interaction = useChartInteraction({ props, svg, width, height });
   const selectedKeys = new Set(props.readOnly ? [] : interaction.selection.map(selectionKey));
 
@@ -85,18 +89,24 @@ export function Chart(props: IChart) {
     interaction.select([{ layer, index }]);
   };
   const move = (event: PointerEvent<SVGSVGElement>) => {
-    interaction.move(event);
+    const dragged = interaction.move(event);
     const bounds = svg.current?.getBoundingClientRect();
     if (
       !editorSettings.crosshair ||
       !bounds ||
       event.pointerType === "touch" ||
-      !geometry.containsPlot(event.clientX - bounds.left, event.clientY - bounds.top)
+      (!dragged && !geometry.containsPlot(event.clientX - bounds.left, event.clientY - bounds.top))
     ) {
       setHover(null);
       return;
     }
-    setHover({ x: event.clientX - bounds.left, y: event.clientY - bounds.top });
+    setHover(
+      dragged ?? {
+        x: event.clientX - bounds.left,
+        y: event.clientY - bounds.top,
+        lockedAxis: null,
+      },
+    );
   };
 
   return (
@@ -120,7 +130,7 @@ export function Chart(props: IChart) {
       aria-description={
         props.readOnly
           ? "Source Rive haptic timeline. Editing is disabled. Scroll to pan; Cmd/Ctrl+wheel zooms at the pointer; middle-drag pans."
-          : "Double-click to add a point. Shift-click or drag a rectangle to select points. Arrow keys move selected points. Scroll to pan; Cmd/Ctrl+wheel zooms at the pointer; middle-drag pans."
+          : "Double-click to add a point. Click a point to select it; drag a rectangle to select several. Shift-drag locks a continuous point to one axis. Arrow keys move selected points. Scroll to pan; Cmd/Ctrl+wheel zooms at the pointer; middle-drag pans."
       }
     >
       <defs>

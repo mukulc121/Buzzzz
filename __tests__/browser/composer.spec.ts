@@ -66,13 +66,13 @@ test("multi-selection keyboard edits preserve history boundaries and tap payload
   page.on("pageerror", (error) => errors.push(error.message));
   await mount(page);
   const chart = page.getByRole("group", { name: "Haptic pattern timeline", exact: true });
-  await chart
-    .getByRole("button", { name: "Intensity point at 200 milliseconds, 30 percent", exact: true })
-    .click();
-  await chart
-    .getByRole("button", { name: "Tap at 700 milliseconds, 80 percent intensity", exact: true })
-    .click({ modifiers: ["Shift"] });
-  expect((await state(page)).selection).toHaveLength(2);
+  const bounds = await chart.boundingBox();
+  if (!bounds) throw new Error("Missing chart bounds");
+  await page.mouse.move(bounds.x + 140, bounds.y + 50);
+  await page.mouse.down();
+  await page.mouse.move(bounds.x + 580, bounds.y + 230, { steps: 8 });
+  await page.mouse.up();
+  expect((await state(page)).selection).toHaveLength(4);
   await page.keyboard.press("ArrowRight");
   let current = await state(page);
   expect(current.pattern.continuousPattern.amplitude[0].time).toBe(225);
@@ -85,7 +85,7 @@ test("multi-selection keyboard edits preserve history boundaries and tap payload
   await page.keyboard.press("Control+c");
   await page.keyboard.press("Control+v");
   current = await state(page);
-  expect(current.pattern.continuousPattern.amplitude.at(-1).time).toBe(900);
+  expect(current.pattern.continuousPattern.amplitude.at(-1).time).toBe(1100);
   expect(current.pattern.discretePattern.at(-1)).toEqual({
     time: 1400,
     amplitude: 0.8,
@@ -141,17 +141,22 @@ test("box selection, layer visibility, scrub, zoom and pan use the controlled vi
   expect((await state(page)).begins).toBe(0);
 });
 
-test("group dragging starts one history entry and preserves selected spacing", async ({ page }) => {
+test("grabbing a point replaces marquee selection and starts one history entry", async ({
+  page,
+}) => {
   await mount(page);
   const chart = page.getByRole("group", { name: "Haptic pattern timeline", exact: true });
   const first = chart.getByRole("button", {
     name: "Intensity point at 200 milliseconds, 30 percent",
     exact: true,
   });
-  await first.click();
-  await chart
-    .getByRole("button", { name: "Intensity point at 400 milliseconds, 60 percent", exact: true })
-    .click({ modifiers: ["Shift"] });
+  const chartBounds = await chart.boundingBox();
+  if (!chartBounds) throw new Error("Missing chart bounds");
+  await page.mouse.move(chartBounds.x + 140, chartBounds.y + 100);
+  await page.mouse.down();
+  await page.mouse.move(chartBounds.x + 400, chartBounds.y + 230, { steps: 8 });
+  await page.mouse.up();
+  expect((await state(page)).selection).toHaveLength(2);
   const bounds = await first.boundingBox();
   if (!bounds) throw new Error("Missing point bounds");
   await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
@@ -163,11 +168,12 @@ test("group dragging starts one history entry and preserves selected spacing", a
   const current = await state(page);
   expect(
     current.pattern.continuousPattern.amplitude.map((point: { time: number }) => point.time),
-  ).toEqual([300, 500]);
+  ).toEqual([300, 400]);
   expect(
     current.pattern.continuousPattern.amplitude[1].value -
       current.pattern.continuousPattern.amplitude[0].value,
-  ).toBeCloseTo(0.3);
+  ).toBeCloseTo(0.2);
+  expect(current.selection).toEqual([{ layer: "amplitude", index: 0 }]);
   expect(current.begins).toBe(1);
 });
 
@@ -190,9 +196,17 @@ test("hover readouts track plot coordinates without editing and keep the initial
   await expect(chart.locator(".chart-hover-value")).toHaveText("25.0%");
   const crosshair = chart.locator(".chart-crosshair");
   await expect(crosshair).toHaveAttribute("aria-hidden", "true");
-  await expect(crosshair.locator("path")).toHaveAttribute("stroke-dasharray", "3 3");
-  const line = await crosshair.locator("path").getAttribute("d");
-  const coordinates = line?.match(/[\d.]+/g)?.map(Number);
+  for (const path of await crosshair.locator("path").all())
+    await expect(path).toHaveAttribute("stroke-dasharray", "3 3");
+  const coordinates = await crosshair.locator("path").evaluateAll((paths) =>
+    paths.flatMap(
+      (path) =>
+        path
+          .getAttribute("d")
+          ?.match(/[\d.]+/g)
+          ?.map(Number) ?? [],
+    ),
+  );
   expect(coordinates).toHaveLength(6);
   for (const [index, expected] of [x, 18, bounds.height - 30, 46, y, bounds.width - 18].entries())
     expect(coordinates?.[index]).toBeCloseTo(expected, 2);

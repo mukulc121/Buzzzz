@@ -35,7 +35,6 @@ export function useChartInteraction(options: IChartInteraction) {
     width,
     height,
     getProps: () => latest.current,
-    getSelection: () => selectionRef.current,
     select,
   });
   const { reset } = pointer;
