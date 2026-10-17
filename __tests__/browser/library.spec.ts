@@ -145,11 +145,11 @@ test("starting a library audition stops an existing editor playback clock", asyn
       );
   });
   await expect(page.getByRole("textbox", { name: "Pattern name" })).toHaveValue("long-pattern");
-  const library = await openLibrary(page);
-  await library.getByRole("searchbox").fill("Thunder");
   const editor = page.locator(".pattern-header");
   await editor.getByRole("button", { name: "Play", exact: true }).click();
   await expect(editor.getByRole("button", { name: "Stop", exact: true })).toBeVisible();
+  const library = await openLibrary(page);
+  await library.getByRole("searchbox").fill("Thunder");
   await library.getByRole("button", { name: "About Thunder", exact: true }).click();
   const detail = page.getByRole("dialog", { name: "Thunder", exact: true });
   await detail.getByRole("button", { name: "Play", exact: true }).click();

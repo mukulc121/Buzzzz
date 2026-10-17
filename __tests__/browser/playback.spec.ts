@@ -594,9 +594,12 @@ test("auditions always sound while editor playback follows the sound toggle", as
   const editor = await play(page, afterglow, { sound: false, mode: "document" });
   expect(bursts(editor.samples, editor.sampleRate)).toHaveLength(0);
   expect(editor.messages).toEqual(["play"]);
-  const silentPhone = await play(page, afterglow, { onPhone: false });
-  expect(bursts(silentPhone.samples, silentPhone.sampleRate)).toHaveLength(3);
-  expect(silentPhone.messages).toEqual(["stop"]);
+  const auditionWithPhoneOff = await play(page, afterglow, { onPhone: false });
+  expect(bursts(auditionWithPhoneOff.samples, auditionWithPhoneOff.sampleRate)).toHaveLength(3);
+  expect(auditionWithPhoneOff.messages).toEqual(["play"]);
+  const editorWithPhoneOff = await play(page, afterglow, { mode: "document", onPhone: false });
+  expect(bursts(editorWithPhoneOff.samples, editorWithPhoneOff.sampleRate)).toHaveLength(3);
+  expect(editorWithPhoneOff.messages).toEqual(["stop"]);
 });
 
 test("a newer playSound or stop cancels one still preparing", async ({ page }) => {
