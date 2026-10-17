@@ -1,4 +1,4 @@
-import { isRiveAssetUrl } from "@buzzzz/core";
+import { isRiveAssetUrl, parseMessage } from "@buzzzz/core";
 import { HttpError, json, randomId, randomToken, tokenHash, tokenMatches } from "./security.ts";
 import type { Room } from "./model.ts";
 import type { RoomRateLimit } from "./rates.ts";
@@ -27,6 +27,14 @@ export function roomAssetLocation(
   return { id: url.pathname.split("/").at(-1) ?? "", token: url.searchParams.get("token") ?? "" };
 }
 
+function riveAssetId(input: string, room: Pick<Room, "id" | "origin">): string | null {
+  try {
+    return roomAssetLocation(input, room).id;
+  } catch {
+    return null;
+  }
+}
+
 export class RoomAssets {
   constructor(
     private sql: SqlStorage,
@@ -38,6 +46,14 @@ export class RoomAssets {
   async validateRive(input: string, room: Room): Promise<void> {
     const { id, token } = roomAssetLocation(input, room);
     await this.asset(id, token);
+  }
+
+  isRiveReady(input: string, room: Room): boolean {
+    const id = riveAssetId(input, room);
+    return (
+      id !== null &&
+      this.sql.exec("SELECT id FROM assets WHERE id = ? AND ready = 1", id).toArray().length > 0
+    );
   }
 
   async validateMedia(
@@ -173,9 +189,16 @@ export class RoomAssets {
   }
 
   async delete(id: string): Promise<void> {
+    const room = this.active();
     const row = this.sql.exec<Asset>("SELECT * FROM assets WHERE id = ?", id).toArray()[0];
     if (!row) throw new HttpError(404, "Asset not found");
     this.sql.exec("UPDATE assets SET ready = 0 WHERE id = ?", id);
+    const load = this.sql
+      .exec<{ value: string }>("SELECT value FROM state WHERE name = 'load'")
+      .toArray()[0];
+    const message = load ? parseMessage(load.value) : null;
+    if (load && message?.type === "load" && riveAssetId(message.riv, room) === id)
+      this.sql.exec("DELETE FROM state WHERE name = 'load' AND value = ?", load.value);
     await this.bucket.delete(row.object_key);
     this.sql.exec("DELETE FROM assets WHERE id = ?", id);
   }

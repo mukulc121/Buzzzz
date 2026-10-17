@@ -51,10 +51,21 @@ export class RoomSockets {
     } satisfies IConnection);
     server.send(JSON.stringify({ type: "session", role: session.role, expiresAt: room.expires }));
     if (session.role === "phone") {
-      for (const row of this.ctx.storage.sql.exec<{ value: string }>(
-        "SELECT value FROM state ORDER BY name",
-      ))
+      for (const row of this.ctx.storage.sql.exec<{ name: string; value: string }>(
+        "SELECT name, value FROM state ORDER BY name",
+      )) {
+        if (row.name === "load") {
+          const message = parseMessage(row.value);
+          if (message?.type !== "load" || !this.assets.isRiveReady(message.riv, room)) {
+            this.ctx.storage.sql.exec(
+              "DELETE FROM state WHERE name = 'load' AND value = ?",
+              row.value,
+            );
+            continue;
+          }
+        }
         server.send(row.value);
+      }
     }
     this.peers();
     return new Response(null, { status: 101, webSocket: client });
@@ -108,6 +119,8 @@ export class RoomSockets {
         )
           throw new HttpError(401, "Session expired or revoked");
         if (message.type === "load") {
+          if (!this.assets.isRiveReady(message.riv, room))
+            throw new HttpError(404, "Asset not found");
           this.ctx.storage.sql.exec("DELETE FROM state");
           this.ctx.storage.sql.exec("INSERT INTO state (name, value) VALUES ('load', ?)", text);
         } else if (message.type === "map") {
@@ -204,6 +217,8 @@ export class RoomSockets {
       const room = this.active();
       await this.validateAssets(message, room);
       this.active();
+      if (message.type === "load" && !this.assets.isRiveReady(message.riv, room))
+        throw new HttpError(404, "Asset not found");
       this.broadcast(message, "phone");
       return { phones: this.phoneCount() };
     });
