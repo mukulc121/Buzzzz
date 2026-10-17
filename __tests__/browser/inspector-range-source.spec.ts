@@ -130,6 +130,16 @@ test("range limits include the attached audio window and animation duration", as
       JSON.stringify({ v: "5.12.2", fr: 60, ip: 0, op: 180, w: 100, h: 100, layers: [] }),
     ),
   });
+  await page.getByRole("button", { name: "Media", exact: true }).click();
+  const attachment = page.locator(".media-item").filter({ hasText: "range-animation.json" });
+  await expect(attachment).toContainText("Animation · this pattern · attached");
+  await expect(
+    attachment.getByRole("button", { name: "Remove range-animation.json", exact: true }),
+  ).toBeEnabled();
+  await expect(page.getByRole("region", { name: "Animation tools", exact: true })).toHaveAttribute(
+    "aria-busy",
+    "false",
+  );
   await page.getByRole("tab", { name: "inspector", exact: true }).click();
   await expect(end).toHaveValue("3000");
   await expect(end).toHaveAttribute("max", "3000");
