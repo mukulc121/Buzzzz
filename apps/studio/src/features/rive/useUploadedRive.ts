@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import type { IRoom } from "../connection/cloud";
 import { leaseRiveUpload } from "./riveUploadCache";
 interface IUpload {
@@ -9,36 +9,40 @@ interface IUpload {
 }
 export function useUploadedRive(props: IUpload) {
   const { buffer, room, enabled, onError } = props;
-  const roomId = room?.roomId ?? "lan";
+  const request = useMemo(() => (buffer ? { buffer, room } : null), [buffer, room]);
+  const reportError = useEffectEvent(onError);
   const lease = useRef<ReturnType<typeof leaseRiveUpload> | null>(null);
   const [uploaded, setUploaded] = useState<{
-    buffer: ArrayBuffer;
-    roomId: string;
+    request: NonNullable<typeof request>;
     path: string;
   } | null>(null);
   useEffect(() => {
-    if (!buffer) return;
-    const current = leaseRiveUpload(buffer, room, onError);
+    if (!request) return;
+    const current = leaseRiveUpload(request.buffer, request.room, (message) =>
+      reportError(message),
+    );
     lease.current = current;
     return () => {
       current.release();
       if (lease.current === current) lease.current = null;
     };
-  }, [buffer, room, roomId, onError]);
+  }, [request]);
   useEffect(() => {
-    if (!buffer || !enabled) return;
+    if (!request || !enabled || !lease.current) return;
+    const current = lease.current;
     let active = true;
-    void lease.current
-      ?.load()
+    void current
+      .load()
       .then((path) => {
-        if (active) setUploaded({ buffer, roomId, path });
+        if (active && lease.current === current) setUploaded({ request, path });
       })
       .catch((error: unknown) => {
-        if (active) onError(error instanceof Error ? error.message : "Could not send Rive file");
+        if (active)
+          reportError(error instanceof Error ? error.message : "Could not send Rive file");
       });
     return () => {
       active = false;
     };
-  }, [buffer, room, roomId, enabled, onError]);
-  return uploaded?.buffer === buffer && uploaded.roomId === roomId ? uploaded.path : null;
+  }, [request, enabled]);
+  return uploaded?.request === request ? uploaded.path : null;
 }

@@ -1,12 +1,22 @@
-import { useLayoutEffect, useEffectEvent, useMemo, useRef, useState, type RefObject } from "react";
+import {
+  useCallback,
+  useLayoutEffect,
+  useEffectEvent,
+  useMemo,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 import type { Rive } from "@rive-app/canvas";
 import type { IRiveConfig } from "@buzzzz/core";
 import { createRive } from "./createRive";
 
 type RiveInfo = { triggers: string[]; stateMachines: string[] };
+type TRivePlayback = "loading" | "playing" | "paused" | "suspended" | "completed";
 interface ILoadedRive {
   scene: TRiveScene;
   stateMachine: string | undefined;
+  started: boolean;
   info: RiveInfo;
 }
 type TRiveScene = Pick<IRive, "buffer" | "requestedStateMachine" | "config" | "active"> & {
@@ -42,15 +52,23 @@ export function useRive(props: IRive) {
   const fired = useEffectEvent(onFired);
   const reportError = useEffectEvent(onError);
   const stopHaptics = useEffectEvent(onStop);
+  const pauseHaptics = useEffectEvent(onPause);
   // Bumping the run id rebuilds the instance: animation from frame 0, fresh view model, listeners re-attached.
   const [run, setRun] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [playback, setPlayback] = useState<TRivePlayback>("loading");
+  const phase = useRef<TRivePlayback>("loading");
+  const updatePlayback = useCallback((next: TRivePlayback) => {
+    phase.current = next;
+    setPlayback(next);
+  }, []);
+  const acceptsTriggers = useCallback(() => phase.current === "playing", []);
   const scene = useMemo(
     () => ({ buffer, requestedStateMachine, config, active, run }),
     [buffer, requestedStateMachine, config, active, run],
   );
 
   useLayoutEffect(() => {
+    phase.current = "loading";
     const { buffer, requestedStateMachine, config, active } = scene;
     if (!active || !buffer || !canvas.current) return;
     let alive = true;
@@ -66,8 +84,11 @@ export function useRive(props: IRive) {
       onFired: fired,
       onError: reportError,
       onReady: (stateMachine, info) => {
-        setPaused(false);
-        setLoaded({ scene, stateMachine, info });
+        const autoplay = document.visibilityState === "visible";
+        updatePlayback(autoplay ? "playing" : "suspended");
+        if (!autoplay) pauseHaptics(true);
+        setLoaded({ scene, stateMachine, info, started: autoplay });
+        return autoplay;
       },
     })
       .then((r) => {
@@ -88,33 +109,44 @@ export function useRive(props: IRive) {
       if (rive.current === instance) rive.current = null;
       instance?.cleanup();
     };
-  }, [scene, canvas]);
+  }, [scene, canvas, updatePlayback]);
 
   const fire = (name: string) => rive.current?.viewModelInstance?.trigger(name)?.trigger();
   const restart = () => {
+    updatePlayback("loading");
     onStop();
     setRun((n) => n + 1);
   };
-  const setPause = (p: boolean) => {
-    if (p) {
-      rive.current?.pause();
-    } else rive.current?.play();
-    onPause(p);
-    setPaused(p);
+  const pause = (phase: "paused" | "suspended") => {
+    updatePlayback(phase);
+    rive.current?.pause();
+    onPause(true);
+  };
+  const setPause = (paused: boolean) => {
+    if (paused) pause("paused");
+    else if (loaded?.scene === scene && !loaded.started) restart();
+    else {
+      updatePlayback("playing");
+      onPause(false);
+      rive.current?.play();
+    }
   };
   const finish = () => {
+    updatePlayback("completed");
     onFinish();
     rive.current?.pause();
-    setPaused(true);
   };
   const current = active && loaded?.scene === scene ? loaded : null;
   return {
     info: current?.info ?? { triggers: [], stateMachines: [] },
     ready: current !== null,
+    acceptsTriggers,
     stateMachine: current?.stateMachine,
     fire,
     restart,
-    paused,
+    paused: playback !== "playing",
+    publishable: playback === "playing" || playback === "completed",
+    suspend: () => pause("suspended"),
     setPause,
     finish,
   };

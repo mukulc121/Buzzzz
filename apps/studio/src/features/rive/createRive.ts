@@ -13,7 +13,7 @@ interface ICreateRive {
   onReady: (
     machine: string | undefined,
     info: { triggers: string[]; stateMachines: string[] },
-  ) => void;
+  ) => boolean;
 }
 export async function createRive(props: ICreateRive): Promise<Rive | null> {
   const { Rive, RuntimeLoader } = await import("@rive-app/canvas");
@@ -57,8 +57,8 @@ export async function createRive(props: ICreateRive): Promise<Rive | null> {
         model?.trigger(name)?.on(() => {
           if (props.active()) props.onFired(name);
         });
-      props.onReady(machine, { triggers, stateMachines: machines });
-      if (machine || r.animationNames.length) r.play();
+      const autoplay = props.onReady(machine, { triggers, stateMachines: machines });
+      if (autoplay && (machine || r.animationNames.length)) r.play();
     },
     onLoadError: () => {
       if (props.active()) props.onError("This Rive file could not be loaded");

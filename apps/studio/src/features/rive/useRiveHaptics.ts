@@ -6,6 +6,7 @@ interface IRiveHaptics {
   config: IRiveConfig | undefined;
   onImpact: (preset: TSystemImpact) => void;
   onComplete: () => void;
+  onSuspend: () => void;
   fireTrigger: (name: string) => void;
   enabled: () => boolean;
 }
@@ -17,6 +18,7 @@ export function useRiveHaptics(props: IRiveHaptics) {
     callbacks.current = props;
   }, [props]);
   const controller = useRef<ReturnType<typeof createRiveHaptics> | null>(null);
+  const paused = useRef(false);
   useLayoutEffect(() => {
     const script = createRiveHaptics({
       play: (preset) => callbacks.current.onImpact(preset),
@@ -27,24 +29,37 @@ export function useRiveHaptics(props: IRiveHaptics) {
       onComplete: () => callbacks.current.onComplete(),
       fireTrigger: (name) => callbacks.current.fireTrigger(name),
     });
+    paused.current = false;
     controller.current = script;
     return () => {
       script.stop();
       if (controller.current === script) controller.current = null;
     };
   }, [config]);
-  const stop = useCallback(() => controller.current?.stop(), []);
-  const pause = useCallback(() => controller.current?.pause(), []);
-  const resume = useCallback(() => controller.current?.resume(), []);
+  const stop = useCallback(() => {
+    paused.current = false;
+    controller.current?.stop();
+  }, []);
+  const pause = useCallback(() => {
+    paused.current = true;
+    controller.current?.pause();
+  }, []);
+  const resume = useCallback(() => {
+    paused.current = false;
+    controller.current?.resume();
+  }, []);
   useEffect(() => {
+    const suspend = () => {
+      if (!paused.current) callbacks.current.onSuspend();
+    };
     const hide = () => {
-      if (document.visibilityState !== "visible") stop();
+      if (document.visibilityState !== "visible") suspend();
     };
     document.addEventListener("visibilitychange", hide);
-    window.addEventListener("pagehide", stop);
+    window.addEventListener("pagehide", suspend);
     return () => {
       document.removeEventListener("visibilitychange", hide);
-      window.removeEventListener("pagehide", stop);
+      window.removeEventListener("pagehide", suspend);
       stop();
     };
   }, [stop]);

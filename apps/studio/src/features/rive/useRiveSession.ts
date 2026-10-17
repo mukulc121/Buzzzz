@@ -61,6 +61,11 @@ export function useRiveSession(props: IRiveSession) {
     enabled: systemPreviewEnabled,
     fireTrigger: (name) => rive.fire(name),
     onComplete: () => rive.finish(),
+    onSuspend: () => {
+      if (!active || !rive.acceptsTriggers()) return;
+      rive.suspend();
+      relay.send({ type: "pause", paused: true });
+    },
   });
   const { stop: stopHaptics } = haptics;
   const requestedStateMachine = project.riveStateMachine;
@@ -96,7 +101,7 @@ export function useRiveSession(props: IRiveSession) {
       } else haptics.resume();
     },
     onFired: (name) => {
-      if (!active || rive.paused || document.visibilityState !== "visible") return;
+      if (!active || !rive.acceptsTriggers() || document.visibilityState !== "visible") return;
       addLog(`Studio fired ${name}`);
       flash(name);
       if (haptics.fire(name)) return;
@@ -107,7 +112,7 @@ export function useRiveSession(props: IRiveSession) {
   });
   const published = useRef<{ key: string; buffer: ArrayBuffer } | null>(null);
   const publishLoad = useEffectEvent((path: string) => {
-    if (!active || !riv) return;
+    if (!active || !riv || !rive.publishable) return;
     const key = JSON.stringify([projectId, path, rive.stateMachine, config, relay.joinVersion]);
     if (published.current?.key === key && published.current.buffer === riv.buffer) return;
     relay.send({
@@ -142,12 +147,21 @@ export function useRiveSession(props: IRiveSession) {
   const path = useUploadedRive({
     buffer: riv?.buffer ?? null,
     room,
-    enabled: active && hasPhones && rive.ready,
+    enabled: active && hasPhones && rive.ready && rive.publishable,
     onError,
   });
   useEffect(() => {
-    if (active && hasPhones && path && rive.ready) publishLoad(path);
-  }, [active, path, rive.stateMachine, rive.ready, hasPhones, joinVersion, config]);
+    if (active && hasPhones && path && rive.ready && rive.publishable) publishLoad(path);
+  }, [
+    active,
+    path,
+    rive.stateMachine,
+    rive.ready,
+    rive.publishable,
+    hasPhones,
+    joinVersion,
+    config,
+  ]);
   useEffect(() => {
     if (active) send({ type: "map", map: mapped });
   }, [active, mapped, send]);
