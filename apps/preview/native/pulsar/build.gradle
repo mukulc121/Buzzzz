@@ -1,0 +1,89 @@
+import groovy.json.JsonSlurper
+import java.security.MessageDigest
+
+buildscript {
+  repositories {
+    google()
+    mavenCentral()
+  }
+  dependencies {
+    classpath "org.jetbrains.kotlin:kotlin-serialization:${rootProject.ext.kotlinVersion}"
+  }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
+
+def pin = new JsonSlurper().parse(file('source.json'))
+
+group = 'com.swmansion'
+version = pin.androidVersion
+
+repositories {
+  google()
+  mavenCentral()
+  exclusiveContent {
+    forRepository {
+      ivy {
+        name = 'PulsarPinnedSource'
+        url = pin.archiveBaseUrl
+        patternLayout { artifact 'tar.gz/[revision]' }
+        metadataSources { artifact() }
+      }
+    }
+    filter { includeModule 'software-mansion', 'pulsar-source' }
+  }
+}
+
+configurations {
+  pulsarSourceArchive {
+    canBeConsumed = false
+    canBeResolved = true
+  }
+}
+
+def preparePulsar = tasks.register('preparePulsar', Sync) {
+  def archive = configurations.pulsarSourceArchive
+  inputs.property 'sha256', pin.sha256
+  doFirst {
+    def actual = MessageDigest.getInstance('SHA-256').digest(archive.singleFile.bytes).encodeHex().toString()
+    if (actual != pin.sha256) throw new GradleException('Pulsar source checksum mismatch')
+  }
+  from({ tarTree(resources.gzip(archive.singleFile)) }) {
+    include "pulsar-${pin.revision}/Android/Pulsar/src/main/**"
+    eachFile { path = path.split('/').drop(5).join('/') }
+    includeEmptyDirs = false
+  }
+  into layout.buildDirectory.dir('pulsar-source')
+}
+
+android {
+  namespace = 'com.swmansion.pulsar'
+  compileSdk = rootProject.ext.compileSdkVersion
+  defaultConfig { minSdk = 24 }
+  buildFeatures { buildConfig = true }
+  compileOptions {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+  }
+  sourceSets.main {
+    java.srcDir preparePulsar.map { new File(it.destinationDir, 'java') }
+    manifest.srcFile preparePulsar.map { new File(it.destinationDir, 'AndroidManifest.xml') }
+  }
+}
+
+kotlin {
+  compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) }
+}
+
+tasks.named('preBuild').configure { dependsOn preparePulsar }
+
+dependencies {
+  pulsarSourceArchive "software-mansion:pulsar-source:${pin.revision}@tar.gz"
+  implementation 'androidx.core:core-ktx:1.17.0'
+  implementation 'androidx.appcompat:appcompat:1.7.1'
+  implementation 'com.google.android.material:material:1.10.0'
+  implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3'
+  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2'
+}

@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.tools.json",
+  "include": ["__tests__/**/*.ts", "playwright.config.ts", "vite.config.mts"]
+}

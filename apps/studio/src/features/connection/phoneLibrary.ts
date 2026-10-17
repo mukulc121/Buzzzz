@@ -1,0 +1,22 @@
+import { sha256 } from "../../crypto";
+import { toDevice, type Msg, type Pattern, type Preset } from "@buzzzz/core";
+
+export type TPhonePreset = Pick<Extract<Msg, { type: "haptic-preset" }>, "resourceId" | "name">;
+
+export function phoneLibrary(presets: readonly Pick<Preset, "id" | "name">[]) {
+  return {
+    type: "library-manifest",
+    presets: presets.map((preset) => ({ resourceId: preset.id, name: preset.name })),
+  } satisfies Extract<Msg, { type: "library-manifest" }>;
+}
+
+export async function phonePlayback(pattern: Pattern, preset?: TPhonePreset) {
+  const device = toDevice(pattern);
+  if (!preset) return { type: "play", pattern: device } satisfies Msg;
+  const version = await phoneVersion(device);
+  return { type: "haptic-preset", ...preset, version, pattern: device } satisfies Msg;
+}
+
+export async function phoneVersion(value: unknown) {
+  return sha256(new TextEncoder().encode(JSON.stringify(value)).buffer);
+}

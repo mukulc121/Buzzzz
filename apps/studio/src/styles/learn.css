@@ -1,0 +1,59 @@
+@import "./learn-cards.css";
+@import "./learn-tour.css";
+@import "./learn-notices.css";
+
+.learn-dialog {
+  --learn-animation-bg: rgba(246, 201, 218, 1);
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  padding: 24px;
+  margin: auto;
+  border: 2px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--fg);
+  box-shadow: -6px 6px 0 var(--line-strong);
+}
+:root[data-theme="dark"] .learn-dialog {
+  --learn-animation-bg: rgba(92, 39, 64, 1);
+}
+.learn-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+.learn-dialog > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.learn-dialog > header h2 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--fg);
+  text-transform: none;
+}
+.learn-dialog > footer {
+  margin-top: 24px;
+}
+.learn-dialog > footer button {
+  min-height: 40px;
+  padding: 10px 20px;
+  font-size: 16px;
+}
+@media (max-width: 480px) {
+  .learn-dialog {
+    padding: 16px;
+  }
+  .learn-dialog > header h2 {
+    font-size: 22px;
+  }
+  .learn-dialog > footer > div {
+    width: 100%;
+  }
+  .learn-dialog > footer button {
+    white-space: normal;
+  }
+}

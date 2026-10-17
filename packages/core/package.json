@@ -1,0 +1,14 @@
+{
+  "name": "@buzzzz/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./presets": "./src/presets/library.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "sync-presets": "bun scripts/sync-presets.mts"
+  }
+}

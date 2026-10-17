@@ -1,0 +1,276 @@
+{
+  "source": "Pulsar published IPA module1948 patternStartingAt sound branch; decompiler object slot0 restored to sound",
+  "sourceSha256": "6de29b5a3ebdda3a11e1cca300a2b076455d6e6d82a5e780de7d8cbeba24df68",
+  "cases": [
+    {
+      "sound": {
+        "uri": "file:///clip.mp3"
+      },
+      "time": 1,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "start": 1,
+        "duration": 0
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3"
+      },
+      "time": 250,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "start": 250,
+        "duration": 0
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3"
+      },
+      "time": 500,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "start": 500,
+        "duration": 0
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3"
+      },
+      "time": 700,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "start": 700,
+        "duration": 0
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3"
+      },
+      "time": 1200,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "start": 1200,
+        "duration": 0
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3"
+      },
+      "time": 1800,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "start": 1800,
+        "duration": 0
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3",
+        "volume": 0,
+        "offset": 500,
+        "start": 200,
+        "duration": 1200
+      },
+      "time": 1,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "volume": 0,
+        "offset": 500,
+        "start": 201,
+        "duration": 1199
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3",
+        "volume": 0,
+        "offset": 500,
+        "start": 200,
+        "duration": 1200
+      },
+      "time": 250,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "volume": 0,
+        "offset": 500,
+        "start": 450,
+        "duration": 950
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3",
+        "volume": 0,
+        "offset": 500,
+        "start": 200,
+        "duration": 1200
+      },
+      "time": 500,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "volume": 0,
+        "offset": 500,
+        "start": 700,
+        "duration": 700
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3",
+        "volume": 0,
+        "offset": 500,
+        "start": 200,
+        "duration": 1200
+      },
+      "time": 700,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "volume": 0,
+        "offset": 500,
+        "start": 900,
+        "duration": 500
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3",
+        "volume": 0,
+        "offset": 500,
+        "start": 200,
+        "duration": 1200
+      },
+      "time": 1200,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "volume": 0,
+        "offset": 500,
+        "start": 1400,
+        "duration": 0
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3",
+        "volume": 0,
+        "offset": 500,
+        "start": 200,
+        "duration": 1200
+      },
+      "time": 1800,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "volume": 0,
+        "offset": 500,
+        "start": 2000,
+        "duration": 0
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3",
+        "volume": 1,
+        "offset": 700,
+        "start": 30,
+        "duration": 0
+      },
+      "time": 1,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "volume": 1,
+        "offset": 700,
+        "start": 31,
+        "duration": 0
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3",
+        "volume": 1,
+        "offset": 700,
+        "start": 30,
+        "duration": 0
+      },
+      "time": 250,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "volume": 1,
+        "offset": 700,
+        "start": 280,
+        "duration": 0
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3",
+        "volume": 1,
+        "offset": 700,
+        "start": 30,
+        "duration": 0
+      },
+      "time": 500,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "volume": 1,
+        "offset": 700,
+        "start": 530,
+        "duration": 0
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3",
+        "volume": 1,
+        "offset": 700,
+        "start": 30,
+        "duration": 0
+      },
+      "time": 700,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "volume": 1,
+        "offset": 700,
+        "start": 730,
+        "duration": 0
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3",
+        "volume": 1,
+        "offset": 700,
+        "start": 30,
+        "duration": 0
+      },
+      "time": 1200,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "volume": 1,
+        "offset": 700,
+        "start": 1230,
+        "duration": 0
+      }
+    },
+    {
+      "sound": {
+        "uri": "file:///clip.mp3",
+        "volume": 1,
+        "offset": 700,
+        "start": 30,
+        "duration": 0
+      },
+      "time": 1800,
+      "expected": {
+        "uri": "file:///clip.mp3",
+        "volume": 1,
+        "offset": 700,
+        "start": 1830,
+        "duration": 0
+      }
+    }
+  ]
+}

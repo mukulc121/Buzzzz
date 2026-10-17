@@ -1,0 +1,13 @@
+diff --git a/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewPropertyManager.kt b/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewPropertyManager.kt
+--- a/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewPropertyManager.kt
++++ b/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewPropertyManager.kt
+@@ -123,7 +123,8 @@
+         }
+ 
+         animationURL?.let {
+-            var file = File(it)
++            val uri = Uri.parse(it)
++            val file = File(if (uri.scheme == "file") uri.path ?: it else it)
+             if (file.exists()) {
+                 view.setAnimation(FileInputStream(file), it.hashCode().toString())
+             } else {

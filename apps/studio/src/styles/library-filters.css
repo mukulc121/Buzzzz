@@ -1,0 +1,101 @@
+.library-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border: 2px solid var(--line);
+  border-radius: 4px;
+}
+.library-filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.library-filter-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: normal;
+}
+.library-filter-toggle:hover {
+  color: var(--fg);
+}
+.library-filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-size: 10px;
+  letter-spacing: 0;
+}
+.library-filter-clear {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg-2);
+  font-size: 12px;
+  font-weight: 500;
+}
+.library-filter-clear:hover {
+  text-decoration: underline;
+}
+.library-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.library-filter-group > h4 {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.library-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+.library-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 0;
+  padding: 3px 9px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.library-filter-chip[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--line-strong);
+  color: var(--accent-fg);
+}
+.library-filter-chip > span {
+  opacity: 0.65;
+}
+.library-filter-chip svg {
+  width: 12px;
+  height: 12px;
+}

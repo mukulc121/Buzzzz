@@ -1,0 +1,127 @@
+/* Pulsar Studio Button and IconButton states. */
+:is(
+  button.primary:not(.dashboard-button),
+  button.secondary:not(.dashboard-button),
+  .button,
+  .device-connect,
+  .device-connected > button,
+  .device-pairing > button,
+  .library-detail-play,
+  :is(.tool-content, .floating-tool-body) > .panel-content > .row > button:not([class]),
+  .panel-content > button:not([class]),
+  .panel-content > section .field > button:not([class]),
+  .inspector-exports > button,
+  .mcp-actions > button:not(.icon)
+) {
+  gap: 8px;
+  min-width: 0;
+  padding: var(--button-padding, 12px 20px);
+  border: 2px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--fg);
+  font-size: var(--button-font-size, 16px);
+  font-weight: 500;
+  line-height: 1;
+  user-select: none;
+  box-shadow: var(--shadow);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--line-strong);
+    background: var(--panel);
+    color: var(--fg);
+    transform: translate(1px, -1px);
+    box-shadow: -5px 5px 0 var(--button-shadow);
+  }
+
+  &:active:not(:disabled) {
+    transform: translate(-3px, 3px);
+    box-shadow: -1px 1px 0 var(--line-strong);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--button-focus);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    transform: none;
+    box-shadow: none;
+  }
+
+  &.primary,
+  &.primary:hover:not(:disabled) {
+    background: var(--primary-bg);
+  }
+}
+
+/* Source callsites use small buttons for panel actions; dialog footers keep medium. */
+:is(
+  .device-connect,
+  .device-connected > button,
+  .device-pairing > button,
+  .library-detail-play,
+  .workspace-inspector button.primary,
+  .inspector-exports > button,
+  .mcp-panel button:not(.icon),
+  :is(.tool-content, .floating-tool-body) > .panel-content > button,
+  :is(.tool-content, .floating-tool-body) > .panel-content > .row > button
+) {
+  --button-padding: 8px 14px;
+  --button-font-size: 14px;
+}
+
+:root {
+  --button-shadow: rgba(56, 172, 221, 1);
+  --button-focus: rgba(43, 133, 171, 1);
+}
+
+:root[data-theme="dark"] {
+  --button-shadow: rgba(5, 8, 15, 1);
+  --button-focus: rgba(108, 199, 239, 1);
+}
+
+button.icon,
+.tool-rail button {
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  &:focus-visible {
+    outline: 2px solid var(--button-focus);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+button.icon:hover:not(:disabled) {
+  background: var(--plot);
+  border-color: var(--line);
+  color: var(--fg);
+}
+
+.tool-rail button:hover:not(:disabled) {
+  background: var(--plot);
+  color: var(--fg);
+}
+
+.tool-rail button:not(.active):hover:not(:disabled) {
+  border-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button,
+  .button {
+    transition-duration: 0s;
+  }
+}

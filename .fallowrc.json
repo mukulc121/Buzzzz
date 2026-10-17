@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  "boundaries": {
+    "zones": [
+      { "name": "core", "patterns": ["packages/core/src/**"] },
+      { "name": "studio", "patterns": ["apps/studio/src/**"] },
+      {
+        "name": "relay",
+        "patterns": ["apps/studio/server/**", "apps/studio/vite.config.ts", "apps/relay/src/**"]
+      },
+      { "name": "preview", "patterns": ["apps/preview/**"] },
+      { "name": "explainer", "patterns": ["apps/explainer/**"] }
+    ],
+    "rules": [
+      { "from": "core", "allow": ["core"] },
+      { "from": "studio", "allow": ["studio", "core"] },
+      { "from": "relay", "allow": ["relay", "core"] },
+      { "from": "preview", "allow": ["preview", "core"] },
+      { "from": "explainer", "allow": ["explainer"] }
+    ]
+  }
+}

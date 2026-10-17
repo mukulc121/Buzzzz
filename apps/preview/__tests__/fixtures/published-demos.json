@@ -1,0 +1,779 @@
+{
+  "provenance": {
+    "balloon": {
+      "ipaModule": 1585,
+      "apkModule": 1681,
+      "constantsSha256": "b8fa5471f4a17e28938f3db5a4db7bd7ed6de3eb0b4beb54e36cd17c3474884d",
+      "profiles": [
+        {
+          "chargeMs": 950,
+          "ampMin": 0.05,
+          "ampMid": 0.28,
+          "ampMax": 0.75,
+          "freqHigh": 0.75,
+          "freqLow": 0.22,
+          "shakeImpulseFreq": 0.5,
+          "shakeAmt": 5,
+          "shakeDur": 40,
+          "shakeThreshold": 0.75
+        },
+        {
+          "chargeMs": 1100,
+          "ampMin": 0.07,
+          "ampMid": 0.35,
+          "ampMax": 0.85,
+          "freqHigh": 0.5,
+          "freqLow": 0.1,
+          "shakeImpulseFreq": 0.18,
+          "shakeAmt": 8,
+          "shakeDur": 58,
+          "shakeThreshold": 0.72
+        },
+        {
+          "chargeMs": 780,
+          "ampMin": 0.03,
+          "ampMid": 0.18,
+          "ampMax": 0.5,
+          "freqHigh": 0.95,
+          "freqLow": 0.4,
+          "shakeImpulseFreq": 0.82,
+          "shakeAmt": 4,
+          "shakeDur": 26,
+          "shakeThreshold": 0.78
+        },
+        {
+          "chargeMs": 870,
+          "ampMin": 0.06,
+          "ampMid": 0.25,
+          "ampMax": 0.75,
+          "freqHigh": 0.68,
+          "freqLow": 0.18,
+          "shakeImpulseFreq": 0.42,
+          "shakeAmt": 6,
+          "shakeDur": 32,
+          "shakeThreshold": 0.73
+        }
+      ],
+      "releaseMs": 180,
+      "fadeMs": 120,
+      "resetMs": 1000,
+      "longPressMs": 140
+    },
+    "dots": {
+      "ipaModule": 1590,
+      "apkModule": 1686,
+      "constantsSha256": "0ca1df5ec2ef69fa5871aa9d820a13e98155a52cafa32674c99de6733f786d6c",
+      "patterns": [
+        {
+          "discretePattern": [
+            {
+              "time": 0,
+              "amplitude": 0.8,
+              "frequency": 0.9
+            },
+            {
+              "time": 40,
+              "amplitude": 0,
+              "frequency": 0.9
+            }
+          ],
+          "continuousPattern": {
+            "amplitude": [],
+            "frequency": []
+          }
+        },
+        {
+          "discretePattern": [
+            {
+              "time": 0,
+              "amplitude": 0.6,
+              "frequency": 0.6
+            },
+            {
+              "time": 50,
+              "amplitude": 0,
+              "frequency": 0.6
+            }
+          ],
+          "continuousPattern": {
+            "amplitude": [],
+            "frequency": []
+          }
+        },
+        {
+          "discretePattern": [
+            {
+              "time": 0,
+              "amplitude": 0.7,
+              "frequency": 0.8
+            },
+            {
+              "time": 45,
+              "amplitude": 0,
+              "frequency": 0.8
+            }
+          ],
+          "continuousPattern": {
+            "amplitude": [],
+            "frequency": []
+          }
+        }
+      ],
+      "cycleMs": 1500,
+      "staggerMs": 220,
+      "impactMs": 315
+    },
+    "notifications": {
+      "ipaModule": 1949,
+      "apkModule": 2034,
+      "constantsSha256": "c69814777d574524585f54e05ff2be78a33c62785b74f08a2abf881a5eb904c9",
+      "notifications": [
+        {
+          "id": "success",
+          "title": "Success",
+          "message": "Payment received successfully",
+          "color": "rgba(16, 185, 129, 1)",
+          "glyph": 61982,
+          "preset": "stamp"
+        },
+        {
+          "id": "alert",
+          "title": "Alert",
+          "message": "Low battery warning",
+          "color": "rgba(245, 158, 11, 1)",
+          "glyph": 63016,
+          "preset": "peal"
+        },
+        {
+          "id": "message",
+          "title": "Message",
+          "message": "You have a new message",
+          "color": "rgba(59, 130, 246, 1)",
+          "glyph": 62512,
+          "preset": "chime"
+        },
+        {
+          "id": "error",
+          "title": "Error",
+          "message": "Connection failed",
+          "color": "rgba(239, 68, 68, 1)",
+          "glyph": 62027,
+          "preset": "buzz"
+        },
+        {
+          "id": "reminder",
+          "title": "Reminder",
+          "message": "Meeting starts in 15 minutes",
+          "color": "rgba(139, 92, 246, 1)",
+          "glyph": 61708,
+          "preset": "swell"
+        }
+      ],
+      "stepMs": 1000
+    }
+  },
+  "progressCases": [
+    {
+      "index": 0,
+      "current": 0,
+      "previous": 0,
+      "active": false,
+      "calls": [
+        {
+          "kind": "stop"
+        }
+      ]
+    },
+    {
+      "index": 0,
+      "current": 0,
+      "previous": 0,
+      "active": true,
+      "calls": []
+    },
+    {
+      "index": 0,
+      "current": 0.25,
+      "previous": 0.2,
+      "active": true,
+      "calls": [
+        {
+          "kind": "set",
+          "amplitude": 0.12666666666666668,
+          "frequency": 0.5733333333333334
+        }
+      ]
+    },
+    {
+      "index": 0,
+      "current": 0.75,
+      "previous": 0.74,
+      "active": true,
+      "calls": [
+        {
+          "kind": "shakeStart"
+        }
+      ]
+    },
+    {
+      "index": 0,
+      "current": 0.74,
+      "previous": 0.75,
+      "active": true,
+      "calls": [
+        {
+          "kind": "set",
+          "amplitude": 0.27693333333333336,
+          "frequency": 0.22706666666666664
+        },
+        {
+          "kind": "shakeStop"
+        }
+      ]
+    },
+    {
+      "index": 0,
+      "current": 1,
+      "previous": 0.99,
+      "active": true,
+      "calls": [
+        {
+          "kind": "stop"
+        },
+        {
+          "kind": "discrete",
+          "amplitude": 1,
+          "frequency": 1
+        },
+        {
+          "kind": "pop"
+        }
+      ]
+    },
+    {
+      "index": 0,
+      "current": 0,
+      "previous": 0.01,
+      "active": true,
+      "calls": [
+        {
+          "kind": "stop"
+        },
+        {
+          "kind": "discrete",
+          "amplitude": 0.18,
+          "frequency": 0.22
+        }
+      ]
+    },
+    {
+      "index": 0,
+      "current": 1,
+      "previous": 1,
+      "active": true,
+      "calls": []
+    },
+    {
+      "index": 1,
+      "current": 0,
+      "previous": 0,
+      "active": false,
+      "calls": [
+        {
+          "kind": "stop"
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "current": 0,
+      "previous": 0,
+      "active": true,
+      "calls": []
+    },
+    {
+      "index": 1,
+      "current": 0.25,
+      "previous": 0.2,
+      "active": true,
+      "calls": [
+        {
+          "kind": "set",
+          "amplitude": 0.16722222222222222,
+          "frequency": 0.3611111111111111
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "current": 0.72,
+      "previous": 0.71,
+      "active": true,
+      "calls": [
+        {
+          "kind": "shakeStart"
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "current": 0.71,
+      "previous": 0.72,
+      "active": true,
+      "calls": [
+        {
+          "kind": "set",
+          "amplitude": 0.3461111111111111,
+          "frequency": 0.10555555555555557
+        },
+        {
+          "kind": "shakeStop"
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "current": 1,
+      "previous": 0.99,
+      "active": true,
+      "calls": [
+        {
+          "kind": "stop"
+        },
+        {
+          "kind": "discrete",
+          "amplitude": 1,
+          "frequency": 1
+        },
+        {
+          "kind": "pop"
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "current": 0,
+      "previous": 0.01,
+      "active": true,
+      "calls": [
+        {
+          "kind": "stop"
+        },
+        {
+          "kind": "discrete",
+          "amplitude": 0.18,
+          "frequency": 0.1
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "current": 1,
+      "previous": 1,
+      "active": true,
+      "calls": []
+    },
+    {
+      "index": 2,
+      "current": 0,
+      "previous": 0,
+      "active": false,
+      "calls": [
+        {
+          "kind": "stop"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "current": 0,
+      "previous": 0,
+      "active": true,
+      "calls": []
+    },
+    {
+      "index": 2,
+      "current": 0.25,
+      "previous": 0.2,
+      "active": true,
+      "calls": [
+        {
+          "kind": "set",
+          "amplitude": 0.07807692307692307,
+          "frequency": 0.7737179487179487
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "current": 0.78,
+      "previous": 0.77,
+      "active": true,
+      "calls": [
+        {
+          "kind": "shakeStart"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "current": 0.77,
+      "previous": 0.78,
+      "active": true,
+      "calls": [
+        {
+          "kind": "set",
+          "amplitude": 0.17807692307692305,
+          "frequency": 0.40705128205128216
+        },
+        {
+          "kind": "shakeStop"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "current": 1,
+      "previous": 0.99,
+      "active": true,
+      "calls": [
+        {
+          "kind": "stop"
+        },
+        {
+          "kind": "discrete",
+          "amplitude": 1,
+          "frequency": 1
+        },
+        {
+          "kind": "pop"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "current": 0,
+      "previous": 0.01,
+      "active": true,
+      "calls": [
+        {
+          "kind": "stop"
+        },
+        {
+          "kind": "discrete",
+          "amplitude": 0.18,
+          "frequency": 0.4
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "current": 1,
+      "previous": 1,
+      "active": true,
+      "calls": []
+    },
+    {
+      "index": 3,
+      "current": 0,
+      "previous": 0,
+      "active": false,
+      "calls": [
+        {
+          "kind": "stop"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "current": 0,
+      "previous": 0,
+      "active": true,
+      "calls": []
+    },
+    {
+      "index": 3,
+      "current": 0.25,
+      "previous": 0.2,
+      "active": true,
+      "calls": [
+        {
+          "kind": "set",
+          "amplitude": 0.1250684931506849,
+          "frequency": 0.5087671232876713
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "current": 0.73,
+      "previous": 0.72,
+      "active": true,
+      "calls": [
+        {
+          "kind": "shakeStart"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "current": 0.72,
+      "previous": 0.73,
+      "active": true,
+      "calls": [
+        {
+          "kind": "set",
+          "amplitude": 0.2473972602739726,
+          "frequency": 0.18684931506849323
+        },
+        {
+          "kind": "shakeStop"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "current": 1,
+      "previous": 0.99,
+      "active": true,
+      "calls": [
+        {
+          "kind": "stop"
+        },
+        {
+          "kind": "discrete",
+          "amplitude": 1,
+          "frequency": 1
+        },
+        {
+          "kind": "pop"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "current": 0,
+      "previous": 0.01,
+      "active": true,
+      "calls": [
+        {
+          "kind": "stop"
+        },
+        {
+          "kind": "discrete",
+          "amplitude": 0.18,
+          "frequency": 0.18
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "current": 1,
+      "previous": 1,
+      "active": true,
+      "calls": []
+    }
+  ],
+  "shakeCases": [
+    {
+      "index": 0,
+      "progress": 0.74,
+      "previous": 1,
+      "current": -1,
+      "calls": []
+    },
+    {
+      "index": 0,
+      "progress": 0.75,
+      "previous": 1,
+      "current": -1,
+      "calls": [
+        {
+          "amplitude": 0.28,
+          "frequency": 0.5
+        }
+      ]
+    },
+    {
+      "index": 0,
+      "progress": 0.875,
+      "previous": -1,
+      "current": 1,
+      "calls": [
+        {
+          "amplitude": 0.515,
+          "frequency": 0.5
+        }
+      ]
+    },
+    {
+      "index": 0,
+      "progress": 1,
+      "previous": 1,
+      "current": -1,
+      "calls": [
+        {
+          "amplitude": 0.75,
+          "frequency": 0.5
+        }
+      ]
+    },
+    {
+      "index": 0,
+      "progress": 1,
+      "previous": 0.5,
+      "current": -1,
+      "calls": []
+    },
+    {
+      "index": 1,
+      "progress": 0.71,
+      "previous": 1,
+      "current": -1,
+      "calls": []
+    },
+    {
+      "index": 1,
+      "progress": 0.72,
+      "previous": 1,
+      "current": -1,
+      "calls": [
+        {
+          "amplitude": 0.35,
+          "frequency": 0.18
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "progress": 0.86,
+      "previous": -1,
+      "current": 1,
+      "calls": [
+        {
+          "amplitude": 0.6,
+          "frequency": 0.18
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "progress": 1,
+      "previous": 1,
+      "current": -1,
+      "calls": [
+        {
+          "amplitude": 0.85,
+          "frequency": 0.18
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "progress": 1,
+      "previous": 0.5,
+      "current": -1,
+      "calls": []
+    },
+    {
+      "index": 2,
+      "progress": 0.77,
+      "previous": 1,
+      "current": -1,
+      "calls": []
+    },
+    {
+      "index": 2,
+      "progress": 0.78,
+      "previous": 1,
+      "current": -1,
+      "calls": [
+        {
+          "amplitude": 0.18,
+          "frequency": 0.82
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "progress": 0.89,
+      "previous": -1,
+      "current": 1,
+      "calls": [
+        {
+          "amplitude": 0.33999999999999997,
+          "frequency": 0.82
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "progress": 1,
+      "previous": 1,
+      "current": -1,
+      "calls": [
+        {
+          "amplitude": 0.5,
+          "frequency": 0.82
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "progress": 1,
+      "previous": 0.5,
+      "current": -1,
+      "calls": []
+    },
+    {
+      "index": 3,
+      "progress": 0.72,
+      "previous": 1,
+      "current": -1,
+      "calls": []
+    },
+    {
+      "index": 3,
+      "progress": 0.73,
+      "previous": 1,
+      "current": -1,
+      "calls": [
+        {
+          "amplitude": 0.25,
+          "frequency": 0.42
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "progress": 0.865,
+      "previous": -1,
+      "current": 1,
+      "calls": [
+        {
+          "amplitude": 0.5,
+          "frequency": 0.42
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "progress": 1,
+      "previous": 1,
+      "current": -1,
+      "calls": [
+        {
+          "amplitude": 0.75,
+          "frequency": 0.42
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "progress": 1,
+      "previous": 0.5,
+      "current": -1,
+      "calls": []
+    }
+  ]
+}

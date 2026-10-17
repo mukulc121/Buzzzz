@@ -1,0 +1,37 @@
+.mobile-notice {
+  position: fixed;
+  right: 8px;
+  bottom: 8px;
+  left: 8px;
+  z-index: 60;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 16px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+.mobile-notice > svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  color: var(--amp);
+}
+.mobile-notice p {
+  flex: 1;
+  margin: 0;
+  color: var(--fg);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.mobile-notice button {
+  min-height: 24px;
+  width: 24px;
+  flex: none;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+}

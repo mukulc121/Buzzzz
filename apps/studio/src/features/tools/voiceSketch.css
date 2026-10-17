@@ -1,0 +1,192 @@
+.voice-sketch {
+  --voice-strong: rgba(43, 133, 171, 1);
+  --voice-danger: rgba(214, 69, 69, 1);
+  --voice-danger-bg: rgba(253, 236, 236, 1);
+  --settings-blue-30: rgba(135, 204, 232, 1);
+  --settings-accent-strong: var(--voice-strong);
+  --settings-focus-ring: rgba(56, 172, 221, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.voice-sketch section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.voice-sketch h3 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+.voice-sketch .voice-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.voice-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+}
+.voice-field > * {
+  min-width: 0;
+}
+.voice-field .settings-select {
+  width: auto;
+}
+.voice-pad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  min-height: 132px;
+  padding: 24px;
+  border: 2px dashed var(--line-strong);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--voice-strong);
+  cursor: pointer;
+  user-select: none;
+  box-shadow: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+.voice-pad:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--panel);
+}
+.voice-pad:disabled {
+  cursor: progress;
+}
+.voice-pad:focus-visible {
+  outline: 2px solid var(--voice-strong);
+  outline-offset: 2px;
+}
+.voice-pad[data-recording="true"] {
+  border-style: solid;
+  border-color: var(--voice-danger);
+  background: var(--voice-danger-bg);
+  color: var(--voice-danger);
+}
+.voice-pad-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+.voice-spin {
+  animation: voice-spin 1s linear infinite;
+}
+@keyframes voice-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.voice-meter {
+  width: 100%;
+  height: 6px;
+  margin-top: 4px;
+  border-radius: 2px;
+  background: var(--panel);
+  overflow: hidden;
+}
+.voice-meter > span {
+  display: block;
+  height: 100%;
+  background: var(--voice-danger);
+  transition: width 0.15s ease linear;
+}
+.voice-preview {
+  width: 100%;
+  height: 64px;
+  border: 2px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--panel);
+}
+.voice-preview polyline {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2px;
+  stroke-linejoin: round;
+}
+.voice-preview-event {
+  stroke: var(--voice-strong);
+  stroke-width: 1px;
+  opacity: 0.45;
+}
+.voice-sketch .voice-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+}
+.voice-stats > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--line);
+}
+.voice-stats > div:last-child {
+  border-bottom: none;
+}
+.voice-stats dt {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.voice-sketch .voice-stats dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+.voice-error {
+  margin: 0;
+  padding: 8px;
+  border: 2px solid var(--voice-danger);
+  border-radius: 4px;
+  background: var(--voice-danger-bg);
+  color: var(--voice-danger);
+  font-size: 12px;
+}
+.voice-sketch .row button {
+  --button-padding: 8px 14px;
+  --button-font-size: 14px;
+}
+.voice-sketch .row {
+  gap: 8px;
+  align-items: center;
+}
+.voice-discard {
+  padding: 8px 14px;
+  border: 2px solid transparent;
+  background: transparent;
+  color: var(--fg);
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 500;
+}
+.voice-discard:hover {
+  background: var(--plot);
+}
+
+:root[data-theme="dark"] .voice-sketch {
+  --voice-strong: rgba(108, 199, 239, 1);
+  --voice-danger: rgba(242, 128, 127, 1);
+  --voice-danger-bg: rgba(58, 28, 28, 1);
+  --settings-blue-30: rgba(44, 74, 99, 1);
+  --settings-focus-ring: rgba(63, 177, 230, 0.35);
+}

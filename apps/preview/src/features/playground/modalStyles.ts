@@ -1,0 +1,52 @@
+import { StyleSheet } from "react-native";
+import { colors } from "../../theme/colors";
+
+export const modalStyles = StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: colors.white },
+  container: { flex: 1, backgroundColor: colors.white },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingVertical: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.tag,
+  },
+  closeButton: { paddingVertical: 8, paddingLeft: 12 },
+  scrollContent: { padding: 15 },
+  infoBox: { backgroundColor: colors.background, borderRadius: 4, padding: 15, marginTop: 20 },
+  sectionTitle: { fontSize: 20, fontWeight: "600", marginBottom: 16 },
+  controlsTitle: { marginTop: 24 },
+  instruction: { marginBottom: 16 },
+  instructionLabel: { fontSize: 16, fontWeight: "600", lineHeight: 24 },
+  instructionText: { fontSize: 16, lineHeight: 24, flex: 1 },
+  controlsIntro: { fontWeight: "600", fontSize: 16, lineHeight: 24, marginBottom: 16 },
+  buttonContainer: { marginTop: 24, marginBottom: 16 },
+  optionsList: { gap: 12 },
+  optionCard: {
+    borderWidth: 2,
+    borderColor: colors.checked,
+    borderRadius: 8,
+    backgroundColor: colors.white,
+    padding: 12,
+  },
+  optionCardSelected: { borderColor: colors.navy },
+  optionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    marginBottom: 6,
+  },
+  optionIndicator: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 2,
+    borderColor: colors.checked,
+    backgroundColor: "rgba(0, 0, 0, 0)",
+  },
+  optionIndicatorSelected: { borderColor: colors.navy, backgroundColor: colors.navy },
+  optionDescription: { fontSize: 15, lineHeight: 22 },
+});

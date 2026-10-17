@@ -1,0 +1,90 @@
+[
+  {
+    "group": "Intensity",
+    "tags": [
+      {
+        "name": "Gentle",
+        "description": "Haptics with low amplitude - barely perceptible vibration that stays in the background."
+      },
+      {
+        "name": "Substantial",
+        "description": "Haptics with medium amplitude - a clear, balanced vibration that is easy to notice without being disruptive."
+      },
+      {
+        "name": "Bold",
+        "description": "Haptics with high amplitude - a strong, attention-commanding vibration that is immediately felt."
+      }
+    ]
+  },
+  {
+    "group": "Sharpness",
+    "tags": [
+      {
+        "name": "Soft",
+        "description": "Haptics with low frequency - a smooth, rounded vibration with a gentle, cushioned feel."
+      },
+      {
+        "name": "Flexible",
+        "description": "Haptics with medium frequency - a balanced vibration that sits between soft and rigid."
+      },
+      {
+        "name": "Rigid",
+        "description": "Haptics with high frequency - a crisp, precise vibration with a sharp, mechanical feel."
+      }
+    ]
+  },
+  {
+    "group": "Shape",
+    "tags": [
+      {
+        "name": "Peak",
+        "description": "Haptics with a single amplitude peak - a quick rise and fall in intensity."
+      },
+      {
+        "name": "Impulses",
+        "description": "Haptics with a discrete pattern - short, distinct pulses separated by silence."
+      },
+      {
+        "name": "Solid",
+        "description": "Haptics with a long continuous pattern at a constant amplitude - a steady, uniform vibration."
+      },
+      {
+        "name": "Bumps",
+        "description": "Haptics with multiple amplitude peaks - a series of rhythmic rises and falls."
+      },
+      {
+        "name": "Saw",
+        "description": "Haptics with a sawtooth-shaped amplitude pattern - a sharp rise followed by an abrupt drop, or vice versa."
+      },
+      {
+        "name": "Pattern",
+        "description": "Haptics with a custom, often repeating amplitude pattern - a structured sequence that defines a unique rhythm."
+      },
+      {
+        "name": "Ramp",
+        "description": "Haptics with a ramp-shaped amplitude pattern - amplitude increases or decreases linearly over the duration."
+      }
+    ]
+  },
+  {
+    "group": "Duration",
+    "tags": [
+      {
+        "name": "Impulse",
+        "description": "Extremely short haptic lasting less than 100 ms - an instantaneous tactile click."
+      },
+      {
+        "name": "Short",
+        "description": "Brief haptic lasting between 100 ms and 250 ms - long enough to be clearly felt without lingering."
+      },
+      {
+        "name": "Extended",
+        "description": "Medium-length haptic lasting between 250 ms and 600 ms - provides richer, more expressive feedback."
+      },
+      {
+        "name": "Long",
+        "description": "Prolonged haptic lasting 600 ms or more - creates an immersive, sustained tactile experience."
+      }
+    ]
+  }
+]

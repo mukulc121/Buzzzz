@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["bun", "vite/client"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "resolveJsonModule": true
+  },
+  "exclude": ["apps/relay/**"],
+  "include": [
+    "__tests__/**/*.ts",
+    "__tests__/**/*.mts",
+    "apps/**/__tests__/**/*.ts",
+    "apps/**/scripts/**/*.mts",
+    "packages/core/scripts/**/*.mts",
+    "packages/**/__tests__/**/*.ts",
+    "playwright.config.ts",
+    "vite.config.mts"
+  ]
+}

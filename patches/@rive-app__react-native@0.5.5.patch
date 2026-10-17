@@ -1,0 +1,365 @@
+diff --git a/android/src/new/java/com/rive/RiveReactNativeView.kt b/android/src/new/java/com/rive/RiveReactNativeView.kt
+--- a/android/src/new/java/com/rive/RiveReactNativeView.kt
++++ b/android/src/new/java/com/rive/RiveReactNativeView.kt
+@@ -115,6 +115,10 @@
+   // (initial content, resize, rebinding) — otherwise a paused view would keep
+   // re-rendering identical frames at full refresh rate.
+   private var needsRedraw = true
++  private var resizeDrawsPending = 0
++  private var resizeGeneration = 0L
++  private var appliedResizeGeneration = 0L
++  private var drawGeneration: Long? = null
+ 
+   @Volatile
+   private var paused = false
+@@ -130,6 +134,11 @@
+         this@RiveReactNativeView.surfaceTexture = st
+         this@RiveReactNativeView.surfaceWidth = w
+         this@RiveReactNativeView.surfaceHeight = h
++        this@RiveReactNativeView.needsRedraw = true
++        this@RiveReactNativeView.resizeGeneration++
++        this@RiveReactNativeView.appliedResizeGeneration = this@RiveReactNativeView.resizeGeneration
++        this@RiveReactNativeView.resizeDrawsPending = 0
++        this@RiveReactNativeView.drawGeneration = null
+         this@RiveReactNativeView.riveWorker?.let { worker ->
+           if (this@RiveReactNativeView.riveSurface == null) {
+             this@RiveReactNativeView.riveSurface = worker.createRiveSurface(SurfaceTextureSurface(st, w, h))
+@@ -144,20 +153,30 @@
+           runCatching { surface.close() }
+         }
+         this@RiveReactNativeView.riveSurface = null
++        this@RiveReactNativeView.surfaceTexture = null
++        this@RiveReactNativeView.drawGeneration = null
+         return false
+       }
+ 
+       override fun onSurfaceTextureSizeChanged(st: SurfaceTexture, w: Int, h: Int) {
++        if (w <= 0 || h <= 0) return
+         this@RiveReactNativeView.surfaceWidth = w
+         this@RiveReactNativeView.surfaceHeight = h
++        this@RiveReactNativeView.resizeGeneration++
++        this@RiveReactNativeView.resizeDrawsPending = 2
+         this@RiveReactNativeView.needsRedraw = true
+-        // Since 11.7.x the render target keeps its creation-time size and
+-        // RiveSurface.resize() is internal to the SDK, so only the artboard
+-        // is resized here (same behavior as before the 11.7.2 bump).
+-        resizeArtboardIfLayout()
+-      }
+-
+-      override fun onSurfaceTextureUpdated(st: SurfaceTexture) {}
++      }
++
++      override fun onSurfaceTextureUpdated(st: SurfaceTexture) {
++        if (st !== this@RiveReactNativeView.surfaceTexture || disposed) return
++        val generation = drawGeneration ?: return
++        drawGeneration = null
++        if (generation == resizeGeneration && resizeDrawsPending > 0) {
++          resizeDrawsPending--
++          Log.d(TAG, "Resize presented: generation=$generation pending=$resizeDrawsPending")
++        }
++        drawFrame(System.nanoTime())
++      }
+     }
+   }
+ 
+@@ -168,59 +187,52 @@
+   private val renderCallback = object : Choreographer.FrameCallback {
+     override fun doFrame(frameTimeNanos: Long) {
+       if (!renderLoopRunning || disposed) return
+-
+-      if (paused && !needsRedraw) {
+-        // Keep the timebase fresh so resuming advances by one frame, not by
+-        // the whole pause span.
+-        lastFrameTimeNs = frameTimeNanos
+-        Choreographer.getInstance().postFrameCallback(this)
+-        return
+-      }
+-
+-      val capPeriodNs = frameRate
+-        ?.takeIf { it > 0 }
+-        ?.let { (1_000_000_000.0 / it).toLong() }
+-      if (capPeriodNs != null && lastFrameTimeNs != 0L &&
+-        frameTimeNanos - lastFrameTimeNs < capPeriodNs - CAP_TOLERANCE_NS
+-      ) {
+-        // Skip without touching lastFrameTimeNs: the eventual advance must
+-        // cover the full elapsed time so capped playback keeps wall-clock speed.
+-        Choreographer.getInstance().postFrameCallback(this)
+-        return
+-      }
+-
+-      val deltaTime = if (lastFrameTimeNs == 0L) {
+-        Duration.ZERO
+-      } else {
+-        (frameTimeNanos - lastFrameTimeNs).nanoseconds
+-      }
++      drawFrame(frameTimeNanos)
++      if (!disposed) Choreographer.getInstance().postFrameCallback(this)
++    }
++  }
++
++  @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
++  private fun drawFrame(frameTimeNanos: Long) {
++    if (!renderLoopRunning || disposed) return
++    if (!textureView.isShown || windowVisibility != View.VISIBLE ||
++      (paused && !needsRedraw && resizeDrawsPending == 0)) {
+       lastFrameTimeNs = frameTimeNanos
+-
+-      val worker = riveWorker
+-      val art = artboardHandle
+-      val sm = stateMachineHandle
+-      val rs = riveSurface
+-
+-      if (worker != null && art != null && sm != null && rs != null) {
+-        try {
+-          if (!paused && !settled) {
+-            worker.advanceStateMachine(sm, deltaTime)
+-          }
+-          worker.draw(art, sm, rs, activeFit)
+-          needsRedraw = false
+-          frameCount++
+-          val isFirstFrame = frameCount == 1L
+-          if (isFirstFrame) {
+-            viewReadyDeferred.complete(true)
+-          }
+-        } catch (e: Exception) {
+-          Log.e(TAG, "Render loop error", e)
+-        }
+-      }
+-
+-      if (!disposed) {
+-        Choreographer.getInstance().postFrameCallback(this)
+-      }
++      return
++    }
++    if (drawGeneration != null) return
++
++    val capPeriodNs = frameRate
++      ?.takeIf { it > 0 }
++      ?.let { (1_000_000_000.0 / it).toLong() }
++    if (capPeriodNs != null && lastFrameTimeNs != 0L &&
++      frameTimeNanos - lastFrameTimeNs < capPeriodNs - CAP_TOLERANCE_NS) return
++
++    val deltaTime = if (lastFrameTimeNs == 0L) Duration.ZERO
++      else (frameTimeNanos - lastFrameTimeNs).nanoseconds
++    lastFrameTimeNs = frameTimeNanos
++    val worker = riveWorker ?: return
++    val art = artboardHandle ?: return
++    val sm = stateMachineHandle ?: return
++    val rs = riveSurface ?: return
++
++    try {
++      if (appliedResizeGeneration != resizeGeneration) {
++        // Resize cancels pending draws, so wait for the previous presentation first.
++        rs.resize(surfaceWidth, surfaceHeight)
++        appliedResizeGeneration = resizeGeneration
++        Log.d(TAG, "Resize applied: generation=$resizeGeneration size=${surfaceWidth}x$surfaceHeight")
++        resizeArtboardIfLayout()
++      }
++      if (!paused && !settled) worker.advanceStateMachine(sm, deltaTime)
++      drawGeneration = resizeGeneration
++      worker.draw(art, sm, rs, activeFit)
++      needsRedraw = false
++      frameCount++
++      if (frameCount == 1L) viewReadyDeferred.complete(true)
++    } catch (e: Exception) {
++      drawGeneration = null
++      Log.e(TAG, "Render loop error", e)
+     }
+   }
+ 
+@@ -295,6 +307,8 @@
+         riveSurface = config.riveWorker.createRiveSurface(
+           SurfaceTextureSurface(surfaceTexture!!, surfaceWidth, surfaceHeight)
+         )
++        appliedResizeGeneration = resizeGeneration
++        resizeDrawsPending = 0
+       }
+ 
+       Log.d(TAG, "configure: artboard=${artboardHandle != null} sm=${stateMachineHandle != null} surface=${riveSurface != null}")
+@@ -524,6 +538,7 @@
+   fun dispose() {
+     if (disposed) return
+     disposed = true
++    drawGeneration = null
+     viewReadyDeferred.complete(false)
+     settledJob?.cancel()
+     viewScope.cancel()
+diff --git a/src/hooks/useRive.ts b/src/hooks/useRive.ts
+--- a/src/hooks/useRive.ts
++++ b/src/hooks/useRive.ts
+@@ -3,60 +3,30 @@
+ 
+ export function useRive() {
+   const riveRef = useRef<RiveViewRef>(null);
+-  // `undefined` = view not ready yet, `null` = failed/detached — the same
+-  // convention as useRiveFile, so hooks consuming the ref (e.g.
+-  // useViewModelInstance({async: true})) stay in their loading state until the view is
+-  // actually ready instead of settling on a transient null.
+   const [riveViewRef, setRiveViewRef] = useState<
+     RiveViewRef | null | undefined
+   >(undefined);
+-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+ 
+   const setRef = useCallback((node: RiveViewRef | null) => {
+-    if (riveRef.current !== node) {
+-      riveRef.current = node;
++    if (riveRef.current === node) return;
++    riveRef.current = node;
++    setRiveViewRef(node ? undefined : null);
++    if (!node) return;
+ 
+-      // Clear any existing timeout
+-      if (timeoutRef.current) {
+-        clearTimeout(timeoutRef.current);
++    // Hidden views become ready when their first frame can be presented.
++    const waitUntilReady = async () => {
++      try {
++        const ready = await node.awaitViewReady();
++        if (riveRef.current === node) setRiveViewRef(ready ? node : null);
++      } catch (error) {
++        if (riveRef.current !== node) return;
++        console.warn('Failed to initialize Rive view:', error);
++        setRiveViewRef(null);
+       }
+-
+-      const timeout = new Promise((_, reject) => {
+-        timeoutRef.current = setTimeout(() => {
+-          reject(new Error('Rive view ready timeout'));
+-        }, 5000);
+-      });
+-
+-      // TODO: Need to clear out the awaitViewReady promise if it times out
+-      // or add this timeout natively and return false
+-      Promise.race([node?.awaitViewReady(), timeout])
+-        .then((result) => {
+-          if (result === true) {
+-            setRiveViewRef(node);
+-          } else {
+-            console.warn('Rive view ready check returned false');
+-            setRiveViewRef(null);
+-          }
+-        })
+-        .catch((error) => {
+-          console.warn('Failed to initialize Rive view:', error);
+-          setRiveViewRef(null);
+-        })
+-        .finally(() => {
+-          // Clear the timeout in both success and error cases
+-          if (timeoutRef.current) {
+-            clearTimeout(timeoutRef.current);
+-            timeoutRef.current = null;
+-          }
+-        });
+-    }
++    };
++    void waitUntilReady();
+   }, []);
+ 
+-  return {
+-    riveRef,
+-    riveViewRef,
+-    setHybridRef: {
+-      f: setRef,
+-    },
+-  };
++  const setHybridRef = useRef({ f: setRef }).current;
++  return { riveRef, riveViewRef, setHybridRef };
+ }
+diff --git a/lib/module/hooks/useRive.js b/lib/module/hooks/useRive.js
+--- a/lib/module/hooks/useRive.js
++++ b/lib/module/hooks/useRive.js
+@@ -1,69 +1,31 @@
+ "use strict";
+ 
+-import { c as _c } from "react/compiler-runtime";
+ import { useRef, useCallback, useState } from 'react';
++
+ export function useRive() {
+-  const $ = _c(4);
+   const riveRef = useRef(null);
+   const [riveViewRef, setRiveViewRef] = useState(undefined);
+-  const timeoutRef = useRef(null);
+-  let t0;
+-  if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
+-    t0 = node => {
+-      if (riveRef.current !== node) {
+-        riveRef.current = node;
+-        if (timeoutRef.current) {
+-          clearTimeout(timeoutRef.current);
+-        }
+-        const timeout = new Promise((_, reject) => {
+-          timeoutRef.current = setTimeout(() => {
+-            reject(new Error("Rive view ready timeout"));
+-          }, 5000);
+-        });
+-        Promise.race([node?.awaitViewReady(), timeout]).then(result => {
+-          if (result === true) {
+-            setRiveViewRef(node);
+-          } else {
+-            console.warn("Rive view ready check returned false");
+-            setRiveViewRef(null);
+-          }
+-        }).catch(error => {
+-          console.warn("Failed to initialize Rive view:", error);
+-          setRiveViewRef(null);
+-        }).finally(() => {
+-          if (timeoutRef.current) {
+-            clearTimeout(timeoutRef.current);
+-            timeoutRef.current = null;
+-          }
+-        });
++
++  const setRef = useCallback((node) => {
++    if (riveRef.current === node) return;
++    riveRef.current = node;
++    setRiveViewRef(node ? undefined : null);
++    if (!node) return;
++
++    // Hidden views become ready when their first frame can be presented.
++    const waitUntilReady = async () => {
++      try {
++        const ready = await node.awaitViewReady();
++        if (riveRef.current === node) setRiveViewRef(ready ? node : null);
++      } catch (error) {
++        if (riveRef.current !== node) return;
++        console.warn('Failed to initialize Rive view:', error);
++        setRiveViewRef(null);
+       }
+     };
+-    $[0] = t0;
+-  } else {
+-    t0 = $[0];
+-  }
+-  const setRef = t0;
+-  let t1;
+-  if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
+-    t1 = {
+-      f: setRef
+-    };
+-    $[1] = t1;
+-  } else {
+-    t1 = $[1];
+-  }
+-  let t2;
+-  if ($[2] !== riveViewRef) {
+-    t2 = {
+-      riveRef,
+-      riveViewRef,
+-      setHybridRef: t1
+-    };
+-    $[2] = riveViewRef;
+-    $[3] = t2;
+-  } else {
+-    t2 = $[3];
+-  }
+-  return t2;
+-}
+-//# sourceMappingURL=useRive.js.map
+\ No newline at end of file
++    void waitUntilReady();
++  }, []);
++
++  const setHybridRef = useRef({ f: setRef }).current;
++  return { riveRef, riveViewRef, setHybridRef };
++}
+\ No newline at end of file

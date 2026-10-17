@@ -1,0 +1,67 @@
+{
+  "expo": {
+    "name": "Buzzzz",
+    "slug": "haptics-preview",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.rivehaptics.preview",
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "Connects to Haptics Studio on your local network to preview patterns.",
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        }
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "dev.rivehaptics.preview"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "scheme": "rivehaptics",
+    "plugins": [
+      "./plugins/metro-port",
+      "./plugins/local-relay",
+      "./plugins/pulsar-core",
+      "expo-system-ui",
+      "expo-font",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundPlayback": false
+        }
+      ],
+      "expo-sharing",
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/icon.png",
+          "imageWidth": 160,
+          "resizeMode": "contain"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Buzzzz to scan the pairing code from your editor.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": true
+        }
+      ]
+    ]
+  }
+}

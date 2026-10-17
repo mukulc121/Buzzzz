@@ -1,0 +1,69 @@
+.chart circle.handle:hover,
+.chart .handle:hover circle {
+  stroke-width: 3;
+}
+.chart .envelope-point:hover {
+  r: 7px;
+  fill: var(--plot);
+  stroke: var(--fg);
+}
+.chart .envelope-point[aria-pressed="true"]:hover {
+  fill: var(--primary-bg);
+}
+.chart .tap-event:hover circle {
+  r: 6.5px;
+  stroke-width: 2.5;
+}
+.chart .tap-event circle {
+  cursor: ns-resize;
+}
+.chart .tap-event:hover .tap-bar {
+  stroke: var(--fg);
+  stroke-width: 1.5;
+}
+.chart .tap-event-highlight {
+  fill: rgba(0, 26, 114, 0.04);
+  opacity: 0;
+}
+.chart .tap-event:hover .tap-event-highlight {
+  opacity: 1;
+}
+.chart .tap-event[aria-pressed="true"] .tap-event-highlight {
+  fill: rgba(0, 26, 114, 0.06);
+  stroke: var(--fg);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  opacity: 1;
+}
+.chart-marker-label {
+  color: var(--cursor-text);
+  font-size: 10px;
+  line-height: 10px;
+  padding: 4px 6px 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chart-marker {
+  cursor: ew-resize;
+  touch-action: none;
+}
+.chart-marker-rename {
+  display: block;
+  width: 150px;
+  height: 16px;
+  padding: 0 5px;
+  border: none;
+  border-radius: 3px;
+  outline: 2px solid var(--marker-soft);
+  background: var(--marker);
+  color: var(--cursor-text);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+}
+.chart-marker-rename::selection {
+  color: var(--marker);
+  background: var(--cursor-text);
+}

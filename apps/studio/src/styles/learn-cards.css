@@ -1,0 +1,168 @@
+.learn-intro {
+  margin: 0 0 24px;
+  max-width: 58ch;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.learn-progress {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.learn-progress-track {
+  flex: 1;
+  height: 8px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background-color: var(--plot);
+  overflow: hidden;
+}
+.learn-progress-track > div {
+  height: 100%;
+  background-color: var(--accent);
+  transition: width 0.2s ease;
+}
+.learn-progress > span {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.learn-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 600px) {
+  .learn-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.learn-tour-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  text-align: left;
+  border: 2px solid var(--line);
+  border-radius: 4px;
+  background-color: var(--panel);
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    border-color 0.15s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  outline: none;
+}
+.learn-tour-card:focus-visible {
+  outline: 2px solid var(--fg-2);
+  outline-offset: 2px;
+}
+.learn-tour-card:hover {
+  border-color: var(--line-strong);
+  transform: translate(1px, -1px);
+  box-shadow: -4px 4px 0 var(--line-strong);
+}
+.learn-tour-card:active {
+  transform: translate(-3px, 3px);
+  box-shadow: -1px 1px 0 var(--line-strong);
+}
+.learn-tour-card.done {
+  opacity: 1;
+}
+.learn-tour-card.done:hover {
+  opacity: 1;
+}
+.learn-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.learn-card-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+.learn-card-chip.haptics,
+.learn-card-chip.device {
+  background-color: var(--plot);
+  color: var(--fg);
+}
+.learn-card-chip.audio {
+  background-color: var(--audio-bg);
+  color: var(--ok);
+}
+.learn-card-chip.animation {
+  background-color: var(--learn-animation-bg);
+  color: var(--marker);
+}
+.learn-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fg);
+}
+.learn-card-blurb {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.learn-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg-2);
+}
+.learn-tour-card.done .learn-card-meta {
+  color: var(--ok);
+}
+.learn-dialog > footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.learn-dialog > footer > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg-2);
+  text-decoration: none;
+  outline: none;
+}
+.learn-dialog > footer > a:focus-visible {
+  outline: 2px solid var(--fg-2);
+  outline-offset: 2px;
+}
+.learn-dialog > footer > a:hover {
+  color: var(--fg);
+  text-decoration: underline;
+}
+.learn-dialog > footer > div {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.learn-tour-card {
+  white-space: normal;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+@media (prefers-reduced-motion: reduce) {
+  .learn-tour-card {
+    transition: none;
+  }
+}

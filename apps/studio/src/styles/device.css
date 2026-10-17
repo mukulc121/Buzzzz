@@ -1,0 +1,137 @@
+.device-panel {
+  min-width: 0;
+}
+.device-heading {
+  gap: 8px;
+  padding: 0 16px;
+}
+.device-heading h2 {
+  flex: 1;
+}
+.device-heading .icon {
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0;
+}
+.device-status {
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 10px;
+  background: var(--sunken);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.device-status[data-online="true"] {
+  color: var(--ok);
+}
+.device-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 56px 24px;
+  text-align: center;
+}
+.device-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--accent-strong, var(--fg-2));
+}
+.device-empty h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+.device-empty > p {
+  max-width: 30ch;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.3;
+}
+.device-connect {
+  border: 2px solid var(--line-strong);
+  background: var(--panel);
+  padding: 8px 16px;
+  box-shadow: var(--shadow);
+  font-size: 14px;
+}
+.device-app-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px 10px;
+  border: 2px solid var(--line);
+  background: var(--panel);
+}
+.device-app-link svg {
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+  color: var(--accent-strong, var(--fg-2));
+}
+.device-app-link span {
+  flex: 1;
+  min-width: 0;
+  color: var(--accent-strong, var(--fg-2));
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: left;
+  white-space: normal;
+}
+.device-connected {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+.device-connected-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px;
+  border: 2px solid var(--line);
+  border-radius: 4px;
+}
+.device-live-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  flex: 0 0 8px;
+  background: var(--ok);
+  border-radius: 50%;
+}
+.device-pairing,
+.device-app-guide {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 16px;
+}
+.device-pairing .qr {
+  width: min(240px, 100%);
+  border: 2px solid var(--line-strong);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 1);
+  box-shadow: var(--shadow);
+}
+.device-pairing .pair-code {
+  align-self: center;
+  color: var(--fg);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+}
+.device-pairing > .hint:empty {
+  display: none;
+}

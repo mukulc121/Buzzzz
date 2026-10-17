@@ -1,0 +1,1928 @@
+{
+  "provenance": {
+    "apkModule": 2035,
+    "ipaModule": 1950,
+    "worklet": "sensorHapticsDemoTsx2",
+    "sha256": "0edf952836c121fdd09b1e586fa6e795ef1a7c0b9c42e8fd2b4b82e50454b081",
+    "sensorTypes": {
+      "ios": "ACCELEROMETER",
+      "android": "GYROSCOPE"
+    },
+    "sensorUnits": {
+      "ios": "meters/second squared, including gravity",
+      "android": "radians/second"
+    },
+    "timeUnits": "milliseconds",
+    "integration": "one step per sensor sample, no dt multiplier"
+  },
+  "cases": [
+    {
+      "name": "sustained iPhone gravity tilt",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 133,
+        "dotY": 133,
+        "velocityX": 0,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 135.3544,
+            "dotY": 135.3544,
+            "velocityX": 2.3544,
+            "velocityY": 2.3544,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.19842171865221617,
+              "frequency": 0.3230271483152702
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1016
+          },
+          "state": {
+            "dotX": 139.59232,
+            "dotY": 139.59232,
+            "velocityX": 4.23792,
+            "velocityY": 4.23792,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.29107213705225,
+              "frequency": 0.43884017131531244
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1032
+          },
+          "state": {
+            "dotX": 145.337056,
+            "dotY": 145.337056,
+            "velocityX": 5.7447360000000005,
+            "velocityY": 5.7447360000000005,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.3651924717722771,
+              "frequency": 0.5314905897153464
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1048
+          },
+          "state": {
+            "dotX": 152.2872448,
+            "dotY": 152.2872448,
+            "velocityX": 6.950188800000001,
+            "velocityY": 6.950188800000001,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.4244887395482987,
+              "frequency": 0.6056109244353733
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1064
+          },
+          "state": {
+            "dotX": 160.20179584,
+            "dotY": 160.20179584,
+            "velocityX": 7.914551040000001,
+            "velocityY": 7.914551040000001,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.47192575376911605,
+              "frequency": 0.6649071922113949
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1080
+          },
+          "state": {
+            "dotX": 168.887836672,
+            "dotY": 168.887836672,
+            "velocityX": 8.686040832000002,
+            "velocityY": 8.686040832000002,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.5,
+              "frequency": 0.7
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1096
+          },
+          "state": {
+            "dotX": 178.1910693376,
+            "dotY": 178.1910693376,
+            "velocityX": 9.303232665600001,
+            "velocityY": 9.303232665600001,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.5,
+              "frequency": 0.7
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1112
+          },
+          "state": {
+            "dotX": 187.98805547007998,
+            "dotY": 187.98805547007998,
+            "velocityX": 9.79698613248,
+            "velocityY": 9.79698613248,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.5,
+              "frequency": 0.7
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1128
+          },
+          "state": {
+            "dotX": 198.180044376064,
+            "dotY": 198.180044376064,
+            "velocityX": 10.191988905984001,
+            "velocityY": 10.191988905984001,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.5,
+              "frequency": 0.7
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1144
+          },
+          "state": {
+            "dotX": 208.68803550085119,
+            "dotY": 208.68803550085119,
+            "velocityX": 10.507991124787202,
+            "velocityY": 10.507991124787202,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.5,
+              "frequency": 0.7
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1160
+          },
+          "state": {
+            "dotX": 219.44882840068095,
+            "dotY": 219.44882840068095,
+            "velocityX": 10.760792899829761,
+            "velocityY": 10.760792899829761,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.5,
+              "frequency": 0.7
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1176
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -6.577820591918286,
+            "velocityY": -6.577820591918286,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "discrete",
+              "amplitude": 1,
+              "frequency": 1
+            },
+            {
+              "kind": "set",
+              "amplitude": 0.4061719336329691,
+              "frequency": 0.5827149170412113
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1192
+          },
+          "state": {
+            "dotX": 224.13734542427622,
+            "dotY": 224.1373454242762,
+            "velocityX": -2.907856473534629,
+            "velocityY": -2.907856473534629,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.22564626303676777,
+              "frequency": 0.3570578287959597
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1208
+          },
+          "state": {
+            "dotX": 224.16546024544851,
+            "dotY": 224.1654602454485,
+            "velocityX": 0.0281148211722968,
+            "velocityY": 0.0281148211722968,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1224
+          },
+          "state": {
+            "dotX": 226.54235210238636,
+            "dotY": 226.54235210238633,
+            "velocityX": 2.3768918569378377,
+            "velocityY": 2.3768918569378377,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.19952809392610993,
+              "frequency": 0.3244101174076374
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1240
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -2.553548091330165,
+            "velocityY": -2.5535480913301623,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.20821782062368865,
+              "frequency": 0.3352722757796108
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1256
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -0.18693691616152275,
+            "velocityY": -0.18693691616152053,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1272
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -1.3229102802424708,
+            "velocityY": -1.3229102802424677,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.14768270122162408,
+              "frequency": 0.2596033765270301
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1288
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -0.7776430654836162,
+            "velocityY": -0.7776430654836131,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.1208609867788632,
+              "frequency": 0.226076233473579
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1304
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -1.039371328567867,
+            "velocityY": -1.0393713285678636,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.13373540971138845,
+              "frequency": 0.24216926213923556
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1320
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -0.9137417622874273,
+            "velocityY": -0.9137417622874238,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.12755568670377634,
+              "frequency": 0.23444460837972042
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1336
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -0.9740439541020378,
+            "velocityY": -0.974043954102034,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.13052195374743011,
+              "frequency": 0.23815244218428766
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1352
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -0.9450989020310245,
+            "velocityY": -0.9450989020310216,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.1290981455664763,
+              "frequency": 0.2363726819580954
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1368
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -0.9589925270251107,
+            "velocityY": -0.9589925270251076,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.12978157349333413,
+              "frequency": 0.23722696686666767
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1384
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -0.952323587027949,
+            "velocityY": -0.9523235870279465,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.12945352808844238,
+              "frequency": 0.23681691011055298
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1400
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -0.9555246782265869,
+            "velocityY": -0.955524678226584,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.12961098988279043,
+              "frequency": 0.23701373735348805
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1416
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -0.953988154451241,
+            "velocityY": -0.9539881544512376,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.12953540822150336,
+              "frequency": 0.2369192602768792
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1432
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -0.9547256858634072,
+            "velocityY": -0.9547256858634037,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.12957168741892117,
+              "frequency": 0.23696460927365143
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1448
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -0.9543716707855683,
+            "velocityY": -0.9543716707855645,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.12955427340416065,
+              "frequency": 0.2369428417552008
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 4.905,
+            "y": -4.905,
+            "now": 1464
+          },
+          "state": {
+            "dotX": 227.04520189781084,
+            "dotY": 227.0452018978108,
+            "velocityX": -0.9545415980229297,
+            "velocityY": -0.9545415980229257,
+            "isColliding": true,
+            "lastCollisionTime": 1176,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.12956263213124564,
+              "frequency": 0.23695329016405703
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stationary iOS",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 133,
+        "dotY": 133,
+        "velocityX": 0,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 133,
+            "dotY": 133,
+            "velocityX": 0,
+            "velocityY": 0,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "iOS positive x acceleration in meters per second squared",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 133,
+        "dotY": 133,
+        "velocityX": 0,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 1,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 133.48,
+            "dotY": 133,
+            "velocityX": 0.48,
+            "velocityY": 0,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "iOS positive y acceleration in meters per second squared",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 133,
+        "dotY": 133,
+        "velocityX": 0,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 1,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 133,
+            "dotY": 132.52,
+            "velocityX": 0,
+            "velocityY": -0.48,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Android positive x rotation drives y",
+      "isAndroid": true,
+      "initial": {
+        "dotX": 133,
+        "dotY": 133,
+        "velocityX": 0,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 1,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 133,
+            "dotY": 134.125,
+            "velocityX": 0,
+            "velocityY": 1.125,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.12173913043478261,
+              "frequency": 0.22717391304347828
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Android positive y rotation drives x",
+      "isAndroid": true,
+      "initial": {
+        "dotX": 133,
+        "dotY": 133,
+        "velocityX": 0,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 1,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 134.125,
+            "dotY": 133,
+            "velocityX": 1.125,
+            "velocityY": 0,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.12173913043478261,
+              "frequency": 0.22717391304347828
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "iOS mixed-axis motion followed by 8 sensor updates of damping",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 133,
+        "dotY": 133,
+        "velocityX": 0,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 2,
+            "y": -1,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 133.96,
+            "dotY": 133.48,
+            "velocityX": 0.96,
+            "velocityY": 0.48,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.11994130884173562,
+              "frequency": 0.22492663605216953
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1016
+          },
+          "state": {
+            "dotX": 134.728,
+            "dotY": 133.86399999999998,
+            "velocityX": 0.768,
+            "velocityY": 0.384,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.11247478620382328,
+              "frequency": 0.2155934827547791
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1032
+          },
+          "state": {
+            "dotX": 135.3424,
+            "dotY": 134.17119999999997,
+            "velocityX": 0.6144000000000001,
+            "velocityY": 0.30720000000000003,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.10650156809349341,
+              "frequency": 0.20812696011686677
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1048
+          },
+          "state": {
+            "dotX": 135.83392,
+            "dotY": 134.41695999999996,
+            "velocityX": 0.49152000000000007,
+            "velocityY": 0.24576000000000003,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.10172299360522952,
+              "frequency": 0.2021537420065369
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1064
+          },
+          "state": {
+            "dotX": 136.227136,
+            "dotY": 134.61356799999996,
+            "velocityX": 0.39321600000000007,
+            "velocityY": 0.19660800000000003,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1080
+          },
+          "state": {
+            "dotX": 136.5417088,
+            "dotY": 134.77085439999996,
+            "velocityX": 0.3145728000000001,
+            "velocityY": 0.15728640000000005,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1096
+          },
+          "state": {
+            "dotX": 136.79336704000002,
+            "dotY": 134.89668351999995,
+            "velocityX": 0.2516582400000001,
+            "velocityY": 0.12582912000000004,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1112
+          },
+          "state": {
+            "dotX": 136.994693632,
+            "dotY": 134.99734681599995,
+            "velocityX": 0.20132659200000008,
+            "velocityY": 0.10066329600000004,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1128
+          },
+          "state": {
+            "dotX": 137.15575490560002,
+            "dotY": 135.07787745279995,
+            "velocityX": 0.16106127360000008,
+            "velocityY": 0.08053063680000004,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Android mixed-axis motion followed by 8 sensor updates of damping",
+      "isAndroid": true,
+      "initial": {
+        "dotX": 133,
+        "dotY": 133,
+        "velocityX": 0,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 2,
+            "y": -1,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 131.875,
+            "dotY": 135.25,
+            "velocityX": -1.125,
+            "velocityY": 2.25,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.17010700781520915,
+              "frequency": 0.28763375976901145
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1016
+          },
+          "state": {
+            "dotX": 131.03125,
+            "dotY": 136.9375,
+            "velocityX": -0.84375,
+            "velocityY": 1.6875,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.14823242977445036,
+              "frequency": 0.26029053721806295
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1032
+          },
+          "state": {
+            "dotX": 130.3984375,
+            "dotY": 138.203125,
+            "velocityX": -0.6328125,
+            "velocityY": 1.265625,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.13182649624388124,
+              "frequency": 0.23978312030485155
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1048
+          },
+          "state": {
+            "dotX": 129.923828125,
+            "dotY": 139.15234375,
+            "velocityX": -0.474609375,
+            "velocityY": 0.94921875,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.11952204609595442,
+              "frequency": 0.22440255761994302
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1064
+          },
+          "state": {
+            "dotX": 129.56787109375,
+            "dotY": 139.8642578125,
+            "velocityX": -0.35595703125,
+            "velocityY": 0.7119140625,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.11029370848500929,
+              "frequency": 0.2128671356062616
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1080
+          },
+          "state": {
+            "dotX": 129.3009033203125,
+            "dotY": 140.398193359375,
+            "velocityX": -0.2669677734375,
+            "velocityY": 0.533935546875,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.10337245527680045,
+              "frequency": 0.20421556909600055
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1096
+          },
+          "state": {
+            "dotX": 129.10067749023438,
+            "dotY": 140.79864501953125,
+            "velocityX": -0.200225830078125,
+            "velocityY": 0.40045166015625,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1112
+          },
+          "state": {
+            "dotX": 128.95050811767578,
+            "dotY": 141.09898376464844,
+            "velocityX": -0.15016937255859375,
+            "velocityY": 0.3003387451171875,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        },
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1128
+          },
+          "state": {
+            "dotX": 128.83788108825684,
+            "dotY": 141.32423782348633,
+            "velocityX": -0.11262702941894531,
+            "velocityY": 0.22525405883789062,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "continuous upper clamp at speed above 12",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 133,
+        "dotY": 133,
+        "velocityX": 0,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 50,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 157,
+            "dotY": 133,
+            "velocityX": 24,
+            "velocityY": 0,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.5,
+              "frequency": 0.7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "continuous threshold exactly 0.5 is silent",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 133,
+        "dotY": 133,
+        "velocityX": 0.625,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 133.5,
+            "dotY": 133,
+            "velocityX": 0.5,
+            "velocityY": 0,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "continuous starts above 0.5",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 133,
+        "dotY": 133,
+        "velocityX": 0.626,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 133.5008,
+            "dotY": 133,
+            "velocityX": 0.5008,
+            "velocityY": 0,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.10002782608695653,
+              "frequency": 0.20003478260869567
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "hard boundary collision reflects radial velocity",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 265,
+        "dotY": 133,
+        "velocityX": 5,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 266,
+            "dotY": 133,
+            "velocityX": -2.4000000000000004,
+            "velocityY": 0,
+            "isColliding": true,
+            "lastCollisionTime": 1000,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "discrete",
+              "amplitude": 1,
+              "frequency": 1
+            },
+            {
+              "kind": "set",
+              "amplitude": 0.16608695652173916,
+              "frequency": 0.28260869565217395
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "soft boundary scratch stops below post-bounce speed 0.5",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 265.9,
+        "dotY": 133,
+        "velocityX": 0.5,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 266,
+            "dotY": 133,
+            "velocityX": -0.2400000000000001,
+            "velocityY": 0,
+            "isColliding": true,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 1000
+          },
+          "calls": [
+            {
+              "kind": "discrete",
+              "amplitude": 0.6,
+              "frequency": 0.35
+            },
+            {
+              "kind": "stop"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "speed exactly 2 is a scratch",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 265,
+        "dotY": 133,
+        "velocityX": 2.5,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 266,
+            "dotY": 133,
+            "velocityX": -1.2000000000000002,
+            "velocityY": 0,
+            "isColliding": true,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 1000
+          },
+          "calls": [
+            {
+              "kind": "discrete",
+              "amplitude": 0.6,
+              "frequency": 0.35
+            },
+            {
+              "kind": "set",
+              "amplitude": 0.12434782608695653,
+              "frequency": 0.23043478260869565
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "hard pulse cooldown is strict at 200ms",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 265,
+        "dotY": 133,
+        "velocityX": 5,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 800,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 266,
+            "dotY": 133,
+            "velocityX": -2.4000000000000004,
+            "velocityY": 0,
+            "isColliding": true,
+            "lastCollisionTime": 800,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.16608695652173916,
+              "frequency": 0.28260869565217395
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "hard pulse cooldown expires at 201ms",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 265,
+        "dotY": 133,
+        "velocityX": 5,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 799,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 266,
+            "dotY": 133,
+            "velocityX": -2.4000000000000004,
+            "velocityY": 0,
+            "isColliding": true,
+            "lastCollisionTime": 1000,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "discrete",
+              "amplitude": 1,
+              "frequency": 1
+            },
+            {
+              "kind": "set",
+              "amplitude": 0.16608695652173916,
+              "frequency": 0.28260869565217395
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "scratch pulse cooldown is strict at 200ms",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 265.9,
+        "dotY": 133,
+        "velocityX": 0.5,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 800
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 266,
+            "dotY": 133,
+            "velocityX": -0.2400000000000001,
+            "velocityY": 0,
+            "isColliding": true,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 800
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "scratch pulse cooldown expires at 201ms",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 265.9,
+        "dotY": 133,
+        "velocityX": 0.5,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 799
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 266,
+            "dotY": 133,
+            "velocityX": -0.2400000000000001,
+            "velocityY": 0,
+            "isColliding": true,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 1000
+          },
+          "calls": [
+            {
+              "kind": "discrete",
+              "amplitude": 0.6,
+              "frequency": 0.35
+            },
+            {
+              "kind": "stop"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "latched collision suppresses a second discrete pulse",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 265,
+        "dotY": 133,
+        "velocityX": 5,
+        "velocityY": 0,
+        "isColliding": true,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 266,
+            "dotY": 133,
+            "velocityX": -2.4000000000000004,
+            "velocityY": 0,
+            "isColliding": true,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.16608695652173916,
+              "frequency": 0.28260869565217395
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "contact rearms inside 85 percent of max radius",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 240,
+        "dotY": 133,
+        "velocityX": 1,
+        "velocityY": 0,
+        "isColliding": true,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 240.8,
+            "dotY": 133,
+            "velocityX": 0.8,
+            "velocityY": 0,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.11043478260869566,
+              "frequency": 0.21304347826086958
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "contact remains latched outside inner hysteresis ring",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 250,
+        "dotY": 133,
+        "velocityX": 1,
+        "velocityY": 0,
+        "isColliding": true,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 250.8,
+            "dotY": 133,
+            "velocityX": 0.8,
+            "velocityY": 0,
+            "isColliding": true,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "set",
+              "amplitude": 0.11043478260869566,
+              "frequency": 0.21304347826086958
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "diagonal collision preserves tangential motion",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 230,
+        "dotY": 230,
+        "velocityX": 5,
+        "velocityY": 2,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": 0,
+            "y": 0,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 228.16912650902694,
+            "dotY": 225.90768191871342,
+            "velocityX": -0.5565727181101607,
+            "velocityY": -2.848297722828335,
+            "isColliding": true,
+            "lastCollisionTime": 1000,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "discrete",
+              "amplitude": 1,
+              "frequency": 1
+            },
+            {
+              "kind": "set",
+              "amplitude": 0.183553633659158,
+              "frequency": 0.3044420420739475
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "negative x and y have no rounding or sensor clamp",
+      "isAndroid": false,
+      "initial": {
+        "dotX": 133,
+        "dotY": 133,
+        "velocityX": 0,
+        "velocityY": 0,
+        "isColliding": false,
+        "lastCollisionTime": 0,
+        "lastScratchTime": 0
+      },
+      "steps": [
+        {
+          "reading": {
+            "x": -0.123,
+            "y": 0.456,
+            "now": 1000
+          },
+          "state": {
+            "dotX": 132.94096,
+            "dotY": 132.78112,
+            "velocityX": -0.059039999999999995,
+            "velocityY": -0.21888000000000002,
+            "isColliding": false,
+            "lastCollisionTime": 0,
+            "lastScratchTime": 0
+          },
+          "calls": [
+            {
+              "kind": "stop"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

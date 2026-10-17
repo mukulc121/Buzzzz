@@ -1,0 +1,92 @@
+.tap-rhythm {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.tap-rhythm section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tap-rhythm h3 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+.tap-rhythm .hint {
+  margin: 0;
+  font-size: 12px;
+}
+.tap-rhythm-pad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  min-height: 132px;
+  padding: 24px;
+  border: 2px dashed var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--accent);
+  user-select: none;
+  touch-action: manipulation;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    transform 150ms ease;
+}
+.tap-rhythm-pad:hover {
+  border-color: var(--accent);
+}
+.tap-rhythm-pad:active {
+  background: var(--bg);
+  border-color: var(--fg);
+  transform: scale(0.98);
+}
+.tap-rhythm-pad:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
+.tap-rhythm-pad span {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg);
+}
+.tap-rhythm .tap-rhythm-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+}
+.tap-rhythm-stats > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--line);
+}
+.tap-rhythm-stats > div:last-child {
+  border-bottom: 0;
+}
+.tap-rhythm-stats dt {
+  font-size: 14px;
+  color: var(--muted);
+}
+.tap-rhythm .tap-rhythm-stats dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tap-rhythm-pad {
+    transition: none;
+  }
+}

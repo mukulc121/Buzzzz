@@ -1,0 +1,36 @@
+// Pulsar companion app palette; the app is light-only like the original.
+export const colors = {
+  navy: "rgba(0, 26, 114, 1)",
+  background: "rgba(225, 243, 250, 1)",
+  white: "rgba(255, 255, 255, 1)",
+  blue: "rgba(43, 133, 171, 1)",
+  border: "rgba(56, 172, 221, 1)",
+  search: "rgba(91, 185, 224, 1)",
+  tag: "rgba(181, 225, 241, 1)",
+  grid: "rgba(225, 243, 250, 1)",
+  chip: "rgba(251, 254, 255, 1)",
+  tint: "rgba(232, 245, 251, 1)",
+  checked: "rgba(135, 204, 232, 1)",
+  trackOff: "rgba(216, 238, 247, 1)",
+  thumbOff: "rgba(240, 240, 240, 1)",
+  divider: "rgba(207, 230, 242, 1)",
+  muted: "rgba(73, 102, 149, 1)",
+  disabled: "rgba(154, 167, 196, 1)",
+  green: "rgba(87, 180, 149, 1)",
+  red: "rgba(255, 98, 89, 1)",
+};
+export const light = {
+  bg: colors.background,
+  panel: colors.white,
+  sunken: colors.tint,
+  line: colors.tag,
+  fg: colors.navy,
+  fg2: colors.blue,
+  muted: colors.muted,
+  accent: colors.navy,
+  accentFg: colors.white,
+  highlight: colors.border,
+  ok: colors.green,
+  err: colors.red,
+};
+export type Theme = typeof light;
