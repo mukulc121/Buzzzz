@@ -107,6 +107,7 @@ test("library audition leaves an attached animation paused on its current frame"
 test("starting a library audition stops an existing editor playback clock", async ({ page }) => {
   await page.goto("/");
   await expect(patternTitle(page)).toBeVisible();
+  await expect(page.locator(".save-status")).toHaveAttribute("data-status", "editing");
   await page.evaluate(() => {
     const transfer = new DataTransfer();
     transfer.items.add(
