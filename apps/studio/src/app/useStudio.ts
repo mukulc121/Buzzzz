@@ -68,13 +68,19 @@ export function useStudio() {
     currentPattern: document.pattern,
     onGenerated: (pattern) => applyGenerated(pattern),
   });
-  const riveSound = useRiveSound();
+  const riveOwner = resolveRivePresetId(document.project);
+  const riveConfig = useMemo(
+    () => normalizeDexConfig(document.project.riveConfig, riveOwner),
+    [document.project.riveConfig, riveOwner],
+  );
+  const riveSound = useRiveSound(
+    !document.route.dashboard && riveOwner === document.preset.id ? riveConfig : undefined,
+  );
   const { setEnabled: setRiveSoundEnabled } = riveSound;
   const session = useRiveSession({
     project: document.project,
     projectId: document.projectId,
-    active:
-      !document.route.dashboard && resolveRivePresetId(document.project) === document.preset.id,
+    active: !document.route.dashboard && riveOwner === document.preset.id && riveSound.ready,
     writable: document.isWriter,
     mapped: document.mapped,
     addLog: activity.addLog,

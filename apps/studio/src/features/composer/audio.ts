@@ -29,7 +29,7 @@ async function resumed() {
 }
 
 // Renders offline from time 0, as Pulsar does, so live output is its exact PCM.
-function renderSound(pattern: Pattern) {
+export function renderSound(pattern: Pattern) {
   const device = toDevice(pattern);
   const { amplitude } = device.continuousPattern;
   const continuous = (amplitude.at(-1)?.time ?? 0) / 1000 + 0.01;
@@ -40,8 +40,8 @@ function renderSound(pattern: Pattern) {
   return offline.startRendering();
 }
 
-export async function prepareSound(pattern: Pattern) {
-  const [, buffer] = await Promise.all([resumed(), renderSound(pattern)]);
+export async function prepareSound(pattern: Pattern, prepared?: AudioBuffer) {
+  const [, buffer] = await Promise.all([resumed(), prepared ?? renderSound(pattern)]);
   return buffer;
 }
 
