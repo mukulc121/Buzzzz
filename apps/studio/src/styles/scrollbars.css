@@ -1,0 +1,25 @@
+:root {
+  --scrollbar-thumb: rgba(135, 204, 232, 1);
+}
+:root[data-theme="dark"] {
+  --scrollbar-thumb: rgba(44, 74, 99, 1);
+}
+:where(*)::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background-color: rgba(0, 0, 0, 0);
+}
+:where(*)::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0);
+}
+:where(*)::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0);
+  border-radius: 3px;
+  transition: background-color 0.3s;
+}
+:where(*):hover::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+}
+:where(*)::-webkit-scrollbar-corner {
+  background-color: rgba(0, 0, 0, 0);
+}

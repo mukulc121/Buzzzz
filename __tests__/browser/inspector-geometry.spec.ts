@@ -23,6 +23,9 @@ for (const theme of ["Light", "Dark"]) {
     await page.getByRole("radio", { name: theme, exact: true }).check();
     await page.evaluate(() => document.fonts.ready);
     const inspector = page.getByRole("complementary", { name: "Inspector", exact: true });
+    expect(
+      await inspector.evaluate((element) => getComputedStyle(element, "::-webkit-scrollbar").width),
+    ).toBe("6px");
     const sections = inspector.locator(".inspector-section");
     expect(
       await sections.evaluateAll((elements) =>
@@ -41,6 +44,14 @@ for (const theme of ["Light", "Dark"]) {
         ),
     ).toEqual(["rgb(43, 133, 171)", "rgb(0, 26, 114)", "rgb(56, 172, 221)"]);
     const blue30 = theme === "Dark" ? "rgb(44, 74, 99)" : "rgb(135, 204, 232)";
+    await inspector.hover();
+    await expect
+      .poll(() =>
+        inspector.evaluate(
+          (element) => getComputedStyle(element, "::-webkit-scrollbar-thumb").backgroundColor,
+        ),
+      )
+      .toBe(blue30);
     await expect(inspector.getByRole("radio", { name: "Edit frequency", exact: true })).toHaveCSS(
       "border-top-color",
       blue30,
