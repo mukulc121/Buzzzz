@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { ThemeChooser } from "./ThemeChooser";
 import { InspectorSwitch } from "./inspector/InspectorSwitch";
-import { InspectorIcon } from "../components/InspectorIcon";
+import { HelpPopover } from "../components/HelpPopover";
 import type { GridDensity } from "../features/composer/editorSettings";
 import { Select } from "../components/Select";
 import { SettingsShortcuts } from "./settings/SettingsShortcuts";
@@ -17,6 +17,7 @@ interface ISettingsSection {
 interface ISettingsLabel {
   text: string;
   hint: string;
+  helpLabel?: string;
 }
 function SettingsSection(props: ISettingsSection) {
   return (
@@ -30,15 +31,17 @@ function SettingsLabel(props: ISettingsLabel) {
   return (
     <span className="settings-label">
       <span>{props.text}</span>
-      <span className="inspector-info" role="img" aria-label={props.hint} title={props.hint}>
-        <InspectorIcon name="info" />
-      </span>
+      <HelpPopover text={props.hint} label={props.helpLabel ?? props.text} />
     </span>
   );
 }
 const DENSITIES: { value: GridDensity; label: string; hint: string }[] = [
-  { value: "off", label: "Off", hint: "No gridlines or axis labels, just the chart." },
-  { value: "sparse", label: "Sparse", hint: "Widely spaced lines and labels." },
+  { value: "off", label: "Off", hint: "No gridlines or axis labels - just the chart." },
+  {
+    value: "sparse",
+    label: "Sparse",
+    hint: "Widely spaced lines, labels only. Least visual noise.",
+  },
   {
     value: "normal",
     label: "Normal",
@@ -47,7 +50,7 @@ const DENSITIES: { value: GridDensity; label: string; hint: string }[] = [
   {
     value: "dense",
     label: "Dense",
-    hint: "Tight spacing and more subdivisions for precise placement.",
+    hint: "Tight spacing and more subdivisions, for precise placement.",
   },
 ];
 const PRECISIONS = [
@@ -65,7 +68,7 @@ export function WorkspaceSettings(props: IWorkspaceSettings) {
         <div className="settings-field">
           <SettingsLabel
             text="Theme"
-            hint="System follows your operating system and switches automatically when it does."
+            hint="“System” follows your operating system and switches automatically when it does."
           />
           <ThemeChooser theme={studio.appearance.theme} setTheme={studio.appearance.setTheme} />
         </div>
@@ -74,6 +77,7 @@ export function WorkspaceSettings(props: IWorkspaceSettings) {
         <div className="settings-field">
           <SettingsLabel
             text="Density"
+            helpLabel="Grid density"
             hint={DENSITIES.find((item) => item.value === values.gridDensity)?.hint ?? ""}
           />
           <Select
@@ -88,7 +92,8 @@ export function WorkspaceSettings(props: IWorkspaceSettings) {
         <div className="settings-field">
           <SettingsLabel
             text="Precision"
-            hint="Controls the precision of new intensity and frequency edits. Existing values are kept until you edit them."
+            helpLabel="Value precision"
+            hint={`How finely intensity and frequency can be set - ${(0.453 * 100).toFixed(values.valueDecimals)}% at this precision. Values are shown as a percentage; presets still store them as 0-1 for the Pulsar SDK. Changing this only affects new edits.`}
           />
           <Select
             label="Value precision"
@@ -101,7 +106,7 @@ export function WorkspaceSettings(props: IWorkspaceSettings) {
       <SettingsSection title="Pointer">
         <InspectorSwitch
           label="Crosshair rails"
-          info="Rails on both axes follow the pointer and show its time and value."
+          info="Rails on both axes follow the pointer over the chart, reading out the exact time and value under it."
           checked={values.crosshair}
           onChange={(value) => update("crosshair", value)}
         />
@@ -109,7 +114,7 @@ export function WorkspaceSettings(props: IWorkspaceSettings) {
       <SettingsSection title="Playback">
         <InspectorSwitch
           label="Time cursor"
-          info="Show the violet time line over the chart. The timeline needle remains available when this is off."
+          info="The violet line over the chart marking the current time, with its readout - drawn whether or not audio or an animation is attached. The matching needle on the lanes below stays either way, so the time can still be dragged."
           checked={values.timeCursor}
           onChange={(value) => update("timeCursor", value)}
         />
@@ -117,7 +122,7 @@ export function WorkspaceSettings(props: IWorkspaceSettings) {
       <SettingsSection title="Selection">
         <InspectorSwitch
           label="Multilayer selection"
-          info="Marquee selection spans every visible layer instead of only the active layer."
+          info="Marquee selection spans every visible layer instead of only the active one."
           checked={values.multilayerSelection}
           onChange={(value) => {
             composer.setMultilayerSelection(value);
