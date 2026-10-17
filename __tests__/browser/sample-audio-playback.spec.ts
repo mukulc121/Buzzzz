@@ -222,6 +222,99 @@ test("a selected range clips the real track and loops restart without stale fail
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
 
+test("a selected range waits for delayed real audio to reach its source boundary", async ({
+  page,
+}) => {
+  interface IMediaGate {
+    audio: HTMLMediaElement | null;
+    pauses: number[];
+    started: Promise<void> | null;
+    release: () => void;
+  }
+  await createAudioOnlyPattern(page);
+  await page.getByRole("tab", { name: "inspector", exact: true }).click();
+  await page.getByRole("spinbutton", { name: "Playback range end", exact: true }).fill("1000");
+  await page.getByRole("spinbutton", { name: "Playback range start", exact: true }).fill("500");
+  const now = await page.evaluate(() => Date.now());
+  await page.clock.install({ time: now });
+  await page.clock.setFixedTime(now);
+  await page.clock.pauseAt(now);
+  await page.evaluate(() => {
+    const play = HTMLMediaElement.prototype.play;
+    const pause = HTMLMediaElement.prototype.pause;
+    let release = () => {};
+    const pending = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const gate: IMediaGate = { audio: null, pauses: [], started: null, release };
+    Object.assign(window, { rangeMediaGate: gate });
+    const start = async (audio: HTMLMediaElement) => {
+      if (audio.readyState < HTMLMediaElement.HAVE_METADATA)
+        await new Promise<void>((resolve, reject) => {
+          audio.addEventListener("loadedmetadata", () => resolve(), { once: true });
+          audio.addEventListener("error", () => reject(new Error("Sample audio did not load")), {
+            once: true,
+          });
+        });
+      audio.playbackRate = 0;
+      await play.call(audio);
+    };
+    HTMLMediaElement.prototype.play = function () {
+      gate.audio = this;
+      gate.started = pending.then(() => start(this));
+      return gate.started;
+    };
+    HTMLMediaElement.prototype.pause = function () {
+      pause.call(this);
+      if (this === gate.audio) gate.pauses.push(this.currentTime);
+    };
+  });
+  const header = page.locator(".pattern-header");
+  await header.getByRole("button", { name: "Play", exact: true }).click();
+  await page.clock.runFor(600);
+  expect(
+    await page.evaluate(() => (Reflect.get(window, "rangeMediaGate") as IMediaGate).pauses),
+  ).toEqual([]);
+  await page.evaluate(async () => {
+    const gate = Reflect.get(window, "rangeMediaGate") as IMediaGate;
+    gate.release();
+    if (!gate.started) throw new Error("The sample did not request playback");
+    await gate.started;
+  });
+  expect((await mediaState(page)).elements[0]).toMatchObject({
+    currentTime: 0.5,
+    paused: false,
+    ended: false,
+    error: null,
+  });
+  const seek = (time: number) =>
+    page.evaluate(async (position) => {
+      const audio = (Reflect.get(window, "rangeMediaGate") as IMediaGate).audio;
+      if (!audio) throw new Error("The sample audio element is missing");
+      await new Promise<void>((resolve, reject) => {
+        audio.addEventListener("seeked", () => resolve(), { once: true });
+        audio.addEventListener("error", () => reject(new Error("Sample audio could not seek")), {
+          once: true,
+        });
+        audio.currentTime = position;
+      });
+    }, time);
+  await seek(0.999);
+  await page.clock.runFor(20);
+  expect(
+    await page.evaluate(() => (Reflect.get(window, "rangeMediaGate") as IMediaGate).pauses),
+  ).toEqual([]);
+  await seek(1);
+  await page.clock.runFor(20);
+  expect(
+    await page.evaluate(() => (Reflect.get(window, "rangeMediaGate") as IMediaGate).pauses),
+  ).toEqual([1]);
+  await expect(header.getByRole("button", { name: "Play", exact: true })).toBeVisible();
+  const ranged = (await mediaState(page)).elements[0]!;
+  expect(ranged).toMatchObject({ currentTime: 1, paused: true, ended: false, error: null });
+  await expect(page.getByRole("alert")).toHaveCount(0);
+});
+
 test("a genuine current-track media failure still reports an error", async ({ page }) => {
   await page.evaluate(() => {
     const { mediaProbe } = window as typeof window & { mediaProbe: IMediaProbe };

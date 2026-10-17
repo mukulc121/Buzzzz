@@ -89,6 +89,8 @@ export function useStudio() {
     preset: { resourceId: document.preset.id, name: document.preset.name },
     preparePhone,
     phoneKey: instanceKey,
+    hasAnimation: Boolean(animation.source),
+    onOpenDevice: () => setPanel("device"),
     cursor: composer.cursor,
     onCursorChange: composer.setCursor,
     onError: setError,
@@ -190,7 +192,7 @@ export function useStudio() {
   const previewPlayback = usePlayback({
     onError: setError,
     send: session.send,
-    phones: playback.onPhone ? session.phones : 0,
+    phones: session.phones,
   });
   const audition = (pattern: Pattern, preset?: TPhonePreset) => {
     if (playback.playing) playback.stop();

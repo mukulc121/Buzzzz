@@ -4,6 +4,7 @@ import { playBuffer, prepareSound, soundNow, stopSound } from "./audio";
 import { soundDuration } from "./soundGraph";
 import type { IPlaybackRange } from "./model";
 import { playbackStart } from "./playbackStart";
+import { derivePlaybackOutputs } from "./playbackOutputs";
 import { phonePlayback, type TPhonePreset } from "../connection/phoneLibrary";
 
 interface IPlayback {
@@ -12,6 +13,8 @@ interface IPlayback {
   preset?: TPhonePreset;
   preparePhone?: (pattern: Pattern, preset?: TPhonePreset) => Promise<Msg>;
   phoneKey?: string;
+  hasAnimation?: boolean;
+  onOpenDevice?: () => void;
   track?: { url: string; startMs: number; endMs: number } | null;
   durationMs?: number;
   cursor?: number;
@@ -40,6 +43,8 @@ export function usePlayback(props: IPlayback) {
     track,
     preparePhone: props.preparePhone,
     phoneKey: props.phoneKey,
+    hasAnimation: props.hasAnimation,
+    onOpenDevice: props.onOpenDevice,
   });
   useLayoutEffect(() => {
     preferences.current = {
@@ -51,8 +56,21 @@ export function usePlayback(props: IPlayback) {
       track,
       preparePhone: props.preparePhone,
       phoneKey: props.phoneKey,
+      hasAnimation: props.hasAnimation,
+      onOpenDevice: props.onOpenDevice,
     };
-  }, [sound, onPhone, trackEnabled, loop, phones, track, props.preparePhone, props.phoneKey]);
+  }, [
+    sound,
+    onPhone,
+    trackEnabled,
+    loop,
+    phones,
+    track,
+    props.preparePhone,
+    props.phoneKey,
+    props.hasAnimation,
+    props.onOpenDevice,
+  ]);
   const raf = useRef(0);
   const run = useRef(0);
   const owner = useRef(() => {});
@@ -126,11 +144,33 @@ export function usePlayback(props: IPlayback) {
         cursor < prefs.track.endMs - prefs.track.startMs
       );
     };
-    // Auditions always sound like Pulsar's library Play; the editor follows the toggle.
-    const wantsSound = () => mode === "pattern" || preferences.current.sound;
-    const usesSound = (cursor: number) => wantsSound() && !soundFailed && !usesTrack(cursor);
+    const trackAtEnd = (audio: HTMLAudioElement) => {
+      const current = preferences.current.track;
+      return (
+        !!current &&
+        audio.currentTime < audio.duration &&
+        audio.currentTime * 1000 >= Math.min(current.endMs, current.startMs + end)
+      );
+    };
+    const outputsAt = (cursor: number) => {
+      const prefs = preferences.current;
+      return derivePlaybackOutputs({
+        mode,
+        onPhone: prefs.onPhone,
+        phones: prefs.phones,
+        sound: prefs.sound,
+        audio: usesTrack(cursor),
+        animation: mode === "document" && Boolean(prefs.hasAnimation),
+      });
+    };
+    const openDevice = () => {
+      const prefs = preferences.current;
+      if (prefs.phoneKey === phoneKey && outputsAt(from).opensDevicePanel) prefs.onOpenDevice?.();
+    };
+    openDevice();
+    const usesSound = (cursor: number) => !soundFailed && outputsAt(cursor).sound;
     const keyOf = (prefs: typeof preferences.current) =>
-      `${usesSound(from) && !!buffer}/${prefs.trackEnabled}/${prefs.onPhone}/${prefs.phones}/${prefs.track?.url}/${prefs.track?.startMs}/${prefs.track?.endMs}`;
+      `${usesSound(from) && !!buffer}/${prefs.trackEnabled}/${outputsAt(from).devices}/${prefs.track?.url}/${prefs.track?.startMs}/${prefs.track?.endMs}`;
     let outputKey = "";
     let delivery = 0;
     const startOutput = (elapsed: number) => {
@@ -154,7 +194,7 @@ export function usePlayback(props: IPlayback) {
       const soundStart = usesSound(cursor) && buffer ? playBuffer(buffer, elapsed, owner) : null;
       const preparePhone =
         mode === "document" ? (prefs.preparePhone ?? phonePlayback) : phonePlayback;
-      if (prefs.onPhone && prefs.phones && prefs.phoneKey === phoneKey)
+      if (outputsAt(cursor).devices > 0 && prefs.phoneKey === phoneKey)
         void preparePhone(remaining, preset).then(
           (message) => {
             const current = preferences.current;
@@ -162,7 +202,7 @@ export function usePlayback(props: IPlayback) {
               id === run.current &&
               currentDelivery === delivery &&
               current.phoneKey === phoneKey &&
-              current.onPhone &&
+              (mode === "pattern" || current.onPhone) &&
               current.phones
             )
               send(message);
@@ -194,6 +234,7 @@ export function usePlayback(props: IPlayback) {
         duration = Math.max(1, end - from);
         finishAt = Math.max(duration, soundDuration(clip(from)) * 1000);
         buffer = loopBuffer;
+        openDevice();
       }
       if (mode === "document") onStart?.(from);
       else onStop?.();
@@ -208,21 +249,14 @@ export function usePlayback(props: IPlayback) {
         elapsed = 0;
       } else if (elapsed >= finishAt) {
         const audio = player.current;
-        if (end < fullEnd || !audio || audio.ended || audio.error) {
+        if (!audio || audio.ended || audio.error || trackAtEnd(audio)) {
           finish();
           return;
         }
       }
       if (elapsed < duration && keyOf(prefs) !== outputKey) output(elapsed);
       const audio = player.current;
-      if (
-        audio &&
-        (audio.ended ||
-          (prefs.track &&
-            audio.currentTime < audio.duration &&
-            audio.currentTime * 1000 >= prefs.track.endMs))
-      )
-        stopTrack();
+      if (audio && (audio.ended || trackAtEnd(audio))) stopTrack();
       const position =
         player.current && prefs.track
           ? player.current.currentTime * 1000 - prefs.track.startMs
