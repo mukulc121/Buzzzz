@@ -11,6 +11,7 @@ export type Project = {
   map: Record<string, string>;
   riveStateMachine?: string;
   riveConfig?: IRiveConfig;
+  rivePresetId?: string | null;
 };
 function validEditor(value: unknown) {
   if (!isRecord(value) || !Array.isArray(value.markers) || value.markers.length > 512) return false;
@@ -57,6 +58,12 @@ export function isProject(value: unknown): value is Project {
   )
     return false;
   if (value.riveConfig !== undefined && !isRiveConfig(value.riveConfig)) return false;
+  if (
+    value.rivePresetId !== undefined &&
+    value.rivePresetId !== null &&
+    (typeof value.rivePresetId !== "string" || value.rivePresetId.length > 512)
+  )
+    return false;
   const ids = new Set<string>();
   for (const preset of value.presets) {
     if (
@@ -72,6 +79,7 @@ export function isProject(value: unknown): value is Project {
       return false;
     ids.add(preset.id);
   }
+  if (typeof value.rivePresetId === "string" && !ids.has(value.rivePresetId)) return false;
   return Object.entries(value.map).every(
     ([name, id]) => name.length <= 512 && typeof id === "string" && ids.has(id),
   );

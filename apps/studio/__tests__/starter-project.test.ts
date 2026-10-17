@@ -37,6 +37,7 @@ test("sample project preserves every original point, duration and attached media
     pattern: { discretePattern: [], continuousPattern: { amplitude: [], frequency: [] } },
   });
   expect(sample.project.riveConfig).toEqual(DEX_RIVE_CONFIG);
+  expect(sample.project.rivePresetId).toBe("dex-tour-loader");
   expect(sample.project.riveStateMachine).toBe("stateMachine");
   expect(sample.riv?.name).toBe("dexHeadoutIntegration.riv");
   const riv = sample.riv;

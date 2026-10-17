@@ -1,4 +1,4 @@
-import type { Project } from "@buzzzz/core";
+import { resolveRivePresetId, type Project } from "@buzzzz/core";
 import type { IImportedMedia } from "../imports/model";
 import type { IExportFiles } from "../export/model";
 import {
@@ -77,6 +77,15 @@ export async function exportProjectMedia(
     }
   }
   return media;
+}
+
+export async function exportProjectRive(projectId: string, project: Project) {
+  const owner = resolveRivePresetId(project);
+  if (!owner) return null;
+  const attachment = (await listAttachments(projectId, owner)).find((item) => item.kind === "rive");
+  if (!attachment) return null;
+  const file = await readMediaFile(attachment.assetId);
+  return { name: file.name, buffer: await file.arrayBuffer() };
 }
 
 // Copies a pattern's audio/animation into another project; returns an undo for failed copies.

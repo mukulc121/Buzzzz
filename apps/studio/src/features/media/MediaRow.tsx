@@ -19,7 +19,7 @@ interface IMediaRow {
 const KIND_LABEL: Record<MediaKind, string> = {
   audio: "Audio · this pattern",
   animation: "Animation · this pattern",
-  rive: "Rive · whole project",
+  rive: "Rive",
 };
 export function MediaRow(props: IMediaRow) {
   const { item, media, canEdit, onAttach, preview } = props;
@@ -28,7 +28,9 @@ export function MediaRow(props: IMediaRow) {
   const renameFinished = useRef(false);
   const [draft, setDraft] = useState<string | null>(null);
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
-  const attached = library.attachment[item.kind]?.assetId === item.id;
+  const attached =
+    library.attachment[item.kind]?.assetId === item.id &&
+    (item.kind !== "rive" || media.riveAttached);
   const busy = Boolean(pending[item.kind]);
   const editable = canEdit && !busy;
   const playing = preview.playingId === item.id;

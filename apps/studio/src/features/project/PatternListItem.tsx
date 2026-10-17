@@ -12,6 +12,7 @@ interface IPatternListItem {
   renaming: boolean;
   canRemove: boolean;
   triggers: string[];
+  metadata?: string;
   onSelect: (id: string) => void;
   onDuplicate: (id: string) => void;
   onStartRename: (id: string) => void;
@@ -27,6 +28,7 @@ export function PatternListItem(props: IPatternListItem) {
     renaming,
     canRemove,
     triggers,
+    metadata,
     onSelect,
     onDuplicate,
     onStartRename,
@@ -71,7 +73,8 @@ export function PatternListItem(props: IPatternListItem) {
           <span className="pattern-row-text">
             <span className="pattern-row-name">{preset.name}</span>
             <span className="pattern-row-meta">
-              {Math.round(duration)} ms · {preset.pattern.discretePattern.length} discrete
+              {metadata ??
+                `${Math.round(duration)} ms · ${preset.pattern.discretePattern.length} discrete`}
             </span>
           </span>
         </button>

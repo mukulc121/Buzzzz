@@ -3,18 +3,28 @@ import type { MediaKind } from "./model";
 import { useAttachmentLoader, type IAttachmentCodecs } from "./useAttachmentLoader";
 import { useAttachmentHydration } from "./useAttachmentHydration";
 import { usePersistedAudioTrim } from "./usePersistedAudioTrim";
-import { checkMediaLimits } from "./rules";
+import { checkMediaLimits, toMediaError } from "./rules";
 import { useMediaLibrary } from "./useMediaLibrary";
+import { readRiveFile } from "./attachments";
+import { attachRiveMedia, listAttachments } from "./repository";
+import { serializeRiveAttachment } from "./riveTransfer";
 
 type Pending = "import" | "hydrate";
 interface ILoaded {
   scope: string;
   assetId: string | null;
 }
+interface IAttachmentCommit {
+  assetId: string;
+  rollback?: () => Promise<void>;
+}
 interface IAttachedTracks extends IAttachmentCodecs {
   projectId: string;
   presetId: string;
   writable: boolean;
+  onRiveAttach: (preserveConfig: boolean) => boolean;
+  onRiveDetach: () => void;
+  rivePresetId: string | null;
 }
 
 const KINDS: readonly MediaKind[] = ["audio", "animation", "rive"];
@@ -22,14 +32,33 @@ const isLoaded = (loaded: ILoaded, scope: string, assetId: string | null) =>
   loaded.scope === scope && loaded.assetId === assetId;
 
 export function useAttachedTracks(props: IAttachedTracks) {
-  const { projectId, presetId, writable, onError, audio, animation, rive } = props;
+  const {
+    projectId,
+    presetId,
+    writable,
+    onError,
+    audio,
+    animation,
+    rive,
+    onRiveAttach,
+    onRiveDetach,
+  } = props;
   const library = useMediaLibrary({ projectId, presetId, writable, onError });
   const { ready: libraryReady, attachment, getFile, updateTrim } = library;
   const { load, clearKind } = useAttachmentLoader({ audio, animation, rive, onError });
+  const { setRiv } = rive;
+  const { refresh } = library;
   const trackScope = `${projectId}\u0000${presetId}`;
-  const access = useRef({ projectId, trackScope, writable });
+  const access = useRef({ projectId, trackScope, writable, version: 0 });
   useLayoutEffect(() => {
-    access.current = { projectId, trackScope, writable };
+    const before = access.current;
+    access.current = {
+      trackScope,
+      projectId,
+      writable,
+      version:
+        before.version + Number(before.trackScope !== trackScope || before.writable !== writable),
+    };
   }, [projectId, trackScope, writable]);
   const scopeOf = useCallback(
     (kind: MediaKind) => (kind === "rive" ? projectId : trackScope),
@@ -101,11 +130,18 @@ export function useAttachedTracks(props: IAttachedTracks) {
 
   // Validate (decode) first, then store/attach. Bad files never replace the live track.
   const apply = useCallback(
-    async (kind: MediaKind, file: File, persist: () => Promise<string | null>) => {
+    async (
+      kind: MediaKind,
+      file: File,
+      persist: (current: () => boolean) => Promise<IAttachmentCommit | null>,
+      preserveRiveConfig = false,
+    ) => {
       const scope = scopeOf(kind);
+      const version = access.current.version;
       const canWrite = () =>
         access.current.writable &&
-        (kind === "rive" ? access.current.projectId : access.current.trackScope) === scope;
+        access.current.trackScope === trackScope &&
+        access.current.version === version;
       if (!canWrite()) {
         errorHandler.current("Open this project for editing to change media");
         return false;
@@ -114,24 +150,62 @@ export function useAttachedTracks(props: IAttachedTracks) {
       const current = () => token === tokens.current[kind] && canWrite();
       importing.current.add(kind);
       setImportingToken((current) => ({ ...current, [kind]: token }));
-      try {
-        if (!(await load(kind, file, null, current)) || !current()) return false;
-        const assetId = await persist();
-        if (!current()) return false;
-        if (assetId) commit(kind, { scope, assetId }, file);
-        // Storage failed: keep the decoded track live but unsaved, and never write its trim.
-        else
-          commit(kind, { scope, assetId: attachmentRef.current[kind]?.assetId ?? null }, undefined);
-        return assetId !== null;
-      } finally {
-        unmark(kind, token);
-        if (token === tokens.current[kind]) {
-          importing.current.delete(kind);
-          setRevision((value) => value + 1);
+      const run = async () => {
+        try {
+          if (!current()) return false;
+          const buffer = kind === "rive" ? await readRiveFile(file) : null;
+          if (kind !== "rive" && !(await load(kind, file, null, current))) return false;
+          if (!current()) return false;
+          const stored = await persist(current);
+          if (!current()) {
+            await stored?.rollback?.();
+            if (kind === "rive") await refresh();
+            return false;
+          }
+          if (kind === "rive") {
+            if (!stored || !buffer) return false;
+            if (!onRiveAttach(preserveRiveConfig)) {
+              await stored.rollback?.();
+              await refresh();
+              return false;
+            }
+            setRiv({ name: file.name, buffer });
+          }
+          if (stored) commit(kind, { scope, assetId: stored.assetId }, file);
+          // Storage failed: keep the decoded track live but unsaved, and never write its trim.
+          else
+            commit(
+              kind,
+              { scope, assetId: attachmentRef.current[kind]?.assetId ?? null },
+              undefined,
+            );
+          if (kind === "rive") await refresh();
+          return stored !== null;
+        } catch (error) {
+          if (current()) errorHandler.current(toMediaError(error).message);
+          return false;
+        } finally {
+          unmark(kind, token);
+          if (token === tokens.current[kind]) {
+            importing.current.delete(kind);
+            setRevision((value) => value + 1);
+          }
         }
-      }
+      };
+      return kind === "rive" ? serializeRiveAttachment(projectId, run) : run();
     },
-    [scopeOf, invalidate, load, commit, unmark],
+    [
+      scopeOf,
+      trackScope,
+      projectId,
+      invalidate,
+      load,
+      commit,
+      unmark,
+      onRiveAttach,
+      setRiv,
+      refresh,
+    ],
   );
 
   const { add, attach } = library;
@@ -142,23 +216,76 @@ export function useAttachedTracks(props: IAttachedTracks) {
         errorHandler.current(blocked.message);
         return Promise.resolve(false);
       }
-      return apply(kind, file, async () => {
+      return apply(kind, file, async (current) => {
         const item = await add(file, kind);
-        return item && ((await attach(item.id))?.assetId ?? null);
+        if (!item || !current()) return null;
+        if (kind === "rive")
+          return attachRiveMedia({ projectId, presetId, assetId: item.id, current });
+        const attachment = await attach(item.id);
+        return attachment ? { assetId: attachment.assetId } : null;
       });
     },
-    [apply, add, attach],
+    [apply, add, attach, projectId, presetId],
   );
   const attachAsset = useCallback(
     async (id: string) => {
+      const version = access.current.version;
       const item = library.items.find((entry) => entry.id === id);
       const file = item && (await getFile(id));
-      if (!item || !file) return false;
-      return apply(item.kind, file, async () => (await attach(id))?.assetId ?? null);
+      if (
+        !item ||
+        !file ||
+        access.current.version !== version ||
+        access.current.trackScope !== trackScope
+      )
+        return false;
+      return apply(
+        item.kind,
+        file,
+        async (current) => {
+          if (item.kind === "rive")
+            return attachRiveMedia({ projectId, presetId, assetId: id, current });
+          const attachment = await attach(id);
+          return attachment ? { assetId: attachment.assetId } : null;
+        },
+        id === attachment.rive?.assetId,
+      );
     },
-    [library.items, getFile, apply, attach],
+    [
+      library.items,
+      attachment.rive?.assetId,
+      getFile,
+      apply,
+      attach,
+      projectId,
+      presetId,
+      trackScope,
+    ],
   );
-  const { detach } = library;
+  const forgetRive = useCallback(async () => {
+    const attached = (await listAttachments(projectId, presetId)).some(
+      (item) => item.kind === "rive",
+    );
+    if (!attached && access.current.projectId === projectId && access.current.writable)
+      onRiveDetach();
+  }, [projectId, presetId, onRiveDetach]);
+  const remove = useCallback(
+    async (id: string) => {
+      const attached = attachment.rive?.assetId === id;
+      const result = await library.remove(id);
+      if (attached && result !== null) await forgetRive();
+      return result;
+    },
+    [attachment.rive?.assetId, library, forgetRive],
+  );
+  const detach = useCallback(
+    async (kind: MediaKind) => {
+      const result = await library.detach(kind);
+      if (kind === "rive" && result !== null) await forgetRive();
+      return result;
+    },
+    [library, forgetRive],
+  );
 
   const pending = useMemo(() => {
     const states: Partial<Record<MediaKind, Pending>> = {};
@@ -184,6 +311,14 @@ export function useAttachedTracks(props: IAttachedTracks) {
   });
 
   const ready = libraryReady && !Object.values(pending).includes("hydrate");
-  return { library, ready, pending, importFile, attachAsset, detach };
+  return {
+    library: { ...library, remove, detach },
+    ready,
+    pending,
+    importFile,
+    attachAsset,
+    detach,
+    riveAttached: props.rivePresetId === presetId,
+  };
 }
 export type AttachedTracks = ReturnType<typeof useAttachedTracks>;

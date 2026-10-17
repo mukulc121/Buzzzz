@@ -1,4 +1,4 @@
-import { isProject, patternEnd, type Preset } from "@buzzzz/core";
+import { isProject, patternEnd, resolveRivePresetId, type Preset } from "@buzzzz/core";
 import { strToU8, zipSync } from "fflate";
 import { MAX_ARCHIVE_BYTES, MAX_MEMBER_BYTES, pulsarContentHash } from "./archive";
 import { readMediaWindow } from "./bundle";
@@ -6,6 +6,7 @@ import { validateMediaFile } from "./media";
 import type { IPulsarExport } from "./model";
 import { numberIn } from "./pattern";
 import { validateRive } from "./rive";
+import { normalizeDexConfig } from "../project/starter/rive/normalizeDexConfig";
 
 interface IBundlePreset {
   id: string;
@@ -31,6 +32,8 @@ function portableId(name: string, used: Set<string>) {
 
 export async function exportPulsarBundle(options: IPulsarExport): Promise<Blob> {
   const { project, riv, stateMachine, media = [], durations = {} } = options;
+  const rivePresetId = resolveRivePresetId(project);
+  const riveConfig = normalizeDexConfig(project.riveConfig, rivePresetId);
   if (!isProject(project)) throw new Error("Choose a valid Buzzzz project to export");
   const name = options.name?.trim() || "Buzzzz project";
   const id =
@@ -110,7 +113,7 @@ export async function exportPulsarBundle(options: IPulsarExport): Promise<Blob> 
       );
   }
   let rive: { src: string; name: string; stateMachine?: string } | undefined;
-  if (riv) {
+  if (riv && rivePresetId) {
     validateRive(riv);
     const path = "rive/animation.riv";
     files[path] = new Uint8Array(riv.buffer);
@@ -129,7 +132,8 @@ export async function exportPulsarBundle(options: IPulsarExport): Promise<Blob> 
       ...(Object.keys(editors).length ? { editors } : {}),
       ...(windows.size ? { windows: Object.fromEntries(windows) } : {}),
       ...(rive ? { rive } : {}),
-      ...(project.riveConfig ? { riveConfig: project.riveConfig } : {}),
+      ...(riv || project.riveConfig || project.rivePresetId !== undefined ? { rivePresetId } : {}),
+      ...(rivePresetId && riveConfig ? { riveConfig } : {}),
     },
   };
   files["manifest.json"] = strToU8(JSON.stringify(manifest, null, 2));

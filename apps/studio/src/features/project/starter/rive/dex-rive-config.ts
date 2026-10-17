@@ -3,6 +3,7 @@ import type { IRiveConfig } from "@buzzzz/core";
 export const DEX_RIVE_CONFIG = {
   artboard: "artboard",
   viewModel: "ViewModel1",
+  nativeSound: false,
   completion: {
     startTrigger: "hapticEntry",
     readyTrigger: "isLoaded",

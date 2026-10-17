@@ -68,7 +68,12 @@ export function EditorCanvas(props: IEditorCanvas) {
         />
         <EditorPlayButton
           playing={studio.toolbarPlaying}
-          {...playButton}
+          {...(session.riv && !studio.toolbarPlaying
+            ? {
+                ...playButton,
+                label: `Play “${document.preset.name}” - Rive animation and haptics · P`,
+              }
+            : playButton)}
           onClick={studio.togglePlayback}
         />
       </header>

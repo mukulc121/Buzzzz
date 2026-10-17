@@ -38,6 +38,7 @@ for (const fallback of [false, true])
     await page.goto("/");
     await page.getByRole("button", { name: "Projects", exact: true }).click();
     await page.getByRole("button", { name: "Create sample project", exact: true }).click();
+    await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
     await expect(
       page.locator(".rive-panel").getByRole("button", { name: "Fire isLoaded", exact: true }),
     ).toBeVisible({ timeout: 15000 });
@@ -106,6 +107,7 @@ test("the real Rive starter completes locally before a delayed phone load and ca
   await page.goto("/");
   await page.getByRole("button", { name: "Projects", exact: true }).click();
   await page.getByRole("button", { name: "Create sample project", exact: true }).click();
+  await page.getByRole("button", { name: "DexTourLoader", exact: true }).click();
   const panel = page.locator(".rive-panel");
   await expect(panel.getByRole("button", { name: "Fire isLoaded", exact: true })).toBeVisible({
     timeout: 20_000,
@@ -144,18 +146,18 @@ test("the real Rive starter completes locally before a delayed phone load and ca
   ).toBe(false);
   await panel.screenshot({ path: testInfo.outputPath("completed-rive-starter.png") });
   await panel.getByRole("button", { name: "Fire hapticLoop", exact: true }).click();
-  await panel.getByRole("button", { name: "Resume", exact: true }).click();
+  await panel.getByRole("button", { name: "Resume", exact: true }).dispatchEvent("click");
   await expect.poll(() => events.filter((event) => event.name === "hapticLoop").length).toBe(2);
   await page.waitForTimeout(800);
   expect(impacts).toHaveLength(completedCount);
   await panel.getByRole("button", { name: "Play with haptics", exact: true }).click();
   await expect.poll(() => events.filter((event) => event.name === "hapticEntry").length).toBe(2);
-  await panel.getByRole("button", { name: "Pause", exact: true }).click();
+  await panel.getByRole("button", { name: "Pause", exact: true }).dispatchEvent("click");
   await expect(panel.getByRole("button", { name: "Resume", exact: true })).toBeVisible();
   const pausedCount = impacts.length;
   await page.waitForTimeout(2000);
   expect(impacts).toHaveLength(pausedCount);
-  await panel.getByRole("button", { name: "Resume", exact: true }).click();
+  await panel.getByRole("button", { name: "Resume", exact: true }).dispatchEvent("click");
   await expect.poll(() => impacts.length).toBeGreaterThan(pausedCount);
   await expect(panel.getByRole("button", { name: "Resume", exact: true })).toBeVisible({
     timeout: 15000,

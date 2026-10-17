@@ -1,9 +1,7 @@
-import { useEffect } from "react";
 import { useRouter } from "expo-router";
 import { useBottomTabBarHeight } from "expo-router/js-tabs";
 import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Settings } from "react-native-pulsar";
 import { Card } from "../../components/Card";
 import { ThemedText } from "../../components/ThemedText";
 import { usePreview } from "../shell/usePreview";
@@ -15,9 +13,6 @@ export function HomeScreen() {
   const { t, session } = usePreview();
   const router = useRouter();
   const tabBarHeight = useBottomTabBarHeight();
-  useEffect(() => {
-    Settings.enableSound(true);
-  }, []);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={["top", "left", "right"]}>
       <ScrollView

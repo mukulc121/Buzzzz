@@ -34,6 +34,7 @@ describe("declarative Rive haptics", () => {
     expect(DEX_RIVE_CONFIG).toEqual({
       artboard: "artboard",
       viewModel: "ViewModel1",
+      nativeSound: false,
       completion: {
         startTrigger: "hapticEntry",
         readyTrigger: "isLoaded",
@@ -142,6 +143,8 @@ describe("declarative Rive haptics", () => {
       }),
     ).toBe(true);
     expect(isRiveConfig({})).toBe(true);
+    expect(isRiveConfig({ nativeSound: true })).toBe(true);
+    expect(isRiveConfig({ nativeSound: false })).toBe(true);
     expect(isRiveConfig({ haptics: {} })).toBe(true);
     expect(
       isRiveConfig({
@@ -163,6 +166,9 @@ describe("declarative Rive haptics", () => {
       { artboard: "a".repeat(513) },
       { viewModel: 1 },
       { viewModel: "v".repeat(513) },
+      { nativeSound: "false" },
+      { nativeSound: 0 },
+      { nativeSound: null },
       { script: "arbitrary()" },
       { completion: null },
       { completion: [] },

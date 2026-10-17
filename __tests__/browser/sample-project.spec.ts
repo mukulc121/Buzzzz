@@ -23,7 +23,7 @@ test("the sample keeps the original three patterns and adds the Rive example", a
   ])
     await expect(patterns.getByRole("button", { name, exact: true })).toContainText(metadata);
   await expect(patterns.getByRole("button", { name: "DexTourLoader", exact: true })).toContainText(
-    "0 discrete",
+    "Rive · system haptics",
   );
   await expect(patternTitle(page)).toHaveText("ExplosionAnimation");
   await page.getByRole("tab", { name: "animation", exact: true }).click();

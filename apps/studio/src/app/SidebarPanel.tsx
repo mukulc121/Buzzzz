@@ -22,6 +22,7 @@ function SidebarContents(props: ISidebarPanel) {
           project={document.project}
           preset={document.preset}
           writable={document.isWriter}
+          riveAvailable={session.projectRiv !== null}
           onAdd={studio.addPreset}
           onDuplicate={studio.duplicatePreset}
           onSelect={studio.selectPreset}

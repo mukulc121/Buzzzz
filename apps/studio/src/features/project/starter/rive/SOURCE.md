@@ -1,3 +1,5 @@
 The DexTourLoader sample comes from [headout/dex-ios PR #1063](https://github.com/headout/dex-ios/pull/1063), commit `04153623238828effc233792626e629cd7c0ec01`. The Rive asset is unchanged at 231,444 bytes, SHA256 `a1e7943e8b53816bdeff29cdf91441da5dd2c7fa5fe5f5c150100c12204a0da6`.
 
 The trigger sequences follow `packages/dex/src/hooks/useDexRiveHaptics.ts`. Completion timing follows `packages/dex/src/components/DexTourLoader.tsx`; the automatic ready trigger after 2,500 ms follows `apps/dex/src/modals/debug/DebugTourLoaderPreview.tsx` at the same commit. This source attribution does not grant a separate license for the Headout asset.
+
+The native preview disables the SDK's synthetic sound, matching Dex's release default.

@@ -8,12 +8,27 @@ import { DEX_RIVE_CONFIG } from "../src/features/project/starter/rive/dex-rive-c
 import { systemImpactPattern } from "../src/features/rive/systemImpactPattern";
 import { selectExportProject } from "../src/features/export/model";
 import { riveHapticAction } from "../src/features/rive/hapticAction";
+import { normalizeDexConfig } from "../src/features/project/starter/rive/normalizeDexConfig";
 
 const project = {
   presets: [{ id: "dex", name: "DexTourLoader", pattern: emptyPattern() }],
   map: {},
   riveConfig: DEX_RIVE_CONFIG,
+  rivePresetId: "dex",
 };
+
+test("only the unchanged legacy Dex starter inherits the source native-sound policy", () => {
+  const { nativeSound: _sound, ...legacy } = DEX_RIVE_CONFIG;
+  expect(normalizeDexConfig(legacy, "dex-tour-loader")).toEqual(DEX_RIVE_CONFIG);
+  expect(normalizeDexConfig(legacy, "custom")).toBe(legacy);
+  const custom = {
+    ...legacy,
+    haptics: { ...legacy.haptics, hapticEntry: legacy.haptics.hapticLoop },
+  };
+  expect(normalizeDexConfig(custom, "dex-tour-loader")).toBe(custom);
+  const explicit = { ...legacy, nativeSound: true };
+  expect(normalizeDexConfig(explicit, "dex-tour-loader")).toBe(explicit);
+});
 
 test("VM trigger names cannot resolve inherited actions but explicit prototype-name cues work", () => {
   for (const name of ["constructor", "toString", "__proto__"])
@@ -55,7 +70,7 @@ test("malformed Rive scripts cannot be silently dropped by either project import
   );
 });
 
-test("pattern selection keeps the existing project-global Rive export policy", async () => {
+test("pattern selection retains the Rive asset and configuration only with its owner", async () => {
   const selected = selectExportProject(
     {
       ...project,
@@ -73,10 +88,24 @@ test("pattern selection keeps the existing project-global Rive export policy", a
   const imported = await readImport(new File([blob], "selection.pulsar"));
   expect(imported).toMatchObject({
     kind: "project",
-    project: { presets: project.presets, riveConfig: DEX_RIVE_CONFIG },
+    project: { presets: project.presets, riveConfig: DEX_RIVE_CONFIG, rivePresetId: "dex" },
     stateMachine: "stateMachine",
     riv,
   });
+  const excluded = selectExportProject(
+    {
+      ...project,
+      presets: [...project.presets, { id: "other", name: "Other", pattern: emptyPattern() }],
+    },
+    { presetIds: ["other"], includeAudio: false, includeAnimation: false },
+  );
+  const without = await readImport(
+    new File([await exportPulsarBundle({ project: excluded, riv })], "without.pulsar"),
+  );
+  expect(without).toMatchObject({ kind: "project", riv: null, project: { rivePresetId: null } });
+  if (without.kind !== "project") throw new Error("Expected a project");
+  expect(without.project.riveConfig).toBeUndefined();
+  expect(without.stateMachine).toBeUndefined();
 });
 
 test("speaker system impacts use the published iOS catalog patterns", () => {

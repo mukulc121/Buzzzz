@@ -24,6 +24,7 @@ export async function loadSampleProject(): Promise<Extract<Imported, { kind: "pr
       ],
       riveStateMachine: "stateMachine",
       riveConfig: structuredClone(DEX_RIVE_CONFIG),
+      rivePresetId: "dex-tour-loader",
     },
     riv: { name: "dexHeadoutIntegration.riv", buffer: await rive.arrayBuffer() },
     stateMachine: "stateMachine",

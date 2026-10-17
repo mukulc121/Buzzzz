@@ -151,6 +151,42 @@ export function attachMedia(
   });
 }
 
+export async function attachRiveMedia(props: {
+  projectId: string;
+  presetId: string;
+  assetId: string;
+  current: () => boolean;
+}) {
+  const { projectId, presetId, assetId, current } = props;
+  const revision = crypto.randomUUID();
+  const key = [projectId, scopeFor("rive", presetId), "rive"];
+  const previous = await transact(["items", "attachments"], "readwrite", async (tx) => {
+    const item = await readItem(tx, assetId);
+    if (item.projectId !== projectId || item.kind !== "rive") throw missing();
+    const store = tx.objectStore("attachments");
+    const previous = await settle(store.get(key));
+    if (!current()) return undefined;
+    await settle(
+      store.put({ projectId, scope: key[1], kind: "rive", assetId, trim: null, revision }),
+    );
+    return isMediaAttachment(previous) ? previous : null;
+  });
+  if (previous === undefined) return null;
+  const rollback = () =>
+    transact(["attachments"], "readwrite", async (tx) => {
+      const store = tx.objectStore("attachments");
+      const attachment = await settle(store.get(key));
+      if (
+        !isMediaAttachment(attachment) ||
+        !("revision" in attachment) ||
+        attachment.revision !== revision
+      )
+        return;
+      await settle(previous ? store.put(previous) : store.delete(key));
+    });
+  return { assetId, rollback };
+}
+
 export function rollbackMediaCopy(
   target: { projectId: string; presetId: string },
   files: { id: string; kind: MediaKind; created: boolean; attached: boolean }[],

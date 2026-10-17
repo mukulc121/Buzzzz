@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Project } from "@buzzzz/core";
+import { resolveRivePresetId, type Project } from "@buzzzz/core";
 import { PatternListItem } from "./PatternListItem";
 import { PatternActionIcon } from "./PatternActionIcon";
 
@@ -7,6 +7,7 @@ interface IProjectSidebar {
   project: Project;
   preset: Project["presets"][number];
   writable: boolean;
+  riveAvailable: boolean;
   onAdd: () => void;
   onDuplicate: (id: string) => void;
   onSelect: (id: string) => void;
@@ -15,8 +16,18 @@ interface IProjectSidebar {
   onHide: () => void;
 }
 export function ProjectSidebar(props: IProjectSidebar) {
-  const { project, preset, writable, onAdd, onDuplicate, onSelect, onRemove, onRename, onHide } =
-    props;
+  const {
+    project,
+    preset,
+    writable,
+    riveAvailable,
+    onAdd,
+    onDuplicate,
+    onSelect,
+    onRemove,
+    onRename,
+    onHide,
+  } = props;
   const [renamingId, setRenamingId] = useState<string | null>(null);
   return (
     <aside className="patterns-panel" aria-label="Project patterns">
@@ -53,6 +64,13 @@ export function ProjectSidebar(props: IProjectSidebar) {
             writable={writable}
             renaming={item.id === renamingId}
             canRemove={project.presets.length > 1}
+            metadata={
+              riveAvailable &&
+              resolveRivePresetId(project) === item.id &&
+              project.riveConfig?.haptics
+                ? "Rive · system haptics"
+                : undefined
+            }
             triggers={Object.entries(project.map)
               .filter(([, id]) => id === item.id)
               .map(([trigger]) => trigger)}

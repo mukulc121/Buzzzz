@@ -24,6 +24,7 @@ const project = {
     { id: "original-two", name: "Same name", pattern: emptyPattern() },
   ],
   map: { Click: "original-one" },
+  rivePresetId: "original-one",
 };
 const json = (value: unknown) => strToU8(JSON.stringify(value));
 function wav() {

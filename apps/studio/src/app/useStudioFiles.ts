@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef } from "react";
 import { readImport } from "../features/imports/readImport";
 import { exportPulsarBundle } from "../features/imports/exportPulsarBundle";
 import { downloadBlob } from "../features/project/files";
-import { exportProjectMedia } from "../features/project/mediaTransfer";
+import { exportProjectMedia, exportProjectRive } from "../features/project/mediaTransfer";
 import { importProject } from "../features/project/importProject";
 import { loadSampleProject } from "../features/project/starter/loadSampleProject";
 import type { Imported } from "../features/imports/model";
@@ -25,9 +25,19 @@ interface IStudioFiles {
 export function useStudioFiles(props: IStudioFiles) {
   const { document, composer, session, media, onError, onInspector, onLog } = props;
   const current = useRef(document.projectId);
+  const mediaScope = useRef({
+    projectId: document.projectId,
+    presetId: document.preset.id,
+    writable: document.isWriter,
+  });
   useLayoutEffect(() => {
     current.current = document.projectId;
-  }, [document.projectId]);
+    mediaScope.current = {
+      projectId: document.projectId,
+      presetId: document.preset.id,
+      writable: document.isWriter,
+    };
+  }, [document.projectId, document.preset.id, document.isWriter]);
   const openImportedProject = async (
     data: Extract<Imported, { kind: "project" }>,
     name: string,
@@ -64,20 +74,25 @@ export function useStudioFiles(props: IStudioFiles) {
   };
   const readFile = async (file: File): Promise<string | null> => {
     const projectId = current.current;
+    const selected = mediaScope.current;
     try {
       const data = await readImport(file);
       if (current.current !== projectId) return null;
+      if (["audio", "animation", "rive"].includes(data.kind) && mediaScope.current !== selected)
+        return null;
       switch (data.kind) {
         case "audio":
         case "animation":
           if (!document.isWriter) throw new Error("Open this project for editing to attach media");
-          if (await media.importFile(data.file, data.kind))
+          if (await media.importFile(data.file, data.kind)) {
+            if (current.current !== projectId || mediaScope.current !== selected) return null;
             onInspector(data.kind === "audio" ? "sound" : "animation");
+          }
           return null;
         case "rive":
           if (!document.isWriter) throw new Error("Open this project for editing to attach media");
           if (await media.importFile(file, "rive")) {
-            session.setStateMachine(undefined);
+            if (current.current !== projectId || mediaScope.current !== selected) return null;
             onInspector("animation");
           }
           return null;
@@ -114,12 +129,12 @@ export function useStudioFiles(props: IStudioFiles) {
   };
   const attachMediaAsset = async (assetId: string) => {
     const projectId = current.current;
+    const selected = mediaScope.current;
     const item = media.library.items.find(
       (entry) => entry.id === assetId && entry.projectId === projectId,
     );
     if (!document.isWriter || !item || !(await media.attachAsset(assetId))) return false;
-    if (current.current !== projectId) return false;
-    if (item.kind === "rive") session.setStateMachine(undefined);
+    if (current.current !== projectId || mediaScope.current !== selected) return false;
     onInspector(item.kind === "audio" ? "sound" : "animation");
     return true;
   };
@@ -130,7 +145,7 @@ export function useStudioFiles(props: IStudioFiles) {
       const blob = await exportPulsarBundle({
         project,
         name: title,
-        riv: session.riv,
+        riv: session.projectRiv ?? (await exportProjectRive(document.projectId, project)),
         stateMachine: session.stateMachine ?? document.project.riveStateMachine,
         media: await exportProjectMedia(document.projectId, project, selection),
         durations: Object.fromEntries(

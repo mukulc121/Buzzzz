@@ -12,6 +12,7 @@ export type { Project, Preset, IPresetEditor } from "./patterns/project.ts";
 export { isRiveConfig } from "./rive/config.ts";
 export type { IRiveConfig, TRiveHapticAction, TSystemImpact } from "./rive/config.ts";
 export { createRiveHaptics } from "./rive/playback.ts";
+export { resolveRivePresetId } from "./rive/ownership.ts";
 export { fromDeepLink, parseMessage, relayUrl } from "./relay/protocol.ts";
 export type { Msg } from "./relay/protocol.ts";
 export { isRelayMessageAllowed } from "./relay/roles.ts";

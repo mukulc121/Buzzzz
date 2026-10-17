@@ -9,6 +9,7 @@ const project: Project = {
   ],
   map: { A: "one", B: "two" },
   riveStateMachine: "Main",
+  rivePresetId: "two",
 };
 
 test("selected exports retain project ordering, valid mappings and Rive configuration", () => {

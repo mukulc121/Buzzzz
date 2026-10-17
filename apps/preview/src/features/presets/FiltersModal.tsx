@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { Settings } from "react-native-pulsar";
 import { Button } from "../../components/Button";
 import { Icon } from "../../components/Icon";
 import { ThemedText } from "../../components/ThemedText";
@@ -109,10 +108,7 @@ export function FiltersModal() {
               label="Sound"
               testID="filters-sound-switch"
               value={filters.soundEnabled}
-              onValueChange={(value) => {
-                filters.setSoundEnabled(value);
-                Settings.enableSound(value);
-              }}
+              onValueChange={filters.setSoundEnabled}
             />
             <SwitchRow
               label="Compact layout"

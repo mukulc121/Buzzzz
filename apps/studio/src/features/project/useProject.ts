@@ -70,7 +70,7 @@ export function useProject() {
   const document = useProjectDocument({
     initial: start.record.project,
     writable: isWriter,
-    onCommit: (project) => void persist(project),
+    onCommit: (project) => persist(project),
   });
 
   const load = (record: IProjectRecord) => {

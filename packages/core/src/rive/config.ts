@@ -14,6 +14,7 @@ export type TRiveHapticAction =
 export interface IRiveConfig {
   artboard?: string;
   viewModel?: string;
+  nativeSound?: boolean;
   haptics?: Record<string, TRiveHapticAction>;
   completion?: {
     startTrigger: string;
@@ -94,9 +95,10 @@ function isAction(value: unknown): value is TRiveHapticAction {
 export function isRiveConfig(value: unknown): value is IRiveConfig {
   if (
     !isRecord(value) ||
-    !onlyKeys(value, ["artboard", "viewModel", "haptics", "completion"]) ||
+    !onlyKeys(value, ["artboard", "viewModel", "nativeSound", "haptics", "completion"]) ||
     (value.artboard !== undefined && !name(value.artboard)) ||
     (value.viewModel !== undefined && !name(value.viewModel)) ||
+    (value.nativeSound !== undefined && typeof value.nativeSound !== "boolean") ||
     (value.completion !== undefined && !isCompletion(value.completion))
   )
     return false;

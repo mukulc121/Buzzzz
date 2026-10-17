@@ -18,6 +18,7 @@ function readProjectJson(value: unknown): Extract<Imported, { kind: "project" }>
         map: value.map,
         riveStateMachine: value.riveStateMachine,
         ...(value.riveConfig ? { riveConfig: value.riveConfig } : {}),
+        ...(value.rivePresetId !== undefined ? { rivePresetId: value.rivePresetId } : {}),
       },
       durations: Object.fromEntries(
         value.presets.flatMap((preset): [string, number][] =>
@@ -46,6 +47,7 @@ function readProjectJson(value: unknown): Extract<Imported, { kind: "project" }>
     presets,
     map: value.map ?? {},
     ...(value.riveConfig !== undefined ? { riveConfig: value.riveConfig } : {}),
+    ...(value.rivePresetId !== undefined ? { rivePresetId: value.rivePresetId } : {}),
   };
   if (!isProject(project)) throw new Error("Invalid project presets or mappings");
   const durations = rawPresets.flatMap((preset): [string, number][] =>

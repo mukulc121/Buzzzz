@@ -6,6 +6,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { light } from "../../theme/colors";
 import { EventToast } from "../../components/EventToast";
 import { usePreviewSession } from "../preview/usePreviewSession";
+import { useNativeSound } from "../playback/useNativeSound";
+import { useFilters } from "../presets/useFilters";
 import { useFullscreen } from "../preview/useFullscreen";
 import { MiniPlayer } from "../sessionLibrary/MiniPlayer";
 import { mediaStatusText } from "../sessionLibrary/mediaStatus";
@@ -20,6 +22,14 @@ export function PreviewProvider(props: IPreviewProvider) {
   const { fullscreen, setFullscreen } = useFullscreen();
   const router = useRouter();
   const pathname = usePathname();
+  const { soundEnabled } = useFilters();
+  const scene = session.riv;
+  useNativeSound({
+    preference: soundEnabled,
+    pathname,
+    playing: !session.paused,
+    riveConfig: scene?.riveConfig,
+  });
   const { connectionId: openConnectionId } = useGlobalSearchParams<{ connectionId?: string }>();
   const insets = useSafeAreaInsets();
   const { library } = session;
@@ -37,7 +47,6 @@ export function PreviewProvider(props: IPreviewProvider) {
     if (pathname === "/mediaLibraryModal") router.replace(route);
     else router.push(route);
   }, [incoming, pathname, openConnectionId, router]);
-  const scene = session.riv;
   useEffect(() => {
     if (scene) {
       setFullscreen(false);

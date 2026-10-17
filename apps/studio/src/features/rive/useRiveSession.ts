@@ -1,10 +1,20 @@
-import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { resolveRivePresetId } from "@buzzzz/core";
 import type { Msg, Project, TSystemImpact } from "@buzzzz/core";
 import { useRelay } from "../connection/useRelay";
 import { usePhoneLibrary } from "../connection/usePhoneLibrary";
 import { useUploadedRive } from "./useUploadedRive";
 import { useRive } from "./useRive";
 import { useRiveHaptics } from "./useRiveHaptics";
+import { normalizeDexConfig } from "../project/starter/rive/normalizeDexConfig";
 
 interface IRiveSession {
   project: Project;
@@ -38,14 +48,21 @@ export function useRiveSession(props: IRiveSession) {
   type RiveAsset = { name: string; buffer: ArrayBuffer } | null;
   const [asset, setAsset] = useState<{ projectId: string; riv: RiveAsset } | null>(null);
   const setRiv = useCallback((riv: RiveAsset) => setAsset({ projectId, riv }), [projectId]);
-  const riv = asset?.projectId === projectId ? asset.riv : null;
+  const projectRiv = asset?.projectId === projectId ? asset.riv : null;
+  const riv = active ? projectRiv : null;
+  const owner = resolveRivePresetId(project);
+  const config = useMemo(
+    () => normalizeDexConfig(project.riveConfig, owner),
+    [project.riveConfig, owner],
+  );
   const haptics = useRiveHaptics({
-    config: project.riveConfig,
+    config,
     onImpact: onSystemImpact,
     enabled: systemPreviewEnabled,
     fireTrigger: (name) => rive.fire(name),
     onComplete: () => rive.finish(),
   });
+  const { stop: stopHaptics } = haptics;
   const requestedStateMachine = project.riveStateMachine;
   const flash = (name: string) => {
     const row = triggerRows.current.get(name);
@@ -65,10 +82,10 @@ export function useRiveSession(props: IRiveSession) {
     canvas,
     buffer: riv?.buffer ?? null,
     requestedStateMachine,
-    config: project.riveConfig,
+    config,
     active,
     onStop: () => {
-      haptics.stop();
+      stopHaptics();
       onSystemStop();
     },
     onFinish: onSystemStop,
@@ -88,17 +105,33 @@ export function useRiveSession(props: IRiveSession) {
     },
     onError,
   });
-  const publishLoad = useEffectEvent((path: string) =>
+  const published = useRef<{ key: string; buffer: ArrayBuffer } | null>(null);
+  const publishLoad = useEffectEvent((path: string) => {
+    if (!active || !riv) return;
+    const key = JSON.stringify([projectId, path, rive.stateMachine, config, relay.joinVersion]);
+    if (published.current?.key === key && published.current.buffer === riv.buffer) return;
     relay.send({
       type: "load",
       riv: path,
       stateMachine: rive.stateMachine,
-      riveConfig: project.riveConfig,
+      riveConfig: config,
       map: mapped,
-    }),
-  );
+    });
+    published.current = { key, buffer: riv.buffer };
+  });
   const hasPhones = relay.phones > 0;
   const { room, joinVersion, send } = relay;
+  const previous = useRef(false);
+  useLayoutEffect(() => {
+    const present = active && projectRiv !== null;
+    if (previous.current && !present) {
+      stopHaptics();
+      onSystemStop();
+      send({ type: "pause", paused: true });
+    }
+    if (!present) published.current = null;
+    previous.current = present;
+  }, [active, projectRiv, stopHaptics, onSystemStop, send]);
   usePhoneLibrary({
     presets: project.presets,
     connected: relay.connected,
@@ -109,14 +142,14 @@ export function useRiveSession(props: IRiveSession) {
   const path = useUploadedRive({
     buffer: riv?.buffer ?? null,
     room,
-    enabled: hasPhones && rive.ready,
+    enabled: active && hasPhones && rive.ready,
     onError,
   });
   useEffect(() => {
-    if (hasPhones && path && rive.ready) publishLoad(path);
-  }, [path, rive.stateMachine, rive.ready, hasPhones, joinVersion, project.riveConfig]);
+    if (active && hasPhones && path && rive.ready) publishLoad(path);
+  }, [active, path, rive.stateMachine, rive.ready, hasPhones, joinVersion, config]);
   useEffect(() => {
-    send({ type: "map", map: mapped });
-  }, [mapped, send]);
-  return { ...rive, ...relay, canvas, triggerRows, riv, setRiv, setStateMachine };
+    if (active) send({ type: "map", map: mapped });
+  }, [active, mapped, send]);
+  return { ...rive, ...relay, canvas, triggerRows, riv, projectRiv, setRiv, setStateMachine };
 }

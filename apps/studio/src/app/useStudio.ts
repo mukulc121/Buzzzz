@@ -1,5 +1,5 @@
 import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
-import { MAX_PATTERN_MS, patternEnd, type Pattern } from "@buzzzz/core";
+import { MAX_PATTERN_MS, patternEnd, resolveRivePresetId, type Pattern } from "@buzzzz/core";
 import { useProject } from "../features/project/useProject";
 import { useComposer } from "../features/composer/useComposer";
 import { quantizeValue } from "../features/composer/editorSettings";
@@ -55,7 +55,8 @@ export function useStudio() {
   const session = useRiveSession({
     project: document.project,
     projectId: document.projectId,
-    active: !document.route.dashboard,
+    active:
+      !document.route.dashboard && resolveRivePresetId(document.project) === document.preset.id,
     mapped: document.mapped,
     addLog: activity.addLog,
     onError: setError,
@@ -78,6 +79,25 @@ export function useStudio() {
     audio,
     animation,
     rive: session,
+    rivePresetId: resolveRivePresetId(document.project),
+    onRiveAttach: (preserveConfig) => {
+      document.begin();
+      return document.commitProject((project) => ({
+        ...project,
+        rivePresetId: document.preset.id,
+        ...(preserveConfig ? {} : { riveConfig: undefined, riveStateMachine: undefined, map: {} }),
+      }));
+    },
+    onRiveDetach: () => {
+      document.begin();
+      document.setProject((project) => ({
+        ...project,
+        rivePresetId: null,
+        riveConfig: undefined,
+        riveStateMachine: undefined,
+        map: {},
+      }));
+    },
   });
   const mediaPreview = useMediaPreview(
     media.library,
@@ -216,6 +236,7 @@ export function useStudio() {
     previewPlayback.play(pattern, undefined, "pattern", preset);
   };
   const toolbarPlaying =
+    Boolean(session.riv && session.ready && !session.paused) ||
     playback.playing ||
     previewPlayback.playing ||
     animation.playing ||
@@ -223,6 +244,10 @@ export function useStudio() {
       mediaPreview.playingId === media.library.attachment.audio?.assetId);
   const togglePlayback = () => {
     if (toolbarPlaying) {
+      if (session.riv) {
+        session.setPause(true);
+        session.send({ type: "pause", paused: true });
+      }
       if (playback.playing) playback.stop();
       if (previewPlayback.playing) previewPlayback.stop();
       if (animation.playing) {
@@ -230,6 +255,9 @@ export function useStudio() {
         animation.setSeekMs(0);
       }
       if (mediaPreview.playingId === media.library.attachment.audio?.assetId) mediaPreview.stop();
+    } else if (session.riv) {
+      session.restart();
+      session.send({ type: "restart" });
     } else playback.play(document.pattern, composer.range ?? undefined);
   };
   const resetPlayback = useEffectEvent(() => {

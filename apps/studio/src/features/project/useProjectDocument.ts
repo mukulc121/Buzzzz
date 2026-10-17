@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import {
   emptyPattern,
+  resolveRivePresetId,
   toDevice,
   type Pattern,
   type Project,
@@ -15,7 +16,7 @@ const step = (state: history.IDocumentState, recipe: (project: Project) => Proje
 interface IProjectDocument {
   initial: Project;
   writable: boolean;
-  onCommit: (project: Project) => void;
+  onCommit: (project: Project) => boolean | void;
 }
 
 // The open project in memory, with per-pattern undo; every mutator is inert unless `writable`.
@@ -90,6 +91,16 @@ export function useProjectDocument(props: IProjectDocument) {
     canUndo: writable && history.canUndo(state.history, preset.id),
     canRedo: writable && history.canRedo(state.history, preset.id),
     setProject,
+    commitProject: (recipe: (project: Project) => Project) => {
+      if (!writable) return false;
+      const current = latest.current;
+      const next = history.edit(current, history.PROJECT_SCOPE, recipe);
+      if (next === current) return true;
+      if (onCommit(next.project) === false) return false;
+      latest.current = next;
+      setState(next);
+      return true;
+    },
     setPattern: (pattern: Pattern) => editPreset((item) => ({ ...item, pattern })),
     setEditor: (editor: IPresetEditor) => editPreset((item) => ({ ...item, editor })),
     renamePreset: (id: string, name: string) => {
@@ -131,7 +142,13 @@ export function useProjectDocument(props: IProjectDocument) {
         step(current, (pr) => ({
           ...pr,
           presets: pr.presets.filter((item) => item.id !== id),
-          map: Object.fromEntries(Object.entries(pr.map).filter(([, target]) => target !== id)),
+          map:
+            resolveRivePresetId(pr) === id
+              ? {}
+              : Object.fromEntries(Object.entries(pr.map).filter(([, target]) => target !== id)),
+          ...(resolveRivePresetId(pr) === id
+            ? { rivePresetId: null, riveConfig: undefined, riveStateMachine: undefined }
+            : {}),
         })),
       );
       const next = project.presets.find((item) => item.id !== id);
