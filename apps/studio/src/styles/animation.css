@@ -245,6 +245,7 @@
   gap: 8px;
 }
 .pulsar-generation .generation-approach-container {
+  position: relative;
   padding: 0;
   border: 0;
   background: transparent;
@@ -263,8 +264,10 @@
   text-align: left;
   white-space: normal;
   font-size: 14px;
-  line-height: 1.4;
   background: var(--panel);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 }
 .generation-approach[aria-pressed="true"],
 .generation-approach:hover:not(:disabled) {
@@ -282,6 +285,7 @@
 .generation-approach-meta {
   color: var(--accent-strong, var(--fg-2));
   font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 .generation-approach-info {
   position: absolute;
@@ -290,8 +294,8 @@
   color: var(--muted);
 }
 .generation-approach-info svg {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
 }
 @media (max-width: 1000px) {
   .preview-side-by-side {

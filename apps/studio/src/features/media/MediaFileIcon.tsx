@@ -4,28 +4,40 @@ interface IMediaFileIcon {
   kind: MediaKind;
 }
 
-const PATHS: Record<MediaKind, string> = {
-  audio:
-    "M9 18V5l10-2v13M9 8l10-2M9 18a3 3 0 1 1-3-3c1.7 0 3 1.3 3 3Zm10-2a3 3 0 1 1-3-3c1.7 0 3 1.3 3 3Z",
-  animation: "M4 3h16v18H4zM8 3v18M16 3v18M4 8h16M4 16h16",
-  rive: "M4 19 10 4l10 15H4Zm6-15 3 15m-7-5h11",
-};
-
 export function MediaFileIcon(props: IMediaFileIcon) {
   const { kind } = props;
   return (
     <svg
-      width="20"
-      height="20"
+      width="18"
+      height="18"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.5"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path d={PATHS[kind]} />
+      {kind === "audio" ? (
+        <>
+          <path d="M9 18V5l12-2v13" />
+          <circle cx="6" cy="18" r="3" />
+          <circle cx="18" cy="16" r="3" />
+        </>
+      ) : kind === "animation" ? (
+        <>
+          <rect width="18" height="18" x="3" y="3" rx="2" />
+          <path d="M7 3v18" />
+          <path d="M3 7.5h4" />
+          <path d="M3 12h18" />
+          <path d="M3 16.5h4" />
+          <path d="M17 3v18" />
+          <path d="M17 7.5h4" />
+          <path d="M17 16.5h4" />
+        </>
+      ) : (
+        <path d="M4 19 10 4l10 15H4Zm6-15 3 15m-7-5h11" />
+      )}
     </svg>
   );
 }

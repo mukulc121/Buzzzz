@@ -77,7 +77,7 @@ export function useChartInteraction(options: IChartInteraction) {
       },
       point,
     );
-  useChartWheel({ svg, width, height, latest, isDragging: pointer.isDragging });
+  useChartWheel({ svg, width, height, latest });
 
   return {
     selection,

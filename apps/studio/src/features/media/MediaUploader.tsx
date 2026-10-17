@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Upload } from "../../components/icons";
+import { MediaActionIcon } from "./MediaActionIcon";
 
 interface IMediaUploader {
   onImport: (file: File) => Promise<unknown>;
@@ -11,19 +11,16 @@ export function MediaUploader(props: IMediaUploader) {
   const dialog = useRef<HTMLDialogElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
-  const [busy, setBusy] = useState(false);
   useEffect(() => {
     dialog.current?.showModal();
   }, []);
-  const upload = async (files: FileList | null) => {
-    if (!files?.length || busy) return;
-    setBusy(true);
-    try {
-      for (const file of files) await onImport(file);
-      onClose();
-    } finally {
-      setBusy(false);
-    }
+  const importFiles = async (files: File[]) => {
+    for (const file of files) await onImport(file);
+  };
+  const upload = (files: FileList | null) => {
+    if (!files?.length) return;
+    void importFiles(Array.from(files));
+    onClose();
   };
   return (
     <dialog
@@ -31,18 +28,21 @@ export function MediaUploader(props: IMediaUploader) {
       className="media-upload-dialog"
       aria-labelledby="media-upload-title"
       onCancel={onClose}
+      onClose={onClose}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
     >
       <header>
         <h2 id="media-upload-title">Upload media</h2>
-        <button className="icon" aria-label="Close upload" disabled={busy} onClick={onClose}>
-          ×
+        <button className="media-upload-close" aria-label="Close upload" onClick={onClose}>
+          <MediaActionIcon name="close" size={20} />
         </button>
       </header>
       <div className="media-upload-body">
         <button
           className="media-drop-area"
           data-dragging={dragging}
-          disabled={busy}
           onClick={() => input.current?.click()}
           onDragOver={(event) => {
             event.preventDefault();
@@ -53,13 +53,13 @@ export function MediaUploader(props: IMediaUploader) {
             event.preventDefault();
             event.stopPropagation();
             setDragging(false);
-            void upload(event.dataTransfer.files);
+            upload(event.dataTransfer.files);
           }}
         >
-          <Upload />
-          <strong>{busy ? "Importing…" : "Drag files here"}</strong>
-          <span className="hint">
-            or click to browse · Audio, Lottie (.json/.lottie), or Rive (.riv)
+          <MediaActionIcon name="upload" size={28} />
+          <span className="media-drop-title">Drag files here</span>
+          <span className="media-drop-hint">
+            or click to browse - MP3/WAV audio, Lottie (.json/.lottie) animations, or Rive (.riv)
           </span>
         </button>
         <input
@@ -69,15 +69,16 @@ export function MediaUploader(props: IMediaUploader) {
           accept="audio/*,.mp3,.wav,.ogg,.m4a,.flac,.json,.lottie,.riv,application/json,application/zip+dotlottie"
           multiple
           hidden
-          onChange={(event) => void upload(event.currentTarget.files)}
+          onChange={(event) => upload(event.currentTarget.files)}
         />
       </div>
       <footer>
-        <button disabled={busy} onClick={onClose}>
+        <button className="media-upload-cancel" onClick={onClose}>
           Cancel
         </button>
-        <button className="primary" disabled={busy} onClick={() => input.current?.click()}>
-          Choose files
+        <button className="primary" onClick={() => input.current?.click()}>
+          <MediaActionIcon name="upload" size={18} />
+          <span>Choose files</span>
         </button>
       </footer>
     </dialog>

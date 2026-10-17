@@ -1,11 +1,15 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { analyzeAnimationAsync } from "./analysisAsync";
 import { generateAnimationCandidates } from "./generation";
 import { readAnimationFile } from "./import";
 import { DEFAULT_ANIMATION_OPTIONS } from "./generationOptions";
+import { useAnimationSelection } from "./useAnimationSelection";
+import type { Pattern } from "@buzzzz/core";
 import type { IAnimationAnalysis, IAnimationDocument, IAnimationGenerationOptions } from "./model";
 
 interface IAnimationSource {
+  scopeKey: string;
+  identity: string;
   file: File;
   url: string;
   durationMs: number;
@@ -17,10 +21,17 @@ interface IAnimationSource {
 }
 interface IAnimationTrack {
   onError: (message: string) => void;
+  scopeKey: string;
+  currentPattern: Pattern;
+  onGenerated: (pattern: Pattern) => void;
 }
 
 export function useAnimationTrack(props: IAnimationTrack) {
   const { onError } = props;
+  const scope = useRef(props.scopeKey);
+  useLayoutEffect(() => {
+    scope.current = props.scopeKey;
+  }, [props.scopeKey]);
   const [source, setSource] = useState<IAnimationSource | null>(null);
   const [loading, setLoading] = useState(false);
   const [analysisRevision, setAnalysisRevision] = useState(0);
@@ -111,7 +122,8 @@ export function useAnimationTrack(props: IAnimationTrack) {
       });
     return () => controller.abort();
   }, [source, frameMs, smoothingMs, analysisRevision]);
-  const candidateAnalysis = result?.source === source ? result.analysis : null;
+  const candidateAnalysis =
+    result?.source === source && source?.scopeKey === props.scopeKey ? result.analysis : null;
   const candidates = useMemo(
     () =>
       candidateAnalysis
@@ -122,12 +134,28 @@ export function useAnimationTrack(props: IAnimationTrack) {
         : [],
     [candidateAnalysis, generationOptions, hybrid, strategyParams],
   );
+  const selection = useAnimationSelection({
+    sourceKey:
+      source?.scopeKey === props.scopeKey
+        ? `${props.scopeKey}/${source.animationId}/${source.identity}`
+        : null,
+    candidates,
+    currentPattern: props.currentPattern,
+    onGenerated: props.onGenerated,
+  });
   const loadFile = useCallback(async (file: File) => {
     const request = ++requestId.current;
+    const scopeKey = scope.current;
     setLoading(true);
     setPlaying(false);
+    let assetUrls: string[] = [];
     try {
       const bundle = await readAnimationFile(file);
+      assetUrls = bundle.assetUrls;
+      const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+      const identity = Array.from(new Uint8Array(digest), (byte) =>
+        byte.toString(16).padStart(2, "0"),
+      ).join("");
       if (request !== requestId.current) {
         for (const asset of bundle.assetUrls) URL.revokeObjectURL(asset);
         return false;
@@ -135,6 +163,8 @@ export function useAnimationTrack(props: IAnimationTrack) {
       const selected =
         bundle.animations.find((item) => item.id === bundle.initialId) ?? bundle.animations[0];
       setSource({
+        scopeKey,
+        identity,
         file,
         url: URL.createObjectURL(file),
         data: selected.document.data,
@@ -150,6 +180,7 @@ export function useAnimationTrack(props: IAnimationTrack) {
       setPositionMs(0);
       return true;
     } catch (error) {
+      for (const url of assetUrls) URL.revokeObjectURL(url);
       if (request === requestId.current)
         errorHandler.current(error instanceof Error ? error.message : "Animation import failed");
       return false;
@@ -200,6 +231,7 @@ export function useAnimationTrack(props: IAnimationTrack) {
     analysisError,
     retryAnalysis,
     candidates,
+    selection,
     working,
     loading,
     frameMs,

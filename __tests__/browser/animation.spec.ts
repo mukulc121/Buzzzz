@@ -104,6 +104,8 @@ for (const theme of ["Light", "Dark"])
 test("animation approach controls regenerate the selected pattern without replacing manual edits", async ({
   page,
 }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/");
   await page.getByRole("tab", { name: "animation", exact: true }).click();
@@ -112,11 +114,16 @@ test("animation approach controls regenerate the selected pattern without replac
   await page.getByLabel("Lottie file", { exact: true }).setInputFiles({
     name: "spin.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(scenario.source)),
+    buffer: Buffer.from(
+      JSON.stringify({
+        ...scenario.source,
+        layers: scenario.source.layers.map((layer) => ({ ...layer, shapes: [] })),
+      }),
+    ),
   });
   const choose = async (name: string) => {
     await page.getByRole("button", { name: `Apply ${name}`, exact: true }).click();
-    const replace = page.getByRole("button", { name: "Replace pattern", exact: true });
+    const replace = page.getByRole("button", { name: "Discard", exact: true });
     if (await replace.isVisible()) await replace.click();
   };
   await expect(page.locator(".animation-candidates .audio-candidate")).toHaveCount(5);
@@ -143,7 +150,7 @@ test("animation approach controls regenerate the selected pattern without replac
     page
       .locator(".animation-candidates .audio-candidate")
       .filter({ has: page.getByRole("button", { name: "Apply Channel mapping", exact: true }) }),
-  ).toContainText("0 events");
+  ).not.toContainText("events");
   await page.locator(".animation-generation-settings > summary").click();
   await expect(page.getByRole("spinbutton", { name: "Sampling rate", exact: true })).toHaveValue(
     "240",
@@ -156,6 +163,7 @@ test("animation approach controls regenerate the selected pattern without replac
   await expect(
     page.getByRole("spinbutton", { name: "Rotation detents / turn", exact: true }),
   ).toHaveValue("4");
+  expect(errors).toEqual([]);
 });
 
 test("animation analysis reports the real worker error and retries without reattaching", async ({
@@ -225,8 +233,8 @@ for (const width of [390, 1440])
       .first();
     await expect(apply).toBeEnabled();
     await apply.click();
-    await page.getByRole("button", { name: "Replace pattern", exact: true }).click();
-    await page.getByRole("button", { name: "Restore original", exact: true }).click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await page.getByRole("button", { name: "Restore my pattern", exact: true }).click();
     await page.reload();
     await expect(
       page.getByRole("region", { name: "Animation canvas preview" }).locator("canvas"),

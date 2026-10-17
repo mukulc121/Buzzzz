@@ -120,7 +120,7 @@ export function Chart(props: IChart) {
       onKeyDown={(event) => interaction.keyDown(event)}
       role="group"
       aria-label="Haptic pattern timeline"
-      aria-description="Double-click to add a point. Shift-click or drag a rectangle to select points. Arrow keys move selected points. Alt-drag pans; the mouse wheel zooms."
+      aria-description="Double-click to add a point. Shift-click or drag a rectangle to select points. Arrow keys move selected points. Scroll to pan; Cmd/Ctrl+wheel zooms at the pointer; middle-drag pans."
     >
       <defs>
         <clipPath id={clipId}>

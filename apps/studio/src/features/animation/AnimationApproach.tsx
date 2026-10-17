@@ -7,10 +7,10 @@ interface IAnimationApproach {
   active: boolean;
   onChoose: () => void;
   children?: ReactNode;
-  disabled: boolean;
 }
 export function AnimationApproach(props: IAnimationApproach) {
-  const { candidate, active, onChoose, children, disabled } = props;
+  const { candidate, active, onChoose, children } = props;
+  const empty = !candidate.eventCount && !candidate.pattern.continuousPattern.amplitude.length;
   return (
     <article className="audio-candidate generation-approach-container">
       <button
@@ -18,21 +18,23 @@ export function AnimationApproach(props: IAnimationApproach) {
         className="generation-approach"
         aria-label={`Apply ${candidate.label}`}
         aria-pressed={active}
-        disabled={disabled || (!candidate.eventCount && !candidate.pointCount)}
+        disabled={empty}
         onClick={onChoose}
       >
         <strong>{candidate.label}</strong>
-        <span className="generation-approach-description">{candidate.description}</span>
-        <span className="generation-approach-meta">
-          {candidate.pointCount} points · {candidate.eventCount} events
+        <span className="generation-approach-description">
+          {empty ? "Found no motion to work with." : candidate.description}
         </span>
-        <span
-          className="generation-approach-info"
-          title={candidate.approximate ? "Estimated from the media signal." : candidate.description}
-        >
-          <InspectorIcon name="info" />
-        </span>
+        {!empty && (
+          <span className="generation-approach-meta">
+            {candidate.pointCount} points
+            {candidate.eventCount > 0 && ` · ${candidate.eventCount} events`}
+          </span>
+        )}
       </button>
+      <span className="generation-approach-info" title={candidate.description}>
+        <InspectorIcon name="info" />
+      </span>
       {children}
     </article>
   );

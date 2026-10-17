@@ -1,56 +1,50 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { Pattern } from "@buzzzz/core";
 import type { IAnimationCandidate } from "./model";
-import { deriveAudioReplacement } from "../audio/selection";
 import { SoundDialog } from "../audio/SoundDialog";
 import { AnimationApproach } from "./AnimationApproach";
+import { AnimationInspectorIcon } from "./AnimationInspectorIcon";
+import type { useAnimationTrack } from "./useAnimationTrack";
 
 interface IAnimationGenerationCandidates {
   candidates: readonly IAnimationCandidate[];
   currentPattern: Pattern;
+  selection: ReturnType<typeof useAnimationTrack>["selection"];
+  presetName: string;
   onApply: (pattern: Pattern, label: string) => void;
   onRestore: () => void;
-  onPreserve?: (pattern: Pattern, label: string) => void;
+  onPreserve: (pattern: Pattern, label: string) => string | null;
   renderControls: (candidate: IAnimationCandidate) => ReactNode;
-  working: boolean;
 }
 export function AnimationGenerationCandidates(props: IAnimationGenerationCandidates) {
-  const { candidates, currentPattern, onApply, onRestore, onPreserve, renderControls, working } =
-    props;
-  const [appliedId, setAppliedId] = useState<IAnimationCandidate["id"] | null>(null);
-  const lastAppliedPattern = useRef<Pattern | null>(null);
-  const [pending, setPending] = useState<IAnimationCandidate | null>(null);
-  useEffect(() => {
-    if (!appliedId || !lastAppliedPattern.current) return;
-    const candidate = candidates.find((item) => item.id === appliedId);
-    if (
-      !candidate ||
-      deriveAudioReplacement(currentPattern, lastAppliedPattern.current, null) !== "unchanged" ||
-      deriveAudioReplacement(lastAppliedPattern.current, candidate.pattern, null) === "unchanged"
-    )
-      return;
-    lastAppliedPattern.current = candidate.pattern;
-    onApply(candidate.pattern, candidate.label);
-  }, [appliedId, candidates, currentPattern, onApply]);
-  const apply = (candidate: IAnimationCandidate) => {
-    onApply(candidate.pattern, candidate.label);
-    lastAppliedPattern.current = candidate.pattern;
-    setAppliedId(candidate.id);
+  const {
+    candidates,
+    currentPattern,
+    presetName,
+    onApply,
+    onRestore,
+    onPreserve,
+    renderControls,
+    selection,
+  } = props;
+  const [pending, setPending] = useState<{ id: IAnimationCandidate["id"] | null } | null>(null);
+  const { selectedId, edited } = selection;
+  const selectedName = candidates.find((candidate) => candidate.id === selectedId)?.label;
+  const pendingName = candidates.find((candidate) => candidate.id === pending?.id)?.label;
+  const select = (id: IAnimationCandidate["id"] | null) => {
+    if (id === null) {
+      onRestore();
+      selection.select(null);
+    } else {
+      const candidate = candidates.find((item) => item.id === id);
+      if (!candidate) return;
+      onApply(candidate.pattern, candidate.label);
+      selection.select({ id, pattern: candidate.pattern });
+    }
     setPending(null);
   };
-  const choose = (candidate: IAnimationCandidate) => {
-    const action = deriveAudioReplacement(
-      currentPattern,
-      candidate.pattern,
-      lastAppliedPattern.current,
-    );
-    if (action === "confirm") setPending(candidate);
-    if (action === "replace") apply(candidate);
-    if (action === "unchanged") {
-      lastAppliedPattern.current = candidate.pattern;
-      setAppliedId(candidate.id);
-    }
-  };
+  const choose = (id: IAnimationCandidate["id"] | null) =>
+    edited ? setPending({ id }) : select(id);
   return (
     <section
       className="animation-generation pulsar-generation"
@@ -62,50 +56,56 @@ export function AnimationGenerationCandidates(props: IAnimationGenerationCandida
           <AnimationApproach
             key={candidate.id}
             candidate={candidate}
-            disabled={working}
-            active={
-              appliedId === candidate.id &&
-              deriveAudioReplacement(currentPattern, candidate.pattern, null) === "unchanged"
-            }
-            onChoose={() => choose(candidate)}
+            active={selectedId === candidate.id}
+            onChoose={() => choose(candidate.id)}
           >
-            {appliedId === candidate.id ? renderControls(candidate) : null}
+            {selectedId === candidate.id ? renderControls(candidate) : null}
           </AnimationApproach>
         ))}
       </div>
+      {edited && selectedId && (
+        <p className="animation-metric-hint">
+          You have edited <strong>{selectedName}</strong>. Switching approach will ask what to do
+          with those changes.
+        </p>
+      )}
       <button
         type="button"
         className="inspector-text-action"
-        onClick={() => {
-          onRestore();
-          setAppliedId(null);
-          lastAppliedPattern.current = null;
-          setPending(null);
-        }}
+        disabled={selectedId === null}
+        onClick={() => choose(null)}
       >
-        Restore original
+        <AnimationInspectorIcon name="reset" />
+        Restore my pattern
       </button>
       {pending && (
-        <SoundDialog title="Replace current pattern?" onClose={() => setPending(null)}>
-          <p>Apply {pending.label}? This replaces the current pattern, including your edits.</p>
-          <div className="sound-confirm-actions">
-            {onPreserve && (
-              <button
-                type="button"
-                className="primary"
-                onClick={() => {
-                  onPreserve(currentPattern, "Edited animation pattern");
-                  apply(pending);
-                }}
-              >
-                Keep a copy and apply
-              </button>
+        <SoundDialog title="You have unsaved changes" onClose={() => setPending(null)}>
+          <p>
+            You have edited <strong>{selectedName ?? "this approach"}</strong>.{" "}
+            {pendingName ? (
+              <>
+                Switching to <strong>{pendingName}</strong> replaces the whole pattern.
+              </>
+            ) : (
+              "Restoring your own pattern replaces the whole pattern."
             )}
-            <button type="button" onClick={() => apply(pending)}>
-              Replace pattern
-            </button>
+          </p>
+          <p>Keep the edits in a copy of this pattern, or discard them?</p>
+          <div className="sound-confirm-actions">
             <button type="button" onClick={() => setPending(null)}>
               Cancel
+            </button>
+            <button type="button" onClick={() => select(pending.id)}>
+              Discard
+            </button>
+            <button
+              type="button"
+              className="primary"
+              onClick={() => {
+                if (onPreserve(currentPattern, `${presetName} copy`)) select(pending.id);
+              }}
+            >
+              Keep a copy
             </button>
           </div>
         </SoundDialog>

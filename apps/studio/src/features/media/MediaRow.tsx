@@ -60,7 +60,7 @@ export function MediaRow(props: IMediaRow) {
       ? [
           {
             label: playing ? "Stop" : "Play",
-            icon: <MediaActionIcon name={playing ? "stop" : "play"} />,
+            icon: <MediaActionIcon name={playing ? "pause" : "play"} />,
             disabled: busy,
             onSelect: () => {
               if (playing) preview.stop();
@@ -150,7 +150,11 @@ export function MediaRow(props: IMediaRow) {
       ) : (
         <>
           <span className="media-file-icon">
-            {playing ? <MediaActionIcon name="stop" /> : <MediaFileIcon kind={item.kind} />}
+            {playing ? (
+              <MediaActionIcon name="pause" size={18} />
+            ) : (
+              <MediaFileIcon kind={item.kind} />
+            )}
           </span>
           <div className="grow">
             <span className="media-row-name" title={item.name}>

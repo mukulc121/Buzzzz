@@ -11,9 +11,10 @@ import type { useAnimationTrack } from "./useAnimationTrack";
 interface IAnimationPanel {
   animation: ReturnType<typeof useAnimationTrack>;
   currentPattern: Pattern;
+  presetName: string;
   onApply: (pattern: Pattern, label: string) => void;
   onRestore: () => void;
-  onPreserve?: (pattern: Pattern, label: string) => void;
+  onPreserve: (pattern: Pattern, label: string) => string | null;
   onFile: (file: File) => Promise<unknown>;
   onRemove: () => void;
   onOpenMedia: () => void;
@@ -30,6 +31,7 @@ export function AnimationPanel(props: IAnimationPanel) {
   const {
     animation,
     currentPattern,
+    presetName,
     onApply,
     onRestore,
     onPreserve,
@@ -110,8 +112,9 @@ export function AnimationPanel(props: IAnimationPanel) {
             <section className="inspector-section">
               <AnimationGenerationCandidates
                 candidates={animation.candidates}
-                working={animation.working}
+                selection={animation.selection}
                 currentPattern={currentPattern}
+                presetName={presetName}
                 onApply={onApply}
                 onRestore={onRestore}
                 onPreserve={onPreserve}

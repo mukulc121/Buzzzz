@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Plus, Upload } from "../../components/icons";
+import { Plus } from "../../components/icons";
 import { InspectorIcon } from "../../components/InspectorIcon";
 import { mediaUsage } from "./attachments";
 import { formatMediaSize } from "./formatMediaSize";
 import { MediaRow } from "./MediaRow";
 import { MediaUploader } from "./MediaUploader";
+import { MediaActionIcon } from "./MediaActionIcon";
 import { MEDIA_LIMITS } from "./model";
 import type { AttachedTracks } from "./useAttachedTracks";
 import type { useMediaPreview } from "./useMediaPreview";
@@ -97,7 +98,7 @@ export function MediaLibraryPanel(props: IMediaLibraryPanel) {
         ) : library.items.length === 0 ? (
           <div className="media-empty">
             <span className="media-empty-icon">
-              <Upload />
+              <MediaActionIcon name="audioLines" size={24} />
             </span>
             <h3>No media yet</h3>
             <p className="hint">
@@ -120,7 +121,7 @@ export function MediaLibraryPanel(props: IMediaLibraryPanel) {
         )}
         {dragging && (
           <div className="media-drop-overlay" aria-hidden="true">
-            <Upload />
+            <MediaActionIcon name="upload" size={26} />
             Drop to upload
           </div>
         )}

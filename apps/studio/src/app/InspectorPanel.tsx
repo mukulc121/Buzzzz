@@ -57,6 +57,7 @@ export function InspectorPanel(props: IInspectorPanel) {
             key={`${document.projectId}/${document.preset.id}/${studio.animation.source?.url ?? ""}/${studio.animation.source?.animationId ?? ""}`}
             animation={studio.animation}
             currentPattern={document.pattern}
+            presetName={document.preset.name}
             onApply={studio.applyGenerated}
             onRestore={studio.restore}
             onPreserve={studio.preserve}

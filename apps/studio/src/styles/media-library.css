@@ -62,8 +62,8 @@
   display: grid;
   flex: none;
   place-items: center;
-  background: var(--bg);
-  color: var(--accent);
+  background: var(--plot);
+  color: var(--timeline-view);
 }
 .media-empty-icon {
   width: 48px;
@@ -110,8 +110,15 @@
   cursor: grab;
 }
 .media-item[data-playing="true"] {
-  border-color: var(--line-strong);
-  background: var(--plot);
+  border-color: var(--audio-wave);
+  background: var(--panel);
+}
+.media-item[data-playing="true"] .media-file-icon {
+  background: var(--audio-bg);
+  color: rgba(20, 107, 70, 1);
+}
+:root[data-theme="dark"] .media-item[data-playing="true"] .media-file-icon {
+  color: rgba(127, 217, 171, 1);
 }
 .media-storage-badge {
   display: inline-flex;
@@ -167,50 +174,117 @@
   pointer-events: none;
 }
 .media-upload-dialog {
-  width: min(440px, calc(100vw - 32px));
-  max-height: calc(100dvh - 32px);
-  padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 6px;
+  width: 90%;
+  max-width: 440px;
+  max-height: 80vh;
+  padding: 24px;
+  margin: auto;
+  border: 2px solid var(--line-strong);
+  border-radius: 4px;
   background: var(--panel);
   color: var(--fg);
+  box-shadow: -6px 6px 0 var(--line-strong);
 }
 .media-upload-dialog::backdrop {
-  background: rgba(0, 26, 67, 0.35);
+  background: rgba(0, 0, 0, 0.35);
 }
 .media-upload-dialog header,
 .media-upload-dialog footer {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
 }
 .media-upload-dialog header {
   justify-content: space-between;
-  border-bottom: 1px solid var(--line);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.media-upload-dialog h2 {
+  font-size: 26px;
+  font-weight: 600;
+  text-transform: none;
+}
+.media-upload-close {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 2px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+.media-upload-close:hover:not(:disabled) {
+  border-color: transparent;
+  background: var(--plot);
+  color: var(--fg);
 }
 .media-upload-dialog footer {
+  flex-wrap: wrap;
   justify-content: flex-end;
-  border-top: 1px solid var(--line);
+  gap: 8px;
+  margin-top: 24px;
+}
+.media-upload-dialog footer > button {
+  flex: 0 0 auto;
+}
+.media-upload-cancel {
+  padding: 12px 20px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+.media-upload-cancel:hover:not(:disabled) {
+  border-color: transparent;
+  background: var(--plot);
+  color: var(--fg);
 }
 .media-upload-body {
-  padding: 16px;
+  line-height: 1.5;
 }
 .media-drop-area {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   width: 100%;
   padding: 40px 16px;
-  border: 2px dashed var(--line-strong);
-  background: var(--sunken);
+  border: 2px dashed var(--timeline-fill);
+  background: var(--plot);
+  color: var(--timeline-view);
   white-space: normal;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 }
 .media-drop-area svg {
   width: 28px;
   height: 28px;
-  color: var(--accent);
 }
-.media-drop-area[data-dragging="true"] {
-  background: var(--accent-soft);
+.media-drop-area:hover:not(:disabled) {
+  border-color: var(--line-strong);
+  background: var(--plot);
+}
+.media-drop-area[data-dragging="true"],
+.media-drop-area[data-dragging="true"]:hover:not(:disabled) {
+  border-color: var(--line-strong);
+  border-style: solid;
+  background: var(--primary-bg);
+}
+.media-drop-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+}
+.media-drop-hint {
+  font-size: 12px;
+  color: var(--muted);
 }

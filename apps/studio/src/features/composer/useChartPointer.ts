@@ -2,9 +2,10 @@ import { useRef, useState, type PointerEvent, type RefObject } from "react";
 import { MAX_PATTERN_MS, type Pattern } from "@buzzzz/core";
 import { selectInBounds } from "./editing";
 import { dragPoint, type PointDragMode } from "./pointDrag";
-import { LAYERS, selectionKey, type IChart, type IViewport, type PointSelection } from "./model";
+import { LAYERS, selectionKey, type IChart, type PointSelection } from "./model";
 import { chartGeometry } from "./geometry";
-import { clampViewport, snapTime } from "./viewport";
+import { snapTime } from "./viewport";
+import { chartDuration, clampChartViewport } from "./chartNavigation";
 
 interface IPosition {
   x: number;
@@ -25,7 +26,7 @@ type Drag =
       started: boolean;
     }
   | { kind: "selection"; origin: IPosition; initial: PointSelection[] }
-  | { kind: "pan"; clientX: number; viewport: IViewport }
+  | { kind: "pan"; clientX: number; startMs: number }
   | { kind: "scrub" };
 
 interface IChartPointer {
@@ -71,7 +72,7 @@ export function useChartPointer(options: IChartPointer) {
   const grab =
     (point: PointSelection, time: number, mode: PointDragMode = "both") =>
     (event: PointerEvent<SVGElement>) => {
-      if (event.button !== 0 || event.altKey) return;
+      if (event.button !== 0) return;
       event.preventDefault();
       event.stopPropagation();
       const previous = getSelection().filter(
@@ -110,11 +111,11 @@ export function useChartPointer(options: IChartPointer) {
     svg.current?.focus();
     const point = position(event);
     if (!point) return;
-    if (event.altKey || event.button === 1) {
+    if (event.button === 1) {
       drag.current = {
         kind: "pan",
         clientX: event.clientX,
-        viewport: { startMs: getProps().viewStartMs ?? 0, durationMs: getProps().viewMs },
+        startMs: getProps().viewStartMs ?? 0,
       };
     } else {
       const bounds = svg.current?.getBoundingClientRect();
@@ -151,20 +152,24 @@ export function useChartPointer(options: IChartPointer) {
     const point = position(event);
     if (!action || !point) return;
     if (action.kind === "pan") {
+      const durationMs = getProps().viewMs;
       getProps().onViewChange?.(
-        clampViewport({
-          startMs:
-            action.viewport.startMs -
-            ((event.clientX - action.clientX) /
-              chartGeometry({
-                width,
-                height,
-                startMs: action.viewport.startMs,
-                durationMs: action.viewport.durationMs,
-              }).axisWidth) *
-              action.viewport.durationMs,
-          durationMs: action.viewport.durationMs,
-        }),
+        clampChartViewport(
+          {
+            startMs:
+              action.startMs -
+              ((event.clientX - action.clientX) /
+                chartGeometry({
+                  width,
+                  height,
+                  startMs: action.startMs,
+                  durationMs,
+                }).axisWidth) *
+                durationMs,
+            durationMs,
+          },
+          chartDuration(getProps()),
+        ),
       );
     } else if (action.kind === "scrub") {
       getProps().onScrub?.(snapTime(point.time, getProps().snapMs ?? 0));
@@ -217,6 +222,5 @@ export function useChartPointer(options: IChartPointer) {
     grab,
     backgroundDown,
     move,
-    isDragging: () => drag.current !== null,
   };
 }

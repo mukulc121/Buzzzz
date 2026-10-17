@@ -1,12 +1,14 @@
 import { settingsShortcuts } from "../../features/settings/shortcutDisplay";
 
-const shortcuts = settingsShortcuts(/Mac|iPhone|iPad|iPod/.test(navigator.userAgent));
+const isApple = /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+const shortcuts = settingsShortcuts(isApple);
 const gestures = [
-  ["Add event or point", "Double-click"],
-  ["Add to selection", "Shift-click"],
-  ["Marquee selection", "Drag"],
-  ["Pan chart", "Alt-drag"],
-  ["Zoom chart", "Wheel"],
+  ["Add a point on the active layer", "Double-click"],
+  ["Marquee-select", "Drag"],
+  ["Move a point", "Drag a point"],
+  ["Pan", "Middle-drag"],
+  ["Scroll through time", "Wheel"],
+  ["Zoom at the pointer", `${isApple ? "⌘" : "Ctrl"} + wheel`],
 ] as const;
 export function SettingsShortcuts() {
   return (

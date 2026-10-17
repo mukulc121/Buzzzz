@@ -49,7 +49,12 @@ export function useStudio() {
   const [inspectorOpen, setInspectorOpen] = useState(true);
   const originals = useRef(new Map<string, Pattern>());
   const audio = useAudioTrack({ onError: setError });
-  const animation = useAnimationTrack({ onError: setError });
+  const animation = useAnimationTrack({
+    onError: setError,
+    scopeKey: instanceKey,
+    currentPattern: document.pattern,
+    onGenerated: (pattern) => applyGenerated(pattern),
+  });
   const riveSound = useRiveSound();
   const { setEnabled: setRiveSoundEnabled } = riveSound;
   const session = useRiveSession({

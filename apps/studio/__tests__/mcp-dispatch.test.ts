@@ -128,6 +128,8 @@ describe("dispatchCommand", () => {
       applied.push(pattern);
     };
     target.animation.source = {
+      scopeKey: "test-project/test-preset",
+      identity: "animation-fixture",
       file: new File([JSON.stringify(source.source)], "spin.json"),
       url: "blob:animation",
       durationMs: document.durationMs,

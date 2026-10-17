@@ -73,6 +73,7 @@ export function useStudioFiles(props: IStudioFiles) {
     onLog(`Opened project · ${data.project.presets.length} patterns`);
   };
   const readFile = async (file: File): Promise<string | null> => {
+    if (document.projectId !== current.current) return null;
     const projectId = current.current;
     const selected = mediaScope.current;
     try {
