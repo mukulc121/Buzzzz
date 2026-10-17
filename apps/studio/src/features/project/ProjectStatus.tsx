@@ -9,18 +9,33 @@ interface IProjectStatus {
 
 const LABEL: Record<TProjectStatus, string> = {
   opening: "Opening…",
-  editing: "✓ Saved",
+  editing: "Saved",
   "read-only": "Read only: open in another window",
   "taken-over": "Read only: another window took over",
   conflict: "Another window changed this project",
   "storage-error": "Not saved",
-  unlocked: "✓ Saved",
+  unlocked: "Saved",
 };
 
 export function ProjectStatus(props: IProjectStatus) {
   const { status, storageError, onTakeOver, onResolve } = props;
   return (
     <div className="save-status" role="status" data-status={status}>
+      {(status === "editing" || status === "unlocked") && (
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+      )}
       <span>{LABEL[status]}</span>
       {status === "storage-error" && storageError && <small>{storageError}</small>}
       {(status === "read-only" || status === "taken-over") && (

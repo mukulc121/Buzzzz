@@ -1,3 +1,4 @@
+import { editorPlay } from "./fixtures/editor-playback";
 import { patternTitle } from "./fixtures/pattern-title";
 import { expect, test, type Page } from "@playwright/test";
 import { parseMessage, type Msg } from "@buzzzz/core";
@@ -120,7 +121,7 @@ test("document Play opens Device without a phone even when speaker output is off
 }) => {
   await openEditor(page, 0, 60000);
   await page.getByRole("switch", { name: "Haptics as sound", exact: true }).uncheck();
-  await page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }).click();
+  await editorPlay(page).click();
   await expect(page.getByRole("region", { name: "Device connection", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Connect device", exact: true })).toBeVisible();
   await started(page);
@@ -133,7 +134,7 @@ test("all outputs off keeps the source timeline running without opening Device",
   await openEditor(page);
   for (const name of ["Play on device", "Haptics as sound", "Audio track"])
     await page.getByRole("switch", { name, exact: true }).uncheck();
-  await page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }).click();
+  await editorPlay(page).click();
   await started(page);
   await expect(page.getByRole("region", { name: "Device connection", exact: true })).toHaveCount(0);
   expect(await starts(page, "sound")).toBe(0);
@@ -144,7 +145,7 @@ test("normal synthesized sound still plays while the no-phone Device panel opens
   page,
 }) => {
   await openEditor(page);
-  await page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }).click();
+  await editorPlay(page).click();
   await expect(page.getByRole("region", { name: "Device connection", exact: true })).toBeVisible();
   await expect.poll(() => starts(page, "sound")).toBeGreaterThan(0);
 });
@@ -160,7 +161,7 @@ test("attached audio remains the speaker output and still opens the no-phone Dev
   await expect(page.getByRole("tabpanel", { name: "sound", exact: true })).toContainText(
     "routing.wav",
   );
-  await page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }).click();
+  await editorPlay(page).click();
   await expect(page.getByRole("region", { name: "Device connection", exact: true })).toBeVisible();
   await expect.poll(() => starts(page, "audio")).toBeGreaterThan(0);
   await started(page);
@@ -184,7 +185,7 @@ test("a connected phone and attached animation suppress synthesized sound withou
   ).toBeVisible();
   await page.getByRole("tab", { name: "inspector", exact: true }).click();
   await expect(page.getByRole("switch", { name: "Haptics as sound", exact: true })).toBeDisabled();
-  await page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }).click();
+  await editorPlay(page).click();
   await started(page);
   expect(await starts(page, "sound")).toBe(0);
   await expect(page.getByRole("region", { name: "Device connection", exact: true })).toHaveCount(0);

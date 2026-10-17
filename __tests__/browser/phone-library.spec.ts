@@ -1,3 +1,4 @@
+import { editorPlay, editorStop } from "./fixtures/editor-playback";
 import { renamePattern } from "./fixtures/pattern-title";
 import { createHash } from "node:crypto";
 import { expect, test, type Page, type WebSocketRoute } from "@playwright/test";
@@ -92,7 +93,7 @@ test("editor Play sends one named, hashed device pattern without legacy duplicat
 }) => {
   const phone = await relay(page);
   const preset = (await savedProject(page)).presets[0]!;
-  await page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }).click();
+  await editorPlay(page).click();
   await expect.poll(() => phone.played().length).toBe(1);
   const pattern = toDevice(rangePattern(preset.pattern, 0, patternEnd(preset.pattern)));
   expect(phone.played()[0]).toEqual({
@@ -102,14 +103,12 @@ test("editor Play sends one named, hashed device pattern without legacy duplicat
     version: createHash("sha256").update(JSON.stringify(pattern)).digest("hex"),
     pattern,
   });
-  await expect(
-    page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }),
-  ).toBeVisible();
+  await expect(editorPlay(page)).toBeVisible();
   expect(phone.played()).toHaveLength(1);
   expect(phone.messages.filter((message) => message.type === "play")).toHaveLength(0);
 });
 
-test("library Play sends its own source identity and leaves the editor stopped", async ({
+test("library Play sends its own source identity and leaves the editor clock stopped", async ({
   page,
 }) => {
   const phone = await relay(page);
@@ -127,9 +126,8 @@ test("library Play sends its own source identity and leaves the editor stopped",
   expect(message.version).toBe(
     createHash("sha256").update(JSON.stringify(message.pattern)).digest("hex"),
   );
-  await expect(
-    page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }),
-  ).toBeVisible();
+  await expect(editorStop(page)).toBeVisible();
+  await expect(page.locator(".chart [data-playhead]")).toHaveAttribute("aria-valuenow", "0");
   expect(phone.messages.filter((item) => item.type === "play")).toHaveLength(0);
   await detail.getByRole("button", { name: "Close", exact: true }).click();
 });
@@ -152,13 +150,12 @@ test("Stop cancels a pending pattern hash before it can reach the phone", async 
   });
   const phone = await relay(page);
   await page.clock.pauseAt(await page.evaluate(() => Date.now() + 5000));
-  const header = page.locator(".pattern-header");
-  await header.getByRole("button", { name: "Play", exact: true }).click();
+  await editorPlay(page).click();
   await expect.poll(() => page.evaluate(() => Reflect.get(window, "phoneDigest").count())).toBe(1);
-  await header.getByRole("button", { name: "Stop", exact: true }).click();
+  await editorStop(page).click();
   const stoppedAt = phone.messages.length;
   await page.evaluate(() => Reflect.get(window, "phoneDigest").release());
-  await header.getByRole("button", { name: "Play", exact: true }).click();
+  await editorPlay(page).click();
   await expect.poll(() => page.evaluate(() => Reflect.get(window, "phoneDigest").count())).toBe(1);
   expect(phone.messages.slice(stoppedAt).some((message) => message.type === "haptic-preset")).toBe(
     false,

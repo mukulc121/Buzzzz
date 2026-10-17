@@ -27,12 +27,13 @@ export function useShortcuts(studio: Studio) {
         );
         composer.setSelected(null);
       } else if (
-        (event.key === " " || event.key.toLowerCase() === "p") &&
-        !(event.target instanceof HTMLElement && event.target.closest("button"))
+        (event.key.toLowerCase() === "p" || event.key === "MediaPlayPause") &&
+        !command &&
+        !event.shiftKey &&
+        !event.altKey
       ) {
         event.preventDefault();
-        if (playback.playing) playback.stop();
-        else playback.play(document.pattern, composer.range ?? undefined);
+        studio.togglePlayback();
       } else if (event.key === "1") composer.setLayer("amplitude");
       else if (event.key === "2") composer.setLayer("frequency");
       else if (event.key === "3") composer.setLayer("discrete");

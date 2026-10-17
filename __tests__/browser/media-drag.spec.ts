@@ -1,3 +1,4 @@
+import { editorPlay, editorStop } from "./fixtures/editor-playback";
 import { patternTitle } from "./fixtures/pattern-title";
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -141,12 +142,12 @@ test("media audio preview plays the file without starting the editor and stops e
   await row.click({ button: "right" });
   await page.getByRole("menuitem", { name: "Play", exact: true }).click();
   await expect(row).toHaveAttribute("data-playing", "true");
-  await expect(
-    page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }),
-  ).toBeVisible();
+  await expect(editorStop(page)).toBeVisible();
+  await expect(page.locator(".chart [data-playhead]")).toHaveAttribute("aria-valuenow", "0");
   await row.click({ button: "right" });
   await page.getByRole("menuitem", { name: "Stop", exact: true }).click();
   await expect(row).toHaveAttribute("data-playing", "false");
+  await expect(editorPlay(page)).toBeVisible();
 });
 
 test("the shared context menu preserves dashboard project actions", async ({ page }) => {

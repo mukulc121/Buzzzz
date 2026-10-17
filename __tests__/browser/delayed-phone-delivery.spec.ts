@@ -1,3 +1,4 @@
+import { editorPlay } from "./fixtures/editor-playback";
 import { createHash } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import { parseMessage, type Msg } from "@buzzzz/core";
@@ -60,17 +61,16 @@ test("a media upload finishing after a short preview still delivers once without
     .getByRole("button", { name: "FanfareSound", exact: true });
   await pattern.click();
   await expect(pattern).toHaveAttribute("aria-current", "true");
-  const header = page.locator(".pattern-header");
   await page.getByRole("tab", { name: "inspector", exact: true }).click();
   await page.getByRole("spinbutton", { name: "Playback range end", exact: true }).fill("150");
-  await header.getByRole("button", { name: "Play", exact: true }).click();
+  await editorPlay(page).click();
   await expect.poll(() => uploads).toBe(1);
-  await expect(header.getByRole("button", { name: "Play", exact: true })).toBeVisible();
+  await expect(editorPlay(page)).toBeVisible();
   expect(played()).toEqual([]);
   release();
   await expect.poll(() => played().length).toBe(1);
   expect(played()[0]).toMatchObject({ type: "audio-haptics", name: "FanfareSound" });
-  await expect(header.getByRole("button", { name: "Play", exact: true })).toBeVisible();
+  await expect(editorPlay(page)).toBeVisible();
   expect(uploads).toBe(1);
   expect(played()).toHaveLength(1);
   await expect(page.getByRole("alert")).toHaveCount(0);
@@ -113,9 +113,7 @@ test("a short library audition delivers a delayed pattern hash after its sound c
     createHash("sha256").update(JSON.stringify(message.pattern)).digest("hex"),
   );
   await expect(detail.getByRole("button", { name: "Play", exact: true })).toBeVisible();
-  await expect(
-    page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }),
-  ).toBeVisible();
+  await expect(editorPlay(page)).toBeVisible();
   expect(played()).toHaveLength(1);
   await expect(page.getByRole("alert")).toHaveCount(0);
 });

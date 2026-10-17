@@ -13,6 +13,7 @@ import { useActivityLog } from "../features/activity/useActivityLog";
 import { useTheme } from "./useTheme";
 import { useShortcuts } from "./useShortcuts";
 import { useAttachedTracks } from "../features/media/useAttachedTracks";
+import { useMediaPreview } from "../features/media/useMediaPreview";
 import { useSharing } from "../features/connection/useSharing";
 import type { TPhonePreset } from "../features/connection/phoneLibrary";
 import { usePhonePlayback } from "../features/connection/usePhonePlayback";
@@ -70,6 +71,11 @@ export function useStudio() {
     animation,
     rive: session,
   });
+  const mediaPreview = useMediaPreview(
+    media.library,
+    setError,
+    document.route.dashboard ? null : document.projectId,
+  );
   const preparePhone = usePhonePlayback({
     projectId: document.projectId,
     preset: { resourceId: document.preset.id, name: document.preset.name },
@@ -198,6 +204,23 @@ export function useStudio() {
     if (playback.playing) playback.stop();
     previewPlayback.play(pattern, undefined, "pattern", preset);
   };
+  const toolbarPlaying =
+    playback.playing ||
+    previewPlayback.playing ||
+    animation.playing ||
+    (mediaPreview.playingId !== null &&
+      mediaPreview.playingId === media.library.attachment.audio?.assetId);
+  const togglePlayback = () => {
+    if (toolbarPlaying) {
+      if (playback.playing) playback.stop();
+      if (previewPlayback.playing) previewPlayback.stop();
+      if (animation.playing) {
+        animation.setPlaying(false);
+        animation.setSeekMs(0);
+      }
+      if (mediaPreview.playingId === media.library.attachment.audio?.assetId) mediaPreview.stop();
+    } else playback.play(document.pattern, composer.range ?? undefined);
+  };
   const resetPlayback = useEffectEvent(() => {
     playback.stop();
     composer.setSelected(null);
@@ -280,11 +303,14 @@ export function useStudio() {
     duplicatePreset,
     ...files,
     media,
+    mediaPreview,
     sharing,
     canonical,
     mcp,
     audition,
     previewPlayback,
+    toolbarPlaying,
+    togglePlayback,
     editSelection,
   };
   useShortcuts(studio);

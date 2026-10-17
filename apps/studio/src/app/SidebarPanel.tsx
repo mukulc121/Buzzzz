@@ -37,7 +37,7 @@ function SidebarContents(props: ISidebarPanel) {
           onImport={studio.importFile}
           canEdit={document.isWriter}
           onAttach={studio.attachMediaAsset}
-          onError={studio.setError}
+          preview={studio.mediaPreview}
           onHide={() => studio.setPanel(null)}
         />
       );

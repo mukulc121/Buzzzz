@@ -2,7 +2,8 @@ import { Chart } from "../features/composer/Chart";
 import { TimelinePanel } from "../features/composer/TimelinePanel";
 import { RivePanel } from "../features/rive/RivePanel";
 import { AnimationPreview } from "../features/animation/AnimationPreview";
-import { Play, Stop } from "../components/icons";
+import { EditorPlayButton } from "../components/EditorPlayButton";
+import { derivePlaybackLabel } from "../features/composer/playbackLabel";
 import type { Studio } from "./useStudio";
 import { useAnalysisCurves } from "./useAnalysisCurves";
 import { ProjectStatus } from "../features/project/ProjectStatus";
@@ -26,6 +27,24 @@ export function EditorCanvas(props: IEditorCanvas) {
     studio.animation.source?.durationMs ?? 0,
     document.preset.editor?.durationMs ?? 0,
   );
+  const playButton = derivePlaybackLabel({
+    name: document.preset.name,
+    pattern: document.pattern,
+    playing: studio.toolbarPlaying,
+    durationMs: Math.max(
+      patternEnd(document.pattern),
+      audio.source ? audio.trim.endMs - audio.trim.startMs : 0,
+      studio.animation.source?.durationMs ?? 0,
+      document.preset.editor?.durationMs ?? 0,
+    ),
+    range: composer.range,
+    cursor: composer.cursor ?? 0,
+    phones: session.phones,
+    onPhone: playback.onPhone,
+    sound: playback.sound,
+    audio: Boolean(audio.source) && playback.trackEnabled,
+    animation: Boolean(studio.animation.source),
+  });
   return (
     <main className="editor-canvas">
       <header className="pattern-header">
@@ -47,18 +66,11 @@ export function EditorCanvas(props: IEditorCanvas) {
           onTakeOver={document.takeOver}
           onResolve={document.resolveConflict}
         />
-        <button
-          className="play"
-          aria-label={playback.playing ? "Stop" : "Play"}
-          title={playback.playing ? "Stop" : "Play"}
-          onClick={() =>
-            playback.playing
-              ? playback.stop()
-              : playback.play(document.pattern, composer.range ?? undefined)
-          }
-        >
-          {playback.playing ? <Stop /> : <Play />}
-        </button>
+        <EditorPlayButton
+          playing={studio.toolbarPlaying}
+          {...playButton}
+          onClick={studio.togglePlayback}
+        />
         <button
           className="icon inspector-toggle"
           aria-label={studio.inspectorOpen ? "Hide inspector" : "Show inspector"}

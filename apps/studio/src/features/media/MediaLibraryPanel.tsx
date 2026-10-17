@@ -7,7 +7,7 @@ import { MediaRow } from "./MediaRow";
 import { MediaUploader } from "./MediaUploader";
 import { MEDIA_LIMITS } from "./model";
 import type { AttachedTracks } from "./useAttachedTracks";
-import { useMediaPreview } from "./useMediaPreview";
+import type { useMediaPreview } from "./useMediaPreview";
 
 interface IMediaLibraryPanel {
   media: AttachedTracks;
@@ -15,13 +15,12 @@ interface IMediaLibraryPanel {
   onHide: () => void;
   canEdit: boolean;
   onAttach: (id: string) => Promise<boolean>;
-  onError: (message: string) => void;
+  preview: ReturnType<typeof useMediaPreview>;
 }
 
 export function MediaLibraryPanel(props: IMediaLibraryPanel) {
-  const { media, onImport, onHide, canEdit, onAttach, onError } = props;
+  const { media, onImport, onHide, canEdit, onAttach, preview } = props;
   const { library } = media;
-  const preview = useMediaPreview(library, onError);
   const [uploading, setUploading] = useState(false);
   const [dragging, setDragging] = useState(false);
   const usage = mediaUsage(library.items);

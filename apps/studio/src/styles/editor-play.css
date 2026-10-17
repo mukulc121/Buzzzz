@@ -1,0 +1,52 @@
+.editor-play {
+  --editor-play-hover: rgba(225, 243, 250, 1);
+  --editor-play-strong: rgba(43, 133, 171, 1);
+  --editor-play-danger: rgba(214, 69, 69, 1);
+  --editor-play-danger-bg: rgba(253, 236, 236, 1);
+  --editor-play-live: rgba(31, 143, 95, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  flex-shrink: 0;
+  padding: 0 16px;
+  border: none;
+  border-left: 2px solid var(--line);
+  border-radius: 0;
+  background: none;
+  color: var(--fg);
+  cursor: pointer;
+  outline: none;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+:root[data-theme="dark"] .editor-play {
+  --editor-play-hover: rgba(15, 34, 49, 1);
+  --editor-play-strong: rgba(108, 199, 239, 1);
+  --editor-play-danger: rgba(242, 128, 127, 1);
+  --editor-play-danger-bg: rgba(58, 28, 28, 1);
+  --editor-play-live: rgba(53, 201, 138, 1);
+}
+.editor-play:hover:not(:disabled) {
+  background-color: var(--editor-play-hover);
+  color: var(--editor-play-strong);
+  border-left-color: var(--line);
+}
+.editor-play:focus-visible {
+  outline: 2px solid var(--editor-play-strong);
+  outline-offset: 2px;
+}
+.editor-play.playing {
+  color: var(--editor-play-danger);
+}
+.editor-play.playing:hover:not(:disabled) {
+  background-color: var(--editor-play-danger-bg);
+  color: var(--editor-play-danger);
+}
+.editor-device-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background-color: var(--editor-play-live);
+}

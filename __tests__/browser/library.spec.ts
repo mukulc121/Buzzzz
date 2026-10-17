@@ -1,3 +1,4 @@
+import { editorPlay, editorStop } from "./fixtures/editor-playback";
 import { patternTitle } from "./fixtures/pattern-title";
 import { expect, test, type Page } from "@playwright/test";
 import { isProjectRecord } from "../../apps/studio/src/features/project/model";
@@ -41,21 +42,15 @@ test("library inspection is silent until Play and closing its preview stops play
   await expect(library.getByText("151 of 151 presets", { exact: true })).toBeVisible();
   await library.getByRole("searchbox").fill("Thunder");
   await library.locator(".library-row-name").getByText("Thunder", { exact: true }).click();
-  await expect(
-    page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }),
-  ).toBeVisible();
+  await expect(editorPlay(page)).toBeVisible();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await library.getByRole("button", { name: "About Thunder", exact: true }).click();
   const detail = page.getByRole("dialog", { name: "Thunder", exact: true });
   await expect(detail.getByRole("button", { name: "Play", exact: true })).toBeVisible();
-  await expect(
-    page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }),
-  ).toBeVisible();
+  await expect(editorPlay(page)).toBeVisible();
   await detail.getByRole("button", { name: "Play", exact: true }).click();
   await expect(detail.getByRole("button", { name: "Stop", exact: true })).toBeVisible();
-  await expect(
-    page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }),
-  ).toBeVisible();
+  await expect(editorStop(page)).toBeVisible();
   const cursor = page.locator(".chart [data-playhead]");
   await expect(cursor).toHaveAttribute("aria-valuenow", "0");
   const positions = await cursor.evaluate(async (element) => {
@@ -69,9 +64,7 @@ test("library inspection is silent until Play and closing its preview stops play
   expect(new Set(positions)).toEqual(new Set(["0"]));
   await detail.getByRole("button", { name: "Close", exact: true }).click();
   await expect(detail).not.toBeVisible();
-  await expect(
-    page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }),
-  ).toBeVisible();
+  await expect(editorPlay(page)).toBeVisible();
   expect(await project(page)).toEqual(initial);
 });
 
@@ -107,9 +100,7 @@ test("library audition leaves an attached animation paused on its current frame"
   });
   expect(new Set(frames)).toEqual(new Set([before]));
   await expect(preview.getByRole("button", { name: "Play animation", exact: true })).toBeVisible();
-  await expect(
-    page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }),
-  ).toBeVisible();
+  await expect(editorStop(page)).toBeVisible();
   await detail.getByRole("button", { name: "Close", exact: true }).click();
 });
 
@@ -146,19 +137,18 @@ test("starting a library audition stops an existing editor playback clock", asyn
       );
   });
   await expect(patternTitle(page)).toHaveText("long-pattern");
-  const editor = page.locator(".pattern-header");
-  await editor.getByRole("button", { name: "Play", exact: true }).click();
-  await expect(editor.getByRole("button", { name: "Stop", exact: true })).toBeVisible();
+  await editorPlay(page).click();
+  await expect(editorStop(page)).toBeVisible();
   const library = await openLibrary(page);
   await library.getByRole("searchbox").fill("Thunder");
   await library.getByRole("button", { name: "About Thunder", exact: true }).click();
   const detail = page.getByRole("dialog", { name: "Thunder", exact: true });
   await detail.getByRole("button", { name: "Play", exact: true }).click();
   await expect(detail.getByRole("button", { name: "Stop", exact: true })).toBeVisible();
-  await expect(editor.getByRole("button", { name: "Play", exact: true })).toBeVisible();
+  await expect(editorStop(page)).toBeVisible();
   await expect(page.locator(".chart [data-playhead]")).toHaveAttribute("aria-valuenow", "0");
   await detail.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(editor.getByRole("button", { name: "Play", exact: true })).toBeVisible();
+  await expect(editorPlay(page)).toBeVisible();
 });
 
 test("append and detail insertion update the active pattern, persist and undo", async ({

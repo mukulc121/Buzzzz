@@ -13,7 +13,7 @@ const ANCHORS: Record<string, string> = {
   "sound-panel": ".sound-panel",
   "animation-panel": ".animation-panel",
   timelines: ".timeline-panel",
-  play: ".pattern-header .play",
+  play: '[data-tour="play"]',
   toolbar: ".pattern-header",
 };
 

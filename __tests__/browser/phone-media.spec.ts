@@ -1,3 +1,4 @@
+import { editorPlay, editorStop } from "./fixtures/editor-playback";
 import { patternTitle } from "./fixtures/pattern-title";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -121,7 +122,7 @@ test("a temporary local media-session failure retries on Play without reconnecti
   await selectAudio(page);
   await expect.poll(() => session.discoveries.length).toBe(1);
   const connections = session.sockets.length;
-  await page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }).click();
+  await editorPlay(page).click();
   await expect.poll(() => session.played().length).toBe(1);
   expect(session.played()[0]).toMatchObject({ type: "audio-haptics", name: "FanfareSound" });
   expect(session.discoveries).toHaveLength(2);
@@ -136,8 +137,7 @@ test("an active loop uses the current phone session after reconnect without manu
   await selectAudio(page);
   await page.getByRole("tab", { name: "inspector", exact: true }).click();
   await page.getByRole("switch", { name: "Loop", exact: true }).check();
-  const header = page.locator(".pattern-header");
-  await header.getByRole("button", { name: "Play", exact: true }).click();
+  await editorPlay(page).click();
   await expect.poll(() => session.played().length).toBe(1);
   const connections = session.sockets.length;
   await session.sockets.at(-1)!.close({ code: 1006 });
@@ -149,8 +149,8 @@ test("an active loop uses the current phone session after reconnect without manu
       .every((message) => message.type === "audio-haptics" && message.name === "FanfareSound"),
   ).toBe(true);
   expect(session.uploads).toHaveLength(1);
-  await expect(header.getByRole("button", { name: "Stop", exact: true })).toBeVisible();
-  await header.getByRole("button", { name: "Stop", exact: true }).click();
+  await expect(editorStop(page)).toBeVisible();
+  await editorStop(page).click();
 });
 
 async function selectAudio(page: Page) {
@@ -180,8 +180,7 @@ test("editor Play uploads the attached audio once and delivers its complete patt
   const cursor = page.getByRole("slider", { name: "Scrub position", exact: true });
   for (let index = 0; index < 10; index++) await cursor.press("Shift+ArrowRight");
   const preset = await storedPreset(page);
-  const header = page.locator(".pattern-header");
-  await header.getByRole("button", { name: "Play", exact: true }).click();
+  await editorPlay(page).click();
   await expect.poll(() => session.played().length).toBe(1);
   const message = session.played()[0];
   if (message?.type !== "audio-haptics") throw new Error("Missing attached audio delivery");
@@ -201,10 +200,10 @@ test("editor Play uploads the attached audio once and delivers its complete patt
   expect(session.uploads).toHaveLength(1);
   expect(session.uploads[0]?.bytes).toEqual(Buffer.from(sample["audio/fanfaresound.mp3"]!));
   expect(new URL(session.uploads[0]!.url).origin).toBe(new URL(page.url()).origin);
-  await expect(header.getByRole("button", { name: "Play", exact: true })).toBeVisible({
+  await expect(editorPlay(page)).toBeVisible({
     timeout: 10000,
   });
-  await header.getByRole("button", { name: "Play", exact: true }).click();
+  await editorPlay(page).click();
   await expect.poll(() => session.played().length).toBe(2);
   expect(session.uploads).toHaveLength(1);
 });
@@ -218,7 +217,7 @@ test("editor Play delivers the attached Lottie bytes and exact animation metadat
     page.getByRole("region", { name: "Animation canvas preview", exact: true }).locator("canvas"),
   ).toBeVisible();
   const preset = await storedPreset(page);
-  await page.locator(".pattern-header").getByRole("button", { name: "Play", exact: true }).click();
+  await editorPlay(page).click();
   await expect.poll(() => session.played().length).toBe(1);
   const message = session.played()[0];
   if (message?.type !== "animation-haptics") throw new Error("Missing attached animation delivery");
@@ -256,11 +255,10 @@ test("Stop and immediate Play share the pending clip but only the new playback r
   const session = await phone(page);
   await selectAudio(page);
   session.hold();
-  const header = page.locator(".pattern-header");
-  await header.getByRole("button", { name: "Play", exact: true }).click();
+  await editorPlay(page).click();
   await expect.poll(() => session.uploads.length).toBe(1);
-  await header.getByRole("button", { name: "Stop", exact: true }).click();
-  await header.getByRole("button", { name: "Play", exact: true }).click();
+  await editorStop(page).click();
+  await editorPlay(page).click();
   session.release();
   await expect.poll(() => session.played().length).toBe(1);
   expect(session.played()[0]).toMatchObject({ type: "audio-haptics", name: "FanfareSound" });
@@ -277,8 +275,7 @@ for (const change of ["preset", "project", "reconnect", "return"] as const) {
       await page.getByRole("switch", { name: "Loop", exact: true }).check();
     }
     session.hold();
-    const header = page.locator(".pattern-header");
-    await header.getByRole("button", { name: "Play", exact: true }).click();
+    await editorPlay(page).click();
     await expect.poll(() => session.uploads.length).toBe(1);
     if (change === "preset" || change === "return")
       await page
@@ -300,11 +297,11 @@ for (const change of ["preset", "project", "reconnect", "return"] as const) {
       const count = session.sockets.length;
       await session.sockets.at(-1)!.close({ code: 1006 });
       await expect.poll(() => session.sockets.length).toBe(count + 1);
-      await expect(header.getByRole("button", { name: "Stop", exact: true })).toBeVisible();
+      await expect(editorStop(page)).toBeVisible();
     }
     if (change === "return") {
       await selectAudio(page);
-      await header.getByRole("button", { name: "Play", exact: true }).click();
+      await editorPlay(page).click();
     }
     if (change === "return" || change === "reconnect") {
       await expect.poll(() => session.uploads.length).toBe(2);
@@ -314,20 +311,18 @@ for (const change of ["preset", "project", "reconnect", "return"] as const) {
       if (message?.type !== "audio-haptics") throw new Error("Missing current audio delivery");
       expect(message).toMatchObject({ name: "FanfareSound" });
       expect(new URL(message.audio.downloadUrl).pathname).toContain(session.uploads[1]!.assetId);
-      if (change === "reconnect")
-        await header.getByRole("button", { name: "Stop", exact: true }).click();
+      if (change === "reconnect") await editorStop(page).click();
       return;
     }
     session.release();
-    if (await header.getByRole("button", { name: "Stop", exact: true }).isVisible())
-      await header.getByRole("button", { name: "Stop", exact: true }).click();
-    await expect(header.getByRole("button", { name: "Play", exact: true })).toBeVisible();
+    if (await editorStop(page).isVisible()) await editorStop(page).click();
+    await expect(editorPlay(page)).toBeVisible();
     expect(session.played()).toHaveLength(0);
     await expect(
       page.getByRole("alert").filter({ hasText: "Phone playback could not start" }),
     ).toHaveCount(0);
     if (change === "preset") {
-      await header.getByRole("button", { name: "Play", exact: true }).click();
+      await editorPlay(page).click();
       await expect.poll(() => session.played().length).toBe(1);
       expect(session.played()[0]).toMatchObject({ type: "haptic-preset", name: "JustHaptics" });
     }
