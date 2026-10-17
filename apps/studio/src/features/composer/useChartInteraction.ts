@@ -97,8 +97,10 @@ export function useChartInteraction(options: IChartInteraction) {
   const shortcut = useEffectEvent((event: globalThis.KeyboardEvent) => {
     if (
       event.defaultPrevented ||
-      (event.target instanceof HTMLElement &&
-        event.target.closest("input,select,textarea,[contenteditable]"))
+      (event.target instanceof Element &&
+        event.target.closest(
+          'input,select,textarea,[contenteditable],dialog[open],[role="dialog"][aria-modal="true"]',
+        ))
     )
       return;
     if (

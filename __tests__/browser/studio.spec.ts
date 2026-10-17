@@ -51,6 +51,9 @@ for (const width of [320, 375, 390, 700, 768, 1024, 1180, 1280, 1440, 1920]) {
     await expect(address).toHaveValue(/^ws:\/\/.+\/relay$/);
     expect(await overflow()).toEqual({ page: false, content: [] });
     await page.keyboard.press("Escape");
+    await expect(
+      page.getByRole("dialog", { name: "Connect device", exact: true }),
+    ).not.toBeVisible();
     const chart = page.getByRole("group", { name: "Haptic pattern timeline", exact: true });
     const pointCount = await chart.getByRole("button").count();
     await page.getByRole("button", { name: "Tools", exact: true }).click();
