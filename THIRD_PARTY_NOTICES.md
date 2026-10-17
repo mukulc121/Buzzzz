@@ -48,6 +48,10 @@ The preview app retains its Expo template license in [`apps/preview/LICENSE`](ap
 
 The local `@rive-app/react-native@0.5.5` patch changes Android surface resizing and redraw scheduling, and the shared hook's readiness handling. Rive's React Native runtime is distributed under its [MIT license](https://github.com/rive-app/rive-react-native/blob/main/LICENSE). The patch and its removal checks are documented in `docs/development.md`.
 
+## Lottie React Native
+
+The local `lottie-react-native@7.3.8` patch fixes Android loading of cached animation file URLs. The runtime retains its [Apache License 2.0](https://github.com/lottie-react-native/lottie-react-native/blob/master/LICENSE).
+
 ## Mediabunny
 
 Studio uses `mediabunny@1.61.3` for decoder-free audio container metadata. It is distributed under the Mozilla Public License 2.0. Its unmodified source and license are available in the [Mediabunny repository](https://github.com/Vanilagy/mediabunny).

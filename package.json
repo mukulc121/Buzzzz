@@ -49,6 +49,7 @@
   "packageManager": "bun@1.4.0",
   "patchedDependencies": {
     "@rive-app/react-native@0.5.5": "patches/@rive-app__react-native@0.5.5.patch",
+    "lottie-react-native@7.3.8": "patches/lottie-react-native@7.3.8.patch",
     "react-native-pulsar@1.7.0": "patches/react-native-pulsar@1.7.0.patch"
   }
 }

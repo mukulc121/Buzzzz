@@ -116,6 +116,8 @@ Animation approach IDs remain `hybrid`, `energy`, `kinematic`, `impulse`, and `c
 
 ## Dependency patches
 
+The local `lottie-react-native@7.3.8` patch converts Android `file://` URLs to filesystem paths before opening cached animations. Without it, a downloaded animation saves correctly but renders blank. The Android Debug rebuild renders the same cached Explosion animation at the same paused midpoint after this two-line fix. This is a local fix, not an upstream backport. Remove it when an upgraded runtime renders cached file URLs on Android; rebuild and repeat local replay and seeking checks. iOS is unchanged.
+
 `react-native-pulsar@1.7.0` reparses a pattern without releasing its previous native composer. The workspace backports the React Native hook fix from [Pulsar PR #294](https://github.com/software-mansion/pulsar/pull/294), commit [`dc0a711a95806b91cf8d05771c6c601e0d5657a8`](https://github.com/software-mansion/pulsar/commit/dc0a711a95806b91cf8d05771c6c601e0d5657a8), through Bun's `patchedDependencies`.
 
 `bun install` applies the checked-in React Native patch. Both native cores build unreleased Pulsar source at revision [`abdee706282598ab0194ba739dce835dc828f164`](https://github.com/software-mansion/pulsar/commit/abdee706282598ab0194ba739dce835dc828f164), pinned in [`source.json`](../apps/preview/native/pulsar/source.json). Native builds verify the downloaded archive against SHA-256 `5faa6afd096edbaaad19d263baa54091fb92aa5039a0cb57798e7570b42c76aa`.
