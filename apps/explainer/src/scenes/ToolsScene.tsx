@@ -50,8 +50,8 @@ export function ToolsScene() {
         delay={100}
         style={{ position: "absolute", left: 120, top: 930, fontSize: 24, color: C.fg2 }}
       >
-        Generation stays editable. Preserve a copy before replacing a pattern, or restore the
-        original.
+        Settings changes the real editor. Learn has four walkthroughs for editing, pairing, sound,
+        and animation.
       </Appear>
     </Scene>
   );

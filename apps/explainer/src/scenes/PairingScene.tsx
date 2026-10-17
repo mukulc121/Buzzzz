@@ -26,7 +26,7 @@ export function PairingScene() {
         <Card x={960} y={290} w={840} h={555}>
           <Pill color={C.freq}>Cloudflare deployment option</Pill>
           <b style={{ display: "block", fontSize: 34, marginTop: 26 }}>
-            Worker → Durable Object → private R2
+            Worker · Private rooms · Private R2
           </b>
           <div style={{ display: "flex", gap: 14, marginTop: 32 }}>
             <Pill>WSS</Pill>
@@ -36,7 +36,7 @@ export function PairingScene() {
           <div style={{ fontSize: 26, color: C.fg2, lineHeight: 1.65, marginTop: 30 }}>
             Ten-minute pairing code · 24-hour room
             <br />
-            Signed asset and project links
+            Signed asset and explicit project links
             <br />
             MCP project editing + open-editor tools
           </div>
@@ -46,8 +46,8 @@ export function PairingScene() {
         delay={80}
         style={{ position: "absolute", left: 120, top: 910, fontSize: 25, color: C.fg2 }}
       >
-        Hosted setup needs a Worker hostname, private bucket, and allowed Studio origins. Verify it
-        after deployment.
+        Configure the Worker, bucket, and allowed Studio origins. Rooms do not sync the local
+        project catalog.
       </Appear>
     </Scene>
   );

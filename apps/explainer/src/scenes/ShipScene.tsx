@@ -21,7 +21,7 @@ export function ShipScene() {
             ))}
           </div>
           <div style={{ fontSize: 25, color: C.fg2, lineHeight: 1.6, marginTop: 35 }}>
-            Validate all referenced data before importing.
+            Check referenced formats and media metadata.
             <br />
             Preserve original media and trim windows.
             <br />
@@ -54,8 +54,8 @@ export function ShipScene() {
         delay={85}
         style={{ position: "absolute", left: 120, top: 930, fontSize: 24, color: C.fg2 }}
       >
-        Review converted patterns. Verify official SDK interoperability and haptic feel on the
-        target device.
+        Use an archive or a configured hosted share link to transfer data. A local project URL
+        carries only its local ID.
       </Appear>
     </Scene>
   );

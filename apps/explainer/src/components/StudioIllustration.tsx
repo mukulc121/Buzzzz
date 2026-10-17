@@ -31,7 +31,7 @@ export function StudioIllustration(props: IStudioIllustration) {
       >
         <b style={{ fontSize: compact ? 20 : 24 }}>ϟ Buzzzz</b>
         <span style={{ color: t.muted, fontSize: compact ? 12 : 15 }}>
-          {compact ? "☾  ⋮" : "Bouncing ball  ·  Saved locally     ↶  ↷    Export ▾"}
+          {compact ? "☾  ⋮" : "Projects / Bouncing ball  ·  Saved locally     ↶  ↷    Export ▾"}
         </span>
       </div>
       <div style={{ display: "flex", height: "calc(100% - 60px)" }}>

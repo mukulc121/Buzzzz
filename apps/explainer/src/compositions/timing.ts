@@ -11,19 +11,25 @@ import { WorkspaceScene } from "../scenes/WorkspaceScene";
 import { AudioScene } from "../scenes/AudioScene";
 import { AnimationScene } from "../scenes/AnimationScene";
 import { ToolsScene } from "../scenes/ToolsScene";
+import { ProjectsScene } from "../scenes/ProjectsScene";
+import { LibraryScene } from "../scenes/LibraryScene";
+import { PreviewScene } from "../scenes/PreviewScene";
 
 const SCENES = [
   { Component: TitleScene, minimum: 110 },
+  { Component: ProjectsScene, minimum: 230 },
   { Component: WorkspaceScene, minimum: 250 },
-  { Component: PiecesScene, minimum: 210 },
   { Component: PatternScene, minimum: 230 },
+  { Component: LibraryScene, minimum: 230 },
   { Component: AudioScene, minimum: 250 },
   { Component: AnimationScene, minimum: 250 },
   { Component: ToolsScene, minimum: 230 },
   { Component: TriggerScene, minimum: 230 },
   { Component: LiveLoopScene, minimum: 320 },
+  { Component: PreviewScene, minimum: 230 },
   { Component: PairingScene, minimum: 200 },
   { Component: ShipScene, minimum: 210 },
+  { Component: PiecesScene, minimum: 210 },
   { Component: OutroScene, minimum: 110 },
 ];
 export const LEAD = 12;

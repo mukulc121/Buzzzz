@@ -9,5 +9,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src", "scripts"]
+  "include": ["src", "scripts", "remotion.config.ts"]
 }
