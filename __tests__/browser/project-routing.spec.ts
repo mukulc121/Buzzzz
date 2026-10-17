@@ -39,7 +39,8 @@ test.beforeEach(async ({ page }) => {
 test("project URLs select saved A/B through reload and browser history", async ({ page }) => {
   await page.goto("/studio/projects?preset=tap#relay-bootstrap");
   const a = await createProject(page, "Route A", "A pattern");
-  expect(new URL(a).search).toBe("?preset=tap");
+  expect(new URL(a).searchParams.get("preset")).toBe("tap");
+  expect(new URL(a).searchParams.get("pattern")).toBeTruthy();
   expect(new URL(a).hash).toBe("#relay-bootstrap");
   await showProjects(page);
   const b = await createProject(page, "Route B", "B pattern");

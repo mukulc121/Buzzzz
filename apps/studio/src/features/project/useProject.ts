@@ -14,8 +14,24 @@ import * as repository from "./repository";
 import { useProjectCatalog } from "./useProjectCatalog";
 import { useProjectDocument } from "./useProjectDocument";
 import { claimWriter, lockName, type IWriterLock } from "./writerLock";
-import { parseProjectRoute } from "./projectRouting";
+import { parseProjectRoute, patternRouteId, selectedProjectPattern } from "./projectRouting";
+import { readSelectedPattern, rememberSelectedPattern } from "./projectSelection";
 import { useProjectRoute } from "./useProjectRoute";
+
+function recordSelection(record: IProjectRecord, requested?: string | null) {
+  const route = parseProjectRoute(location);
+  const matches =
+    (route.kind === "project" || route.kind === "shared") && route.projectId === record.id;
+  return selectedProjectPattern(
+    record.project,
+    requested === undefined
+      ? matches || route.kind === "legacy"
+        ? patternRouteId(location)
+        : null
+      : requested,
+    readSelectedPattern(record.id),
+  );
+}
 
 function initialState() {
   const shared = repository.sharedLink(location.search);
@@ -69,16 +85,17 @@ export function useProject() {
 
   const document = useProjectDocument({
     initial: start.record.project,
+    initialPresetId: recordSelection(start.record),
     writable: isWriter,
     onCommit: (project) => persist(project),
   });
 
-  const load = (record: IProjectRecord) => {
+  const load = (record: IProjectRecord, patternId = recordSelection(record)) => {
     selectedRef.current = true;
     setSelected(true);
     adopt(record);
     setConflict(null);
-    document.reset(record.project);
+    document.reset(record.project, patternId);
   };
 
   const switchTo = (record: IProjectRecord) => {
@@ -114,18 +131,20 @@ export function useProject() {
   const route = useProjectRoute({
     projectId: active.id,
     projectAvailable: selected,
-    onOpen: (id) => {
+    patternId: document.preset.id,
+    onOpen: (id, requested) => {
       const record = id.startsWith("shared-")
         ? repository.sharedRecord(id)
         : repository.readRecord(id);
-      if (!record) return false;
+      if (!record) return null;
+      const patternId = recordSelection(record, requested);
       if (id !== active.id) {
-        load(record);
+        load(record, patternId);
         setStorageError(null);
         if (!id.startsWith("shared-")) repository.rememberLast(id);
         refresh();
-      }
-      return true;
+      } else if (document.preset.id !== patternId) document.selectPreset(patternId);
+      return patternId;
     },
   });
 
@@ -183,6 +202,18 @@ export function useProject() {
 
   return {
     ...document,
+    selectPreset: (id: string) => {
+      if (!document.getProject().presets.some((preset) => preset.id === id)) return;
+      document.selectPreset(id);
+      rememberSelectedPattern(active.id, id);
+      route.selectPattern(id);
+    },
+    openProject: (project: Project) => {
+      document.openProject(project);
+      document.selectPreset(
+        selectedProjectPattern(project, patternRouteId(location), readSelectedPattern(active.id)),
+      );
+    },
     duplicatePreset: catalog.api.duplicatePreset,
     route,
     projectId: active.id,

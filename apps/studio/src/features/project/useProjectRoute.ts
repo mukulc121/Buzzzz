@@ -1,11 +1,20 @@
 import { useEffect, useEffectEvent, useState } from "react";
-import { parseProjectRoute, projectRouteUrl, type TProjectRoute } from "./projectRouting";
+import {
+  parseProjectRoute,
+  patternRouteId,
+  projectPatternUrl,
+  projectRouteUrl,
+  selectedProjectPattern,
+  type TProjectRoute,
+} from "./projectRouting";
+import { readSelectedPattern, rememberSelectedPattern } from "./projectSelection";
 import { isRecordKey, readRecord } from "./repository";
 
 interface IProjectRoute {
   projectId: string;
   projectAvailable: boolean;
-  onOpen: (id: string) => boolean;
+  patternId: string;
+  onOpen: (id: string, patternId: string | null) => string | null;
 }
 
 const MISSING =
@@ -36,17 +45,33 @@ export function useProjectRoute(props: IProjectRoute) {
     setNotice(null);
   };
 
-  const openProject = (id: string) => {
+  const openProject = (id: string, patternId?: string) => {
     if (id.startsWith("shared-")) {
-      if (sharedUrl) navigate(new URL(sharedUrl), { kind: "shared", projectId: id });
+      if (sharedUrl) {
+        const url = new URL(sharedUrl);
+        navigate(patternId === undefined ? url : projectPatternUrl(url, patternId), {
+          kind: "shared",
+          projectId: id,
+        });
+      }
       return;
     }
-    if (!readRecord(id)) {
+    const record = readRecord(id);
+    if (!record) {
       setRoute({ kind: "missing" });
       setNotice(MISSING);
       return;
     }
-    navigate(projectRouteUrl(new URL(location.href), id), { kind: "project", projectId: id });
+    const selected = selectedProjectPattern(
+      record.project,
+      patternId ?? null,
+      readSelectedPattern(id),
+    );
+    props.onOpen(id, selected);
+    navigate(projectRouteUrl(new URL(location.href), id, selected), {
+      kind: "project",
+      projectId: id,
+    });
   };
 
   const readLocation = useEffectEvent(() => {
@@ -58,16 +83,23 @@ export function useProjectRoute(props: IProjectRoute) {
       }
       if (!props.projectId.startsWith("shared-"))
         navigate(
-          projectRouteUrl(new URL(location.href), props.projectId),
+          projectRouteUrl(new URL(location.href), props.projectId, props.patternId),
           { kind: "project", projectId: props.projectId },
           true,
         );
       return;
     }
-    if ((next.kind === "project" || next.kind === "shared") && !props.onOpen(next.projectId)) {
-      setRoute({ kind: "missing" });
-      setNotice(MISSING);
-      return;
+    if (next.kind === "project" || next.kind === "shared") {
+      const selected = props.onOpen(next.projectId, patternRouteId(location));
+      if (selected === null) {
+        setRoute({ kind: "missing" });
+        setNotice(MISSING);
+        return;
+      }
+      if (next.kind === "project") {
+        const url = projectPatternUrl(new URL(location.href), selected);
+        if (url.href !== location.href) history.replaceState(history.state, "", url);
+      }
     }
     setRoute(next);
     setNotice(next.kind === "missing" ? MISSING : null);
@@ -81,6 +113,7 @@ export function useProjectRoute(props: IProjectRoute) {
         projectRouteUrl(
           new URL(location.href),
           props.projectAvailable ? props.projectId : undefined,
+          props.projectAvailable ? props.patternId : undefined,
         ),
       );
     const onStorage = (event: StorageEvent) => {
@@ -92,7 +125,25 @@ export function useProjectRoute(props: IProjectRoute) {
       removeEventListener("popstate", readLocation);
       removeEventListener("storage", onStorage);
     };
-  }, [props.projectId, props.projectAvailable]);
+  }, [props.projectId, props.projectAvailable, props.patternId]);
+
+  useEffect(() => {
+    if (!props.projectAvailable) return;
+    rememberSelectedPattern(props.projectId, props.patternId);
+    const current = parseProjectRoute(location);
+    if (current.kind !== "project" || current.projectId !== props.projectId) return;
+    const url = projectPatternUrl(new URL(location.href), props.patternId);
+    if (url.href !== location.href) history.replaceState(history.state, "", url);
+  }, [props.projectId, props.projectAvailable, props.patternId]);
+
+  const selectPattern = (id: string) => {
+    const current = parseProjectRoute(location);
+    if (
+      (current.kind === "project" || current.kind === "shared") &&
+      current.projectId === props.projectId
+    )
+      navigate(projectPatternUrl(new URL(location.href), id), current);
+  };
 
   const showDashboard = (removed = false) => {
     navigate(projectRouteUrl(new URL(location.href)), { kind: "dashboard" }, removed);
@@ -104,6 +155,8 @@ export function useProjectRoute(props: IProjectRoute) {
     notice,
     openProject,
     showDashboard,
-    showEditor: () => (props.projectAvailable ? openProject(props.projectId) : showDashboard()),
+    selectPattern,
+    showEditor: () =>
+      props.projectAvailable ? openProject(props.projectId, props.patternId) : showDashboard(),
   };
 }

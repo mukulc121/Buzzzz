@@ -15,6 +15,7 @@ const step = (state: history.IDocumentState, recipe: (project: Project) => Proje
 
 interface IProjectDocument {
   initial: Project;
+  initialPresetId?: string;
   writable: boolean;
   onCommit: (project: Project) => boolean | void;
 }
@@ -24,7 +25,11 @@ export function useProjectDocument(props: IProjectDocument) {
   const { initial, writable, onCommit } = props;
   const [state, setState] = useState(() => history.startDocument(initial));
   const latest = useRef(state);
-  const [currentId, setCurrentId] = useState(() => initial.presets[0].id);
+  const [currentId, setCurrentId] = useState(
+    () =>
+      initial.presets.find((preset) => preset.id === props.initialPresetId)?.id ??
+      initial.presets[0].id,
+  );
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const { project } = state;
   const preset = project.presets.find((item) => item.id === currentId) ?? project.presets[0];
@@ -70,11 +75,12 @@ export function useProjectDocument(props: IProjectDocument) {
       ),
     );
 
-  const reset = (next: Project) => {
+  const reset = (next: Project, selectedId?: string) => {
     setRenamingId(null);
     latest.current = history.startDocument(next);
     setState(latest.current);
-    if (!next.presets.some((item) => item.id === currentId)) setCurrentId(next.presets[0].id);
+    const selection = selectedId ?? currentId;
+    setCurrentId(next.presets.find((item) => item.id === selection)?.id ?? next.presets[0].id);
   };
 
   return {
@@ -159,6 +165,7 @@ export function useProjectDocument(props: IProjectDocument) {
       if (apply((current) => step(current, () => next))) setCurrentId(next.presets[0].id);
     },
     selectPreset: (id: string) => {
+      if (!latest.current.project.presets.some((preset) => preset.id === id)) return;
       setRenamingId(null);
       setCurrentId(id);
       latest.current = history.arm(latest.current);

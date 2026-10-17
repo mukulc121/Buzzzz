@@ -1,6 +1,10 @@
 import { expect, test } from "bun:test";
+import { emptyPattern } from "@buzzzz/core";
 import {
   parseProjectRoute,
+  patternRouteId,
+  projectPatternUrl,
+  selectedProjectPattern,
   projectRouteUrl,
   type TProjectRoute,
 } from "../src/features/project/projectRouting";
@@ -41,4 +45,44 @@ test("local navigation preserves other query and hash state and leaves hosted sh
   expect(project.hash).toBe("#relay=bootstrap");
   expect(projectRouteUrl(project).pathname).toBe("/studio/projects");
   expect(current.searchParams.get("shareToken")).toBe("token");
+});
+
+test("pattern URLs preserve project paths, sharing, unrelated queries and fragments", () => {
+  const current = new URL(
+    "https://buzzzz.test/studio/projects/a?shareId=one&shareToken=secret&relay=two&pattern=old#device",
+  );
+  const next = projectPatternUrl(current, "pattern / one");
+  expect(next.pathname).toBe(current.pathname);
+  expect(next.searchParams.get("pattern")).toBe("pattern / one");
+  expect(next.searchParams.get("shareId")).toBe("one");
+  expect(next.searchParams.get("shareToken")).toBe("secret");
+  expect(next.searchParams.get("relay")).toBe("two");
+  expect(next.hash).toBe("#device");
+  expect(current.searchParams.get("pattern")).toBe("old");
+  expect(patternRouteId(next)).toBe("pattern / one");
+  const other = projectRouteUrl(current, "b", "other");
+  expect(other.searchParams.get("pattern")).toBe("other");
+  expect(other.searchParams.has("shareToken")).toBe(false);
+  expect(other.searchParams.get("relay")).toBe("two");
+  expect(projectRouteUrl(other).searchParams.has("pattern")).toBe(false);
+});
+
+test("URL selection wins remembered state and invalid or deleted IDs fall back to the first real pattern", () => {
+  const project = {
+    presets: [
+      { id: "first", name: "First", pattern: emptyPattern() },
+      { id: "second", name: "Second", pattern: emptyPattern() },
+    ],
+  };
+  const cases: [string | null, string | null, string][] = [
+    ["first", "second", "first"],
+    ["second", "first", "second"],
+    [null, "second", "second"],
+    [null, "missing", "first"],
+    ["missing", "second", "first"],
+    ["", "second", "first"],
+    [null, null, "first"],
+  ];
+  for (const [requested, remembered, expected] of cases)
+    expect(selectedProjectPattern(project, requested, remembered)).toBe(expected);
 });

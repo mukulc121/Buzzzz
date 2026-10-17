@@ -70,7 +70,7 @@ test("deleting the final project leaves an empty catalog through reload and hist
   await expect(dashboard.getByText("No projects yet", { exact: true })).toBeVisible();
   expect(await storedIds()).toEqual([]);
   await page.goBack();
-  await expect(page).toHaveURL(/\/studio\/projects\/only-project$/);
+  await expect(page).toHaveURL(/\/studio\/projects\/only-project(?:[?#]|$)/);
   await expect(page.getByRole("alert")).toContainText("Project not found in this browser");
   await expect(dashboard.locator(".project-card")).toHaveCount(0);
   await page.goForward();
@@ -83,7 +83,7 @@ test("deleting the final project leaves an empty catalog through reload and hist
   const dialog = page.getByRole("dialog", { name: "Create project" });
   await dialog.getByRole("textbox", { name: "Project name" }).fill("Explicit new project");
   await dialog.getByRole("button", { name: "Create", exact: true }).click();
-  await expect(page).toHaveURL(/\/studio\/projects\/[\w-]+$/);
+  await expect(page).toHaveURL(/\/studio\/projects\/[\w-]+(?:[?#]|$)/);
   await expect(page.locator(".save-status")).toHaveAttribute("data-status", /editing|unlocked/);
   expect(await storedIds()).toHaveLength(1);
 });

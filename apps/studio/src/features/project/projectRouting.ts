@@ -1,3 +1,4 @@
+import type { Project } from "@buzzzz/core";
 import { sharedLink } from "./repository";
 
 const PROJECTS = "/studio/projects";
@@ -28,9 +29,30 @@ export function parseProjectRoute(url: Pick<URL, "pathname" | "search">): TProje
   }
 }
 
-export function projectRouteUrl(current: URL, projectId?: string) {
+export function projectRouteUrl(current: URL, projectId?: string, patternId?: string) {
   const url = new URL(current);
   url.pathname = projectId ? `${PROJECTS}/${encodeURIComponent(projectId)}` : PROJECTS;
   for (const key of SHARE_PARAMS) url.searchParams.delete(key);
+  if (projectId && patternId !== undefined) url.searchParams.set("pattern", patternId);
+  else url.searchParams.delete("pattern");
   return url;
+}
+
+export function patternRouteId(url: Pick<URL, "search">) {
+  return new URLSearchParams(url.search).get("pattern");
+}
+
+export function projectPatternUrl(current: URL, patternId: string) {
+  const url = new URL(current);
+  url.searchParams.set("pattern", patternId);
+  return url;
+}
+
+export function selectedProjectPattern(
+  project: Pick<Project, "presets">,
+  requested: string | null,
+  remembered: string | null,
+) {
+  const candidate = requested ?? remembered;
+  return project.presets.find((preset) => preset.id === candidate)?.id ?? project.presets[0].id;
 }
