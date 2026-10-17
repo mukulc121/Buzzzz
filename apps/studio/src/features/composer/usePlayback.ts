@@ -10,6 +10,8 @@ interface IPlayback {
   send: (message: Msg) => void;
   phones: number;
   preset?: TPhonePreset;
+  preparePhone?: (pattern: Pattern, preset?: TPhonePreset) => Promise<Msg>;
+  phoneKey?: string;
   track?: { url: string; startMs: number; endMs: number } | null;
   durationMs?: number;
   cursor?: number;
@@ -29,10 +31,28 @@ export function usePlayback(props: IPlayback) {
   const [onPhone, setOnPhone] = useState(true);
   const [trackEnabled, setTrackEnabled] = useState(true);
   const [loop, setLoop] = useState(false);
-  const preferences = useRef({ sound, onPhone, trackEnabled, loop, phones, track });
+  const preferences = useRef({
+    sound,
+    onPhone,
+    trackEnabled,
+    loop,
+    phones,
+    track,
+    preparePhone: props.preparePhone,
+    phoneKey: props.phoneKey,
+  });
   useLayoutEffect(() => {
-    preferences.current = { sound, onPhone, trackEnabled, loop, phones, track };
-  }, [sound, onPhone, trackEnabled, loop, phones, track]);
+    preferences.current = {
+      sound,
+      onPhone,
+      trackEnabled,
+      loop,
+      phones,
+      track,
+      preparePhone: props.preparePhone,
+      phoneKey: props.phoneKey,
+    };
+  }, [sound, onPhone, trackEnabled, loop, phones, track, props.preparePhone, props.phoneKey]);
   const raf = useRef(0);
   const run = useRef(0);
   const owner = useRef(() => {});
@@ -74,6 +94,7 @@ export function usePlayback(props: IPlayback) {
     stopLocal();
     const id = run.current;
     const preset = mode === "document" ? props.preset : previewPreset;
+    const phoneKey = props.phoneKey;
     setPlaying(true);
     const start = range?.start ?? 0;
     const fullEnd = Math.max(
@@ -131,20 +152,27 @@ export function usePlayback(props: IPlayback) {
         });
       }
       const soundStart = usesSound(cursor) && buffer ? playBuffer(buffer, elapsed, owner) : null;
-      if (prefs.onPhone && prefs.phones)
-        void phonePlayback(remaining, preset).then(
+      const preparePhone =
+        mode === "document" ? (prefs.preparePhone ?? phonePlayback) : phonePlayback;
+      if (prefs.onPhone && prefs.phones && prefs.phoneKey === phoneKey)
+        void preparePhone(remaining, preset).then(
           (message) => {
             const current = preferences.current;
             if (
               id === run.current &&
               currentDelivery === delivery &&
+              current.phoneKey === phoneKey &&
               current.onPhone &&
               current.phones
             )
               send(message);
           },
-          () => {
-            if (id === run.current && currentDelivery === delivery)
+          (error: unknown) => {
+            if (
+              id === run.current &&
+              currentDelivery === delivery &&
+              !(error instanceof DOMException && error.name === "AbortError")
+            )
               onError?.("Phone playback could not start");
           },
         );

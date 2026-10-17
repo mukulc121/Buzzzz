@@ -12,12 +12,14 @@ export function phoneLibrary(presets: readonly Pick<Preset, "id" | "name">[]) {
 export async function phonePlayback(pattern: Pattern, preset?: TPhonePreset) {
   const device = toDevice(pattern);
   if (!preset) return { type: "play", pattern: device } satisfies Msg;
+  const version = await phoneVersion(device);
+  return { type: "haptic-preset", ...preset, version, pattern: device } satisfies Msg;
+}
+
+export async function phoneVersion(value: unknown) {
   const digest = await crypto.subtle.digest(
     "SHA-256",
-    new TextEncoder().encode(JSON.stringify(device)),
+    new TextEncoder().encode(JSON.stringify(value)),
   );
-  const version = Array.from(new Uint8Array(digest), (byte) =>
-    byte.toString(16).padStart(2, "0"),
-  ).join("");
-  return { type: "haptic-preset", ...preset, version, pattern: device } satisfies Msg;
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }

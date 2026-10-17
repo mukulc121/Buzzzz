@@ -15,6 +15,8 @@ import { useShortcuts } from "./useShortcuts";
 import { useAttachedTracks } from "../features/media/useAttachedTracks";
 import { useSharing } from "../features/connection/useSharing";
 import type { TPhonePreset } from "../features/connection/phoneLibrary";
+import { usePhonePlayback } from "../features/connection/usePhonePlayback";
+import { documentPhoneMedia } from "../features/connection/documentPhoneMedia";
 import { useCanonicalProject } from "../features/mcp/useCanonicalProject";
 import { useMcpBridge } from "../features/mcp/useMcpBridge";
 import { useStudioFiles } from "./useStudioFiles";
@@ -59,8 +61,34 @@ export function useStudio() {
       if (playback.sound && !audio.source) playSound(pattern);
     },
   });
+  const media = useAttachedTracks({
+    writable: document.isWriter,
+    projectId: document.projectId,
+    presetId: document.preset.id,
+    onError: setError,
+    audio,
+    animation,
+    rive: session,
+  });
+  const preparePhone = usePhonePlayback({
+    projectId: document.projectId,
+    preset: { resourceId: document.preset.id, name: document.preset.name },
+    writable: document.isWriter,
+    room: session.room,
+    connected: session.connected,
+    joinVersion: session.joinVersion,
+    media: documentPhoneMedia({
+      preset: document.preset,
+      ready: media.ready,
+      pending: media.pending,
+      audio,
+      animation,
+    }),
+  });
   const playback = usePlayback({
     preset: { resourceId: document.preset.id, name: document.preset.name },
+    preparePhone,
+    phoneKey: instanceKey,
     cursor: composer.cursor,
     onCursorChange: composer.setCursor,
     onError: setError,
@@ -126,15 +154,6 @@ export function useStudio() {
     projectId: document.projectId,
     project: document.project,
     onError: setError,
-  });
-  const media = useAttachedTracks({
-    writable: document.isWriter,
-    projectId: document.projectId,
-    presetId: document.preset.id,
-    onError: setError,
-    audio,
-    animation,
-    rive: session,
   });
   const files = useStudioFiles({
     document,
