@@ -8,6 +8,10 @@ import { pairingInput } from "./pairingInput.ts";
 
 type Role = "host" | "phone";
 type Session = { hash: string; role: Role; expires: number };
+interface IPairingRotation {
+  code: string;
+  expiresAt: number;
+}
 
 function sessionRelayUrl(origin: string, id: string, token: string): string {
   const url = new URL("/relay", origin);
@@ -24,6 +28,7 @@ function ttl(value: string, maximum = 600): number {
 
 export class RoomSessions {
   private attempts: PairingAttempts;
+  private rotation: Promise<IPairingRotation> | null = null;
   constructor(
     private sql: SqlStorage,
     private active: () => Room,
@@ -89,6 +94,15 @@ export class RoomSessions {
   }
 
   async rotate(room: Room): Promise<Response> {
+    const pending = (this.rotation ??= this.rotateCode(room));
+    try {
+      return json(await pending);
+    } finally {
+      if (this.rotation === pending) this.rotation = null;
+    }
+  }
+
+  private async rotateCode(room: Room): Promise<IPairingRotation> {
     const previous = this.active();
     const expiresAt = Math.min(room.expires, Date.now() + ttl(this.pairTtl));
     const pairing = await this.reserveCode(room.id, expiresAt);
@@ -101,7 +115,7 @@ export class RoomSessions {
       expiresAt,
     );
     this.attempts.reset();
-    return json({ code: pairing.code, expiresAt });
+    return { code: pairing.code, expiresAt };
   }
 
   async pair(request: Request, room: Room): Promise<Response> {

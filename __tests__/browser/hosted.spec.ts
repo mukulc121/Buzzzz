@@ -178,14 +178,20 @@ test("hosted pairing and MCP commands reach the mounted editor and its saved pro
   });
   try {
     const room = await openHost(page, rooms);
-    let pairingReads = 0;
+    let initialPairingCode: string | undefined;
     await page.route(`${roomPath(room)}/pairing`, async (route) => {
       const response = await route.fetch({
         headers: { ...route.request().headers(), "cf-connecting-ip": browserCallerIp },
       });
       const value: unknown = await response.json();
-      pairingReads++;
-      if (pairingReads === 1 && isRecord(value)) {
+      if (
+        response.ok() &&
+        isRecord(value) &&
+        typeof value.code === "string" &&
+        !route.request().failure()
+      )
+        initialPairingCode ??= value.code;
+      if (isRecord(value) && typeof value.code === "string" && value.code === initialPairingCode) {
         await route.fulfill({ response, json: { ...value, expiresAt: Date.now() + 1100 } });
       } else await route.fulfill({ response });
     });
@@ -193,8 +199,12 @@ test("hosted pairing and MCP commands reach the mounted editor and its saved pro
     await page.getByRole("button", { name: "Connect device", exact: true }).click();
     const code = page.getByLabel("Pairing code", { exact: true });
     await expect(code).toHaveText(/^\d{6}$/);
-    await expect.poll(() => pairingReads).toBeGreaterThan(1);
-    await expect(code).toHaveText(/^\d{6}$/);
+    await expect
+      .poll(async () => {
+        const current = await code.textContent();
+        return current !== initialPairingCode && /^\d{6}$/.test(current ?? "");
+      })
+      .toBe(true);
     async function pairVisibleCode() {
       const paired = await request.post(`${roomPath(room)}/pair`, {
         data: { code: await code.textContent(), device: "Hosted browser test" },
@@ -370,6 +380,8 @@ test("public shares stay bound to their project and recipients preserve private 
       privateB.project.presets[0]!.name,
     );
     await follower.getByRole("button", { name: "MCP", exact: true }).click();
+    await expect(follower.getByText("In sync with the room", { exact: true })).toBeVisible();
+    await expect(follower.getByRole("status").filter({ hasText: /^ready$/ })).toBeVisible();
     const followerRoom = await mountedRoom(follower, rooms);
     await expect
       .poll(async () => (await canonical(request, followerRoom)).projectId, {

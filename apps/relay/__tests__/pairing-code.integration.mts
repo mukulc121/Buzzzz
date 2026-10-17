@@ -18,6 +18,89 @@ function pair(mf: Runtime, code: string, ip = "203.0.113.1") {
   });
 }
 
+async function pairingResponse(response: Awaited<ReturnType<Runtime["dispatchFetch"]>>) {
+  assert.equal(response.status, 200);
+  const value = await jsonRecord(response);
+  assert.ok(typeof value.code === "string" && /^\d{6}$/.test(value.code));
+  assert.ok(typeof value.expiresAt === "number" && Number.isFinite(value.expiresAt));
+  return { code: value.code, expiresAt: value.expiresAt };
+}
+
+test("concurrent host rotations preserve roles and issue usable one-use codes", async () => {
+  const mf = await runtime();
+  try {
+    const room = await createRoom(mf);
+    const phone = await pairPhone(mf, room);
+    const endpoint = `https://relay.example/v1/rooms/${room.roomId}/pairing`;
+    const [responses, anonymous, unauthorized, phoneOnly] = await Promise.all([
+      Promise.all(
+        Array.from({ length: 8 }, () =>
+          mf.dispatchFetch(endpoint, { method: "POST", headers: auth(room.hostToken) }),
+        ),
+      ),
+      mf.dispatchFetch(endpoint, { method: "POST" }),
+      mf.dispatchFetch(endpoint, { method: "POST", headers: auth("a".repeat(43)) }),
+      mf.dispatchFetch(endpoint, { method: "POST", headers: auth(phone.phoneToken) }),
+    ]);
+    assert.deepEqual(
+      responses.map((response) => response.status),
+      Array(8).fill(200),
+    );
+    assert.equal(anonymous.status, 401);
+    assert.equal(unauthorized.status, 401);
+    assert.equal(phoneOnly.status, 403);
+    const values = await Promise.all(responses.map(pairingResponse));
+    const expiresByCode = new Map<string, number>();
+    for (const value of values) {
+      const previous = expiresByCode.get(value.code);
+      if (previous !== undefined) assert.equal(value.expiresAt, previous);
+      expiresByCode.set(value.code, value.expiresAt);
+    }
+    const storage = await mf.unsafeGetDurableObjectStorage("", "RelayRoom", { name: room.roomId });
+    const state = await storage.exec("SELECT pair_hash FROM room");
+    const current = values.find((value) => codeHash(value.code) === state[0]?.pair_hash);
+    assert.ok(current, "The active code must be returned to a successful caller");
+    assert.notEqual(current.code, room.pairing.code);
+    const claims = await Promise.all([
+      pair(mf, current.code),
+      mf.dispatchFetch(`https://relay.example/v1/rooms/${room.roomId}/pair`, {
+        method: "POST",
+        body: JSON.stringify({ code: current.code, device: "Full-link concurrent phone" }),
+      }),
+    ]);
+    assert.deepEqual(claims.map((response) => response.status).sort(), [201, 401]);
+    const next = await pairingResponse(
+      await mf.dispatchFetch(endpoint, { method: "POST", headers: auth(room.hostToken) }),
+    );
+    assert.notEqual(next.code, current.code);
+    assert.equal((await pair(mf, current.code, "203.0.113.2")).status, 401);
+    assert.equal((await pair(mf, next.code, "203.0.113.2")).status, 201);
+  } finally {
+    await mf.dispose();
+  }
+});
+
+test("coalesced host rotations still charge every authenticated request to the host limit", async () => {
+  const mf = await runtime();
+  try {
+    const room = await createRoom(mf);
+    const endpoint = `https://relay.example/v1/rooms/${room.roomId}/pairing`;
+    const responses = await Promise.all(
+      Array.from({ length: 61 }, () =>
+        mf.dispatchFetch(endpoint, { method: "POST", headers: auth(room.hostToken) }),
+      ),
+    );
+    assert.equal(responses.filter((response) => response.status === 200).length, 60);
+    const blocked = responses.filter((response) => response.status === 429);
+    assert.equal(blocked.length, 1);
+    const limited = blocked[0];
+    assert.ok(limited);
+    assert.deepEqual(await jsonRecord(limited), { error: "Room rate limit reached" });
+  } finally {
+    await mf.dispose();
+  }
+});
+
 test("bare code pairing issues credentials for exactly its room and remains single use", async () => {
   const mf = await runtime();
   try {
