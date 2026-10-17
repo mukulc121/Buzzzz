@@ -1,16 +1,10 @@
 import { StyleSheet } from "react-native";
 import { colors } from "../../theme/colors";
+import { TAB_CONTENT_INSET } from "../../components/TabHeader";
 
 export const playgroundStyles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
-  container: { flex: 1, paddingHorizontal: 20 },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingTop: 20,
-  },
-  infoLink: { marginBottom: -5 },
+  container: { flex: 1, paddingHorizontal: TAB_CONTENT_INSET },
   infoButton: { flexDirection: "row", alignItems: "center", gap: 8 },
   settingsRow: {
     paddingTop: 14,

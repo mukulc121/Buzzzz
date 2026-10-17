@@ -11,12 +11,14 @@ import {
 } from "../sessionLibrary/browserCommands";
 import { deriveTriggerRole } from "./triggerRole";
 import type { ISceneOwner } from "../playback/sceneOwnership";
+import { DEX_RIVE_CONFIG } from "@buzzzz/core";
 
 export function usePreviewSession() {
   const [riv, setRiv] = useState<{
     url: string;
     stateMachine?: string;
     riveConfig?: IRiveConfig;
+    origin?: "demo";
   } | null>(null);
   const [triggers, setTriggers] = useState<string[]>([]);
   const [mappedNames, setMappedNames] = useState<string[]>([]);
@@ -186,6 +188,23 @@ export function usePreviewSession() {
     );
     if (sceneConnection.current) relay.send({ type: "fired", name }, sceneConnection.current);
   };
+  const openRiveDemo = (url: string) => {
+    library.stop();
+    playback.stopPattern();
+    riveHaptics.setEnabled(false);
+    riveHaptics.stop();
+    sceneCompleted.current = false;
+    sceneInterrupted.current = false;
+    sceneConnection.current = null;
+    legacyConnection.current = null;
+    riveConfig.current = DEX_RIVE_CONFIG;
+    setMap({});
+    setTriggers([]);
+    setLastFired(null);
+    setPaused(false);
+    setRiv({ url, riveConfig: DEX_RIVE_CONFIG, origin: "demo" });
+    setRun((value) => value + 1);
+  };
   const replay = () => {
     sceneCompleted.current = false;
     sceneInterrupted.current = false;
@@ -228,5 +247,6 @@ export function usePreviewSession() {
     replay,
     togglePause,
     disconnect,
+    openRiveDemo,
   };
 }

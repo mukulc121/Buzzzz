@@ -1,8 +1,10 @@
 import { useRouter } from "expo-router";
 import { useBottomTabBarHeight } from "expo-router/js-tabs";
-import { Image, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Card } from "../../components/Card";
+import { BuzzzzMark } from "../../components/BuzzzzMark";
+import { TAB_CONTENT_INSET, TabHeader } from "../../components/TabHeader";
 import { ThemedText } from "../../components/ThemedText";
 import { usePreview } from "../shell/usePreview";
 import { AddConnectionCard } from "./AddConnectionCard";
@@ -21,11 +23,9 @@ export function HomeScreen() {
         contentContainerStyle={{ paddingBottom: tabBarHeight + 12 }}
       >
         <View style={styles.content}>
-          <View style={styles.title}>
-            <ThemedText type="title">Welcome to Pulsar!</ThemedText>
-            <Image source={require("./assets/logo.png")} style={styles.logo} />
-          </View>
-          <ThemedText type="subtitle">Your connections</ThemedText>
+          <TabHeader title="Welcome to Buzzzz!" trailing={<BuzzzzMark />}>
+            <ThemedText type="subtitle">Your connections</ThemedText>
+          </TabHeader>
           {session.relay.connections.length ? (
             session.relay.connections.map((connection) => (
               <ConnectionCard
@@ -61,13 +61,5 @@ export function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingLeft: 15, paddingRight: 15 },
-  title: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 30,
-    marginBottom: 30,
-  },
-  logo: { width: 50, height: 50, marginTop: -10 },
+  content: { paddingHorizontal: TAB_CONTENT_INSET },
 });

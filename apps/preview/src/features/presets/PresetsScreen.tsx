@@ -9,6 +9,7 @@ import { Button } from "../../components/Button";
 import { Card } from "../../components/Card";
 import { Icon } from "../../components/Icon";
 import { ThemedText } from "../../components/ThemedText";
+import { TAB_CONTENT_INSET, TabHeader } from "../../components/TabHeader";
 import { colors } from "../../theme/colors";
 import { margins } from "../../theme/margins";
 import { useFilters } from "./useFilters";
@@ -84,13 +85,12 @@ export function PresetsScreen() {
     : filteredPresets;
   const header = (
     <>
-      <ThemedText type="title" style={margins.marginTop4X}>
-        Get to know Pulsar presets
-      </ThemedText>
-      <ThemedText style={margins.marginTop2X}>
-        Do not spend time creating your own patterns. Just use ours and enjoy the benefits of having
-        haptics in your app by using presets.
-      </ThemedText>
+      <TabHeader title="Get to know Pulsar presets">
+        <ThemedText>
+          Do not spend time creating your own patterns. Just use ours and enjoy the benefits of
+          having haptics in your app by using presets.
+        </ThemedText>
+      </TabHeader>
       <ThemedText style={[margins.marginTop2X, styles.hapticsSupportInfo]}>
         Haptic support level: {supportLevel}
       </ThemedText>
@@ -166,7 +166,7 @@ export function PresetsScreen() {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   container: { flex: 1 },
-  contentContainer: { paddingHorizontal: 15, paddingBottom: 50 },
+  contentContainer: { paddingHorizontal: TAB_CONTENT_INSET, paddingBottom: 50 },
   learnMore: { color: colors.navy, fontSize: 16 },
   infoIcon: { marginLeft: 8 },
   learnMoreContainer: { flexDirection: "row", alignItems: "center" },

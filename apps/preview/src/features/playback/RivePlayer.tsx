@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffectEvent,
   useLayoutEffect,
+  useMemo,
   useState,
   type ComponentProps,
   type RefObject,
@@ -29,7 +30,8 @@ export function RivePlayer(props: IRivePlayer) {
     if (owns()) onSceneMount();
   });
   useLayoutEffect(() => mountHaptics(), [url, run]);
-  const { riveFile, error } = useRiveFile(url);
+  const source = useMemo(() => (/^https?:/.test(url) ? url : { uri: url }), [url]);
+  const { riveFile, error } = useRiveFile(source);
   const { t } = scene;
   if (error)
     return (

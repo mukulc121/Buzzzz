@@ -13,6 +13,18 @@ test.each([
     riveConfig: { nativeSound: false },
     expected: true,
   },
+  {
+    preference: true,
+    pathname: "/demos/rive-demo",
+    riveConfig: { nativeSound: false },
+    expected: false,
+  },
+  {
+    preference: false,
+    pathname: "/demos/rive-demo",
+    riveConfig: { nativeSound: true },
+    expected: true,
+  },
   { preference: true, pathname: "/preview", expected: true },
   { preference: false, pathname: "/preview", expected: false },
   { preference: true, pathname: "/preview", riveConfig: {}, expected: true },

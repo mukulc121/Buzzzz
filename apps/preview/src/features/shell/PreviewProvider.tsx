@@ -12,6 +12,7 @@ import { useFullscreen } from "../preview/useFullscreen";
 import { MiniPlayer } from "../sessionLibrary/MiniPlayer";
 import { mediaStatusText } from "../sessionLibrary/mediaStatus";
 import { showPreview } from "./showPreview";
+import { isRivePreviewPath } from "../preview/routes";
 
 interface IPreviewProvider {
   children: ReactNode;
@@ -54,10 +55,10 @@ export function PreviewProvider(props: IPreviewProvider) {
     showPreview(router, segments);
   });
   useEffect(() => {
-    if (scene) openScene();
+    if (scene && scene.origin !== "demo") openScene();
   }, [scene]);
   useEffect(() => {
-    if (pathname !== "/preview") setFullscreen(false);
+    if (!isRivePreviewPath(pathname)) setFullscreen(false);
   }, [pathname, setFullscreen]);
   const expanded = fullscreen && Boolean(scene);
   const value = useMemo(

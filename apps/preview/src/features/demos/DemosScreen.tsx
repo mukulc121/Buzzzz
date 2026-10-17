@@ -1,6 +1,7 @@
 import { Link } from "expo-router";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { ThemedText } from "../../components/ThemedText";
+import { TAB_CONTENT_INSET, TabHeader } from "../../components/TabHeader";
 import type { Theme } from "../../theme/colors";
 import { DEMOS } from "./catalog";
 import { DemoChevron } from "./index/DemoChevron";
@@ -13,10 +14,9 @@ export function DemosScreen(props: IDemosScreen) {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={styles.content}>
       <View style={styles.container}>
-        <ThemedText type="title" style={styles.title}>
-          Haptics demos
-        </ThemedText>
-        <ThemedText style={styles.subtitle}>Feel them with real use cases.</ThemedText>
+        <TabHeader title="Haptics demos">
+          <ThemedText>Feel them with real use cases.</ThemedText>
+        </TabHeader>
         <View style={styles.list}>
           {DEMOS.map((demo) => (
             <Link
@@ -52,9 +52,7 @@ export function DemosScreen(props: IDemosScreen) {
 
 const styles = StyleSheet.create({
   content: { paddingBottom: 24 },
-  container: { paddingLeft: 15, paddingRight: 15 },
-  title: { marginTop: 20 },
-  subtitle: { marginTop: 10 },
+  container: { paddingHorizontal: TAB_CONTENT_INSET },
   list: { marginTop: 20, gap: 12 },
   linkOverride: { overflow: undefined },
   card: {

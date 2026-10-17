@@ -1,6 +1,7 @@
 export type DemoId =
   | "audio"
   | "lottie"
+  | "rive"
   | "accelerometer"
   | "slider"
   | "buttons"
@@ -12,6 +13,7 @@ export type DemoId =
 export const DEMOS: { id: DemoId; title: string; slug: string; headerTitle: string }[] = [
   { id: "audio", title: "Audio Sync", slug: "audio-demo", headerTitle: "Audio Haptics" },
   { id: "lottie", title: "Lottie", slug: "lottie-demo", headerTitle: "Lottie Haptics" },
+  { id: "rive", title: "Rive", slug: "rive-demo", headerTitle: "Rive Haptics" },
   {
     id: "accelerometer",
     title: "Accelerometer",

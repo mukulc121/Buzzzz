@@ -10,10 +10,12 @@ import { NotificationDemo } from "./notifications/NotificationDemo";
 import { AccelerometerDemo } from "./sensors/AccelerometerDemo";
 import { CountdownDemo } from "./timers/CountdownDemo";
 import { DotLoaderDemo } from "./timers/DotLoaderDemo";
+import { RiveDemo } from "./rive/RiveDemo";
 
 const SCREENS: Record<DemoId, (props: { t: Theme }) => ReactNode> = {
   audio: AudioSyncDemo,
   lottie: LottieDemo,
+  rive: RiveDemo,
   accelerometer: AccelerometerDemo,
   slider: SliderDemo,
   buttons: ButtonsDemo,

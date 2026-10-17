@@ -7,6 +7,7 @@ import { Link } from "expo-router";
 import { Button } from "../../components/Button";
 import { Icon } from "../../components/Icon";
 import { ThemedText } from "../../components/ThemedText";
+import { TabHeader } from "../../components/TabHeader";
 import { colors } from "../../theme/colors";
 import { TouchPad } from "./TouchPad";
 import { exportPattern } from "./exportPattern";
@@ -41,21 +42,19 @@ export function PlaygroundScreen() {
       style={styles.safeArea}
     >
       <View style={styles.container}>
-        <View style={styles.header}>
-          <ThemedText type="title">Playground</ThemedText>
-          <Link
-            href="/playgroundModal"
-            style={styles.infoLink}
-            accessibilityLabel="How does it work?"
-          >
-            <Link.Trigger>
-              <View style={styles.infoButton}>
-                <ThemedText>How does it work?</ThemedText>
-                <Icon name="info" size={18} color={colors.navy} />
-              </View>
-            </Link.Trigger>
-          </Link>
-        </View>
+        <TabHeader
+          title="Playground"
+          trailing={
+            <Link href="/playgroundModal" accessibilityLabel="How does it work?">
+              <Link.Trigger>
+                <View style={styles.infoButton}>
+                  <ThemedText>How does it work?</ThemedText>
+                  <Icon name="info" size={18} color={colors.navy} />
+                </View>
+              </Link.Trigger>
+            </Link>
+          }
+        />
         {Platform.OS === "android" && (
           <Link href="/playgroundSettingsModal" asChild>
             <Pressable style={styles.settingsRow} accessibilityRole="button">

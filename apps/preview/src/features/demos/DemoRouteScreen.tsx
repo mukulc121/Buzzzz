@@ -17,7 +17,7 @@ const CONTENT_TITLES: Partial<Record<DemoId, string>> = {
 };
 export function DemoRouteScreen(props: IDemoRouteScreen) {
   const { id, t } = props;
-  if (id === "audio" || id === "lottie") return <DemoDetail id={id} t={t} />;
+  if (id === "audio" || id === "lottie" || id === "rive") return <DemoDetail id={id} t={t} />;
   const demo = DEMOS.find((entry) => entry.id === id);
   const title = CONTENT_TITLES[id] ?? demo?.headerTitle;
   return (

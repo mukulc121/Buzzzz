@@ -27,3 +27,5 @@ export { isPairingCode } from "./relay/pairing.ts";
 export { rangePattern } from "./patterns/range.ts";
 export { EDITOR_COMMANDS, EDITOR_LIMITS, editorResult, isEditorCommand } from "./relay/editor.ts";
 export type { EditorCommand, EditorMsg, EditorOutcome } from "./relay/editor.ts";
+
+export { DEX_RIVE_CONFIG } from "./examples/dex.ts";

@@ -4,7 +4,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Film } from "lucide-react-native";
 import { OutlineButton } from "../../components/OutlineButton";
 import { Panel } from "../../components/Panel";
-import { ScreenHeading } from "../../components/ScreenHeading";
+import { TAB_CONTENT_INSET, TabHeader } from "../../components/TabHeader";
+import { ThemedText } from "../../components/ThemedText";
 import { font } from "../../theme/typography";
 import { usePreview } from "../shell/usePreview";
 import { PreviewStage } from "./PreviewStage";
@@ -16,16 +17,20 @@ export function RivePreviewScreen() {
       edges={fullscreen ? [] : ["top", "left", "right"]}
       style={{ flex: 1, backgroundColor: t.bg }}
     >
-      <View style={{ padding: 16, display: fullscreen ? "none" : "flex" }}>
-        <ScreenHeading
-          title="Rive Live Preview"
-          subtitle={
-            session.relay.host
+      <View
+        style={{
+          paddingHorizontal: TAB_CONTENT_INSET,
+          paddingBottom: 16,
+          display: fullscreen ? "none" : "flex",
+        }}
+      >
+        <TabHeader title="Rive Live Preview">
+          <ThemedText>
+            {session.relay.host
               ? `Connected to ${session.relay.host}`
-              : "Preview your animation with real haptics."
-          }
-          t={t}
-        />
+              : "Preview your animation with real haptics."}
+          </ThemedText>
+        </TabHeader>
       </View>
       {session.riv ? (
         <PreviewStage

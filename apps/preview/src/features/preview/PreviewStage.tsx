@@ -23,6 +23,7 @@ export function PreviewStage(props: IPreviewStage) {
   const insets = useSafeAreaInsets();
   const focused = useIsFocused();
   if (!session.riv) return null;
+  if (session.riv.origin === "demo" && !focused) return null;
   return (
     <View style={[s.wrap, fullscreen && s.fullscreen]}>
       <View testID="rive-preview-stage" style={[s.stage, fullscreen && s.fullStage]}>

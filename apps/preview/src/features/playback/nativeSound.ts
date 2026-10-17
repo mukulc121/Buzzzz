@@ -1,4 +1,5 @@
 import type { IRiveConfig } from "@buzzzz/core";
+import { isRivePreviewPath } from "../preview/routes";
 
 interface INativeSound {
   preference: boolean;
@@ -9,5 +10,7 @@ interface INativeSound {
 
 export function deriveNativeSound(options: INativeSound) {
   const { preference, pathname, playing, riveConfig } = options;
-  return pathname === "/preview" && playing ? (riveConfig?.nativeSound ?? preference) : preference;
+  return isRivePreviewPath(pathname) && playing
+    ? (riveConfig?.nativeSound ?? preference)
+    : preference;
 }
