@@ -27,6 +27,9 @@ export function createRiveHaptics<TTimer>(options: IRiveHaptics<TTimer>) {
   let generation = 0;
   let patternPlaying = false;
   let exitStarted = false;
+  let entryEndsAt: number | null = null;
+  let exitAt: number | null = null;
+  let endsAt: number | null = null;
   const stopPhase = () => {
     generation++;
     for (const cancel of timers) cancel();
@@ -40,6 +43,9 @@ export function createRiveHaptics<TTimer>(options: IRiveHaptics<TTimer>) {
     for (const cancel of timeline) cancel();
     timeline.clear();
     exitStarted = false;
+    entryEndsAt = null;
+    exitAt = null;
+    endsAt = null;
   };
   const later = (delayMs: number, callback: () => void) => {
     const cancel = clock.schedule(() => {
@@ -56,7 +62,11 @@ export function createRiveHaptics<TTimer>(options: IRiveHaptics<TTimer>) {
     if (cue.tuning) patternPlaying = true;
     options.playPulsar?.(cue);
   };
-  const dispatch = (name: string, action: TRiveHapticAction) => {
+  const expired = (name: string) => {
+    const deadline = name === phases?.entry ? entryEndsAt : name === phases?.loop ? exitAt : endsAt;
+    return deadline !== null && clock.now() >= deadline;
+  };
+  const dispatch = (name: string, action: TRiveHapticAction, startedAt = clock.now()) => {
     if (action.kind === "stop") {
       if (owner === action.trigger) stopPhase();
       return;
@@ -65,28 +75,41 @@ export function createRiveHaptics<TTimer>(options: IRiveHaptics<TTimer>) {
     if (!options.canPlay()) return;
     owner = name;
     const token = generation;
+    const active = () => token === generation && options.canPlay() && !expired(name);
     const schedule = (delayMs: number, callback: () => void) => {
       const timer = clock.schedule(() => {
         timers.delete(timer);
-        if (token === generation && options.canPlay()) callback();
+        if (active()) callback();
       }, delayMs);
       timers.add(timer);
     };
     // Clock-owned phases play their zero-delay cues inline, as Dex's cycle() does.
     const inline = isPhase(name);
-    const cycle = () => {
-      for (const cue of action.cues)
-        if (inline && cue.delayMs === 0) playCue(cue);
-        else schedule(cue.delayMs, () => playCue(cue));
-      if (action.repeatMs !== undefined) schedule(action.repeatMs, cycle);
+    const cycle = (cycleAt: number) => {
+      if (!active()) return;
+      const repeat = action.repeatMs;
+      if (inline && repeat !== undefined)
+        cycleAt += Math.max(0, Math.floor((clock.now() - cycleAt) / repeat)) * repeat;
+      const cycleEnd = repeat === undefined ? Infinity : cycleAt + repeat;
+      for (const cue of action.cues) {
+        if (!active()) return;
+        const cueAt = cycleAt + cue.delayMs;
+        const play = () => {
+          if (!inline || clock.now() < cycleEnd || clock.now() === cueAt) playCue(cue);
+        };
+        if (inline && cueAt <= clock.now()) play();
+        else schedule(Math.max(0, cueAt - clock.now()), play);
+      }
+      if (repeat !== undefined)
+        schedule(Math.max(0, cycleEnd - clock.now()), () => cycle(inline ? cycleEnd : clock.now()));
     };
     if (action.immediate !== undefined) options.play(action.immediate);
-    cycle();
+    cycle(startedAt);
   };
-  const startPhase = (name: string) => {
+  const startPhase = (name: string, startedAt: number) => {
     const action = options.haptics?.[name];
-    if (owner === name || !action || completion.completed()) return;
-    dispatch(name, action);
+    if (owner === name || !action || completion.completed() || expired(name)) return;
+    dispatch(name, action, startedAt);
   };
   const completion = createRiveCompletion({
     completion: options.completion,
@@ -96,17 +119,27 @@ export function createRiveHaptics<TTimer>(options: IRiveHaptics<TTimer>) {
     fireTrigger: options.fireTrigger,
     onStart: () => {
       if (!phases) return;
+      const startedAt = clock.now();
+      const loopAt = startedAt + (options.completion?.entryMs ?? 0);
+      entryEndsAt = loopAt;
       // Timers wait out a pause, so a scene bound while paused still gets its entry.
-      later(0, () => startPhase(phases.entry));
+      later(0, () => startPhase(phases.entry, startedAt));
       later(options.completion?.entryMs ?? 0, () => {
-        if (!exitStarted) startPhase(phases.loop);
+        if (!exitStarted) startPhase(phases.loop, loopAt);
       });
     },
     onExitStart: (delayMs) => {
+      endsAt =
+        clock.now() +
+        delayMs +
+        (options.completion?.exitMs ?? 0) +
+        (options.completion?.marginMs ?? 0);
       if (!phases) return;
+      const phaseAt = clock.now() + Math.max(0, delayMs - phases.exitLeadMs);
+      exitAt = phaseAt;
       later(Math.max(0, delayMs - phases.exitLeadMs), () => {
         exitStarted = true;
-        startPhase(phases.exit);
+        startPhase(phases.exit, phaseAt);
       });
     },
     onComplete: () => {
@@ -131,7 +164,7 @@ export function createRiveHaptics<TTimer>(options: IRiveHaptics<TTimer>) {
     if (clock.paused()) return;
     completion.trigger(name);
     // Phase and marker triggers are breadcrumbs once the clock owns the phases.
-    if (completion.completed() || !action || isPhase(name)) return;
+    if (completion.completed() || !action || isPhase(name) || expired(name)) return;
     dispatch(name, action);
   };
   return {
