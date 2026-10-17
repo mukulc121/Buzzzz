@@ -34,7 +34,17 @@ for (const theme of ["light", "dark"]) {
       ).toEqual(["M9 3v18", "m16 15-3-3 3-3"]);
       if (panel === "Media") {
         await expect(header.locator(".media-heading-actions")).toHaveCSS("gap", "2px");
-        const upload = await header.getByRole("button", { name: "Upload media" }).boundingBox();
+        const uploadButton = header.getByRole("button", { name: "Upload media" });
+        const uploadIcon = uploadButton.locator("svg");
+        await expect(uploadIcon).toHaveAttribute("width", "18");
+        await expect(uploadIcon).toHaveAttribute("viewBox", "0 0 24 24");
+        await expect(uploadIcon).toHaveAttribute("stroke-width", "2");
+        expect(
+          await uploadIcon
+            .locator("path")
+            .evaluateAll((paths) => paths.map((p) => p.getAttribute("d"))),
+        ).toEqual(["M5 12h14", "M12 5v14"]);
+        const upload = await uploadButton.boundingBox();
         const hide = await collapse.boundingBox();
         expect(hide!.x - upload!.x - upload!.width).toBe(2);
       }
